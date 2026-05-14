@@ -6,56 +6,62 @@ import PlayerFormModal from "@/components/players/PlayerFormModal";
 import PlayerTable from "@/components/players/PlayerTable";
 import PlayerToolbar from "@/components/players/PlayerToolbar";
 import { usePlayers } from "@/hooks/usePlayers";
-import type { Playertype } from "@/types/player";
+import { Playertype } from "@/types/player";
 import { useState } from "react";
 
 export default function PlayersPage() {
   const { players, setPlayers } = usePlayers();
+
   const [search, setSearch] = useState("");
   const [positions, setPositions] = useState<string[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingPlayer, setEditingPlayer] = useState<Playertype | null>(null);
-  const [deletePlayer, setDeletePlayer] = useState<Playertype | null>(null);
 
-  const filteredPlayers = players.filter((player) => {
-    const matchName = player.name.toLowerCase().includes(search.toLowerCase());
-    const matchPosition =
-      positions.length === 0 || positions.includes(player.position);
-
-    return matchName && matchPosition;
-  });
-
-  const togglePosition = (position: string) => {
-    setPositions((prev) =>
-      prev.includes(position)
-        ? prev.filter((item) => item !== position)
-        : [...prev, position],
+  // 필터 상태 바꾸기
+  const togglesPosition = (pos: string) => {
+    setPositions(
+      (prev) =>
+        prev.includes(pos)
+          ? prev.filter((p) => p !== pos) // 제거
+          : [...prev, pos], // 추가
     );
   };
 
-  const closeForm = () => {
-    setEditingPlayer(null);
-    setIsFormOpen(false);
-  };
+  const filteredPlayers = players.filter((p) => {
+    const matchName = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchPosition =
+      positions.length === 0 || positions.includes(p.position);
+    return matchName && matchPosition;
+  });
 
+  const [isFormOpen, setIsFormOpen] = useState(false); // 창 열고 닫기
+  const [editingPlayer, setEditingPlayer] = useState<Playertype | null>(null);
+
+  // 선수 저장
   const handleSave = (player: Playertype) => {
     if (editingPlayer) {
+      // 수정
       setPlayers((prev) =>
-        prev.map((item) => (item.id === editingPlayer.id ? player : item)),
+        prev.map((p) => (p.id === editingPlayer.id ? player : p)),
       );
     } else {
       setPlayers((prev) => [...prev, player]);
     }
-
-    closeForm();
+    setEditingPlayer(null);
+    setIsFormOpen(false);
   };
 
+  // 수정 모달 열기
+  const handleEdit = (player: Playertype) => {
+    setEditingPlayer(player);
+    setIsFormOpen(true);
+  };
+
+  const [deletePlayer, setDeletePlayer] = useState<Playertype | null>(null);
+
+  // 삭제하기
   const handleDelete = () => {
     if (!deletePlayer) return;
 
-    setPlayers((prev) =>
-      prev.filter((player) => player.id !== deletePlayer.id),
-    );
+    setPlayers((prev) => prev.filter((p) => p.id !== deletePlayer.id));
     setDeletePlayer(null);
   };
 
@@ -67,36 +73,33 @@ export default function PlayersPage() {
           description="등록된 선수 목록을 확인하고 관리하세요."
         />
       </div>
-
+      {/* Search */}
       <PlayerToolbar
         search={search}
         positions={positions}
-        onAdd={() => {
-          setEditingPlayer(null);
-          setIsFormOpen(true);
-        }}
         onSearchChange={setSearch}
-        onTogglePosition={togglePosition}
+        onTogglePosition={togglesPosition}
+        onOpen={() => setIsFormOpen(true)}
       />
 
-      <PlayerTable
-        players={filteredPlayers}
-        onEdit={(player) => {
-          setEditingPlayer(player);
-          setIsFormOpen(true);
-        }}
-        onDelete={setDeletePlayer}
-      />
-
+      {/* modal */}
       {isFormOpen && (
         <PlayerFormModal
           key={editingPlayer?.id ?? "new-player"}
           player={editingPlayer}
-          onClose={closeForm}
+          onClose={() => {
+            setEditingPlayer(null);
+            setIsFormOpen(false);
+          }}
           onSave={handleSave}
         />
       )}
-
+      {/* player list */}
+      <PlayerTable
+        players={filteredPlayers}
+        onEdit={handleEdit}
+        onDelete={(player) => setDeletePlayer(player)}
+      />
       {deletePlayer && (
         <PlayerDeleteModal
           player={deletePlayer}

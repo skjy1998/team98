@@ -1,40 +1,23 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import type { Playertype } from "@/types/player";
-
-const defaultPlayers: Playertype[] = [
-  {
-    id: "1",
-    name: "손흥민",
-    position: "FW",
-    number: 7,
-    birth: "1998.12.26",
-    appearance: 9,
-    goal: 5,
-  },
-];
+import { Playertype } from "@/types/player";
+import { useEffect, useState } from "react";
 
 export function usePlayers() {
-  const didLoad = useRef(false);
-  const [players, setPlayers] = useState<Playertype[]>(defaultPlayers);
-
+  const [players, setPlayers] = useState<Playertype[]>([]);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const saved = localStorage.getItem("players");
-
     if (saved) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlayers(JSON.parse(saved));
     }
-
-    didLoad.current = true;
+    setLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!didLoad.current) return;
+    if (!loaded) return;
 
     localStorage.setItem("players", JSON.stringify(players));
-  }, [players]);
+  }, [players, loaded]);
 
-  return { players, setPlayers };
+  return { players, setPlayers, loaded };
 }

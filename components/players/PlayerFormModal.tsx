@@ -1,9 +1,7 @@
-"use client";
-
+import { playerPositions, Playertype } from "@/types/player";
 import { useState } from "react";
-import { playerPositions, type Playertype } from "@/types/player";
 
-interface PlayerFormModalProps {
+interface Props {
   player: Playertype | null;
   onClose: () => void;
   onSave: (player: Playertype) => void;
@@ -13,7 +11,8 @@ export default function PlayerFormModal({
   player,
   onClose,
   onSave,
-}: Readonly<PlayerFormModalProps>) {
+}: Readonly<Props>) {
+  // Player State
   const [name, setName] = useState(player?.name ?? "");
   const [pos, setPos] = useState(player?.position ?? "");
   const [number, setNumber] = useState(player ? String(player.number) : "");
@@ -46,67 +45,56 @@ export default function PlayerFormModal({
         <h2 className="text-lg font-bold">
           {player ? "선수 수정" : "선수 등록"}
         </h2>
-
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="이름"
           className="w-full border px-3 py-2 rounded-lg"
-        />
-
+        ></input>
         <select
           value={pos}
           onChange={(e) => setPos(e.target.value)}
           className="w-full border px-3 py-2 rounded-lg"
         >
           <option value="">포지션 선택</option>
-          {playerPositions.map((position) => (
-            <option key={position} value={position}>
-              {position}
+          {playerPositions.map((p) => (
+            <option key={p} value={p}>
+              {p}
             </option>
           ))}
         </select>
-
         <input
           value={number}
           onChange={(e) => setNumber(e.target.value)}
           placeholder="등번호"
           type="number"
           className="w-full border px-3 py-2 rounded-lg"
-        />
-
+        ></input>
         <input
           value={birth}
           onChange={(e) => setBirth(e.target.value)}
           type="date"
           className="w-full border px-3 py-2 rounded-lg"
-        />
-
+        ></input>
         <input
           value={appearance}
           onChange={(e) => setAppearance(e.target.value)}
           placeholder="출전 (선택)"
           className="w-full border px-3 py-2 rounded-lg"
-        />
-
+        ></input>
         <input
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
           placeholder="득점 (선택)"
           type="number"
           className="w-full border px-3 py-2 rounded-lg"
-        />
-
+        ></input>
+        {/* 버튼 영역 */}
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-2 text-sm text-gray-500"
-          >
+          <button onClick={onClose} className="px-3 py-2 text-sm text-gray-500">
             취소
           </button>
           <button
-            type="button"
             onClick={handleSubmit}
             className="px-3 py-2 bg-green-500 text-white rounded-lg text-sm"
           >

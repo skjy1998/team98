@@ -1,6 +1,6 @@
 import type { Playertype } from "@/types/player";
 
-interface PlayerDeleteModalProps {
+interface Props {
   player: Playertype;
   onClose: () => void;
   onDelete: () => void;
@@ -10,7 +10,7 @@ export default function PlayerDeleteModal({
   player,
   onClose,
   onDelete,
-}: Readonly<PlayerDeleteModalProps>) {
+}: Readonly<Props>) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <button

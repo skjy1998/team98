@@ -1,20 +1,20 @@
 import { playerPositions } from "@/types/player";
 
-interface PlayerToolbarProps {
+interface Props {
   search: string;
   positions: string[];
-  onAdd: () => void;
   onSearchChange: (value: string) => void;
   onTogglePosition: (position: string) => void;
+  onOpen: () => void;
 }
 
 export default function PlayerToolbar({
   search,
   positions,
-  onAdd,
   onSearchChange,
   onTogglePosition,
-}: Readonly<PlayerToolbarProps>) {
+  onOpen,
+}: Readonly<Props>) {
   return (
     <div className="flex gap-2">
       <input
@@ -23,31 +23,30 @@ export default function PlayerToolbar({
         onChange={(e) => onSearchChange(e.target.value)}
         className="flex-1 border px-5 py-2 rounded-lg text-sm"
       />
-
+      {/* position select */}
       <div className="flex gap-2">
-        {playerPositions.map((position) => {
-          const isActive = positions.includes(position);
-
+        {playerPositions.map((pos) => {
+          const isActive = positions.includes(pos);
           return (
             <button
-              key={position}
-              type="button"
-              onClick={() => onTogglePosition(position)}
-              className={`px-4 py-2 rounded-full text-sm transition ${
+              key={pos}
+              onClick={() => onTogglePosition(pos)}
+              className={`px-4 py-2 rounded-full text-sm transition
+              ${
                 isActive
                   ? "bg-green-500 text-white ring-2 ring-green-200"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              }
+              `}
             >
-              {position}
+              {pos}
             </button>
           );
         })}
       </div>
-
+      {/* player enroll */}
       <button
-        type="button"
-        onClick={onAdd}
+        onClick={onOpen}
         className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm whitespace-nowrap"
       >
         + 선수 추가

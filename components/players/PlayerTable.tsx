@@ -1,6 +1,6 @@
 import type { Playertype } from "@/types/player";
 
-interface PlayerTableProps {
+interface Props {
   players: Playertype[];
   onEdit: (player: Playertype) => void;
   onDelete: (player: Playertype) => void;
@@ -10,10 +10,11 @@ export default function PlayerTable({
   players,
   onEdit,
   onDelete,
-}: Readonly<PlayerTableProps>) {
+}: Readonly<Props>) {
   return (
     <div className="bg-white border rounded-xl overflow-hidden">
       <table className="w-full text-sm">
+        {/* header */}
         <thead className="bg-gray-50 text-gray-600">
           <tr>
             <th className="text-left px-4 py-5">이름</th>
@@ -25,7 +26,7 @@ export default function PlayerTable({
             <th className="text-right px-4 py-5">액션</th>
           </tr>
         </thead>
-
+        {/* body */}
         <tbody>
           {players.map((player) => (
             <tr
@@ -40,14 +41,12 @@ export default function PlayerTable({
               <td className="px-4 py-5 text-gray-500">{player.goal}</td>
               <td className="px-4 py-4 text-right space-x-2">
                 <button
-                  type="button"
                   onClick={() => onEdit(player)}
                   className="text-blue-500 hover:underline"
                 >
                   수정
                 </button>
                 <button
-                  type="button"
                   onClick={() => onDelete(player)}
                   className="text-red-500 hover:underline"
                 >
