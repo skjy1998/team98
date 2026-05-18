@@ -12,7 +12,7 @@ import {
 const menuItems = [
   { label: "대시보드", href: "/dashboard", icon: Home },
   { label: "선수 관리", href: "/players", icon: Users },
-  { label: "경기 관리", href: "/matches", icon: ClipboardList },
+  { label: "경기 일정", href: "/matches", icon: ClipboardList },
   { label: "전술/포메이션", href: "/tactics", icon: LayoutGrid },
   { label: "통계", href: "/stats", icon: BarChart },
   { label: "스케줄", href: "/schedule", icon: Calendar },

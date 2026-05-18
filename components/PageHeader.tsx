@@ -8,9 +8,11 @@ export default function PageHeader({
   description,
 }: Readonly<PageHeaderProps>) {
   return (
-    <div>
-      <h2 className="text-xl font-bold ">{title}</h2>
-      {description && <p className="text-sm text-gray-500 ">{description}</p>}
+    <div className="flex justify-between items-center">
+      <div>
+        <h2 className="text-xl font-bold ">{title}</h2>
+        {description && <p className="text-sm text-gray-500 ">{description}</p>}
+      </div>
     </div>
   );
 }

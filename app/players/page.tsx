@@ -67,12 +67,10 @@ export default function PlayersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <PageHeader
-          title="선수 관리"
-          description="등록된 선수 목록을 확인하고 관리하세요."
-        />
-      </div>
+      <PageHeader
+        title="선수 관리"
+        description="등록된 선수 목록을 확인하고 관리하세요."
+      />
       {/* Search */}
       <PlayerToolbar
         search={search}
