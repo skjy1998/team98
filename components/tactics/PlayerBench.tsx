@@ -47,7 +47,7 @@ export default function PlayerBench({
                 key={player.id}
                 type="button"
                 onClick={() => onAssignPlayer(player.id)}
-                disabled={!selectedSlotId}
+                disabled={selectedSlotId === null}
                 className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span className="font-bold">{player.name}</span>

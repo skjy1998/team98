@@ -39,7 +39,7 @@ export default function FormationBoard({
             key={slot.id}
             type="button"
             onClick={() => onSelectSlot(slot.id)}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-2 text-sm font-bold shadow transition ${
+            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-sm font-bold shadow transition ${
               isActive
                 ? "bg-yellow-300 text-black ring-4 ring-yellow-100"
                 : "bg-white text-gray-700"
