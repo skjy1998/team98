@@ -1,4 +1,6 @@
+import { usePlayers } from "@/hooks/usePlayers";
 import { MatchTab, MatchType } from "@/types/match";
+import FormationBoard from "../tactics/FormationBoard";
 
 interface MatchDetailCardProps {
   match: MatchType | undefined;
@@ -6,6 +8,7 @@ interface MatchDetailCardProps {
   onTabChange: (tab: MatchTab) => void;
   onRecordOpen: () => void;
   onRecordDelete: (eventId: string) => void;
+  onLineupOpen: () => void;
 }
 
 export default function MatchDetailCard({
@@ -14,7 +17,10 @@ export default function MatchDetailCard({
   onTabChange,
   onRecordOpen,
   onRecordDelete,
+  onLineupOpen,
 }: Readonly<MatchDetailCardProps>) {
+  const { players } = usePlayers();
+
   if (!match) {
     return (
       <div className="rounded-xl border bg-white p-6">
@@ -154,6 +160,32 @@ export default function MatchDetailCard({
                 ) : (
                   <div className="rounded-lg bg-gray-50 p-6 text-center text-sm text-gray-500">
                     등록된 경기 기록이 없습니다.
+                  </div>
+                )}
+              </div>
+            )}
+            {activeTab === "라인업" && (
+              <div>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-bold">선발 라인업</h3>
+                  <button
+                    type="button"
+                    onClick={onLineupOpen}
+                    className="rounded-lg bg-green-500 px-3 py-2 text-sm font-bold text-white"
+                  >
+                    {match.lineup ? "라인업 수정" : "+ 라인업 등록"}
+                  </button>
+                </div>
+                {match.lineup ? (
+                  <FormationBoard
+                    slots={match.lineup.slots}
+                    players={players}
+                    selectedSlotId={null}
+                    onSelectSlot={() => {}}
+                  />
+                ) : (
+                  <div className="rounded-lg bg-gray-50 p-6 text-center text-sm text-gray-500">
+                    등록된 라인업이 없습니다.
                   </div>
                 )}
               </div>

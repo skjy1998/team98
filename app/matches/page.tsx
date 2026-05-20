@@ -2,12 +2,14 @@
 
 import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MatchFormModal from "@/components/matches/MatchFormModal";
+import MatchLineupModal from "@/components/matches/MatchLineupModal";
 import MatchRecordModal from "@/components/matches/MatchRecordModal";
 import MatchScheduleList from "@/components/matches/MatchScheduleList";
 import PageHeader from "@/components/PageHeader";
 
 import { useMatches } from "@/hooks/useMatches";
-import { MatchEvent, MatchTab, MatchType } from "@/types/match";
+import { usePlayers } from "@/hooks/usePlayers";
+import { MatchEvent, MatchLineup, MatchTab, MatchType } from "@/types/match";
 import { useState } from "react";
 
 export default function MatchesPage() {
@@ -21,6 +23,10 @@ export default function MatchesPage() {
 
   // 일정 추가 모달 상태
   const [scheduleOpen, setScheduleOpen] = useState(false);
+
+  // 라인업 저장
+  const { players } = usePlayers();
+  const [lineupOpen, setLineupOpen] = useState(false);
 
   // 일정 저장 함수
   const handleAddMatch = (match: MatchType) => {
@@ -74,6 +80,21 @@ export default function MatchesPage() {
     );
   };
 
+  const handleSaveLineup = (lineup: MatchLineup) => {
+    if (!selectedMatch) return;
+    setMatches((prev) =>
+      prev.map((match) =>
+        match.id === selectedMatch.id
+          ? {
+              ...match,
+              lineup,
+            }
+          : match,
+      ),
+    );
+    setLineupOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -96,6 +117,7 @@ export default function MatchesPage() {
           onTabChange={setActiveTab}
           onRecordOpen={() => setRecordOpen(true)}
           onRecordDelete={handleDeleteRecord}
+          onLineupOpen={() => setLineupOpen(true)}
         />
       </div>
       {/* 일정 추가 모달 */}
@@ -109,6 +131,14 @@ export default function MatchesPage() {
         <MatchRecordModal
           onClose={() => setRecordOpen(false)}
           onSave={handleAddRecord}
+        />
+      )}
+      {lineupOpen && selectedMatch && (
+        <MatchLineupModal
+          initialLineup={selectedMatch.lineup}
+          players={players}
+          onClose={() => setLineupOpen(false)}
+          onSave={handleSaveLineup}
         />
       )}
     </div>
