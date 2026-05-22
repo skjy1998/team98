@@ -1,4 +1,4 @@
-import Sidebar from "@/components/Sidebar";
+import AppShell from "@/components/layout/AppShell";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -16,14 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${pretendard.variable}`}>
-      <body>
-        <div className="h-screen bg-[#EDEFF3] p-4">
-          {/* Box */}
-          <div className="h-full flex rounded-2xl border border-gray-200 bg-white overflow-hidden">
-            <Sidebar />
-            <main className="flex-1 p-6 overflow-y-auto">{children}</main>
-          </div>
-        </div>
+      <body className="bg-background text-foreground antialiased">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
