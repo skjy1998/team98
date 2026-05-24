@@ -71,29 +71,29 @@ export default function Sidebar() {
   return (
     <aside className="hidden self-start lg:block">
       {/* 사이드바 전체 */}
-      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
         {/* 팀 박스 */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
               F
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
+            <h2 className="text-xl font-bold tracking-tight text-stone-900">
               FC 98
             </h2>
-            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
               축구
             </span>
           </div>
         </div>
-        <div className="mt-5 border-t border-border/40 pt-5" />
+        <div className="mt-5 border-t border-stone-200/80 pt-5" />
         <nav className="space-y-1">
           {menuSections.map((section, index) => (
             <section key={section.title}>
               {index === 0 ? null : (
-                <div className="mt-4 border-t border-border/30 pt-4" />
+                <div className="mt-4 border-t border-stone-200/70 pt-4" />
               )}
-              <p className="mb-3 px-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
+              <p className="mb-3 px-2 text-[11px] font-semibold tracking-wide text-stone-400">
                 {section.title}
               </p>
               <div className="space-y-1">
@@ -108,8 +108,8 @@ export default function Sidebar() {
                       className={[
                         "flex items-center justify-between rounded-2xl px-3 py-3 transition-colors",
                         isActive
-                          ? "border border-orange-200 bg-orange-50 text-orange-600 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-400"
-                          : "text-foreground hover:bg-muted",
+                          ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "text-stone-700 hover:bg-white",
                       ].join(" ")}
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -117,8 +117,8 @@ export default function Sidebar() {
                           className={[
                             "flex h-10 w-10 items-center justify-center rounded-xl",
                             isActive
-                              ? "bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400"
-                              : "bg-muted text-muted-foreground",
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-stone-100 text-stone-500",
                           ].join(" ")}
                         >
                           <Icon className="h-4 w-4" />
@@ -131,15 +131,15 @@ export default function Sidebar() {
                             className={[
                               "truncate text-xs",
                               isActive
-                                ? "text-orange-500 dark:text-orange-400"
-                                : "text-muted-foreground",
+                                ? "text-emerald-700"
+                                : "text-stone-400",
                             ].join(" ")}
                           >
                             {item.description}
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
                     </Link>
                   );
                 })}
@@ -147,22 +147,22 @@ export default function Sidebar() {
             </section>
           ))}
         </nav>
-        <div className="mt-6 border-t border-border/60 pt-4">
-          <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-background">
-              <span className="text-base font-extrabold text-muted-foreground">
+        <div className="mt-6 border-t border-stone-200 pt-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white/80 p-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
+              <span className="text-base font-extrabold text-stone-500">
                 송
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">
+              <p className="truncate text-sm font-semibold text-stone-900">
                 송기준
               </p>
-              <p className="truncate text-xs text-muted-foreground">회원</p>
+              <p className="truncate text-xs text-stone-400">회원</p>
             </div>
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-background"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 transition hover:bg-stone-50"
               aria-label="프로필 이동"
             >
               <ChevronRight className="h-4 w-4" />

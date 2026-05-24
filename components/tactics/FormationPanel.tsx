@@ -1,11 +1,11 @@
 import { FormationName, FormationSlot } from "@/types/tactics";
 import FormationBoard from "./FormationBoard";
-import { Playertype } from "@/types/player";
+import { PlayerType } from "@/types/player";
 
 interface FormationPanelProps {
   formation: FormationName;
   slots: FormationSlot[];
-  players: Playertype[];
+  players: PlayerType[];
   selectedSlotId: string | null;
   onFormationChange: (formation: FormationName) => void;
   onSelectSlot: (slotId: string) => void;

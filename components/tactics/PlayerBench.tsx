@@ -1,9 +1,9 @@
-import { Playertype } from "@/types/player";
+import { PlayerType } from "@/types/player";
 import { FormationSlot } from "@/types/tactics";
 
 interface PlayerBenchProps {
   loaded: boolean;
-  players: Playertype[];
+  players: PlayerType[];
   selectedSlot: FormationSlot | undefined;
   selectedSlotId: string | null;
   onAssignPlayer: (playerId: string) => void;

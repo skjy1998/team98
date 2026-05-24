@@ -1,9 +1,9 @@
-import { Playertype } from "@/types/player";
+import { PlayerType } from "@/types/player";
 import { FormationSlot } from "@/types/tactics";
 
 interface FormationBoardProps {
   slots: FormationSlot[];
-  players: Playertype[];
+  players: PlayerType[];
   selectedSlotId: string | null;
   onSelectSlot: (slotId: string) => void;
   heightClassName?: string;

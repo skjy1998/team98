@@ -1,62 +1,93 @@
-import type { Playertype } from "@/types/player";
+import { PlayerType } from "@/types/player";
+import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 
-interface Props {
-  players: Playertype[];
-  onEdit: (player: Playertype) => void;
-  onDelete: (player: Playertype) => void;
+interface PlayerTableProps {
+  players: PlayerType[];
+  onEdit: (player: PlayerType) => void;
+  onDelete: (player: PlayerType) => void;
 }
 
 export default function PlayerTable({
   players,
   onEdit,
   onDelete,
-}: Readonly<Props>) {
+}: Readonly<PlayerTableProps>) {
+  if (players.length === 0) {
+    return (
+      <div className="rounded-xl border border-stone-200 bg-white px-6 py-14 text-center">
+        <p className="text-base font-semibold text-stone-800">
+          조건에 맞는 선수가 없어요.
+        </p>
+        <p className="mt-2 text-sm text-stone-400">
+          검색어나 필터를 다시 확인해보세요.
+        </p>
+      </div>
+    );
+  }
   return (
-    <div className="bg-white border rounded-xl overflow-hidden">
-      <table className="w-full text-sm">
-        {/* header */}
-        <thead className="bg-gray-50 text-gray-600">
-          <tr>
-            <th className="text-left px-4 py-5">이름</th>
-            <th className="text-left px-4 py-5">등번호</th>
-            <th className="text-left px-4 py-5">포지션</th>
-            <th className="text-left px-4 py-5">생년월일</th>
-            <th className="text-left px-4 py-5">출전</th>
-            <th className="text-left px-4 py-5">득점</th>
-            <th className="text-right px-4 py-5">액션</th>
-          </tr>
-        </thead>
-        {/* body */}
-        <tbody>
-          {players.map((player) => (
-            <tr
-              key={player.id}
-              className="border-t hover:bg-gray-50 transition"
-            >
-              <td className="px-4 py-5 font-medium">{player.name}</td>
-              <td className="px-4 py-5 text-gray-500">{player.number}</td>
-              <td className="px-4 py-5 text-gray-500">{player.position}</td>
-              <td className="px-4 py-5 text-gray-500">{player.birth}</td>
-              <td className="px-4 py-5 text-gray-500">{player.appearance}</td>
-              <td className="px-4 py-5 text-gray-500">{player.goal}</td>
-              <td className="px-4 py-4 text-right space-x-2">
+    <div className="rounded-xl border border-stone-200 bg-white p-3 md:p-4">
+      <div className="grid gap-2.5 md:grid-cols-2">
+        {players.map((player) => (
+          <div
+            key={player.id}
+            className="group rounded-[22px] px-3 py-3 transition hover:bg-stone-50"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-100">
+                  <span className="text-sm font-semibold text-stone-700">
+                    {player.name.slice(0, 1)}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <p className="truncate text-[15px] font-semibold text-stone-900">
+                      {player.name}
+                    </p>
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                      {player.position}
+                    </span>
+                    <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[11px] font-medium text-stone-500">
+                      #{player.number}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-stone-400">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    <span>출전 {player.appearance}</span>
+                    <span>·</span>
+                    <span>득점 {player.goal}</span>
+                    {player.birth && (
+                      <>
+                        <span>·</span>
+                        <span>{player.birth}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-0.5">
                 <button
+                  type="button"
                   onClick={() => onEdit(player)}
-                  className="text-blue-500 hover:underline"
+                  className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-stone-700"
+                  aria-label={`${player.name} 수정`}
                 >
-                  수정
+                  <Pencil className="h-4 w-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => onDelete(player)}
-                  className="text-red-500 hover:underline"
+                  className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-red-500"
+                  aria-label={`${player.name} 삭제`}
                 >
-                  삭제
+                  <Trash2 className="h-4 w-4" />
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <ChevronRight className="h-4 w-4 text-stone-300 transition group-hover:text-stone-500" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

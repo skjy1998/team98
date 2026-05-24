@@ -1,9 +1,9 @@
-export interface Playertype {
+export interface PlayerType {
   id: string;
   name: string;
-  position: string;
-  number: number;
-  birth: string;
+  position?: string;
+  number?: number;
+  birth?: string;
   appearance: number;
   goal: number;
 }

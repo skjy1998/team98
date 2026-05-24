@@ -1,8 +1,8 @@
-import { Playertype } from "@/types/player";
+import { PlayerType } from "@/types/player";
 import { useEffect, useState } from "react";
 
 export function usePlayers() {
-  const [players, setPlayers] = useState<Playertype[]>([]);
+  const [players, setPlayers] = useState<PlayerType[]>([]);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const saved = localStorage.getItem("players");

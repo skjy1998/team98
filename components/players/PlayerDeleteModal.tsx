@@ -1,7 +1,7 @@
-import type { Playertype } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 
 interface Props {
-  player: Playertype;
+  player: PlayerType;
   onClose: () => void;
   onDelete: () => void;
 }
