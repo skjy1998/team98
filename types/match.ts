@@ -1,29 +1,14 @@
-import { FormationName, FormationSlot } from "./tactics";
+export type MatchStatus = "scheduled" | "win" | "lose" | "draw" | "canceled";
+export type MatchType = "정규" | "연습" | "자체전";
 
-export interface MatchEvent {
+export interface MatchItem {
   id: string;
-  minute: string;
-  type: "goal" | "yellow" | "red" | "substitution";
-  playerName: string;
-  detail?: string;
-}
-
-export interface MatchLineup {
-  formation: FormationName;
-  slots: FormationSlot[];
-}
-
-export interface MatchType {
-  id: string;
-  opponent: string;
+  title: string;
+  type: MatchType;
   date: string;
   time: string;
   location: string;
-  venue: "홈" | "원정";
-  status: "예정" | "종료";
-  ourScore?: number;
-  opponentScore?: number;
-  events: MatchEvent[];
-  lineup?: MatchLineup;
+  status: MatchStatus;
+  score?: string;
+  isUpcoming: boolean;
 }
-export type MatchTab = "기록" | "라인업" | "통계";

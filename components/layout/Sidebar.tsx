@@ -71,7 +71,7 @@ export default function Sidebar() {
   return (
     <aside className="hidden self-start lg:block">
       {/* 사이드바 전체 */}
-      <div className="rounded-[28px] border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
+      <div className="rounded-xl border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
         {/* 팀 박스 */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -130,9 +130,7 @@ export default function Sidebar() {
                           <p
                             className={[
                               "truncate text-xs",
-                              isActive
-                                ? "text-emerald-700"
-                                : "text-stone-400",
+                              isActive ? "text-emerald-700" : "text-stone-400",
                             ].join(" ")}
                           >
                             {item.description}
