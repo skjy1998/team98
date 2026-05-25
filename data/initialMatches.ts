@@ -51,7 +51,7 @@ export const initialMatches: MatchItem[] = [
     time: "09:00",
     location: "데모 체육공원 축구장",
     status: "lose",
-    score: "0 : 2",
+    score: "0 : 11",
     isUpcoming: false,
   },
 ];
