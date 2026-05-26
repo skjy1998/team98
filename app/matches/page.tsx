@@ -1,10 +1,58 @@
+"use client";
+
 import PageHeader from "@/components/PageHeader";
 import { initialMatches } from "@/data/initialMatches";
 import MatchSection from "@/components/matches/MatchSection";
+import { useEffect, useMemo, useState } from "react";
+
+type MatchRecordEvent = {
+  id: string;
+  type: "goal" | "concede";
+  playerId?: string;
+  playerName?: string;
+  minute?: string;
+};
+
+type MatchRecordMap = Record<string, MatchRecordEvent[]>;
 
 export default function MatchesPage() {
-  const upcomingMatches = initialMatches.filter((match) => match.isUpcoming);
-  const pastMatches = initialMatches.filter((match) => !match.isUpcoming);
+  const [records, setRecords] = useState<MatchRecordMap>({});
+  const [recordsLoaded, setRecordsLoaded] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("match-records");
+
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRecords(JSON.parse(saved));
+    }
+
+    setRecordsLoaded(true);
+  }, []);
+
+  const displayMatches = useMemo(() => {
+    return initialMatches.map((match) => {
+      const events = records[match.id] ?? [];
+
+      if (events.length === 0) {
+        return match;
+      }
+
+      const ourScore = events.filter((event) => event.type === "goal").length;
+      const opponentScore = events.filter(
+        (event) => event.type === "concede",
+      ).length;
+
+      return {
+        ...match,
+        ourScore,
+        opponentScore,
+      };
+    });
+  }, [records]);
+
+  const upcomingMatches = displayMatches.filter((match) => match.isUpcoming);
+  const pastMatches = displayMatches.filter((match) => !match.isUpcoming);
 
   return (
     <div className="space-y-6">

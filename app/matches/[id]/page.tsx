@@ -1,9 +1,12 @@
 "use client";
 
 import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
+import MatchRecordTab from "@/components/matches/detail/MatchRecordTab";
 import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
 import { initialMatches } from "@/data/initialMatches";
+import { useMatchRecords } from "@/hooks/useMatchRecords";
+import { getMatchResult } from "@/lib/match-ui";
 import {
   ChevronLeft,
   ClipboardList,
@@ -16,13 +19,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
-type MatchDetailTab =
-  | "info"
-  | "vote"
-  | "tactics"
-  | "attendance"
-  | "record"
-  | "review";
+type MatchDetailTab = "info" | "vote" | "tactics" | "record" | "review";
 
 const tabs: {
   id: MatchDetailTab;
@@ -41,10 +38,23 @@ export default function MatchDetailPage() {
 
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
+
   const match = useMemo(
     () => initialMatches.find((item) => item.id === id),
     [id],
   );
+
+  const safeMatchId = match?.id ?? "";
+
+  const {
+    loaded: recordsLoaded,
+    events,
+    ourScore,
+    opponentScore,
+    addEvent,
+    deleteEvent,
+    updateEvent,
+  } = useMatchRecords(safeMatchId);
 
   if (!match) {
     return (
@@ -62,16 +72,31 @@ export default function MatchDetailPage() {
     );
   }
 
+  const result = getMatchResult(match);
+
   const matchStatusLabel =
-    match.status === "win"
+    result === "win"
       ? "승"
-      : match.status === "lose"
+      : result === "lose"
         ? "패"
-        : match.status === "draw"
+        : result === "draw"
           ? "무"
-          : "예정";
+          : result === "canceled"
+            ? "취소"
+            : "예정";
 
   const opponentName = match.title.replace("vs ", "");
+
+  const fallbackScore =
+    match.ourScore !== undefined && match.opponentScore !== undefined
+      ? `${match.ourScore}:${match.opponentScore}`
+      : "-";
+
+  const displayScore =
+    recordsLoaded && events.length > 0
+      ? `${ourScore}:${opponentScore}`
+      : fallbackScore;
+
   return (
     <div className="space-y-6">
       <Link
@@ -81,10 +106,9 @@ export default function MatchDetailPage() {
         <ChevronLeft className="h-4 w-4" />
         일정 목록
       </Link>
+
       <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-        {/* 전광판 */}
         <div className="bg-stone-50/70 px-6 py-8 md:px-8">
-          {/* 스코어보드 */}
           <div className="grid items-center gap-6 md:grid-cols-[1fr_auto_1fr]">
             <div className="flex flex-col items-center justify-center text-center">
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-3xl font-bold text-emerald-700">
@@ -92,17 +116,19 @@ export default function MatchDetailPage() {
               </div>
               <p className="mt-3 text-xl font-semibold text-stone-900">FC 98</p>
             </div>
+
             <div className="text-center">
               <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
                 {matchStatusLabel}
               </span>
               <p className="mt-4 text-5xl font-bold tracking-tight text-stone-900">
-                {match.score ?? "-"}
+                {displayScore}
               </p>
               <p className="mt-2 text-sm text-stone-400">
                 {match.isUpcoming ? "경기 전" : "종료"}
               </p>
             </div>
+
             <div className="flex flex-col items-center justify-center text-center">
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-stone-100 text-3xl font-bold text-stone-700">
                 {opponentName.slice(0, 1)}
@@ -113,6 +139,7 @@ export default function MatchDetailPage() {
             </div>
           </div>
         </div>
+
         <div className="border-t border-stone-200 px-6 py-4 md:px-8">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-stone-500">
             <span>{match.date}</span>
@@ -123,7 +150,7 @@ export default function MatchDetailPage() {
           </div>
         </div>
       </section>
-      {/* 탭 섹션 */}
+
       <section className="rounded-xl border border-stone-200 bg-white">
         <div className="grid grid-cols-3 border-b border-stone-200 md:grid-cols-5">
           {tabs.map((tab) => {
@@ -153,7 +180,15 @@ export default function MatchDetailPage() {
       {activeTab === "info" && <MatchInfoTab match={match} />}
       {activeTab === "tactics" && <MatchTabPlaceholder label="전술" />}
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
-      {activeTab === "record" && <MatchTabPlaceholder label="기록" />}
+      {activeTab === "record" && (
+        <MatchRecordTab
+          events={events}
+          recordsLoaded={recordsLoaded}
+          addEvent={addEvent}
+          deleteEvent={deleteEvent}
+          updateEvent={updateEvent}
+        />
+      )}
       {activeTab === "review" && <MatchTabPlaceholder label="후기" />}
     </div>
   );

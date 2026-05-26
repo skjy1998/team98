@@ -1,4 +1,4 @@
-export type MatchStatus = "scheduled" | "win" | "lose" | "draw" | "canceled";
+export type MatchStatus = "scheduled" | "canceled";
 export type MatchType = "정규" | "연습" | "자체전";
 
 export interface MatchItem {
@@ -9,6 +9,7 @@ export interface MatchItem {
   time: string;
   location: string;
   status: MatchStatus;
-  score?: string;
+  ourScore?: number;
+  opponentScore?: number;
   isUpcoming: boolean;
 }

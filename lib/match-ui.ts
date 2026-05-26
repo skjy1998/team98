@@ -1,7 +1,9 @@
 import { MatchStatus, MatchType } from "@/types/match";
 
+type MatchResultStatus = "scheduled" | "win" | "lose" | "draw" | "canceled";
+
 export const statusMap: Record<
-  MatchStatus,
+  MatchResultStatus,
   {
     label: string;
     badgeClassName: string;
@@ -46,3 +48,25 @@ export const typeMap: Record<MatchType, string> = {
   연습: "bg-stone-100 text-stone-600",
   자체전: "bg-sky-50 text-sky-600",
 };
+
+import type { MatchItem } from "@/types/match";
+
+export function getMatchResult(match: MatchItem) {
+  if (match.status === "canceled") {
+    return "canceled";
+  }
+
+  if (match.ourScore === undefined || match.opponentScore === undefined) {
+    return "scheduled";
+  }
+
+  if (match.ourScore > match.opponentScore) {
+    return "win";
+  }
+
+  if (match.ourScore < match.opponentScore) {
+    return "lose";
+  }
+
+  return "draw";
+}

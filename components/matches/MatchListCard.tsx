@@ -1,4 +1,4 @@
-import { statusMap, typeMap } from "@/lib/match-ui";
+import { getMatchResult, statusMap, typeMap } from "@/lib/match-ui";
 import { MatchItem } from "@/types/match";
 import Link from "next/link";
 
@@ -7,7 +7,12 @@ interface MatchListCardProps {
 }
 
 export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
-  const status = statusMap[match.status];
+  const result = getMatchResult(match);
+  const status = statusMap[result];
+  const scoreText =
+    match.ourScore !== undefined && match.opponentScore !== undefined
+      ? `${match.ourScore} : ${match.opponentScore}`
+      : status.valueText;
   return (
     <Link
       href={`/matches/${match.id}`}
@@ -41,7 +46,7 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
           <p
             className={`text-sm font-semibold md:text-base ${status.scoreClassName}`}
           >
-            {match.score ?? status.valueText}
+            {scoreText}
           </p>
           <span className="text-sm text-stone-300 transition-transform group-hover:translate-x-0.5">
             →
