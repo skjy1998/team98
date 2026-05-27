@@ -1,4 +1,12 @@
-import { getMatchResult, statusMap, typeMap } from "@/lib/match-ui";
+import {
+  formatMatchDate,
+  formatMatchTime,
+  getMatchResult,
+  getMatchValueText,
+  shouldShowMatchStatusBadge,
+  statusMap,
+  typeMap,
+} from "@/lib/match-ui";
 import { MatchItem } from "@/types/match";
 import Link from "next/link";
 
@@ -9,10 +17,7 @@ interface MatchListCardProps {
 export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
   const result = getMatchResult(match);
   const status = statusMap[result];
-  const scoreText =
-    match.ourScore !== undefined && match.opponentScore !== undefined
-      ? `${match.ourScore} : ${match.opponentScore}`
-      : status.valueText;
+  const scoreText = getMatchValueText(match);
   return (
     <Link
       href={`/matches/${match.id}`}
@@ -32,17 +37,19 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
           </h3>
           <div className="mt-2 space-y-1 text-sm text-stone-400">
             <p>
-              {match.date} · {match.time}
+              {formatMatchDate(match.date)} · {formatMatchTime(match)}
             </p>
             <p className="truncate">{match.location}</p>
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2 text-right">
-          <span
-            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${status.badgeClassName}`}
-          >
-            {status.label}
-          </span>
+          {shouldShowMatchStatusBadge(match) && (
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${status.badgeClassName}`}
+            >
+              {status.label}
+            </span>
+          )}
           <p
             className={`text-sm font-semibold md:text-base ${status.scoreClassName}`}
           >

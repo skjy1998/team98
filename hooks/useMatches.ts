@@ -1,27 +1,28 @@
-import { initialMatches } from "@/data/initialMatches";
-import { MatchType } from "@/types/match";
+import { MatchItem } from "@/types/match";
 import { useEffect, useState } from "react";
 
 export function useMatches() {
-  const [matches, setMatches] = useState<MatchType[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [matches, setMatches] = useState<MatchItem[]>([]);
+  const [matchesLoaded, setMatchesLoaded] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("matches");
+    const savedMatches = localStorage.getItem("matches");
 
-    if (saved) {
+    if (savedMatches) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setMatches(JSON.parse(saved));
-    } else {
-      setMatches(initialMatches);
+      setMatches(JSON.parse(savedMatches));
     }
-    setLoaded(true);
+    setMatchesLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!matchesLoaded) return;
     localStorage.setItem("matches", JSON.stringify(matches));
-  }, [matches, loaded]);
+  }, [matches, matchesLoaded]);
 
-  return { matches, setMatches, loaded };
+  return {
+    matches,
+    setMatches,
+    matchesLoaded,
+  };
 }

@@ -1,10 +1,24 @@
+import { MatchResultStatus } from "@/lib/match-ui";
 import { MatchItem } from "@/types/match";
 
 interface MatchInfoTab {
   match: MatchItem;
+  result: MatchResultStatus;
 }
 
-export function MatchInfoTab({ match }: Readonly<MatchInfoTab>) {
+export function MatchInfoTab({ match, result }: Readonly<MatchInfoTab>) {
+  const resultLabel =
+    result === "win"
+      ? "승리"
+      : result === "lose"
+        ? "패배"
+        : result === "draw"
+          ? "무승부"
+          : result === "canceled"
+            ? "취소"
+            : match.isUpcoming
+              ? "예정"
+              : "기록 전";
   return (
     <div className="space-y-5">
       <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -20,13 +34,13 @@ export function MatchInfoTab({ match }: Readonly<MatchInfoTab>) {
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
             <p className="text-sm text-stone-400">경기 결과</p>
             <p className="mt-2 text-base font-semibold text-stone-900">
-              {match.status}
+              {resultLabel}
             </p>
           </div>
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
             <p className="text-sm text-stone-400">경기 일정</p>
             <p className="mt-2 text-base font-semibold text-stone-900">
-              {match.date} · {match.time}
+              {match.date} · {match.startTime}
             </p>
           </div>
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">

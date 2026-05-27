@@ -1,37 +1,29 @@
 "use client";
 
 import PageHeader from "@/components/PageHeader";
-import { initialMatches } from "@/data/initialMatches";
 import MatchSection from "@/components/matches/MatchSection";
 import { useEffect, useMemo, useState } from "react";
-
-type MatchRecordEvent = {
-  id: string;
-  type: "goal" | "concede";
-  playerId?: string;
-  playerName?: string;
-  minute?: string;
-};
-
-type MatchRecordMap = Record<string, MatchRecordEvent[]>;
+import MatchCreateModal from "@/components/matches/MatchCreateModal";
+import { MatchCreateFormValue, MatchItem, MatchRecordMap } from "@/types/match";
+import { useMatches } from "@/hooks/useMatches";
 
 export default function MatchesPage() {
   const [records, setRecords] = useState<MatchRecordMap>({});
-  const [recordsLoaded, setRecordsLoaded] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const { matches, setMatches, matchesLoaded } = useMatches();
 
   useEffect(() => {
-    const saved = localStorage.getItem("match-records");
+    const savedRecords = localStorage.getItem("match-records");
 
-    if (saved) {
+    if (savedRecords) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRecords(JSON.parse(saved));
+      setRecords(JSON.parse(savedRecords));
     }
-
-    setRecordsLoaded(true);
   }, []);
 
   const displayMatches = useMemo(() => {
-    return initialMatches.map((match) => {
+    return matches.map((match) => {
       const events = records[match.id] ?? [];
 
       if (events.length === 0) {
@@ -49,10 +41,49 @@ export default function MatchesPage() {
         opponentScore,
       };
     });
-  }, [records]);
+  }, [matches, records]);
 
   const upcomingMatches = displayMatches.filter((match) => match.isUpcoming);
   const pastMatches = displayMatches.filter((match) => !match.isUpcoming);
+
+  const handleCreateMatch = (value: MatchCreateFormValue) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const matchDate = new Date(value.date);
+    matchDate.setHours(0, 0, 0, 0);
+
+    const isUpcoming = matchDate >= today;
+
+    const newMatch: MatchItem = {
+      id: crypto.randomUUID(),
+      title: value.title,
+      type: value.type,
+      date: value.date,
+      startTime: value.startTime,
+      endTime: value.endTime,
+      location: value.location,
+      opponent: value.opponent,
+      status: "scheduled",
+      isUpcoming,
+    };
+    setMatches((prev) => [newMatch, ...prev]);
+    setIsCreateOpen(false);
+  };
+
+  if (!matchesLoaded) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="경기 일정"
+          description="다가오는 경기와 지난 경기를 확인하고 관리하세요."
+        />
+        <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center">
+          <p className="text-sm text-stone-500">경기 일정을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -60,13 +91,34 @@ export default function MatchesPage() {
         title="경기 일정"
         description="다가오는 경기와 지난 경기를 확인하고 관리하세요."
       />
-
-      <div className="rounded-[28px] border border-stone-200 bg-white p-4 md:p-6">
+      <button
+        type="button"
+        onClick={() => setIsCreateOpen(true)}
+        className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+      >
+        일정 등록
+      </button>
+      {upcomingMatches.length === 0 && pastMatches.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 p-10 text-center">
+          <p className="text-lg font-semibold text-stone-900">
+            등록된 경기 일정이 없어요.
+          </p>
+          <p className="mt-2 text-sm text-stone-500">
+            일정 등록 버튼으로 첫 경기를 추가해보세요.
+          </p>
+        </div>
+      ) : (
         <div className="space-y-8">
           <MatchSection title="다가오는 경기" items={upcomingMatches} />
           <MatchSection title="지난 경기" items={pastMatches} />
         </div>
-      </div>
+      )}
+      {isCreateOpen && (
+        <MatchCreateModal
+          onClose={() => setIsCreateOpen(false)}
+          onSave={handleCreateMatch}
+        />
+      )}
     </div>
   );
 }

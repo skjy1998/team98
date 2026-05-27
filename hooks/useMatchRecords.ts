@@ -1,18 +1,11 @@
 "use client";
 
+import {
+  MatchRecordEvent,
+  MatchRecordEventType,
+  MatchRecordMap,
+} from "@/types/match";
 import { useEffect, useMemo, useState } from "react";
-
-export type MatchRecordEventType = "goal" | "concede";
-
-export interface MatchRecordEvent {
-  id: string;
-  type: MatchRecordEventType;
-  playerId?: string;
-  playerName?: string;
-  minute?: string;
-}
-
-type MatchRecordMap = Record<string, MatchRecordEvent[]>;
 
 export function useMatchRecords(matchId: string) {
   const [records, setRecords] = useState<MatchRecordMap>({});

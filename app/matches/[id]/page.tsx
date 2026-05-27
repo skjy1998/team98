@@ -4,9 +4,16 @@ import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
 import MatchRecordTab from "@/components/matches/detail/MatchRecordTab";
 import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
-import { initialMatches } from "@/data/initialMatches";
+import { useMatches } from "@/hooks/useMatches";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
-import { getMatchResult } from "@/lib/match-ui";
+import {
+  formatMatchTime,
+  getMatchDetailStatusLabel,
+  getMatchDetailSubText,
+  getMatchResult,
+  getOpponentName,
+  statusMap,
+} from "@/lib/match-ui";
 import {
   ChevronLeft,
   ClipboardList,
@@ -35,14 +42,14 @@ const tabs: {
 
 export default function MatchDetailPage() {
   const [activeTab, setActiveTab] = useState<MatchDetailTab>("info");
+  const { matches, matchesLoaded } = useMatches();
 
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
 
-  const match = useMemo(
-    () => initialMatches.find((item) => item.id === id),
-    [id],
-  );
+  const match = useMemo(() => {
+    return matches.find((item) => item.id === id);
+  }, [matches, id]);
 
   const safeMatchId = match?.id ?? "";
 
@@ -55,6 +62,14 @@ export default function MatchDetailPage() {
     deleteEvent,
     updateEvent,
   } = useMatchRecords(safeMatchId);
+
+  if (!matchesLoaded) {
+    return (
+      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
+        <p className="text-sm text-stone-500">경기 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
 
   if (!match) {
     return (
@@ -72,30 +87,26 @@ export default function MatchDetailPage() {
     );
   }
 
-  const result = getMatchResult(match);
-
-  const matchStatusLabel =
-    result === "win"
-      ? "승"
-      : result === "lose"
-        ? "패"
-        : result === "draw"
-          ? "무"
-          : result === "canceled"
-            ? "취소"
-            : "예정";
-
-  const opponentName = match.title.replace("vs ", "");
-
-  const fallbackScore =
-    match.ourScore !== undefined && match.opponentScore !== undefined
-      ? `${match.ourScore}:${match.opponentScore}`
-      : "-";
+  const resolvedMatch =
+    recordsLoaded && events.length > 0
+      ? {
+          ...match,
+          ourScore,
+          opponentScore,
+        }
+      : match;
 
   const displayScore =
-    recordsLoaded && events.length > 0
-      ? `${ourScore}:${opponentScore}`
-      : fallbackScore;
+    resolvedMatch.ourScore !== undefined &&
+    resolvedMatch.opponentScore !== undefined
+      ? `${resolvedMatch.ourScore}:${resolvedMatch.opponentScore}`
+      : "-";
+
+  const result = getMatchResult(resolvedMatch);
+  const matchStatusLabel = getMatchDetailStatusLabel(resolvedMatch);
+  const status = statusMap[result];
+  const matchSubText = getMatchDetailSubText(resolvedMatch);
+  const opponentName = getOpponentName(resolvedMatch);
 
   return (
     <div className="space-y-6">
@@ -118,15 +129,15 @@ export default function MatchDetailPage() {
             </div>
 
             <div className="text-center">
-              <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+              <span
+                className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${status.badgeClassName}`}
+              >
                 {matchStatusLabel}
               </span>
               <p className="mt-4 text-5xl font-bold tracking-tight text-stone-900">
                 {displayScore}
               </p>
-              <p className="mt-2 text-sm text-stone-400">
-                {match.isUpcoming ? "경기 전" : "종료"}
-              </p>
+              <p className="mt-2 text-sm text-stone-400">{matchSubText}</p>
             </div>
 
             <div className="flex flex-col items-center justify-center text-center">
@@ -144,7 +155,7 @@ export default function MatchDetailPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-stone-500">
             <span>{match.date}</span>
             <span className="text-stone-300">|</span>
-            <span>{match.time}</span>
+            <span>{formatMatchTime(match)}</span>
             <span className="text-stone-300">|</span>
             <span>{match.location}</span>
           </div>
@@ -177,7 +188,7 @@ export default function MatchDetailPage() {
         </div>
       </section>
 
-      {activeTab === "info" && <MatchInfoTab match={match} />}
+      {activeTab === "info" && <MatchInfoTab match={match} result={result} />}
       {activeTab === "tactics" && <MatchTabPlaceholder label="전술" />}
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
       {activeTab === "record" && (
