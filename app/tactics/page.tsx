@@ -11,7 +11,7 @@ import type {
   FormationSlot,
   SavedFormation,
 } from "@/types/tactics";
-import { RotateCcw, Save } from "lucide-react";
+
 import { useEffect, useMemo, useState } from "react";
 
 export default function TacticsPage() {

@@ -153,3 +153,13 @@ export function getMatchDetailSubText(match: MatchItem) {
   }
   return "종료";
 }
+
+export function getIsUpcomingMatch(date: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const matchDate = new Date(date);
+  matchDate.setHours(0, 0, 0, 0);
+
+  return matchDate >= today;
+}

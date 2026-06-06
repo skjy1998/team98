@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import MatchCreateModal from "@/components/matches/MatchCreateModal";
 import { MatchCreateFormValue, MatchItem, MatchRecordMap } from "@/types/match";
 import { useMatches } from "@/hooks/useMatches";
+import { getIsUpcomingMatch } from "@/lib/match-ui";
 
 export default function MatchesPage() {
   const [records, setRecords] = useState<MatchRecordMap>({});
@@ -25,9 +26,13 @@ export default function MatchesPage() {
   const displayMatches = useMemo(() => {
     return matches.map((match) => {
       const events = records[match.id] ?? [];
+      const isUpcoming = getIsUpcomingMatch(match.date);
 
       if (events.length === 0) {
-        return match;
+        return {
+          ...match,
+          isUpcoming,
+        };
       }
 
       const ourScore = events.filter((event) => event.type === "goal").length;
@@ -39,12 +44,17 @@ export default function MatchesPage() {
         ...match,
         ourScore,
         opponentScore,
+        isUpcoming,
       };
     });
   }, [matches, records]);
 
-  const upcomingMatches = displayMatches.filter((match) => match.isUpcoming);
-  const pastMatches = displayMatches.filter((match) => !match.isUpcoming);
+  const upcomingMatches = displayMatches.filter((match) =>
+    getIsUpcomingMatch(match.date),
+  );
+  const pastMatches = displayMatches.filter(
+    (match) => !getIsUpcomingMatch(match.date),
+  );
 
   const handleCreateMatch = (value: MatchCreateFormValue) => {
     const today = new Date();

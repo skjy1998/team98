@@ -1,3 +1,4 @@
+import { getMainPositionFromDetail } from "@/lib/player-ui";
 import { PlayerType } from "@/types/player";
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 
@@ -6,6 +7,21 @@ interface PlayerTableProps {
   onEdit: (player: PlayerType) => void;
   onDelete: (player: PlayerType) => void;
 }
+
+const getPositionBadgeClassName = (position?: string) => {
+  switch (position) {
+    case "GK":
+      return "border-amber-200 bg-amber-50 text-amber-700";
+    case "DF":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    case "MF":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    case "FW":
+      return "border-rose-200 bg-rose-50 text-rose-700";
+    default:
+      return "border-stone-200 bg-stone-50 text-stone-500";
+  }
+};
 
 export default function PlayerTable({
   players,
@@ -44,9 +60,19 @@ export default function PlayerTable({
                     <p className="truncate text-[15px] font-semibold text-stone-900">
                       {player.name}
                     </p>
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                      {player.position}
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getPositionBadgeClassName(getMainPositionFromDetail(player.detailPositions))}`}
+                    >
+                      {getMainPositionFromDetail(player.detailPositions) ||
+                        player.position ||
+                        "포지션 미지정"}
                     </span>
+                    {player.detailPositions &&
+                      player.detailPositions.length > 0 && (
+                        <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] font-medium text-stone-500">
+                          {player.detailPositions.join(", ")}
+                        </span>
+                      )}
                     <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[11px] font-medium text-stone-500">
                       #{player.number}
                     </span>
@@ -56,12 +82,8 @@ export default function PlayerTable({
                     <span>출전 {player.appearance}</span>
                     <span>·</span>
                     <span>득점 {player.goal}</span>
-                    {player.birth && (
-                      <>
-                        <span>·</span>
-                        <span>{player.birth}</span>
-                      </>
-                    )}
+                    <span>·</span>
+                    <span>어시스트 {player.assist}</span>
                   </div>
                 </div>
               </div>

@@ -26,6 +26,7 @@ export default function PlayerCreateModal({
       birth: birth || undefined,
       appearance: 0,
       goal: 0,
+      assist: 0,
     });
   };
 

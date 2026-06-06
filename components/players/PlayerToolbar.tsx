@@ -1,16 +1,20 @@
-import { Search } from "lucide-react";
+import { ArrowDownAZ, Search } from "lucide-react";
 
 interface PlayerToolbarProps {
   search: string;
   totalCount: number;
+  sortType: "latest" | "number" | "name" | "position";
   onSearchChange: (value: string) => void;
+  onChangeSortType: (value: "latest" | "number" | "name" | "position") => void;
   onOpen: () => void;
 }
 
 export default function PlayerToolbar({
   search,
   totalCount,
+  sortType,
   onSearchChange,
+  onChangeSortType,
   onOpen,
 }: Readonly<PlayerToolbarProps>) {
   return (
@@ -24,12 +28,14 @@ export default function PlayerToolbar({
           className="h-14 w-full rounded-xl border border-stone-200 bg-stone-50/50 pl-11 pr-4 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300 focus:bg-white"
         />
       </div>
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2 text-sm text-stone-500">
-          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
-            전체
-          </span>
-          <span>총 {totalCount}명</span>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm text-stone-500">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
+              전체
+            </span>
+            <span>총 {totalCount}명</span>
+          </div>
         </div>
 
         <button
@@ -38,6 +44,54 @@ export default function PlayerToolbar({
           className="h-11 rounded-full border border-emerald-200 bg-emerald-600 px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
         >
           선수 추가
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onChangeSortType("latest")}
+          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+            sortType === "latest"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+          }`}
+        >
+          최신순
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onChangeSortType("number")}
+          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+            sortType === "number"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+          }`}
+        >
+          번호순
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onChangeSortType("name")}
+          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+            sortType === "name"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+          }`}
+        >
+          가나다순
+        </button>
+        <button
+          type="button"
+          onClick={() => onChangeSortType("position")}
+          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+            sortType === "position"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+          }`}
+        >
+          포지션순
         </button>
       </div>
     </div>
