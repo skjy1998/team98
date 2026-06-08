@@ -7,6 +7,7 @@ import MatchDetailTabs, {
 import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
 import MatchRecordTab from "@/components/matches/detail/MatchRecordTab";
 import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
+import MatchTacticsTab from "@/components/matches/detail/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
 import { useMatches } from "@/hooks/useMatches";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
@@ -161,7 +162,7 @@ export default function MatchDetailPage() {
           onDelete={handleDeleteMatch}
         />
       )}
-      {activeTab === "tactics" && <MatchTabPlaceholder label="전술" />}
+      {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
       {activeTab === "record" && (
         <MatchRecordTab

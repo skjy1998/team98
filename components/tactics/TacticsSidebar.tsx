@@ -22,6 +22,7 @@ interface TacticsSidebarProps {
   cornerKickPlayer?: PlayerType;
   freeKickPlayer?: PlayerType;
   penaltyKickPlayer?: PlayerType;
+  playerListemptyMessage?: string;
 }
 
 export default function TacticsSidebar({
@@ -42,6 +43,7 @@ export default function TacticsSidebar({
   cornerKickPlayer,
   freeKickPlayer,
   penaltyKickPlayer,
+  playerListemptyMessage,
 }: Readonly<TacticsSidebarProps>) {
   return (
     <aside className="space-y-4">
@@ -55,6 +57,7 @@ export default function TacticsSidebar({
         availablePlayers={availablePlayers}
         selectedSlotId={selectedSlotId}
         onAssignPlayer={onAssignPlayer}
+        emptyMessage={playerListemptyMessage}
       />
       <TacticsKickerSection
         players={players}

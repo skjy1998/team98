@@ -2,9 +2,10 @@ import { PlayerType } from "@/types/player";
 
 interface TacticsPlayerListProps {
   loaded: boolean;
-  availablePlayers: PlayerType[];
+  availablePlayers: (PlayerType & { isRecommended?: boolean })[];
   selectedSlotId: string | null;
   onAssignPlayer: (playerId: string) => void;
+  emptyMessage?: string;
 }
 
 export default function TacticsPlayerList({
@@ -12,6 +13,7 @@ export default function TacticsPlayerList({
   availablePlayers,
   selectedSlotId,
   onAssignPlayer,
+  emptyMessage = "배치 가능한 선수가 없습니다.",
 }: Readonly<TacticsPlayerListProps>) {
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-4">
@@ -26,7 +28,7 @@ export default function TacticsPlayerList({
         {loaded ? (
           availablePlayers.length === 0 ? (
             <div className="rounded-xl bg-stone-50 p-4 text-center text-sm text-stone-500">
-              배치 가능한 선수가 없습니다.
+              {emptyMessage}
             </div>
           ) : (
             availablePlayers.map((player) => (
@@ -35,14 +37,36 @@ export default function TacticsPlayerList({
                 type="button"
                 onClick={() => onAssignPlayer(player.id)}
                 disabled={selectedSlotId === null}
-                className="flex w-full items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-left transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={`flex w-full items-center justify-between rounded-xl border px-4 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  player.isRecommended
+                    ? "border-emerald-300 bg-emerald-100 hover:bg-emerald-200/80"
+                    : "border-stone-200 bg-white hover:bg-stone-50"
+                }`}
               >
-                <span className="text-sm font-semibold text-stone-900">
-                  {player.name}
-                </span>
-                <span className="text-sm text-stone-400">
-                  {player.number ? `#${player.number}` : "등번호 없음"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-sm font-semibold ${
+                      player.isRecommended
+                        ? "text-emerald-800"
+                        : "text-stone-900"
+                    }`}
+                  >
+                    {player.name}
+                  </span>
+                </div>
+                <div className="flex min-w-[120px] justify-end">
+                  <div className="flex items-center gap-2">
+                    {player.isRecommended && (
+                      <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-100">
+                        추천
+                      </span>
+                    )}
+
+                    <span className="text-sm text-stone-400">
+                      {player.number ? `#${player.number}` : "등번호 없음"}
+                    </span>
+                  </div>
+                </div>
               </button>
             ))
           )

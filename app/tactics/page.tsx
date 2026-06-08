@@ -4,136 +4,146 @@ import PageHeader from "@/components/PageHeader";
 import TacticsField from "@/components/tactics/TacticsField";
 import TacticsSidebar from "@/components/tactics/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/TacticsToolbar";
-import { formationTemplate } from "@/data/formationTemplates";
-import { usePlayers } from "@/hooks/usePlayers";
-import type {
-  FormationName,
-  FormationSlot,
-  SavedFormation,
-} from "@/types/tactics";
+
+import { useTacticsBoard } from "@/hooks/useTacticsBoard";
+import { sortPlayersByRecommendedPosition } from "@/lib/tactics-ui";
+import { SaveTacticPreset } from "@/types/tactics";
 
 import { useEffect, useMemo, useState } from "react";
 
 export default function TacticsPage() {
   // 선수 목록 가져오는 훅
-  const { players, loaded } = usePlayers();
-  // 포메이션 상태
-  const [formation, setFormation] = useState<FormationName>("4-4-2");
-  // 클릭해서 선택한 포지션 슬롯 id
-  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  // 운동장 슬롯 배열
-  const [slots, setSlots] = useState<FormationSlot[]>(
-    formationTemplate["4-4-2"],
+  const tactics = useTacticsBoard({
+    storageKey: "tacticsFormation",
+    autoSave: false,
+  });
+
+  const [presetName, setPresetName] = useState("");
+  const [savedPresets, setSavedPresets] = useState<SaveTacticPreset[]>([]);
+  const [presetLoaded, setPresetLoaded] = useState(false);
+  const [selectedPresetId, setSelectedPresetId] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const sortedAvailablePlayers = useMemo(
+    () =>
+      sortPlayersByRecommendedPosition(
+        tactics.availablePlayers,
+        tactics.selectedSlot,
+      ),
+    [tactics.availablePlayers, tactics.selectedSlot],
   );
-  // localStorage 에서 저장된 전술을 다 읽었는지 체크하는 플래그
-  const [formationLoaded, setFormationLoaded] = useState(false);
 
-  const [cornerKickPlayerId, setCornerKickPlayerId] = useState("");
-  const [freeKickPlayerId, setFreeKickPlayerId] = useState("");
-  const [penaltyKickPlayerId, setPenaltyKickPlayerId] = useState("");
-
-  // localStorage에서 불러오기
   useEffect(() => {
-    const saved = localStorage.getItem("tacticsFormation");
+    const saved = localStorage.getItem("tactics-presets");
 
     if (saved) {
-      const parsed = JSON.parse(saved) as SavedFormation;
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormation(parsed.formation);
-      setSlots(parsed.slots);
-      setCornerKickPlayerId(parsed.cornerKickPlayerId ?? "");
-      setFreeKickPlayerId(parsed.freeKickPlayerId ?? "");
-      setPenaltyKickPlayerId(parsed.penaltyKickPlayerId ?? "");
+      setSavedPresets(JSON.parse(saved));
     }
 
-    setFormationLoaded(true);
+    setPresetLoaded(true);
   }, []);
 
-  // localStorage에 저장
   useEffect(() => {
-    if (!formationLoaded) return;
+    if (!presetLoaded) return;
+    localStorage.setItem("tactics-presets", JSON.stringify(savedPresets));
+  }, [savedPresets, presetLoaded]);
 
-    localStorage.setItem(
-      "tacticsFormation",
-      JSON.stringify({
-        formation,
-        slots,
-        cornerKickPlayerId,
-        freeKickPlayerId,
-        penaltyKickPlayerId,
-      }),
+  useEffect(() => {
+    if (!saveMessage) return;
+
+    const timer = setTimeout(() => {
+      setSaveMessage("");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [saveMessage]);
+
+  // 저장하기 함수
+  const handleSavePreset = () => {
+    if (!presetName.trim()) {
+      alert("전술 이름을 입력해주세요.");
+      return;
+    }
+
+    const exported = tactics.exportTactics();
+
+    if (selectedPresetId) {
+      setSavedPresets((prev) =>
+        prev.map((preset) =>
+          preset.id === selectedPresetId
+            ? {
+                ...preset,
+                name: presetName.trim(),
+                formation: exported.formation,
+                slots: exported.slots,
+                cornerKickPlayerId: exported.cornerKickPlayerId,
+                freeKickPlayerId: exported.freeKickPlayerId,
+                penaltyKickPlayerId: exported.penaltyKickPlayerId,
+                saveAt: new Date().toISOString(),
+              }
+            : preset,
+        ),
+      );
+      setSaveMessage("전술이 수정 저장되었습니다.");
+      return;
+    }
+
+    const newPreset: SaveTacticPreset = {
+      id: crypto.randomUUID(),
+      name: presetName.trim(),
+      formation: exported.formation,
+      slots: exported.slots,
+      cornerKickPlayerId: exported.cornerKickPlayerId,
+      freeKickPlayerId: exported.freeKickPlayerId,
+      penaltyKickPlayerId: exported.penaltyKickPlayerId,
+      saveAt: new Date().toISOString(),
+    };
+
+    setSavedPresets((prev) => [newPreset, ...prev]);
+    setSelectedPresetId(newPreset.id);
+    setSaveMessage("전술이 저장되었습니다.");
+  };
+
+  // 불러오기 함수
+  const handleLoadPreset = (presetId: string) => {
+    setSelectedPresetId(presetId);
+
+    const preset = savedPresets.find((item) => item.id === presetId);
+    if (!preset) return;
+
+    setPresetName(preset.name);
+
+    tactics.importTactics({
+      formation: preset.formation,
+      slots: preset.slots,
+      cornerKickPlayerId: preset.cornerKickPlayerId,
+      freeKickPlayerId: preset.freeKickPlayerId,
+      penaltyKickPlayerId: preset.penaltyKickPlayerId,
+    });
+  };
+
+  // 삭제하기 함수
+  const handleDeletePreset = () => {
+    if (!selectedPresetId) {
+      alert("삭제할 전술을 먼저 선택해주세요.");
+      return;
+    }
+    const confirmed = window.confirm("선택한 전술을 삭제할까요 ?");
+    if (!confirmed) return;
+
+    setSavedPresets((prev) =>
+      prev.filter((preset) => preset.id !== selectedPresetId),
     );
-  }, [
-    formation,
-    slots,
-    formationLoaded,
-    cornerKickPlayerId,
-    freeKickPlayerId,
-    penaltyKickPlayerId,
-  ]);
 
-  // 현재 선택된 슬롯 계산
-  const selectedSlot = useMemo(
-    () => slots.find((slot) => slot.id === selectedSlotId),
-    [slots, selectedSlotId],
-  );
-
-  // 슬롯에 배치된 선수 찾기
-  const getPlayerById = (playerId?: string) =>
-    players.find((player) => player.id === playerId);
-
-  // 이미 배치된 선수 id들 모으기
-  const assignedPlayerIds = useMemo(
-    () =>
-      new Set(slots.flatMap((slot) => (slot.playerId ? [slot.playerId] : []))),
-    [slots],
-  );
-  // 아직 배치 안 된 선수들만 골라내기
-  const availablePlayers = useMemo(
-    () => players.filter((player) => !assignedPlayerIds.has(player.id)),
-    [players, assignedPlayerIds],
-  );
-
-  // 포메이션 바꾸기
-  const handleFormationChange = (value: FormationName) => {
-    setFormation(value);
-    setSlots(formationTemplate[value]);
-    setSelectedSlotId(null);
+    setSelectedPresetId("");
   };
 
-  // 포메이션 초기화
-  const handleResetFormation = () => {
-    setSlots(formationTemplate[formation]);
-    setSelectedSlotId(null);
+  const handleResetTactics = () => {
+    tactics.handleResetFormation();
+    setPresetName("");
+    setSelectedPresetId("");
   };
-
-  // 선수 배치하기
-  const handleAssignPlayer = (playerId: string) => {
-    if (!selectedSlotId) return;
-
-    setSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === selectedSlotId ? { ...slot, playerId } : slot,
-      ),
-    );
-    setSelectedSlotId(null);
-  };
-
-  // 포지션 비우기
-  const handleClearSlot = () => {
-    if (!selectedSlotId) return;
-
-    setSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === selectedSlotId ? { ...slot, playerId: undefined } : slot,
-      ),
-    );
-    setSelectedSlotId(null);
-  };
-
-  const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
-  const freeKickPlayer = getPlayerById(freeKickPlayerId);
-  const penaltyKickPlayer = getPlayerById(penaltyKickPlayerId);
 
   return (
     <div className="space-y-6">
@@ -141,38 +151,55 @@ export default function TacticsPage() {
         title="전술 보드"
         description="포지션을 선택하고 오른쪽 선수 목록에서 배치해 보세요."
       />
+      {saveMessage && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {saveMessage}
+        </div>
+      )}
       <TacticsToolbar
-        formation={formation}
-        onChangeFormation={handleFormationChange}
-        onReset={handleResetFormation}
+        formation={tactics.formation}
+        onChangeFormation={tactics.handleFormationChange}
+        onReset={handleResetTactics}
+        saveMode="manual"
+        presetName={presetName}
+        onChangePresetName={setPresetName}
+        savedPresets={savedPresets.map((preset) => ({
+          id: preset.id,
+          name: preset.name,
+        }))}
+        selectedPresetId={selectedPresetId}
+        onLoadPreset={handleLoadPreset}
+        onSave={handleSavePreset}
+        onDelete={handleDeletePreset}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <TacticsField
-          formation={formation}
-          slots={slots}
-          selectedSlotId={selectedSlotId}
-          onSelectSlot={setSelectedSlotId}
-          getPlayerById={getPlayerById}
+          formation={tactics.formation}
+          slots={tactics.slots}
+          selectedSlotId={tactics.selectedSlotId}
+          onSelectSlot={tactics.setSelectedSlotId}
+          getPlayerById={tactics.getPlayerById}
         />
+
         <TacticsSidebar
-          loaded={loaded}
-          players={players}
-          availablePlayers={availablePlayers}
-          selectedSlot={selectedSlot}
-          selectedSlotId={selectedSlotId}
-          onAssignPlayer={handleAssignPlayer}
-          onClearSlot={handleClearSlot}
-          getPlayerById={getPlayerById}
-          cornerKickPlayerId={cornerKickPlayerId}
-          freeKickPlayerId={freeKickPlayerId}
-          penaltyKickPlayerId={penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={setCornerKickPlayerId}
-          onChangeFreeKickPlayerId={setFreeKickPlayerId}
-          onChangePenaltyKickPlayerId={setPenaltyKickPlayerId}
-          cornerKickPlayer={cornerKickPlayer}
-          freeKickPlayer={freeKickPlayer}
-          penaltyKickPlayer={penaltyKickPlayer}
+          loaded={tactics.loaded}
+          players={tactics.players}
+          availablePlayers={sortedAvailablePlayers}
+          selectedSlot={tactics.selectedSlot}
+          selectedSlotId={tactics.selectedSlotId}
+          onAssignPlayer={tactics.handleAssignPlayer}
+          onClearSlot={tactics.handleClearSlot}
+          getPlayerById={tactics.getPlayerById}
+          cornerKickPlayerId={tactics.cornerKickPlayerId}
+          freeKickPlayerId={tactics.freeKickPlayerId}
+          penaltyKickPlayerId={tactics.penaltyKickPlayerId}
+          onChangeCornerKickPlayerId={tactics.setCornerKickPlayerId}
+          onChangeFreeKickPlayerId={tactics.setFreeKickPlayerId}
+          onChangePenaltyKickPlayerId={tactics.setPenaltyKickPlayerId}
+          cornerKickPlayer={tactics.cornerKickPlayer}
+          freeKickPlayer={tactics.freeKickPlayer}
+          penaltyKickPlayer={tactics.penaltyKickPlayer}
         />
       </div>
     </div>

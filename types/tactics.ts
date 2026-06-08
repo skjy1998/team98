@@ -21,3 +21,32 @@ export interface SavedFormation {
   freeKickPlayerId?: string;
   penaltyKickPlayerId?: string;
 }
+
+export type MatchQuarter = "1Q" | "2Q" | "3Q" | "4Q";
+
+export interface QuarterTacticsState {
+  formation: FormationName;
+  slots: FormationSlot[];
+  cornerKickPlayerId?: string;
+  freeKickPlayerId?: string;
+  penaltyKickPlayerId?: string;
+}
+
+export interface MatchTacticsByQuarter {
+  "1Q": QuarterTacticsState;
+  "2Q": QuarterTacticsState;
+  "3Q": QuarterTacticsState;
+  "4Q": QuarterTacticsState;
+}
+
+// 저장해 둔 전술 목록
+export interface SaveTacticPreset {
+  id: string;
+  name: string;
+  formation: FormationName;
+  slots: FormationSlot[];
+  cornerKickPlayerId?: string;
+  freeKickPlayerId?: string;
+  penaltyKickPlayerId?: string;
+  saveAt: string;
+}
