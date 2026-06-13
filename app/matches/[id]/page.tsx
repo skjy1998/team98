@@ -21,12 +21,21 @@ import {
 import { MatchCreateFormValue } from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export default function MatchDetailPage() {
-  const [activeTab, setActiveTab] = useState<MatchDetailTab>("info");
+  const searchParams = useSearchParams();
+  const activeTabParam = searchParams.get("tab");
+  const activeTab: MatchDetailTab =
+    activeTabParam === "info" ||
+    activeTabParam === "vote" ||
+    activeTabParam === "tactics" ||
+    activeTabParam === "record" ||
+    activeTabParam === "review"
+      ? activeTabParam
+      : "info";
   const { matches, matchesLoaded, setMatches } = useMatches();
   const router = useRouter();
 
@@ -47,7 +56,16 @@ export default function MatchDetailPage() {
     addEvent,
     deleteEvent,
     updateEvent,
+    reorderEvents,
   } = useMatchRecords(safeMatchId);
+
+  const handleChangeTab = (tab: MatchDetailTab) => {
+    if (!safeMatchId) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/matches/${safeMatchId}?${params.toString()}`);
+  };
 
   if (!matchesLoaded) {
     return (
@@ -106,8 +124,33 @@ export default function MatchDetailPage() {
   const handleDeleteMatch = () => {
     if (!match) return;
 
-    const confirmed = window.confirm("이 경기를 삭제할까요?");
+    const confirmed = globalThis.confirm("이 경기를 삭제할까요?");
     if (!confirmed) return;
+
+    const savedRecords = localStorage.getItem("match-records");
+    if (savedRecords && savedRecords !== "undefined") {
+      try {
+        const parsedRecords = JSON.parse(savedRecords) as Record<
+          string,
+          unknown
+        >;
+        delete parsedRecords[match.id];
+        localStorage.setItem("match-records", JSON.stringify(parsedRecords));
+      } catch {
+        localStorage.removeItem("match-records");
+      }
+    }
+
+    const savedVotes = localStorage.getItem("match-votes");
+    if (savedVotes && savedVotes !== "undefined") {
+      try {
+        const parsedVotes = JSON.parse(savedVotes) as Record<string, unknown>;
+        delete parsedVotes[match.id];
+        localStorage.setItem("match-votes", JSON.stringify(parsedVotes));
+      } catch {
+        localStorage.removeItem("match-votes");
+      }
+    }
 
     setMatches((prev) => prev.filter((item) => item.id !== match.id));
     router.push("/matches");
@@ -153,7 +196,7 @@ export default function MatchDetailPage() {
         statusBadgeClassName={status.badgeClassName}
       />
 
-      <MatchDetailTabs activeTab={activeTab} onChange={setActiveTab} />
+      <MatchDetailTabs activeTab={activeTab} onChange={handleChangeTab} />
 
       {activeTab === "info" && (
         <MatchInfoTab
@@ -166,11 +209,13 @@ export default function MatchDetailPage() {
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
       {activeTab === "record" && (
         <MatchRecordTab
+          matchId={match.id}
           events={events}
           recordsLoaded={recordsLoaded}
           addEvent={addEvent}
           deleteEvent={deleteEvent}
           updateEvent={updateEvent}
+          reorderEvents={reorderEvents}
         />
       )}
       {activeTab === "review" && <MatchTabPlaceholder label="후기" />}

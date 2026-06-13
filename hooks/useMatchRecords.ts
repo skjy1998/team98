@@ -51,6 +51,12 @@ export function useMatchRecords(matchId: string) {
           {
             id: crypto.randomUUID(),
             type,
+            playerId: "",
+            playerName: "",
+            assistPlayerId: "",
+            assistPlayerName: "",
+            minute: "",
+            quarter: "unknown",
           },
         ],
       };
@@ -81,6 +87,27 @@ export function useMatchRecords(matchId: string) {
     });
   };
 
+  const reorderEvents = (activeId: string, overId: string) => {
+    setRecords((prev) => {
+      const prevEvents = prev[matchId] ?? [];
+
+      const oldIndex = prevEvents.findIndex((event) => event.id === activeId);
+      const newIndex = prevEvents.findIndex((event) => event.id === overId);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return prev;
+      }
+      const nextEvents = [...prevEvents];
+      const [movedEvent] = nextEvents.splice(oldIndex, 1);
+      nextEvents.splice(newIndex, 0, movedEvent);
+
+      return {
+        ...prev,
+        [matchId]: nextEvents,
+      };
+    });
+  };
+
   return {
     loaded,
     events,
@@ -89,5 +116,6 @@ export function useMatchRecords(matchId: string) {
     addEvent,
     deleteEvent,
     updateEvent,
+    reorderEvents,
   };
 }

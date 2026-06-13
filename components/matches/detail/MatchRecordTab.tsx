@@ -1,38 +1,100 @@
 import { usePlayers } from "@/hooks/usePlayers";
-import type {
+import {
   MatchRecordEvent,
   MatchRecordEventType,
-} from "@/hooks/useMatchRecords";
+  MatchRecordQuarter,
+} from "@/types/match";
+import { MatchVotesByMatchId } from "@/types/match-vote";
+import { useEffect, useMemo, useState } from "react";
+import MatchRecordEditPanel from "./MatchRecordEditPanel";
+import MatchRecordCard from "./MatchRecordCard";
+import MatchRecordScoreActions from "./MatchRecordScoreActions";
+import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+
+const quarterSections: {
+  key: "1Q" | "2Q" | "3Q" | "4Q" | "unknown";
+  label: string;
+}[] = [
+  { key: "1Q", label: "1Q" },
+  { key: "2Q", label: "2Q" },
+  { key: "3Q", label: "3Q" },
+  { key: "4Q", label: "4Q" },
+  { key: "unknown", label: "쿼터 모름" },
+];
 
 interface MatchRecordTabProps {
+  matchId: string;
   events: MatchRecordEvent[];
   recordsLoaded: boolean;
   addEvent: (type: MatchRecordEventType) => void;
   deleteEvent: (eventId: string) => void;
   updateEvent: (eventId: string, updates: Partial<MatchRecordEvent>) => void;
+  reorderEvents: (activeId: string, overId: string) => void;
 }
 
 export default function MatchRecordTab({
+  matchId,
   events,
   recordsLoaded,
   addEvent,
   deleteEvent,
   updateEvent,
+  reorderEvents,
 }: Readonly<MatchRecordTabProps>) {
-  const { players, loaded } = usePlayers();
+  const { players, setPlayers, loaded } = usePlayers();
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editingPlayerId, setEditingPlayerId] = useState("");
+  const [editingAssistPlayerId, setEditingAssistPlayerId] = useState("");
+  const [editingQuarter, setEditingQuarter] =
+    useState<MatchRecordQuarter>("unknown");
+  const [editingMinute, setEditingMinute] = useState("");
 
-  const handlePlayerChange = (eventId: string, playerId: string) => {
-    const selectedPlayer = players.find((player) => player.id === playerId);
+  const [votes, setVotes] = useState<MatchVotesByMatchId>({});
 
-    updateEvent(eventId, {
-      playerId,
-      playerName: selectedPlayer?.name ?? "",
-    });
-  };
+  useEffect(() => {
+    const savedVotes = localStorage.getItem("match-votes");
 
-  const handleMinuteChange = (eventId: string, minute: string) => {
-    updateEvent(eventId, { minute });
-  };
+    if (savedVotes && savedVotes !== "undefined") {
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setVotes(JSON.parse(savedVotes));
+      } catch {
+        localStorage.removeItem("match-votes");
+      }
+    }
+  }, []);
+
+  const groupedEvents = useMemo(() => {
+    return {
+      "1Q": events.filter((event) => event.quarter === "1Q"),
+      "2Q": events.filter((event) => event.quarter === "2Q"),
+      "3Q": events.filter((event) => event.quarter === "3Q"),
+      "4Q": events.filter((event) => event.quarter === "4Q"),
+      unknown: events.filter(
+        (event) => !event.quarter || event.quarter === "unknown",
+      ),
+    };
+  }, [events]);
+
+  // 현재 경기 참석자 id 만들기
+  const attendPlayerIds = useMemo(() => {
+    const currentVotes = votes[matchId] ?? [];
+
+    return new Set(
+      currentVotes
+        .filter((vote) => vote.status === "attend")
+        .map((vote) => vote.playerId),
+    );
+  }, [votes, matchId]);
+
+  // 참석자 기준 뱃지 목록
+  const attendPlayers = useMemo(() => {
+    return players.filter((player) => attendPlayerIds.has(player.id));
+  }, [players, attendPlayerIds]);
 
   if (!loaded || !recordsLoaded) {
     return (
@@ -42,36 +104,146 @@ export default function MatchRecordTab({
     );
   }
 
+  // 수정 시작 함수
+  const handleStartEdit = (event: MatchRecordEvent) => {
+    setEditingEventId(event.id);
+    setEditingPlayerId(event.playerId ?? "");
+    setEditingAssistPlayerId(event.assistPlayerId ?? "");
+    setEditingQuarter(event.quarter ?? "unknown");
+    setEditingMinute(event.minute ?? "");
+  };
+
+  // 수정 취소 함수
+  const handleCancelEdit = () => {
+    setEditingEventId(null);
+    setEditingPlayerId("");
+    setEditingAssistPlayerId("");
+    setEditingQuarter("unknown");
+    setEditingMinute("");
+  };
+
+  // 선수 기록 갱신 함수 추가
+  const updatePlayerStatsForRecordEdit = (
+    prevEvent: MatchRecordEvent,
+    nextEvent: {
+      playerId: string;
+      assistPlayerId: string;
+    },
+  ) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) => {
+        let nextGoal = player.goal;
+        let nextAssist = player.assist;
+
+        if (prevEvent.type === "goal" && prevEvent.playerId === player.id) {
+          nextGoal -= 1;
+        }
+
+        if (
+          prevEvent.type === "goal" &&
+          prevEvent.assistPlayerId &&
+          prevEvent.assistPlayerId === player.id
+        ) {
+          nextAssist -= 1;
+        }
+
+        if (prevEvent.type === "goal" && nextEvent.playerId === player.id) {
+          nextGoal += 1;
+        }
+
+        if (
+          prevEvent.type === "goal" &&
+          nextEvent.assistPlayerId &&
+          nextEvent.assistPlayerId === player.id
+        ) {
+          nextAssist += 1;
+        }
+
+        return {
+          ...player,
+          goal: Math.max(0, nextGoal),
+          assist: Math.max(0, nextAssist),
+        };
+      }),
+    );
+  };
+
+  // 선수 기록 삭제 함수
+  const handleDeleteRecord = (event: MatchRecordEvent) => {
+    const confirmed = globalThis.confirm("이 기록을 삭제할까요?");
+    if (!confirmed) return;
+    if (event.type === "goal") {
+      setPlayers((prevPlayers) =>
+        prevPlayers.map((player) => {
+          let nextGoal = player.goal;
+          let nextAssist = player.assist;
+
+          if (event.playerId === player.id) {
+            nextGoal -= 1;
+          }
+
+          if (event.assistPlayerId && event.assistPlayerId === player.id) {
+            nextAssist -= 1;
+          }
+
+          return {
+            ...player,
+            goal: Math.max(0, nextGoal),
+            assist: Math.max(0, nextAssist),
+          };
+        }),
+      );
+    }
+
+    if (editingEventId === event.id) {
+      handleCancelEdit();
+    }
+
+    deleteEvent(event.id);
+  };
+
+  /// 수정 완료 함수
+  const handleSubmitEdit = () => {
+    if (!editingEventId) return;
+
+    const currentEvent = events.find((event) => event.id === editingEventId);
+    if (!currentEvent) return;
+
+    const selectPlayer = players.find(
+      (player) => player.id === editingPlayerId,
+    );
+    const selectedAssistPlayer = players.find(
+      (player) => player.id === editingAssistPlayerId,
+    );
+
+    updatePlayerStatsForRecordEdit(currentEvent, {
+      playerId: editingPlayerId,
+      assistPlayerId: editingAssistPlayerId,
+    });
+
+    updateEvent(editingEventId, {
+      playerId: editingPlayerId,
+      playerName: selectPlayer?.name ?? "",
+      assistPlayerId: editingAssistPlayerId,
+      assistPlayerName: selectedAssistPlayer?.name ?? "",
+      quarter: editingQuarter,
+      minute: editingMinute,
+    });
+
+    handleCancelEdit();
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    reorderEvents(String(active.id), String(over.id));
+  };
+
   return (
     <div className="space-y-5">
-      <section className="rounded-xl border border-stone-200 bg-white p-6">
-        <h2 className="text-xl font-semibold text-stone-900">
-          경기 스코어 반영
-        </h2>
-
-        <div className="mt-5 grid gap-3 md:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => addEvent("goal")}
-            className="h-16 rounded-2xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200"
-          >
-            + 득점
-          </button>
-
-          <button
-            type="button"
-            onClick={() => addEvent("concede")}
-            className="h-16 rounded-xl bg-rose-100 text-lg font-semibold text-rose-600 transition hover:bg-rose-200"
-          >
-            + 실점
-          </button>
-        </div>
-
-        <p className="mt-3 text-sm text-stone-400">
-          득점과 실점을 추가하면 상단 전광판 점수에도 바로 반영돼요.
-        </p>
-      </section>
-
+      <MatchRecordScoreActions onAddEvent={addEvent} />
       <section className="rounded-xl border border-stone-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-stone-900">골 기록 추가</h2>
@@ -86,66 +258,84 @@ export default function MatchRecordTab({
               </p>
             </div>
           ) : (
-            events.map((event) => (
-              <div
-                key={event.id}
-                className="rounded-xl border border-stone-200 bg-stone-50/60 px-4 py-4"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                        event.type === "goal"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-rose-100 text-rose-600"
-                      }`}
-                    >
-                      {event.type === "goal" ? "득점" : "실점"}
-                    </span>
+            <div className="space-y-6">
+              {quarterSections.map((section) => {
+                const quarterEvents = groupedEvents[section.key];
 
-                    <p className="text-sm text-stone-500">
-                      {event.type === "goal"
-                        ? "우리팀 득점 기록"
-                        : "상대팀 실점 기록"}
-                    </p>
+                if (quarterEvents.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <div key={section.key} className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+                          {section.label}
+                        </span>
+                      </div>
+
+                      <span className="text-sm font-medium text-stone-400">
+                        {quarterEvents.length}골
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <DndContext
+                        onDragEnd={handleDragEnd}
+                        collisionDetection={closestCenter}
+                      >
+                        <SortableContext
+                          items={quarterEvents.map((event) => event.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {quarterEvents.map((event) => {
+                            const isEditing = editingEventId === event.id;
+
+                            return (
+                              <div key={event.id} className="space-y-3">
+                                {isEditing && (
+                                  <MatchRecordEditPanel
+                                    isOpen={!!editingEventId}
+                                    eventType={event.type}
+                                    attendPlayers={attendPlayers}
+                                    editingPlayerId={editingPlayerId}
+                                    editingAssistPlayerId={
+                                      editingAssistPlayerId
+                                    }
+                                    editingQuarter={editingQuarter}
+                                    editingMinute={editingMinute}
+                                    onChangePlayerId={setEditingPlayerId}
+                                    onChangeAssistPlayerId={
+                                      setEditingAssistPlayerId
+                                    }
+                                    onChangeQuarter={setEditingQuarter}
+                                    onChangeMinute={setEditingMinute}
+                                    onCancel={handleCancelEdit}
+                                    onSubmit={handleSubmitEdit}
+                                  />
+                                )}
+                                <MatchRecordCard
+                                  key={event.id}
+                                  event={event}
+                                  isEditing={isEditing}
+                                  onEdit={() =>
+                                    isEditing
+                                      ? handleCancelEdit()
+                                      : handleStartEdit(event)
+                                  }
+                                  onDelete={() => handleDeleteRecord(event)}
+                                />
+                              </div>
+                            );
+                          })}
+                        </SortableContext>
+                      </DndContext>
+                    </div>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => deleteEvent(event.id)}
-                    className="rounded-xl bg-rose-50 px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-100"
-                  >
-                    삭제
-                  </button>
-                </div>
-
-                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_120px]">
-                  <select
-                    value={event.playerId ?? ""}
-                    onChange={(e) =>
-                      handlePlayerChange(event.id, e.target.value)
-                    }
-                    className="h-12 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-                  >
-                    <option value="">선수 선택</option>
-                    {players.map((player) => (
-                      <option key={player.id} value={player.id}>
-                        {player.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <input
-                    value={event.minute ?? ""}
-                    onChange={(e) =>
-                      handleMinuteChange(event.id, e.target.value)
-                    }
-                    placeholder="시간"
-                    className="h-12 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
-                  />
-                </div>
-              </div>
-            ))
+                );
+              })}
+            </div>
           )}
         </div>
       </section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import PlayerCreateModal from "@/components/players/PlayerCreateModal";
 import PlayerDeleteModal from "@/components/players/PlayerDeleteModal";
@@ -10,10 +10,24 @@ import PlayerToolbar from "@/components/players/PlayerToolbar";
 import { usePlayers } from "@/hooks/usePlayers";
 import type { PlayerType } from "@/types/player";
 import { getMainPositionFromDetail } from "@/lib/player-ui";
+import { useMatches } from "@/hooks/useMatches";
+import { MatchVotesByMatchId } from "@/types/match-vote";
+import {
+  getPastMatchIds,
+  getPlayerAppearanceCount,
+  getPlayerAssistCount,
+  getPlayerGoalCount,
+} from "@/lib/player-stats";
+import { MatchRecordMap } from "@/types/match";
 
 export default function PlayersPage() {
   const { players, setPlayers } = usePlayers();
+  const { matches } = useMatches();
   const [search, setSearch] = useState("");
+  const [votes, setVotes] = useState<MatchVotesByMatchId>({});
+  const [votesLoaded, setVotesLoaded] = useState(false);
+  const [records, setRecords] = useState<MatchRecordMap>({});
+
   const [sortType, setSortType] = useState<
     "latest" | "number" | "name" | "position"
   >("latest");
@@ -21,8 +35,48 @@ export default function PlayersPage() {
   const [editingPlayer, setEditingPlayer] = useState<PlayerType | null>(null);
   const [deletePlayer, setDeletePlayer] = useState<PlayerType | null>(null);
 
+  useEffect(() => {
+    const savedVotes = localStorage.getItem("match-votes");
+
+    if (savedVotes && savedVotes !== "undefined") {
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setVotes(JSON.parse(savedVotes));
+      } catch {
+        localStorage.removeItem("match-votes");
+      }
+    }
+
+    setVotesLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    const savedRecords = localStorage.getItem("match-records");
+
+    if (savedRecords && savedRecords !== "undefined") {
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setRecords(JSON.parse(savedRecords));
+      } catch {
+        localStorage.removeItem("match-records");
+      }
+    }
+  }, []);
+
+  const displayPlayers = useMemo(() => {
+    const pastMatchIds = getPastMatchIds(matches);
+    const matchIds = matches.map((match) => match.id);
+
+    return players.map((player) => ({
+      ...player,
+      appearance: getPlayerAppearanceCount(player.id, pastMatchIds, votes),
+      goal: getPlayerGoalCount(player.id, records, matchIds),
+      assist: getPlayerAssistCount(player.id, records, matchIds),
+    }));
+  }, [players, matches, votes, records]);
+
   const filteredPlayers = useMemo(() => {
-    const searchedPlayers = players.filter((player) =>
+    const searchedPlayers = displayPlayers.filter((player) =>
       player.name.toLowerCase().includes(search.toLowerCase()),
     );
 
@@ -71,7 +125,7 @@ export default function PlayersPage() {
     }
 
     return [...searchedPlayers].reverse();
-  }, [players, search, sortType]);
+  }, [displayPlayers, search, sortType]);
 
   const handleOpenCreate = () => {
     setEditingPlayer(null);
