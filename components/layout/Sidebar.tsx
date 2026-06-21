@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BadgeDollarSign,
   CalendarDays,
   ChevronRight,
   Home,
@@ -61,6 +62,12 @@ const menuSections: MenuSection[] = [
         description: "시즌 기록과 랭킹",
         href: "/stats",
         icon: Trophy,
+      },
+      {
+        label: "회비 관리",
+        description: "거래 내역 및 납부",
+        href: "/finance",
+        icon: BadgeDollarSign,
       },
     ],
   },
