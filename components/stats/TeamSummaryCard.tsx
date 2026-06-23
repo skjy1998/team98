@@ -1,3 +1,5 @@
+import { RecentResult } from "@/types/stats";
+
 interface TeamSummaryCardProps {
   win: number;
   draw: number;
@@ -6,7 +8,7 @@ interface TeamSummaryCardProps {
   goals: number;
   conceded: number;
   goalDiff: number;
-  recentResults: Array<"win" | "draw" | "lose">;
+  recentResults: RecentResult[];
 }
 
 export default function TeamSummaryCard({
@@ -19,6 +21,18 @@ export default function TeamSummaryCard({
   goalDiff,
   recentResults,
 }: Readonly<TeamSummaryCardProps>) {
+  const getRecentResultBadgeClassName = (result: RecentResult) => {
+    if (result === "win") return "bg-emerald-100 text-emerald-700";
+    if (result === "lose") return "bg-rose-100 text-rose-600 ";
+    return "bg-stone-200 text-stone-600";
+  };
+
+  const getRecentResultLabel = (result: RecentResult) => {
+    if (result === "win") return "승";
+    if (result === "lose") return "패";
+    return "무";
+  };
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -44,15 +58,11 @@ export default function TeamSummaryCard({
               {recentResults.map((result, index) => (
                 <span
                   key={`${result}-${index}`}
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-semibold ${
-                    result === "win"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : result === "lose"
-                        ? "bg-rose-100 text-rose-600"
-                        : "bg-stone-200 text-stone-600"
-                  }`}
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-semibold ${getRecentResultBadgeClassName(
+                    result,
+                  )}`}
                 >
-                  {result === "win" ? "승" : result === "lose" ? "패" : "무"}
+                  {getRecentResultLabel(result)}
                 </span>
               ))}
             </div>

@@ -1,12 +1,15 @@
 "use client";
 import PageHeader from "@/components/PageHeader";
 import StatsPlayerTable from "@/components/stats/StatsPlayerTable";
-import StatsRankingCard from "@/components/stats/StatsRankingCard";
+import StatsRankingSection from "@/components/stats/StatsRankingSection";
 import TeamSummaryCard from "@/components/stats/TeamSummaryCard";
 import { useMatches } from "@/hooks/useMatches";
+import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
+import { useMatchVotes } from "@/hooks/useMatchVotes";
 import { usePlayers } from "@/hooks/usePlayers";
 import {
   getPlayerStats,
+  getRankingItems,
   getRankPlayerStats,
   getRecentResults,
   getTeamSummary,
@@ -14,41 +17,14 @@ import {
   getTopAssisters,
   getTopScorers,
 } from "@/lib/stats";
-import { MatchRecordMap } from "@/types/match";
-import { MatchVotesByMatchId } from "@/types/match-vote";
-import { useEffect, useMemo, useState } from "react";
+
+import { useMemo } from "react";
 
 export default function StatPage() {
-  const { matches } = useMatches();
-  const { players } = usePlayers();
-  const [records, setRecords] = useState<MatchRecordMap>({});
-  const [votes, setVotes] = useState<MatchVotesByMatchId>({});
-
-  useEffect(() => {
-    const savedRecords = localStorage.getItem("match-records");
-
-    if (savedRecords && savedRecords !== "undefined") {
-      try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setRecords(JSON.parse(savedRecords));
-      } catch {
-        localStorage.removeItem("match-records");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const savedVotes = localStorage.getItem("match-votes");
-
-    if (savedVotes && savedVotes !== "undefined") {
-      try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setVotes(JSON.parse(savedVotes));
-      } catch {
-        localStorage.removeItem("match-votes");
-      }
-    }
-  }, []);
+  const { matches, matchesLoaded } = useMatches();
+  const { players, playersLoaded } = usePlayers();
+  const { records, recordsLoaded } = useMatchRecordsMap();
+  const { votes, votesLoaded } = useMatchVotes();
 
   // 최근 5경기 결과 계산
   const recentResults = useMemo(
@@ -89,23 +65,23 @@ export default function StatPage() {
     [playerStats],
   );
 
-  const scorerRankingItems = topScorers.map((player) => ({
-    id: player.id,
-    name: player.name,
-    value: player.goal,
-  }));
+  const scorerRankingItems = getRankingItems(topScorers, "goal");
+  const assisterRankingItems = getRankingItems(topAssisters, "assist");
+  const appearanceRankingItems = getRankingItems(topAppearances, "appearance");
 
-  const assisterRankingItems = topAssisters.map((player) => ({
-    id: player.id,
-    name: player.name,
-    value: player.assist,
-  }));
-
-  const appearanceRankingItems = topAppearances.map((player) => ({
-    id: player.id,
-    name: player.name,
-    value: player.appearance,
-  }));
+  if (!matchesLoaded || !playersLoaded || !recordsLoaded || !votesLoaded) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="통계"
+          description="팀 전적과 선수 랭킹을 한눈에 확인하세요."
+        />
+        <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
+          통계 데이터를 불러오는 중...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -123,23 +99,11 @@ export default function StatPage() {
         goalDiff={teamSummary.goalDiff}
         recentResults={recentResults}
       />
-      <section className="grid gap-4 xl:grid-cols-3">
-        <StatsRankingCard
-          title="득점 순위"
-          items={scorerRankingItems}
-          barClassName="bg-emerald-400"
-        />
-        <StatsRankingCard
-          title="어시스트 순위"
-          items={assisterRankingItems}
-          barClassName="bg-sky-400"
-        />
-        <StatsRankingCard
-          title="출전 순위"
-          items={appearanceRankingItems}
-          barClassName="bg-amber-400"
-        />
-      </section>
+      <StatsRankingSection
+        scorerRankingItems={scorerRankingItems}
+        assisterRankingItems={assisterRankingItems}
+        appearanceRankingItems={appearanceRankingItems}
+      />
       <StatsPlayerTable players={rankedPlayerStats} />
     </div>
   );

@@ -1,3 +1,4 @@
+import { MatchDetailTab } from "@/types/match";
 import {
   ClipboardList,
   Info,
@@ -5,8 +6,6 @@ import {
   NotebookPen,
   Users,
 } from "lucide-react";
-
-export type MatchDetailTab = "info" | "vote" | "tactics" | "record" | "review";
 
 const tabs: {
   id: MatchDetailTab;

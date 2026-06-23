@@ -1,0 +1,117 @@
+import {
+  getCurrentMonthLabel,
+  getMonthlyPaymentEntries,
+  getPaymentStatusRows,
+  getPaymentSummary,
+} from "@/lib/finance";
+import { FinanceEntry, PaymentStatusRow } from "@/types/finance";
+import { PlayerType } from "@/types/player";
+import { useMemo, useState } from "react";
+
+interface UseFinancepaymentsParams {
+  entries: FinanceEntry[];
+  players: PlayerType[];
+  defaultMonth: string;
+  primaryFeeAmount: number;
+  addEntry: (entry: Omit<FinanceEntry, "id">) => void;
+  deleteEntry: (entryId: string) => void;
+}
+
+export function useFinancePayments({
+  entries,
+  players,
+  defaultMonth,
+  primaryFeeAmount,
+  addEntry,
+  deleteEntry,
+}: UseFinancepaymentsParams) {
+  const [currentMonth, setCurrentMonth] = useState(defaultMonth);
+  const [isUnpaidOpen, setIsUnpaidOpen] = useState(false);
+  const [isPaidOpen, setIsPaidOpen] = useState(false);
+
+  // 화면용 월 문자열
+  const currentMonthLabel = useMemo(
+    () => getCurrentMonthLabel(currentMonth),
+    [currentMonth],
+  );
+
+  // 이번 달 회비 납부 기록 목록
+  const monthlyPaymentEntries = useMemo(
+    () => getMonthlyPaymentEntries(entries, currentMonth),
+    [entries, currentMonth],
+  );
+
+  // 선수 별 납부 상태 status === paid 면 납부완료
+  const paymentStatusRows = useMemo(
+    () => getPaymentStatusRows(players, monthlyPaymentEntries),
+    [players, monthlyPaymentEntries],
+  );
+
+  // 통계값 만들기
+  const paymentSummary = useMemo(
+    () => getPaymentSummary(paymentStatusRows),
+    [paymentStatusRows],
+  );
+
+  const unpaidPaymentRows = useMemo(
+    () => paymentStatusRows.filter((row) => row.status === "unpaid"),
+    [paymentStatusRows],
+  );
+
+  const paidPaymentRows = useMemo(
+    () => paymentStatusRows.filter((row) => row.status === "paid"),
+    [paymentStatusRows],
+  );
+
+  const handleMoveMonth = (direction: "prev" | "next") => {
+    const [year, month] = currentMonth.split("-").map(Number);
+
+    const nextDate =
+      direction === "prev"
+        ? new Date(year, month - 2, 1)
+        : new Date(year, month, 1);
+    const nextYear = nextDate.getFullYear();
+    const nextMonth = String(nextDate.getMonth() + 1).padStart(2, "0");
+
+    setCurrentMonth(`${nextYear}-${nextMonth}`);
+  };
+
+  const handleChangePaymentStatus = (
+    playerName: string,
+    nextStatus: PaymentStatusRow["status"],
+  ) => {
+    const existingPaymentEntry = monthlyPaymentEntries.find((entry) =>
+      entry.description.includes(playerName),
+    );
+
+    if (nextStatus === "paid" && !existingPaymentEntry) {
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0, 5);
+
+      addEntry({
+        type: "income",
+        amount: primaryFeeAmount,
+        description: `${currentMonth} 회비 (${playerName})`,
+        date: `${currentMonth}-01`,
+        time: currentTime,
+      });
+    }
+    if (nextStatus === "unpaid" && existingPaymentEntry) {
+      deleteEntry(existingPaymentEntry.id);
+    }
+  };
+
+  return {
+    currentMonth,
+    currentMonthLabel,
+    paymentSummary,
+    unpaidPaymentRows,
+    paidPaymentRows,
+    isUnpaidOpen,
+    setIsUnpaidOpen,
+    isPaidOpen,
+    setIsPaidOpen,
+    handleMoveMonth,
+    handleChangePaymentStatus,
+  };
+}

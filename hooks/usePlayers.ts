@@ -3,21 +3,21 @@ import { useEffect, useState } from "react";
 
 export function usePlayers() {
   const [players, setPlayers] = useState<PlayerType[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [playersLoaded, setPlayersLoaded] = useState(false);
   useEffect(() => {
     const saved = localStorage.getItem("players");
     if (saved) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlayers(JSON.parse(saved));
     }
-    setLoaded(true);
+    setPlayersLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!playersLoaded) return;
 
     localStorage.setItem("players", JSON.stringify(players));
-  }, [players, loaded]);
+  }, [players, playersLoaded]);
 
-  return { players, setPlayers, loaded };
+  return { players, setPlayers, playersLoaded };
 }

@@ -4,83 +4,35 @@ import TacticsField from "@/components/tactics/TacticsField";
 import TacticsSidebar from "@/components/tactics/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/TacticsToolbar";
 import { formationTemplate } from "@/data/formationTemplates";
+import { useMatchTactics } from "@/hooks/useMatchTactics";
+import { useMatchVotes } from "@/hooks/useMatchVotes";
 import { usePlayers } from "@/hooks/usePlayers";
-import { sortPlayersByRecommendedPosition } from "@/lib/tactics-ui";
-import { MatchVotesByMatchId } from "@/types/match-vote";
-import type {
-  FormationName,
-  MatchQuarter,
-  MatchTacticsByQuarter,
-  QuarterTacticsState,
-} from "@/types/tactics";
-import { useEffect, useMemo, useState } from "react";
+import {
+  getAssignedPlayerIds,
+  getAttendPlayerIds,
+  getAvailableTacticsPlayers,
+  getPlayerById,
+  quarterOptions,
+  sortPlayersByRecommendedPosition,
+} from "@/lib/tactics-ui";
+import type { FormationName, MatchQuarter, SetPieceKey } from "@/types/tactics";
+import { useMemo, useState } from "react";
+import MatchQuarterTabs from "./MatchQuarterTabs";
 
 interface MatchTacticsTabProps {
   matchId: string;
 }
 
-const quarterOptions: MatchQuarter[] = ["1Q", "2Q", "3Q", "4Q"];
-
-const createDefaultQuarterTactics = (): QuarterTacticsState => ({
-  formation: "4-4-2",
-  slots: formationTemplate["4-4-2"],
-  cornerKickPlayerId: "",
-  freeKickPlayerId: "",
-  penaltyKickPlayerId: "",
-});
-
-const createDefaultMatchTactics = (): MatchTacticsByQuarter => ({
-  "1Q": createDefaultQuarterTactics(),
-  "2Q": createDefaultQuarterTactics(),
-  "3Q": createDefaultQuarterTactics(),
-  "4Q": createDefaultQuarterTactics(),
-});
-
 export default function MatchTacticsTab({
   matchId,
 }: Readonly<MatchTacticsTabProps>) {
-  const { players, loaded } = usePlayers();
+  const { players, playersLoaded } = usePlayers();
+  const { votes } = useMatchVotes();
+  const { tacticsByQuarter, setTacticsByQuarter } = useMatchTactics(matchId);
 
   const [selectedQuarter, setSelectedQuarter] = useState<MatchQuarter>("1Q");
-  const [tacticsByQuarter, setTacticsByQuarter] =
-    useState<MatchTacticsByQuarter>(createDefaultMatchTactics());
-  const [tacticsLoaded, setTacticsLoaded] = useState(false);
+
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  const [votes, setVotes] = useState<MatchVotesByMatchId>({});
-  const [votesLoaded, setVotesLoaded] = useState(false);
-
-  const storageKey = `match-tactics-${matchId}`;
-
-  useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-
-    if (saved) {
-      const parsed = JSON.parse(saved) as Partial<MatchTacticsByQuarter>;
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTacticsByQuarter({
-        ...createDefaultMatchTactics(),
-        ...parsed,
-      });
-    }
-
-    setTacticsLoaded(true);
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (!tacticsLoaded) return;
-    localStorage.setItem(storageKey, JSON.stringify(tacticsByQuarter));
-  }, [storageKey, tacticsByQuarter, tacticsLoaded]);
-
-  // 출석 불러오기
-  useEffect(() => {
-    const savedVotes = localStorage.getItem("match-votes");
-
-    if (savedVotes) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVotes(JSON.parse(savedVotes));
-    }
-    setVotesLoaded(true);
-  }, []);
 
   const currentTactics = tacticsByQuarter[selectedQuarter];
 
@@ -94,35 +46,20 @@ export default function MatchTacticsTab({
     () => slots.find((slot) => slot.id === selectedSlotId),
     [slots, selectedSlotId],
   );
+  const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
 
   // 현재 경기 참석자 id 구하기
-  const attendPlayerIds = useMemo(() => {
-    const currentVotes = votes[matchId] ?? [];
-
-    return new Set(
-      currentVotes
-        .filter((vote) => vote.status === "attend")
-        .map((vote) => vote.playerId),
-    );
-  }, [votes, matchId]);
-
-  // 전술 탭에서 쓸 선수 목록 만들기
-  const tacticsPlayers = useMemo(() => {
-    return players.filter((player) => attendPlayerIds.has(player.id));
-  }, [players, attendPlayerIds]);
-
-  const getPlayerById = (playerId?: string) =>
-    players.find((player) => player.id === playerId);
-
-  const assignedPlayerIds = useMemo(
-    () =>
-      new Set(slots.flatMap((slot) => (slot.playerId ? [slot.playerId] : []))),
-    [slots],
+  const attendPlayerIds = useMemo(
+    () => getAttendPlayerIds(currentVotes),
+    [currentVotes],
   );
 
+  const assignedPlayerIds = useMemo(() => getAssignedPlayerIds(slots), [slots]);
+
   const availablePlayers = useMemo(
-    () => tacticsPlayers.filter((player) => !assignedPlayerIds.has(player.id)),
-    [tacticsPlayers, assignedPlayerIds],
+    () =>
+      getAvailableTacticsPlayers(players, attendPlayerIds, assignedPlayerIds),
+    [players, attendPlayerIds, assignedPlayerIds],
   );
 
   const sortedAvailablePlayers = useMemo(
@@ -185,69 +122,34 @@ export default function MatchTacticsTab({
     setSelectedSlotId(null);
   };
 
-  const handleChangeCornerKickPlayerId = (value: string) => {
+  const handleChangeSetPiecePlayer = (key: SetPieceKey, value: string) => {
     setTacticsByQuarter((prev) => ({
       ...prev,
       [selectedQuarter]: {
         ...prev[selectedQuarter],
-        cornerKickPlayerId: value,
+        [key]: value,
       },
     }));
   };
 
-  const handleChangeFreeKickPlayerId = (value: string) => {
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        freeKickPlayerId: value,
-      },
-    }));
+  const findPlayerById = (playerId?: string) => {
+    return getPlayerById(players, playerId);
   };
 
-  const handleChangePenaltyKickPlayerId = (value: string) => {
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        penaltyKickPlayerId: value,
-      },
-    }));
-  };
-
-  const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
-  const freeKickPlayer = getPlayerById(freeKickPlayerId);
-  const penaltyKickPlayer = getPlayerById(penaltyKickPlayerId);
+  const cornerKickPlayer = findPlayerById(cornerKickPlayerId);
+  const freeKickPlayer = findPlayerById(freeKickPlayerId);
+  const penaltyKickPlayer = findPlayerById(penaltyKickPlayerId);
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-stone-200 bg-white p-1">
-        <div className="grid grid-cols-4 gap-1">
-          {quarterOptions.map((quarter) => {
-            const isActive = selectedQuarter === quarter;
-
-            return (
-              <button
-                key={quarter}
-                type="button"
-                onClick={() => {
-                  setSelectedQuarter(quarter);
-                  setSelectedSlotId(null);
-                }}
-                className={[
-                  "rounded-lg px-3 py-3 text-sm font-medium transition",
-                  isActive
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-white text-stone-500 hover:bg-stone-50",
-                ].join(" ")}
-              >
-                {quarter}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
+      <MatchQuarterTabs
+        quarters={quarterOptions}
+        selectedQuarter={selectedQuarter}
+        onChangeQuarter={(quarter) => {
+          setSelectedQuarter(quarter);
+          setSelectedSlotId(null);
+        }}
+      />
       <TacticsToolbar
         formation={formation}
         onChangeFormation={handleFormationChange}
@@ -261,24 +163,30 @@ export default function MatchTacticsTab({
           slots={slots}
           selectedSlotId={selectedSlotId}
           onSelectSlot={setSelectedSlotId}
-          getPlayerById={getPlayerById}
+          getPlayerById={findPlayerById}
         />
 
         <TacticsSidebar
-          loaded={loaded}
+          loaded={playersLoaded}
           players={players}
           availablePlayers={sortedAvailablePlayers}
           selectedSlot={selectedSlot}
           selectedSlotId={selectedSlotId}
           onAssignPlayer={handleAssignPlayer}
           onClearSlot={handleClearSlot}
-          getPlayerById={getPlayerById}
+          getPlayerById={findPlayerById}
           cornerKickPlayerId={cornerKickPlayerId}
           freeKickPlayerId={freeKickPlayerId}
           penaltyKickPlayerId={penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={handleChangeCornerKickPlayerId}
-          onChangeFreeKickPlayerId={handleChangeFreeKickPlayerId}
-          onChangePenaltyKickPlayerId={handleChangePenaltyKickPlayerId}
+          onChangeCornerKickPlayerId={(value) =>
+            handleChangeSetPiecePlayer("cornerKickPlayerId", value)
+          }
+          onChangeFreeKickPlayerId={(value) =>
+            handleChangeSetPiecePlayer("freeKickPlayerId", value)
+          }
+          onChangePenaltyKickPlayerId={(value) =>
+            handleChangeSetPiecePlayer("penaltyKickPlayerId", value)
+          }
           cornerKickPlayer={cornerKickPlayer}
           freeKickPlayer={freeKickPlayer}
           penaltyKickPlayer={penaltyKickPlayer}

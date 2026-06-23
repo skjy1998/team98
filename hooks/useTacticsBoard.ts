@@ -12,7 +12,7 @@ export function useTacticsBoard({
   storageKey,
   autoSave = true,
 }: UseTacticsBoardParams) {
-  const { players, loaded } = usePlayers();
+  const { players, playersLoaded } = usePlayers();
   // 포메이션 상태
   const [formation, setFormation] = useState<FormationName>("4-4-2");
   // 클릭해서 선택한 포지션 슬롯 id
@@ -151,7 +151,7 @@ export function useTacticsBoard({
   };
 
   return {
-    loaded,
+    playersLoaded,
     players,
 
     formation,

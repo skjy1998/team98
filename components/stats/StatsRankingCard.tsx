@@ -1,20 +1,14 @@
-interface StatsRankingItem {
-  id: string;
-  name: string;
-  value: number;
-}
+import { RankingItem } from "@/types/stats";
 
 interface StatsRankingCardProps {
   title: string;
-  items: StatsRankingItem[];
-
+  items: RankingItem[];
   barClassName: string;
 }
 
 export default function StatsRankingCard({
   title,
   items,
-
   barClassName,
 }: Readonly<StatsRankingCardProps>) {
   const getRankBadgeClassName = (rank: number) => {
@@ -22,6 +16,8 @@ export default function StatsRankingCard({
     if (rank === 1) return "bg-slate-200 text-slate-700";
     return "bg-orange-200 text-orange-700";
   };
+
+  const topValue = items[0]?.value ?? 0;
 
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
@@ -49,9 +45,7 @@ export default function StatsRankingCard({
               <div
                 className={`h-3 rounded-full ${barClassName}`}
                 style={{
-                  width: `${
-                    items[0]?.value ? (item.value / items[0].value) * 100 : 0
-                  }%`,
+                  width: `${topValue > 0 ? (item.value / topValue) * 100 : 0}%`,
                 }}
               />
             </div>

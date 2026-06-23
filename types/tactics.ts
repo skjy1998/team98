@@ -13,6 +13,10 @@ export type FormationName =
   | "3-5-2"
   | "3-4-3"
   | "4-1-4-1";
+export type SetPieceKey =
+  | "cornerKickPlayerId"
+  | "freeKickPlayerId"
+  | "penaltyKickPlayerId";
 
 export interface SavedFormation {
   formation: FormationName;

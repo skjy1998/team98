@@ -2,21 +2,29 @@ import { FeeType, FineRule } from "@/types/finance";
 import { useState } from "react";
 
 interface FinanceSettingsSectionProps {
-  dueDay: number;
-  setDueDay: (value: number) => void;
+  dueDay: string;
   feeTypes: FeeType[];
-  setFeeTypes: React.Dispatch<React.SetStateAction<FeeType[]>>;
   fineRules: FineRule[];
-  setFineRules: React.Dispatch<React.SetStateAction<FineRule[]>>;
+  onChangeDueDay: (value: string) => void;
+  onAddFeeType: (nextFeeType: FeeType) => void;
+  onUpdateFeeType: (feeTypeId: string, updates: Partial<FeeType>) => void;
+  onDeleteFeeType: (feeTypeId: string) => void;
+  onAddFineRule: (nextFineRule: FineRule) => void;
+  onUpdateFineRule: (fineRuleId: string, updates: Partial<FineRule>) => void;
+  onDeleteFineRule: (fineRuleId: string) => void;
 }
 
 export default function FinanceSettingsSection({
   dueDay,
-  setDueDay,
   feeTypes,
-  setFeeTypes,
   fineRules,
-  setFineRules,
+  onChangeDueDay,
+  onAddFeeType,
+  onUpdateFeeType,
+  onDeleteFeeType,
+  onAddFineRule,
+  onUpdateFineRule,
+  onDeleteFineRule,
 }: Readonly<FinanceSettingsSectionProps>) {
   const [isAddingFeeType, setIsAddingFeeType] = useState(false);
   const [feeTypeName, setFeeTypeName] = useState("");
@@ -49,21 +57,18 @@ export default function FinanceSettingsSection({
       return;
     }
 
-    setFeeTypes((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        name: feeTypeName.trim(),
-        description: feeTypeDescription.trim(),
-        amount: feeTypeAmount,
-      },
-    ]);
+    onAddFeeType({
+      id: crypto.randomUUID(),
+      name: feeTypeName.trim(),
+      description: feeTypeDescription,
+      amount: feeTypeAmount,
+    });
 
     handleCancelFeeType();
   };
 
   const handleDeleteFeeType = (feeTypeId: string) => {
-    setFeeTypes((prev) => prev.filter((feeType) => feeType.id !== feeTypeId));
+    onDeleteFeeType(feeTypeId);
   };
 
   const handleCancelFineRule = () => {
@@ -90,11 +95,7 @@ export default function FinanceSettingsSection({
       return;
     }
 
-    setFeeTypes((prev) =>
-      prev.map((feeType) =>
-        feeType.id === feeTypeId ? { ...feeType, amount: nextAmount } : feeType,
-      ),
-    );
+    onUpdateFeeType(feeTypeId, { amount: nextAmount });
 
     handleCancelEditFeeType();
   };
@@ -104,21 +105,18 @@ export default function FinanceSettingsSection({
       return;
     }
 
-    setFineRules((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        name: fineRuleName.trim(),
-        trigger: fineRuleTrigger,
-        amount: fineRuleAmount,
-      },
-    ]);
+    onAddFineRule({
+      id: crypto.randomUUID(),
+      name: fineRuleName.trim(),
+      trigger: fineRuleTrigger,
+      amount: fineRuleAmount,
+    });
 
     handleCancelFineRule();
   };
 
   const handleDeleteFineRule = (ruleId: string) => {
-    setFineRules((prev) => prev.filter((rule) => rule.id !== ruleId));
+    onDeleteFineRule(ruleId);
   };
 
   return (
@@ -135,12 +133,12 @@ export default function FinanceSettingsSection({
             </p>
             <select
               value={dueDay}
-              onChange={(event) => setDueDay(Number(event.target.value))}
+              onChange={(event) => onChangeDueDay(event.target.value)}
               className="w-full rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-900 outline-none focus:border-orange-300"
             >
               {Array.from({ length: 28 }, (_, index) => index + 1).map(
                 (day) => (
-                  <option key={day} value={day}>
+                  <option key={day} value={String(day)}>
                     매월 {day}일
                   </option>
                 ),

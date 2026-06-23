@@ -1,4 +1,4 @@
-import { MatchItem, MatchType } from "@/types/match";
+import { MatchItem, MatchRecordMap, MatchType } from "@/types/match";
 
 export type MatchResultStatus =
   | "scheduled"
@@ -162,4 +162,33 @@ export function getIsUpcomingMatch(date: string) {
   matchDate.setHours(0, 0, 0, 0);
 
   return matchDate >= today;
+}
+
+// matches 원본과 records를 받아서 화면에 보여줄 경기 목록으로 바꿔주는 역할
+export function getDisplayMatches(
+  matches: MatchItem[],
+  records: MatchRecordMap,
+) {
+  return matches.map((match) => {
+    const events = records[match.id] ?? [];
+    const isUpcoming = getIsUpcomingMatch(match.date);
+
+    if (events.length === 0) {
+      return {
+        ...match,
+        isUpcoming,
+      };
+    }
+    const ourScore = events.filter((event) => event.type === "goal").length;
+    const opponentScore = events.filter(
+      (event) => event.type === "concede",
+    ).length;
+
+    return {
+      ...match,
+      ourScore,
+      opponentScore,
+      isUpcoming,
+    };
+  });
 }

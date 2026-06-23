@@ -1,13 +1,14 @@
 import { usePlayers } from "@/hooks/usePlayers";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
+import { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
+import { useMatchVotes } from "@/hooks/useMatchVotes";
 import {
-  MatchVote,
-  MatchVotesByMatchId,
-  VoteFilter,
-  VoteStatus,
-} from "@/types/match-vote";
+  getFilteredVoteMembers,
+  getVoteMembers,
+  getVoteSummary,
+} from "@/lib/match-vote";
 
 interface MatchVoteTabProps {
   matchId: string;
@@ -15,48 +16,26 @@ interface MatchVoteTabProps {
 
 export default function MatchVoteTab({ matchId }: Readonly<MatchVoteTabProps>) {
   const { players } = usePlayers();
+  const { votes, setVotes } = useMatchVotes();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<VoteFilter>("all");
-  const [votes, setVotes] = useState<MatchVotesByMatchId>({});
-  const [votesLoaded, setVotesLoaded] = useState(false);
 
   const currentVotes = useMemo(() => {
     return votes[matchId] ?? [];
   }, [votes, matchId]);
 
-  const voteMembers = useMemo(() => {
-    return players.map((player) => {
-      const vote = currentVotes.find((item) => item.playerId === player.id);
+  const voteMembers = useMemo(
+    () => getVoteMembers(players, currentVotes),
+    [players, currentVotes],
+  );
 
-      return {
-        id: player.id,
-        name: player.name,
-        status: vote?.status ?? "pending",
-      };
-    });
-  }, [players, currentVotes]);
+  const filteredMembers = useMemo(
+    () => getFilteredVoteMembers(voteMembers, search, filter),
+    [voteMembers, search, filter],
+  );
 
-  const filteredMembers = useMemo(() => {
-    return voteMembers.filter((member) => {
-      const matchSearch = member.name.includes(search);
-      const matchFilter = filter === "all" ? true : member.status === filter;
-      return matchSearch && matchFilter;
-    });
-  }, [voteMembers, search, filter]);
-
-  const summary = useMemo(() => {
-    const attend = voteMembers.filter((m) => m.status === "attend").length;
-    const pending = voteMembers.filter((m) => m.status === "pending").length;
-    const absent = voteMembers.filter((m) => m.status === "absent").length;
-
-    return {
-      attend,
-      pending,
-      absent,
-      total: voteMembers.length,
-    };
-  }, [voteMembers]);
+  const summary = useMemo(() => getVoteSummary(voteMembers), [voteMembers]);
 
   const updateStatus = (playerId: string, status: VoteStatus) => {
     setVotes((prev) => {
@@ -78,21 +57,6 @@ export default function MatchVoteTab({ matchId }: Readonly<MatchVoteTabProps>) {
       };
     });
   };
-  useEffect(() => {
-    const saved = localStorage.getItem("match-votes");
-
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVotes(JSON.parse(saved));
-    }
-
-    setVotesLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (!votesLoaded) return;
-
-    localStorage.setItem("match-votes", JSON.stringify(votes));
-  }, [votes, votesLoaded]);
 
   return (
     <div className="space-y-5">

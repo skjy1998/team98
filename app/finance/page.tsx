@@ -7,280 +7,76 @@ import FinanceTabs from "@/components/finance/FinanceTabs";
 import FinanceTransactionSection from "@/components/finance/FinanceTransactionSection";
 import PageHeader from "@/components/PageHeader";
 import { useFinanceEntries } from "@/hooks/useFinanceEntries";
+import { useFinancePayments } from "@/hooks/useFinancePayments";
+import { useFinanceSettings } from "@/hooks/useFinanceSettings";
+import { useFinanceTransactions } from "@/hooks/useFinanceTransactions";
 import { usePlayers } from "@/hooks/usePlayers";
 import {
-  getCurrentMonthLabel,
   getFinanceDefaults,
   getFinanceSummary,
-  getMonthlyPaymentEntries,
-  getPaymentStatusRows,
-  getPaymentSummary,
+  getFinanceTab,
+  getPrimaryFeeAmount,
 } from "@/lib/finance";
-import type {
-  FinanceEntry,
-  FinanceEntryType,
-  FinanceTab,
-  FineRule,
-} from "@/types/finance";
+import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export default function FinancePage() {
+  // 탭 / 라우팅
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const activeTab = getFinanceTab(searchParams.get("tab"));
 
-  const activeTabParam = searchParams.get("tab");
-  const activeTab: FinanceTab =
-    activeTabParam === "transactions" ||
-    activeTabParam === "payments" ||
-    activeTabParam === "settings"
-      ? activeTabParam
-      : "transactions";
-
+  // 원본 데이터
   const { entries, loaded, addEntry, updateEntry, deleteEntry } =
     useFinanceEntries();
   const { defaultMonth, defaultDate, defaultTime } = useMemo(
     () => getFinanceDefaults(),
     [],
   );
-  const { players, loaded: playersLoaded } = usePlayers();
+  const { players, playersLoaded } = usePlayers();
+  const settings = useFinanceSettings();
 
-  const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
-  const [entryType, setEntryType] = useState<FinanceEntryType>("income");
-  const [entryAmount, setEntryAmount] = useState("");
-  const [entryDescription, setEntryDescription] = useState("");
-  const [entryDate, setEntryDate] = useState(defaultDate);
-  const [entryTime, setEntryTime] = useState(defaultTime);
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
-
-  const [search, setSearch] = useState("");
-
-  const [entryFilter, setEntryFilter] = useState<"all" | FinanceEntryType>(
-    "all",
+  // 파생값
+  const primaryFeeAmount = useMemo(
+    () => getPrimaryFeeAmount(settings.feeTypes),
+    [settings.feeTypes],
   );
-
-  // 월 이동 상태
-  const [currentMonth, setCurrentMonth] = useState(defaultMonth);
-
-  const [isUnpaidOpen, setIsUnpaidOpen] = useState(false);
-  const [isPaidOpen, setIsPaidOpen] = useState(false);
-
-  const [feeTypes, setFeeTypes] = useState<
-    { id: string; name: string; description: string; amount: number }[]
-  >([]);
-
-  const [dueDay, setDueDay] = useState(1);
-
-  const [fineRules, setFineRules] = useState<FineRule[]>([]);
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
-
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("finance-settings");
-
-    if (savedSettings && savedSettings !== "undefined") {
-      try {
-        const parsed = JSON.parse(savedSettings);
-
-        if (Array.isArray(parsed.feeTypes)) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setFeeTypes(parsed.feeTypes);
-        }
-
-        if (typeof parsed.dueDay === "number") {
-          setDueDay(parsed.dueDay);
-        }
-        if (Array.isArray(parsed.fineRules)) {
-          setFineRules(parsed.fineRules);
-        }
-      } catch {
-        localStorage.removeItem("finance-settings");
-      }
-    }
-    setSettingsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!settingsLoaded) return;
-
-    localStorage.setItem(
-      "finance-settings",
-      JSON.stringify({
-        feeTypes,
-        dueDay,
-        fineRules,
-      }),
-    );
-  }, [feeTypes, dueDay, fineRules, settingsLoaded]);
-
-  // 화면용 월 문자열
-  const currentMonthLabel = useMemo(
-    () => getCurrentMonthLabel(currentMonth),
-    [currentMonth],
-  );
-
-  const thisMonth = defaultMonth;
-
   const financeSummary = useMemo(
-    () => getFinanceSummary(entries, thisMonth),
-    [entries, thisMonth],
+    () => getFinanceSummary(entries, defaultMonth),
+    [entries, defaultMonth],
   );
 
-  // 이번 달 회비 납부 기록 목록
-  const monthlyPaymentEntries = useMemo(
-    () => getMonthlyPaymentEntries(entries, currentMonth),
-    [entries, currentMonth],
-  );
+  // 기능 훅
 
-  // 선수 별 납부 상태 status === paid 면 납부완료
-  const paymentStatusRows = useMemo(
-    () => getPaymentStatusRows(players, monthlyPaymentEntries),
-    [players, monthlyPaymentEntries],
-  );
+  const payments = useFinancePayments({
+    entries,
+    players,
+    defaultMonth,
+    primaryFeeAmount,
+    addEntry,
+    deleteEntry,
+  });
+  const transactions = useFinanceTransactions({
+    entries,
+    currentMonth: payments.currentMonth,
+    defaultDate,
+    defaultTime,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+  });
 
-  // 통계값 만들기
-  const paymentSummary = useMemo(
-    () => getPaymentSummary(paymentStatusRows),
-    [paymentStatusRows],
-  );
-
-  const primaryFeeAmount = useMemo(() => {
-    const generalFee =
-      feeTypes.find((feeType) => feeType.name.includes("일반")) ?? feeTypes[0];
-
-    return generalFee?.amount ?? 0;
-  }, [feeTypes]);
-
+  // 핸들러
   const handleChangeTab = (tab: FinanceTab) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleSubmitEntry = () => {
-    if (
-      !entryDescription.trim() ||
-      !entryAmount.trim() ||
-      Number(entryAmount) <= 0
-    ) {
-      return;
-    }
-
-    if (editingEntryId) {
-      updateEntry(editingEntryId, {
-        type: entryType,
-        amount: Number(entryAmount),
-        description: entryDescription.trim(),
-        date: entryDate,
-        time: entryTime,
-      });
-
-      handleCancelEdit();
-      return;
-    }
-
-    addEntry({
-      type: entryType,
-      amount: Number(entryAmount),
-      description: entryDescription.trim(),
-      date: entryDate,
-      time: entryTime,
-    });
-
-    handleCancelEdit();
-    setIsEntryFormOpen(false);
-  };
-
-  const handleStartEdit = (entry: FinanceEntry) => {
-    setEditingEntryId(entry.id);
-    setEntryType(entry.type);
-    setEntryAmount(String(entry.amount));
-    setEntryDescription(entry.description);
-    setEntryDate(entry.date);
-    setEntryTime(entry.time);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingEntryId(null);
-    setEntryType("income");
-    setEntryAmount("");
-    setEntryDescription("");
-    setEntryDate(defaultDate);
-    setEntryTime(defaultTime);
-    setIsEntryFormOpen(false);
-  };
-
-  const handleDeleteEntry = (entryId: string) => {
-    const confirmed = globalThis.confirm("이 내역을 삭제할까요?");
-    if (!confirmed) return;
-
-    deleteEntry(entryId);
-  };
-
-  // 월 이동 함수
-  const handleMoveMonth = (direction: "prev" | "next") => {
-    const [year, month] = currentMonth.split("-").map(Number);
-
-    const nextDate =
-      direction === "prev"
-        ? new Date(year, month - 2, 1)
-        : new Date(year, month, 1);
-    const nextYear = nextDate.getFullYear();
-    const nextMonth = String(nextDate.getMonth() + 1).padStart(2, "0");
-
-    setCurrentMonth(`${nextYear}-${nextMonth}`);
-  };
-
-  const handleChangePaymentStatus = (
-    playerName: string,
-    nextStatus: "paid" | "unpaid",
-  ) => {
-    const existingPaymentEntry = monthlyPaymentEntries.find((entry) =>
-      entry.description.includes(playerName),
-    );
-
-    if (nextStatus === "paid" && !existingPaymentEntry) {
-      const now = new Date();
-
-      const currentTime = now.toTimeString().slice(0, 5);
-
-      addEntry({
-        type: "income",
-        amount: primaryFeeAmount,
-        description: `${currentMonth} 회비 (${playerName})`,
-        date: `${currentMonth}-01`,
-        time: currentTime,
-      });
-
-      return;
-    }
-
-    if (nextStatus === "unpaid" && existingPaymentEntry) {
-      deleteEntry(existingPaymentEntry.id);
-    }
-  };
-
-  const filteredEntries = entries.filter((entry) => {
-    const matchesMonth = entry.date.startsWith(currentMonth);
-    const matchesSearch = entry.description
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesFilter = entryFilter === "all" || entry.type === entryFilter;
-
-    return matchesMonth && matchesSearch && matchesFilter;
-  });
-
-  const unpaidPaymentRows = paymentStatusRows.filter(
-    (row) => row.status === "unpaid",
-  );
-
-  const paidPaymentRows = paymentStatusRows.filter(
-    (row) => row.status === "paid",
-  );
-
-  if (!loaded || !playersLoaded) {
+  if (!loaded || !playersLoaded || !settings.settingsLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -310,57 +106,58 @@ export default function FinancePage() {
       <div className="space-y-6 pt-3">
         {activeTab === "transactions" && (
           <FinanceTransactionSection
-            search={search}
-            onChangeSearch={setSearch}
-            entryFilter={entryFilter}
-            onChangeEntryFilter={setEntryFilter}
-            isEntryFormOpen={isEntryFormOpen}
-            onToggleEntryForm={() => {
-              setEditingEntryId(null);
-              setIsEntryFormOpen((prev) => !prev);
-            }}
-            entryType={entryType}
-            onChangeEntryType={setEntryType}
-            entryAmount={entryAmount}
-            onChangeEntryAmount={setEntryAmount}
-            entryDescription={entryDescription}
-            onChangeEntryDescription={setEntryDescription}
-            entryDate={entryDate}
-            onChangeEntryDate={setEntryDate}
-            entryTime={entryTime}
-            onChangeEntryTime={setEntryTime}
-            editingEntryId={editingEntryId}
-            entries={filteredEntries}
-            onStartEdit={handleStartEdit}
-            onCancelEdit={handleCancelEdit}
-            onSubmitEntry={handleSubmitEntry}
-            onDeleteEntry={handleDeleteEntry}
-            currentMonthLabel={currentMonthLabel}
-            onMoveMonth={handleMoveMonth}
+            search={transactions.search}
+            onChangeSearch={transactions.setSearch}
+            entryFilter={transactions.entryFilter}
+            onChangeEntryFilter={transactions.setEntryFilter}
+            isEntryFormOpen={transactions.isEntryFormOpen}
+            onToggleEntryForm={transactions.handleToggleEntryForm}
+            entryType={transactions.entryType}
+            onChangeEntryType={transactions.setEntryType}
+            entryAmount={transactions.entryAmount}
+            onChangeEntryAmount={transactions.setEntryAmount}
+            entryDescription={transactions.entryDescription}
+            onChangeEntryDescription={transactions.setEntryDescription}
+            entryDate={transactions.entryDate}
+            onChangeEntryDate={transactions.setEntryDate}
+            entryTime={transactions.entryTime}
+            onChangeEntryTime={transactions.setEntryTime}
+            editingEntryId={transactions.editingEntryId}
+            entries={transactions.filteredEntries}
+            onStartEdit={transactions.handleStartEdit}
+            onCancelEdit={transactions.handleCancelEdit}
+            onSubmitEntry={transactions.handleSubmitEntry}
+            onDeleteEntry={transactions.handleDeleteEntry}
+            currentMonthLabel={payments.currentMonthLabel}
+            onMoveMonth={payments.handleMoveMonth}
           />
         )}
         {activeTab === "payments" && (
           <FinancePaymentsSection
-            currentMonthLabel={currentMonthLabel}
-            onMoveMonth={handleMoveMonth}
-            paymentSummary={paymentSummary}
-            unpaidPaymentRows={unpaidPaymentRows}
-            paidPaymentRows={paidPaymentRows}
-            isUnpaidOpen={isUnpaidOpen}
-            onToggleUnpaid={() => setIsUnpaidOpen((prev) => !prev)}
-            isPaidOpen={isPaidOpen}
-            onTogglePaid={() => setIsPaidOpen((prev) => !prev)}
-            onChangePaymentStatus={handleChangePaymentStatus}
+            currentMonthLabel={payments.currentMonthLabel}
+            onMoveMonth={payments.handleMoveMonth}
+            paymentSummary={payments.paymentSummary}
+            unpaidPaymentRows={payments.unpaidPaymentRows}
+            paidPaymentRows={payments.paidPaymentRows}
+            isUnpaidOpen={payments.isUnpaidOpen}
+            onToggleUnpaid={() => payments.setIsUnpaidOpen((prev) => !prev)}
+            isPaidOpen={payments.isPaidOpen}
+            onTogglePaid={() => payments.setIsPaidOpen((prev) => !prev)}
+            onChangePaymentStatus={payments.handleChangePaymentStatus}
           />
         )}
         {activeTab === "settings" && (
           <FinanceSettingsSection
-            dueDay={dueDay}
-            setDueDay={setDueDay}
-            feeTypes={feeTypes}
-            setFeeTypes={setFeeTypes}
-            fineRules={fineRules}
-            setFineRules={setFineRules}
+            dueDay={settings.dueDay}
+            feeTypes={settings.feeTypes}
+            fineRules={settings.fineRules}
+            onChangeDueDay={settings.handleChangeDueDay}
+            onAddFeeType={settings.handleAddFeeType}
+            onUpdateFeeType={settings.handleUpdateFeeType}
+            onDeleteFeeType={settings.handleDeleteFeeType}
+            onAddFineRule={settings.handleAddFineRule}
+            onUpdateFineRule={settings.handleUpdateFineRule}
+            onDeleteFineRule={settings.handleDeleteFineRule}
           />
         )}
       </div>

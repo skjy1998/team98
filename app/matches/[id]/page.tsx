@@ -1,16 +1,16 @@
 "use client";
 
 import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
-import MatchDetailTabs, {
-  MatchDetailTab,
-} from "@/components/matches/detail/MatchDetailTabs";
+import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
 import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
 import MatchRecordTab from "@/components/matches/detail/MatchRecordTab";
 import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
 import MatchTacticsTab from "@/components/matches/detail/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
+import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
 import { useMatches } from "@/hooks/useMatches";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
+import { removeMatchRecords, removeMatchVotes } from "@/lib/match-storage";
 import {
   getMatchDetailStatusLabel,
   getMatchDetailSubText,
@@ -18,12 +18,12 @@ import {
   getOpponentName,
   statusMap,
 } from "@/lib/match-ui";
-import { MatchCreateFormValue } from "@/types/match";
+import { MatchCreateFormValue, MatchDetailTab, MatchItem } from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function MatchDetailPage() {
   const searchParams = useSearchParams();
@@ -37,6 +37,7 @@ export default function MatchDetailPage() {
       ? activeTabParam
       : "info";
   const { matches, matchesLoaded, setMatches } = useMatches();
+  const [deleteMatch, setDeleteMatch] = useState<MatchItem | null>(null);
   const router = useRouter();
 
   const params = useParams();
@@ -122,37 +123,13 @@ export default function MatchDetailPage() {
   };
 
   const handleDeleteMatch = () => {
-    if (!match) return;
+    if (!deleteMatch) return;
 
-    const confirmed = globalThis.confirm("이 경기를 삭제할까요?");
-    if (!confirmed) return;
+    removeMatchRecords(deleteMatch.id);
+    removeMatchVotes(deleteMatch.id);
 
-    const savedRecords = localStorage.getItem("match-records");
-    if (savedRecords && savedRecords !== "undefined") {
-      try {
-        const parsedRecords = JSON.parse(savedRecords) as Record<
-          string,
-          unknown
-        >;
-        delete parsedRecords[match.id];
-        localStorage.setItem("match-records", JSON.stringify(parsedRecords));
-      } catch {
-        localStorage.removeItem("match-records");
-      }
-    }
-
-    const savedVotes = localStorage.getItem("match-votes");
-    if (savedVotes && savedVotes !== "undefined") {
-      try {
-        const parsedVotes = JSON.parse(savedVotes) as Record<string, unknown>;
-        delete parsedVotes[match.id];
-        localStorage.setItem("match-votes", JSON.stringify(parsedVotes));
-      } catch {
-        localStorage.removeItem("match-votes");
-      }
-    }
-
-    setMatches((prev) => prev.filter((item) => item.id !== match.id));
+    setMatches((prev) => prev.filter((item) => item.id !== deleteMatch.id));
+    setDeleteMatch(null);
     router.push("/matches");
   };
 
@@ -195,18 +172,17 @@ export default function MatchDetailPage() {
         opponentName={opponentName}
         statusBadgeClassName={status.badgeClassName}
       />
-
       <MatchDetailTabs activeTab={activeTab} onChange={handleChangeTab} />
-
       {activeTab === "info" && (
         <MatchInfoTab
           match={resolvedMatch}
           onSave={handleUpdateMatch}
-          onDelete={handleDeleteMatch}
+          onDelete={() => setDeleteMatch(match)}
         />
       )}
-      {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
+      {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
+
       {activeTab === "record" && (
         <MatchRecordTab
           matchId={match.id}
@@ -219,6 +195,13 @@ export default function MatchDetailPage() {
         />
       )}
       {activeTab === "review" && <MatchTabPlaceholder label="후기" />}
+      {deleteMatch && (
+        <MatchDeleteModal
+          match={deleteMatch}
+          onClose={() => setDeleteMatch(null)}
+          onDelete={handleDeleteMatch}
+        />
+      )}
     </div>
   );
 }

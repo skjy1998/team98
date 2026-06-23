@@ -18,3 +18,5 @@ export const playerDetailPositions = {
   DF: ["CB", "LB", "RB"],
   GK: ["GK"],
 } as const;
+
+export type PlayerSortType = "latest" | "number" | "name" | "position";

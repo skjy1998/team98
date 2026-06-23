@@ -8,6 +8,7 @@ import {
   getPlayerAssistCount,
   getPlayerGoalCount,
 } from "./player-stats";
+import { RankingPlayer, RecentResult } from "@/types/stats";
 
 // 점수 계산 helper
 export function getMatchScoreFromEvent(
@@ -25,7 +26,7 @@ export function getMatchScoreFromEvent(
 export function getRecentResults(
   matches: MatchItem[],
   records: MatchRecordMap,
-) {
+): RecentResult[] {
   const pastMatches = matches
     .filter((match) => !getIsUpcomingMatch(match.date))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -163,4 +164,15 @@ export function getRankPlayerStats(
     if (b.assist !== a.assist) return b.assist - a.assist;
     return a.name.localeCompare(b.name, "ko");
   });
+}
+
+export function getRankingItems(
+  players: RankingPlayer[],
+  key: "goal" | "assist" | "appearance",
+) {
+  return players.map((player) => ({
+    id: player.id,
+    name: player.name,
+    value: player[key],
+  }));
 }

@@ -1,11 +1,12 @@
-import { ArrowDownAZ, Search } from "lucide-react";
+import { PlayerSortType } from "@/types/player";
+import { Search } from "lucide-react";
 
 interface PlayerToolbarProps {
   search: string;
   totalCount: number;
-  sortType: "latest" | "number" | "name" | "position";
+  sortType: PlayerSortType;
   onSearchChange: (value: string) => void;
-  onChangeSortType: (value: "latest" | "number" | "name" | "position") => void;
+  onChangeSortType: (value: PlayerSortType) => void;
   onOpen: () => void;
 }
 

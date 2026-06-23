@@ -2,58 +2,30 @@
 
 import PageHeader from "@/components/PageHeader";
 import MatchSection from "@/components/matches/MatchSection";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import MatchCreateModal from "@/components/matches/MatchCreateModal";
-import { MatchCreateFormValue, MatchItem, MatchRecordMap } from "@/types/match";
+import { MatchCreateFormValue, MatchItem } from "@/types/match";
 import { useMatches } from "@/hooks/useMatches";
-import { getIsUpcomingMatch } from "@/lib/match-ui";
+import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/match-ui";
+import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
 
 export default function MatchesPage() {
-  const [records, setRecords] = useState<MatchRecordMap>({});
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
+  const { records } = useMatchRecordsMap();
   const { matches, setMatches, matchesLoaded } = useMatches();
 
-  useEffect(() => {
-    const savedRecords = localStorage.getItem("match-records");
-
-    if (savedRecords) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRecords(JSON.parse(savedRecords));
-    }
-  }, []);
-
-  const displayMatches = useMemo(() => {
-    return matches.map((match) => {
-      const events = records[match.id] ?? [];
-      const isUpcoming = getIsUpcomingMatch(match.date);
-
-      if (events.length === 0) {
-        return {
-          ...match,
-          isUpcoming,
-        };
-      }
-
-      const ourScore = events.filter((event) => event.type === "goal").length;
-      const opponentScore = events.filter(
-        (event) => event.type === "concede",
-      ).length;
-
-      return {
-        ...match,
-        ourScore,
-        opponentScore,
-        isUpcoming,
-      };
-    });
-  }, [matches, records]);
-
-  const upcomingMatches = displayMatches.filter((match) =>
-    getIsUpcomingMatch(match.date),
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const displayMatches = useMemo(
+    () => getDisplayMatches(matches, records),
+    [matches, records],
   );
-  const pastMatches = displayMatches.filter(
-    (match) => !getIsUpcomingMatch(match.date),
+
+  const upcomingMatches = useMemo(
+    () => displayMatches.filter((match) => getIsUpcomingMatch(match.date)),
+    [displayMatches],
+  );
+  const pastMatches = useMemo(
+    () => displayMatches.filter((match) => !getIsUpcomingMatch(match.date)),
+    [displayMatches],
   );
 
   const handleCreateMatch = (value: MatchCreateFormValue) => {

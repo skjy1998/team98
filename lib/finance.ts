@@ -1,5 +1,7 @@
 import {
+  FeeType,
   FinanceEntry,
+  FinanceTab,
   PaymentStatusRow,
   PaymentSummary,
 } from "@/types/finance";
@@ -106,4 +108,19 @@ export function getPaymentSummary(
     unpaidCount,
     paidRate,
   };
+}
+
+export function getPrimaryFeeAmount(feeTypes: FeeType[]) {
+  const generalFee =
+    feeTypes.find((feeType) => feeType.name.includes("일반")) ?? feeTypes[0];
+
+  return generalFee?.amount ?? 0;
+}
+
+export function getFinanceTab(tab: string | null): FinanceTab {
+  if (tab === "transactions" || tab === "payments" || tab === "settings") {
+    return tab;
+  }
+
+  return "transactions";
 }

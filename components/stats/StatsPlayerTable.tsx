@@ -1,16 +1,45 @@
+import { StatsPlayerRow } from "@/types/stats";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
-interface StatsPlayerRow {
-  id: string;
-  name: string;
-  number?: number;
-  attackPoint: number;
-  goal: number;
-  assist: number;
-  appearance: number;
-  attendanceRate: number;
-}
+type SortKey =
+  | "attackPoint"
+  | "goal"
+  | "assist"
+  | "appearance"
+  | "attendanceRate";
+
+const sortableColumns: {
+  key: SortKey;
+  label: string;
+  activeClassName: string;
+}[] = [
+  {
+    key: "attackPoint",
+    label: "G+A",
+    activeClassName: "font-semibold text-orange-500",
+  },
+  {
+    key: "goal",
+    label: "골",
+    activeClassName: "font-semibold text-emerald-600",
+  },
+  {
+    key: "assist",
+    label: "어시",
+    activeClassName: "font-semibold text-sky-600",
+  },
+  {
+    key: "appearance",
+    label: "출전",
+    activeClassName: "font-semibold text-amber-600",
+  },
+  {
+    key: "attendanceRate",
+    label: "출석률",
+    activeClassName: "font-semibold text-orange-500",
+  },
+];
 
 interface StatsPlayerTableProps {
   players: StatsPlayerRow[];
@@ -19,17 +48,10 @@ interface StatsPlayerTableProps {
 export default function StatsPlayerTable({
   players,
 }: Readonly<StatsPlayerTableProps>) {
-  type Sortkey =
-    | "attackPoint"
-    | "goal"
-    | "assist"
-    | "appearance"
-    | "attendanceRate";
-
-  const [sortKey, setSortKey] = useState<Sortkey>("attackPoint");
+  const [sortKey, setSortKey] = useState<SortKey>("attackPoint");
   const [isAscending, setIsAscending] = useState(false);
 
-  const handleSort = (key: Sortkey) => {
+  const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setIsAscending((prev) => !prev);
       return;
@@ -51,10 +73,10 @@ export default function StatsPlayerTable({
   }, [players, sortKey, isAscending]);
 
   const renderSortButton = (
-    key: Sortkey,
+    key: SortKey,
     label: string,
     activeClassName: string,
-    inavcitveClassName = "font-medium text-stone-400 hover:text-stone-600",
+    inactiveClassName = "font-medium text-stone-400 hover:text-stone-600",
   ) => {
     const isActive = sortKey === key;
 
@@ -63,7 +85,7 @@ export default function StatsPlayerTable({
         type="button"
         onClick={() => handleSort(key)}
         className={`inline-flex items-center gap-1 transition ${
-          isActive ? activeClassName : inavcitveClassName
+          isActive ? activeClassName : inactiveClassName
         }`}
       >
         <span>{label}</span>
@@ -102,41 +124,18 @@ export default function StatsPlayerTable({
               <th className="border-b border-stone-200 px-4 py-3 text-left font-medium">
                 이름
               </th>
-              <th className="border-b border-stone-200 px-4 py-3 text-right font-medium">
-                {renderSortButton(
-                  "attackPoint",
-                  "G+A",
-                  "font-semibold text-orange-500",
-                )}
-              </th>
-              <th className="border-b border-stone-200 px-4 py-3 text-right font-medium">
-                {renderSortButton(
-                  "goal",
-                  "골",
-                  "font-semibold text-emerald-600",
-                )}
-              </th>
-              <th className="border-b border-stone-200 px-4 py-3 text-right font-medium">
-                {renderSortButton(
-                  "assist",
-                  "어시",
-                  "font-semibold text-sky-600",
-                )}
-              </th>
-              <th className="border-b border-stone-200 px-4 py-3 text-right font-medium">
-                {renderSortButton(
-                  "appearance",
-                  "출전",
-                  "font-semibold text-amber-600",
-                )}
-              </th>
-              <th className="border-b border-stone-200 px-4 py-3 text-right font-medium">
-                {renderSortButton(
-                  "attendanceRate",
-                  "출석률",
-                  "font-semibold text-orange-500",
-                )}
-              </th>
+              {sortableColumns.map((column) => (
+                <th
+                  key={column.key}
+                  className="border-b border-stone-200 px-4 py-3 text-right font-medium"
+                >
+                  {renderSortButton(
+                    column.key,
+                    column.label,
+                    column.activeClassName,
+                  )}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>

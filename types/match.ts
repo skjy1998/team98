@@ -3,6 +3,8 @@ export type MatchType = "정규" | "자체전";
 export type MatchUniform = "home" | "away";
 export type MatchRecordEventType = "goal" | "concede";
 export type MatchRecordQuarter = "1Q" | "2Q" | "3Q" | "4Q" | "unknown";
+export type MatchRecordMap = Record<string, MatchRecordEvent[]>;
+export type MatchDetailTab = "info" | "vote" | "tactics" | "record" | "review";
 
 export interface MatchRecordEvent {
   id: string;
@@ -14,8 +16,6 @@ export interface MatchRecordEvent {
   minute?: string;
   quarter?: MatchRecordQuarter;
 }
-
-export type MatchRecordMap = Record<string, MatchRecordEvent[]>;
 
 export interface MatchCreateFormValue {
   title: string;
