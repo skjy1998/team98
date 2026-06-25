@@ -21,12 +21,20 @@ export function useFinanceTransactions({
   deleteEntry,
 }: UseFinanceTransactionParams) {
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
-  const [entryType, setEntryType] = useState<FinanceEntryType>("income");
-  const [entryAmount, setEntryAmount] = useState("");
-  const [entryDescription, setEntryDescription] = useState("");
-  const [entryDate, setEntryDate] = useState(defaultDate);
-  const [entryTime, setEntryTime] = useState(defaultTime);
+  const [createEntryType, setCreateEntryType] =
+    useState<FinanceEntryType>("income");
+  const [createEntryAmount, setCreateEntryAmount] = useState("");
+  const [createEntryDescription, setCreateEntryDescription] = useState("");
+  const [createEntryDate, setCreateEntryDate] = useState(defaultDate);
+  const [createEntryTime, setCreateEntryTime] = useState(defaultTime);
+
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editEntryType, setEditEntryType] =
+    useState<FinanceEntryType>("income");
+  const [editEntryAmount, setEditEntryAmount] = useState("");
+  const [editEntryDescription, setEditEntryDescription] = useState("");
+  const [editEntryDate, setEditEntryDate] = useState(defaultDate);
+  const [editEntryTime, setEditEntryTime] = useState(defaultTime);
 
   const [search, setSearch] = useState("");
 
@@ -34,57 +42,78 @@ export function useFinanceTransactions({
     "all",
   );
 
-  const handleSubmitEntry = () => {
+  const resetCreateForm = () => {
+    setCreateEntryType("income");
+    setCreateEntryAmount("");
+    setCreateEntryDescription("");
+    setCreateEntryDate(defaultDate);
+    setCreateEntryTime(defaultTime);
+  };
+
+  const handleSubmitCreateEntry = () => {
     if (
-      !entryDescription.trim() ||
-      !entryAmount.trim() ||
-      Number(entryAmount) <= 0
+      !createEntryDescription.trim() ||
+      !createEntryAmount.trim() ||
+      Number(createEntryAmount) <= 0
     ) {
       return;
     }
 
-    if (editingEntryId) {
-      updateEntry(editingEntryId, {
-        type: entryType,
-        amount: Number(entryAmount),
-        description: entryDescription.trim(),
-        date: entryDate,
-        time: entryTime,
-      });
-
-      handleCancelEdit();
-      return;
-    }
-
     addEntry({
-      type: entryType,
-      amount: Number(entryAmount),
-      description: entryDescription.trim(),
-      date: entryDate,
-      time: entryTime,
+      type: createEntryType,
+      amount: Number(createEntryAmount),
+      description: createEntryDescription.trim(),
+      date: createEntryDate,
+      time: createEntryTime,
     });
 
-    handleCancelEdit();
+    resetCreateForm();
     setIsEntryFormOpen(false);
+  };
+
+  const resetEditForm = () => {
+    setEditingEntryId(null);
+    setEditEntryType("income");
+    setEditEntryAmount("");
+    setEditEntryDescription("");
+    setEditEntryDate(defaultDate);
+    setEditEntryTime(defaultTime);
   };
 
   const handleStartEdit = (entry: FinanceEntry) => {
+    setIsEntryFormOpen(false);
     setEditingEntryId(entry.id);
-    setEntryType(entry.type);
-    setEntryAmount(String(entry.amount));
-    setEntryDescription(entry.description);
-    setEntryDate(entry.date);
-    setEntryTime(entry.time);
+    setEditEntryType(entry.type);
+    setEditEntryAmount(String(entry.amount));
+    setEditEntryDescription(entry.description);
+    setEditEntryDate(entry.date);
+    setEditEntryTime(entry.time);
+  };
+
+  const handleSubmitEditEntry = () => {
+    if (!editingEntryId) return;
+
+    if (
+      !editEntryDescription.trim() ||
+      !editEntryAmount.trim() ||
+      Number(editEntryAmount) <= 0
+    ) {
+      return;
+    }
+
+    updateEntry(editingEntryId, {
+      type: editEntryType,
+      amount: Number(editEntryAmount),
+      description: editEntryDescription.trim(),
+      date: editEntryDate,
+      time: editEntryTime,
+    });
+
+    resetEditForm();
   };
 
   const handleCancelEdit = () => {
-    setEditingEntryId(null);
-    setEntryType("income");
-    setEntryAmount("");
-    setEntryDescription("");
-    setEntryDate(defaultDate);
-    setEntryTime(defaultTime);
-    setIsEntryFormOpen(false);
+    resetEditForm();
   };
 
   const handleDeleteEntry = (entryId: string) => {
@@ -112,26 +141,41 @@ export function useFinanceTransactions({
 
   return {
     isEntryFormOpen,
-    entryType,
-    entryAmount,
-    entryDescription,
-    entryDate,
-    entryTime,
-    editingEntryId,
     search,
     entryFilter,
     filteredEntries,
-    setEntryType,
-    setEntryAmount,
-    setEntryDescription,
-    setEntryDate,
-    setEntryTime,
+    editingEntryId,
+
+    createEntryType,
+    createEntryAmount,
+    createEntryDescription,
+    createEntryDate,
+    createEntryTime,
+
+    editEntryType,
+    editEntryAmount,
+    editEntryDescription,
+    editEntryDate,
+    editEntryTime,
+
     setSearch,
     setEntryFilter,
-    handleSubmitEntry,
+    setCreateEntryType,
+    setCreateEntryAmount,
+    setCreateEntryDescription,
+    setCreateEntryDate,
+    setCreateEntryTime,
+    setEditEntryType,
+    setEditEntryAmount,
+    setEditEntryDescription,
+    setEditEntryDate,
+    setEditEntryTime,
+
+    handleToggleEntryForm,
     handleStartEdit,
     handleCancelEdit,
     handleDeleteEntry,
-    handleToggleEntryForm,
+    handleSubmitCreateEntry,
+    handleSubmitEditEntry,
   };
 }

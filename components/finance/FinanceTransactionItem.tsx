@@ -1,0 +1,68 @@
+import { FinanceEntry } from "@/types/finance";
+import { Pencil, Trash2 } from "lucide-react";
+
+interface FinanceTransactionItemProps {
+  entry: FinanceEntry;
+  onStartEdit: (entry: FinanceEntry) => void;
+  onDeleteEntry: (entryId: string) => void;
+}
+
+export default function FinanceTransactionItem({
+  entry,
+  onStartEdit,
+  onDeleteEntry,
+}: Readonly<FinanceTransactionItemProps>) {
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-stone-900">
+            {entry.description}
+          </p>
+          <p className="mt-1 text-xs text-stone-400">
+            {entry.date} · {entry.time}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span
+            className={`rounded-full px-3 py-1 text-sm font-semibold ${
+              entry.type === "income"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-rose-100 text-rose-600"
+            }`}
+          >
+            {entry.type === "income" ? "입금" : "출금"}
+          </span>
+
+          <p
+            className={`text-base font-semibold ${
+              entry.type === "income" ? "text-emerald-600" : "text-rose-500"
+            }`}
+          >
+            {entry.type === "income" ? "+" : "-"}
+            {entry.amount.toLocaleString()}원
+          </p>
+
+          <button
+            type="button"
+            onClick={() => onStartEdit(entry)}
+            className="rounded-lg p-2 text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+            aria-label="거래 수정"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDeleteEntry(entry.id)}
+            className="rounded-lg p-2 text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
+            aria-label="거래 삭제"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
