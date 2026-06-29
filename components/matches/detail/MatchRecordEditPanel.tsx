@@ -1,5 +1,7 @@
-import { MatchRecordEventType, MatchRecordQuarter } from "@/types/match";
-import { PlayerType } from "@/types/player";
+import type { MatchRecordEventType, MatchRecordQuarter } from "@/types/match";
+import type { PlayerType } from "@/types/player";
+
+const quaterOptions: MatchRecordQuarter[] = ["unknown", "1Q", "2Q", "3Q", "4Q"];
 
 interface MatchRecordEditPanelProps {
   isOpen: boolean;
@@ -118,26 +120,24 @@ export default function MatchRecordEditPanel({
         <div>
           <p className="mb-3 text-sm font-semibold text-stone-700">쿼터</p>
           <div className="grid grid-cols-5 gap-2">
-            {(["unknown", "1Q", "2Q", "3Q", "4Q"] as MatchRecordQuarter[]).map(
-              (quarter) => {
-                const isActive = editingQuarter === quarter;
+            {quaterOptions.map((quarter) => {
+              const isActive = editingQuarter === quarter;
 
-                return (
-                  <button
-                    key={quarter}
-                    type="button"
-                    onClick={() => onChangeQuarter(quarter)}
-                    className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-orange-500 text-white"
-                        : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-                    }`}
-                  >
-                    {quarter === "unknown" ? "모름" : quarter}
-                  </button>
-                );
-              },
-            )}
+              return (
+                <button
+                  key={quarter}
+                  type="button"
+                  onClick={() => onChangeQuarter(quarter)}
+                  className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-orange-500 text-white"
+                      : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                  }`}
+                >
+                  {quarter === "unknown" ? "모름" : quarter}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -147,7 +147,7 @@ export default function MatchRecordEditPanel({
           </label>
           <input
             value={editingMinute}
-            onChange={(e) => onChangeMinute(e.target.value)}
+            onChange={(event) => onChangeMinute(event.target.value)}
             placeholder="시간 입력"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />

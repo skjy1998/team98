@@ -1,4 +1,4 @@
-import { FeeType, FineRule } from "@/types/finance";
+import type { FeeType, FineRule } from "@/types/finance";
 import { useState } from "react";
 import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
 import FinanceFineRuleSection from "./FinanceFineRulesSection";
@@ -15,6 +15,12 @@ interface FinanceSettingsSectionProps {
   onUpdateFineRule: (fineRuleId: string, updates: Partial<FineRule>) => void;
   onDeleteFineRule: (fineRuleId: string) => void;
 }
+
+const fineTriggerLabel: Record<string, string> = {
+  late: "지각",
+  absence: "무단 결석",
+  noshow: "미투표",
+};
 
 export default function FinanceSettingsSection({
   dueDay,
@@ -40,12 +46,6 @@ export default function FinanceSettingsSection({
 
   const [editingFeeTypeId, setEditingFeeTypeId] = useState<string | null>(null);
   const [editingFeeAmount, setEditingFeeAmount] = useState("");
-
-  const fineTriggerLabel: Record<string, string> = {
-    late: "지각",
-    absence: "무단 결석",
-    noshow: "미투표",
-  };
 
   const handleCancelFeeType = () => {
     setIsAddingFeeType(false);

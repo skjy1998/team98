@@ -2,7 +2,7 @@ import { usePlayers } from "@/hooks/usePlayers";
 import { useMemo, useState } from "react";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
-import { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
+import type { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
 import { useMatchVotes } from "@/hooks/useMatchVotes";
 import {
   getFilteredVoteMembers,
@@ -37,7 +37,7 @@ export default function MatchVoteTab({ matchId }: Readonly<MatchVoteTabProps>) {
 
   const summary = useMemo(() => getVoteSummary(voteMembers), [voteMembers]);
 
-  const updateStatus = (playerId: string, status: VoteStatus) => {
+  const handleChangeStatus = (playerId: string, status: VoteStatus) => {
     setVotes((prev) => {
       const prevVotes = prev[matchId] ?? [];
       const existing = prevVotes.find((vote) => vote.playerId === playerId);
@@ -72,7 +72,7 @@ export default function MatchVoteTab({ matchId }: Readonly<MatchVoteTabProps>) {
         members={filteredMembers}
         onSearchChange={setSearch}
         onFilterChange={setFilter}
-        onChangeStatus={updateStatus}
+        onChangeStatus={handleChangeStatus}
       />
     </div>
   );

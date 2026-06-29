@@ -1,4 +1,4 @@
-import { RecentResult } from "@/types/stats";
+import type { RecentResult } from "@/types/stats";
 
 interface TeamSummaryCardProps {
   win: number;
@@ -11,6 +11,12 @@ interface TeamSummaryCardProps {
   recentResults: RecentResult[];
 }
 
+const recentResultStyle = {
+  win: { label: "승", className: "bg-emerald-100 text-emerald-700" },
+  draw: { label: "무", className: "bg-stone-200 text-stone-600" },
+  lose: { label: "패", className: "bg-rose-100 text-rose-600" },
+} as const;
+
 export default function TeamSummaryCard({
   win,
   draw,
@@ -21,18 +27,6 @@ export default function TeamSummaryCard({
   goalDiff,
   recentResults,
 }: Readonly<TeamSummaryCardProps>) {
-  const getRecentResultBadgeClassName = (result: RecentResult) => {
-    if (result === "win") return "bg-emerald-100 text-emerald-700";
-    if (result === "lose") return "bg-rose-100 text-rose-600 ";
-    return "bg-stone-200 text-stone-600";
-  };
-
-  const getRecentResultLabel = (result: RecentResult) => {
-    if (result === "win") return "승";
-    if (result === "lose") return "패";
-    return "무";
-  };
-
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -55,16 +49,18 @@ export default function TeamSummaryCard({
             <p className="text-sm text-stone-500">최근 5경기</p>
 
             <div className="flex items-center gap-2">
-              {recentResults.map((result, index) => (
-                <span
-                  key={`${result}-${index}`}
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-semibold ${getRecentResultBadgeClassName(
-                    result,
-                  )}`}
-                >
-                  {getRecentResultLabel(result)}
-                </span>
-              ))}
+              {recentResults.map((result, index) => {
+                const style = recentResultStyle[result];
+
+                return (
+                  <span
+                    key={`${result}-${index}`}
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-semibold ${style.className}`}
+                  >
+                    {style.label}
+                  </span>
+                );
+              })}
             </div>
           </div>
         </div>

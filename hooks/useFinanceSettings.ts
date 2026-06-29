@@ -1,4 +1,4 @@
-import { FeeType, FineRule } from "@/types/finance";
+import type { FeeType, FineRule } from "@/types/finance";
 import { useEffect, useState } from "react";
 
 export function useFinanceSettings() {

@@ -15,7 +15,8 @@ export default function PlayerCreateModal({
   const [birth, setBirth] = useState("");
 
   const handleSubmit = () => {
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (trimmedName) {
       alert("이름을 입력해주세요.");
       return;
     }
@@ -62,7 +63,7 @@ export default function PlayerCreateModal({
             </div>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(event) => setName(event.target.value)}
               placeholder="실명 또는 닉네임"
               className="h-16 w-full rounded-[20px] border border-stone-200 px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
             />
@@ -79,7 +80,7 @@ export default function PlayerCreateModal({
             </div>
             <input
               value={birth}
-              onChange={(e) => setBirth(e.target.value)}
+              onChange={(event) => setBirth(event.target.value)}
               type="date"
               className="h-16 w-full rounded-[20px] border border-stone-200 px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
             />

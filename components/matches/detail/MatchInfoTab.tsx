@@ -16,21 +16,31 @@ export function MatchInfoTab({
 }: Readonly<MatchInfoTabProps>) {
   const [isEditing, setIsEditing] = useState(false);
 
+  const handleStartEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSave = (value: MatchCreateFormValue) => {
+    onSave(value);
+    setIsEditing(false);
+  };
+
   return (
     <div className="space-y-5">
       {isEditing ? (
         <MatchInfoEditor
           match={match}
-          onCancel={() => setIsEditing(false)}
-          onSave={(value) => {
-            onSave(value);
-            setIsEditing(false);
-          }}
+          onCancel={handleCancelEdit}
+          onSave={handleSave}
         />
       ) : (
         <MatchInfoDisplay
           match={match}
-          onEdit={() => setIsEditing(true)}
+          onEdit={handleStartEdit}
           onDelete={onDelete}
         />
       )}

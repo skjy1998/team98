@@ -1,5 +1,5 @@
-import { PlayerType } from "@/types/player";
-import { FormationSlot } from "@/types/tactics";
+import type { PlayerType } from "@/types/player";
+import type { FormationSlot } from "@/types/tactics";
 import TacticsSelectedSlotCard from "./TacticsSelectedSlotCard";
 import TacticsPlayerList from "./TacticsPlayerList";
 import TacticsKickerSection from "./TacticsKickerSection";

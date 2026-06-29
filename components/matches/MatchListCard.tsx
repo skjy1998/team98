@@ -7,7 +7,7 @@ import {
   statusMap,
   typeMap,
 } from "@/lib/match-ui";
-import { MatchItem } from "@/types/match";
+import type { MatchItem } from "@/types/match";
 import Link from "next/link";
 
 interface MatchListCardProps {

@@ -4,11 +4,11 @@ import {
   getPaymentStatusRows,
   getPaymentSummary,
 } from "@/lib/finance";
-import { FinanceEntry, PaymentStatusRow } from "@/types/finance";
-import { PlayerType } from "@/types/player";
+import type { FinanceEntry, PaymentStatusRow } from "@/types/finance";
+import type { PlayerType } from "@/types/player";
 import { useMemo, useState } from "react";
 
-interface UseFinancepaymentsParams {
+interface UseFinancePaymentsParams {
   entries: FinanceEntry[];
   players: PlayerType[];
   defaultMonth: string;
@@ -24,7 +24,7 @@ export function useFinancePayments({
   primaryFeeAmount,
   addEntry,
   deleteEntry,
-}: UseFinancepaymentsParams) {
+}: UseFinancePaymentsParams) {
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
   const [isUnpaidOpen, setIsUnpaidOpen] = useState(false);
   const [isPaidOpen, setIsPaidOpen] = useState(false);
@@ -76,6 +76,14 @@ export function useFinancePayments({
     setCurrentMonth(`${nextYear}-${nextMonth}`);
   };
 
+  const handleToggleUnpaid = () => {
+    setIsUnpaidOpen((prev) => !prev);
+  };
+
+  const handleTogglePaid = () => {
+    setIsPaidOpen((prev) => !prev);
+  };
+
   const handleChangePaymentStatus = (
     playerName: string,
     nextStatus: PaymentStatusRow["status"],
@@ -108,10 +116,10 @@ export function useFinancePayments({
     unpaidPaymentRows,
     paidPaymentRows,
     isUnpaidOpen,
-    setIsUnpaidOpen,
     isPaidOpen,
-    setIsPaidOpen,
     handleMoveMonth,
+    handleToggleUnpaid,
+    handleTogglePaid,
     handleChangePaymentStatus,
   };
 }

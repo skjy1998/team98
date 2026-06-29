@@ -1,4 +1,4 @@
-import { FinanceEntry } from "@/types/finance";
+import type { FinanceEntry } from "@/types/finance";
 import { Pencil, Trash2 } from "lucide-react";
 
 interface FinanceTransactionItemProps {
@@ -12,6 +12,13 @@ export default function FinanceTransactionItem({
   onStartEdit,
   onDeleteEntry,
 }: Readonly<FinanceTransactionItemProps>) {
+  const isIncome = entry.type === "income";
+  const typeLabel = isIncome ? "입금" : "출금";
+  const badgeClassName = isIncome
+    ? "bg-emerald-100 text-emerald-700"
+    : "bg-rose-100 text-rose-600";
+  const amountClassName = isIncome ? "text-emerald-600" : "text-rose-500";
+  const amountPrefix = isIncome ? "+" : "-";
   return (
     <div className="rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -26,21 +33,13 @@ export default function FinanceTransactionItem({
 
         <div className="flex items-center gap-3">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-semibold ${
-              entry.type === "income"
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-rose-100 text-rose-600"
-            }`}
+            className={`rounded-full px-3 py-1 text-sm font-semibold ${badgeClassName}`}
           >
-            {entry.type === "income" ? "입금" : "출금"}
+            {typeLabel}
           </span>
 
-          <p
-            className={`text-base font-semibold ${
-              entry.type === "income" ? "text-emerald-600" : "text-rose-500"
-            }`}
-          >
-            {entry.type === "income" ? "+" : "-"}
+          <p className={`text-base font-semibold ${amountClassName}`}>
+            {amountPrefix}
             {entry.amount.toLocaleString()}원
           </p>
 

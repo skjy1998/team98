@@ -1,12 +1,12 @@
-import { FinanceEntryType } from "@/types/finance";
+import type { FinanceEntryFilter } from "@/types/finance";
 
 interface FinanceTransactionToolbarProps {
   currentMonthLabel: string;
   onMoveMonth: (direction: "prev" | "next") => void;
   search: string;
   onChangeSearch: (value: string) => void;
-  entryFilter: "all" | FinanceEntryType;
-  onChangeEntryFilter: (value: "all" | FinanceEntryType) => void;
+  entryFilter: FinanceEntryFilter;
+  onChangeEntryFilter: (value: FinanceEntryFilter) => void;
 }
 
 export default function FinanceTransactionToolbar({
@@ -53,9 +53,7 @@ export default function FinanceTransactionToolbar({
           <select
             value={entryFilter}
             onChange={(event) =>
-              onChangeEntryFilter(
-                event.target.value as "all" | FinanceEntryType,
-              )
+              onChangeEntryFilter(event.target.value as FinanceEntryFilter)
             }
             className="h-11 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-700 outline-none focus:border-orange-300"
           >

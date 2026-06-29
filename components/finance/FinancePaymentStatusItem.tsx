@@ -31,17 +31,17 @@ export default function FinancePaymentStatusItem({
         </div>
 
         <select
-          value={row.status === "paid" ? "납부 완료" : "미납"}
+          value={row.status}
           onChange={(event) =>
             onChangePaymentStatus(
               row.playerName,
-              event.target.value === "납부 완료" ? "paid" : "unpaid",
+              event.target.value as "paid" | "unpaid",
             )
           }
           className="h-10 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-700 outline-none focus:border-orange-300"
         >
-          <option>미납</option>
-          <option>납부 완료</option>
+          <option value="unpaid">미납</option>
+          <option value="paid">납부 완료</option>
         </select>
       </div>
     </div>

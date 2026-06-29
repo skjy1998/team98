@@ -1,16 +1,9 @@
-import { StatsPlayerRow } from "@/types/stats";
+import type { StatsSortKey, StatsPlayerRow } from "@/types/stats";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
-type SortKey =
-  | "attackPoint"
-  | "goal"
-  | "assist"
-  | "appearance"
-  | "attendanceRate";
-
 const sortableColumns: {
-  key: SortKey;
+  key: StatsSortKey;
   label: string;
   activeClassName: string;
 }[] = [
@@ -48,10 +41,10 @@ interface StatsPlayerTableProps {
 export default function StatsPlayerTable({
   players,
 }: Readonly<StatsPlayerTableProps>) {
-  const [sortKey, setSortKey] = useState<SortKey>("attackPoint");
+  const [sortKey, setSortKey] = useState<StatsSortKey>("attackPoint");
   const [isAscending, setIsAscending] = useState(false);
 
-  const handleSort = (key: SortKey) => {
+  const handleSort = (key: StatsSortKey) => {
     if (sortKey === key) {
       setIsAscending((prev) => !prev);
       return;
@@ -73,7 +66,7 @@ export default function StatsPlayerTable({
   }, [players, sortKey, isAscending]);
 
   const renderSortButton = (
-    key: SortKey,
+    key: StatsSortKey,
     label: string,
     activeClassName: string,
     inactiveClassName = "font-medium text-stone-400 hover:text-stone-600",
@@ -145,7 +138,7 @@ export default function StatsPlayerTable({
                 className={index === 0 ? "bg-orange-50/50" : "bg-white"}
               >
                 <td
-                  className={`border-b border-stone-100 px-4 py-4 text-left  ${
+                  className={`border-b border-stone-100 px-4 py-4 text-left ${
                     index < 3
                       ? "text-orange-500 font-bold"
                       : "text-stone-500 font-semibold"

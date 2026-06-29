@@ -114,10 +114,10 @@ export default function MatchRecordTab({
     if (!currentEvent) return;
 
     const selectPlayer = players.find(
-      (player) => player.id === editingForm.eventId,
+      (player) => player.id === editingForm.playerId,
     );
     const selectedAssistPlayer = players.find(
-      (player) => player.id === editingForm.eventId,
+      (player) => player.id === editingForm.assistPlayerId,
     );
 
     setPlayers((prevPlayers) =>

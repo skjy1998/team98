@@ -1,5 +1,6 @@
 export type FinanceEntryType = "income" | "expense";
 export type FinanceTab = "transactions" | "payments" | "settings";
+export type FinanceEntryFilter = "all" | FinanceEntryType;
 
 export interface FinanceEntry {
   id: string;

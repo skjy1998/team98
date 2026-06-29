@@ -12,8 +12,10 @@ import { useMatches } from "@/hooks/useMatches";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
 import { removeMatchRecords, removeMatchVotes } from "@/lib/match-storage";
 import {
+  getIsUpcomingMatch,
   getMatchDetailStatusLabel,
   getMatchDetailSubText,
+  getMatchDetailTab,
   getMatchResult,
   getOpponentName,
   statusMap,
@@ -26,21 +28,15 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 export default function MatchDetailPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTabParam = searchParams.get("tab");
-  const activeTab: MatchDetailTab =
-    activeTabParam === "info" ||
-    activeTabParam === "vote" ||
-    activeTabParam === "tactics" ||
-    activeTabParam === "record" ||
-    activeTabParam === "review"
-      ? activeTabParam
-      : "info";
+  const params = useParams();
+
+  const activeTab = getMatchDetailTab(searchParams.get("tab"));
+
   const { matches, matchesLoaded, setMatches } = useMatches();
   const [deleteMatch, setDeleteMatch] = useState<MatchItem | null>(null);
-  const router = useRouter();
 
-  const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
 
   const match = useMemo(() => {
@@ -68,6 +64,48 @@ export default function MatchDetailPage() {
     router.replace(`/matches/${safeMatchId}?${params.toString()}`);
   };
 
+  const handleOpenDelete = () => {
+    if (!match) return;
+    setDeleteMatch(match);
+  };
+
+  const handleCloseDelete = () => {
+    setDeleteMatch(null);
+  };
+
+  const handleUpdateMatch = (value: MatchCreateFormValue) => {
+    if (!match) return;
+
+    setMatches((prev) =>
+      prev.map((item) =>
+        item.id === match.id
+          ? {
+              ...item,
+              title: value.title,
+              type: value.type,
+              date: value.date,
+              startTime: value.startTime,
+              endTime: value.endTime,
+              opponent: value.opponent,
+              location: value.location,
+              isUpcoming: getIsUpcomingMatch(value.date),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleDeleteMatch = () => {
+    if (!deleteMatch) return;
+
+    removeMatchRecords(deleteMatch.id);
+    removeMatchVotes(deleteMatch.id);
+
+    setMatches((prev) => prev.filter((item) => item.id !== deleteMatch.id));
+    setDeleteMatch(null);
+    router.push("/matches");
+  };
+
   if (!matchesLoaded) {
     return (
       <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
@@ -91,47 +129,6 @@ export default function MatchDetailPage() {
       </div>
     );
   }
-
-  const handleUpdateMatch = (value: MatchCreateFormValue) => {
-    if (!match) return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const matchDate = new Date(value.date);
-    matchDate.setHours(0, 0, 0, 0);
-
-    const isUpcoming = matchDate >= today;
-
-    setMatches((prev) =>
-      prev.map((item) =>
-        item.id === match.id
-          ? {
-              ...item,
-              title: value.title,
-              type: value.type,
-              date: value.date,
-              startTime: value.startTime,
-              endTime: value.endTime,
-              opponent: value.opponent,
-              location: value.location,
-              isUpcoming,
-            }
-          : item,
-      ),
-    );
-  };
-
-  const handleDeleteMatch = () => {
-    if (!deleteMatch) return;
-
-    removeMatchRecords(deleteMatch.id);
-    removeMatchVotes(deleteMatch.id);
-
-    setMatches((prev) => prev.filter((item) => item.id !== deleteMatch.id));
-    setDeleteMatch(null);
-    router.push("/matches");
-  };
 
   const resolvedMatch =
     recordsLoaded && events.length > 0
@@ -177,12 +174,11 @@ export default function MatchDetailPage() {
         <MatchInfoTab
           match={resolvedMatch}
           onSave={handleUpdateMatch}
-          onDelete={() => setDeleteMatch(match)}
+          onDelete={handleOpenDelete}
         />
       )}
       {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
       {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
-
       {activeTab === "record" && (
         <MatchRecordTab
           matchId={match.id}
@@ -198,7 +194,7 @@ export default function MatchDetailPage() {
       {deleteMatch && (
         <MatchDeleteModal
           match={deleteMatch}
-          onClose={() => setDeleteMatch(null)}
+          onClose={handleCloseDelete}
           onDelete={handleDeleteMatch}
         />
       )}

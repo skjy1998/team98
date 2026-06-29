@@ -1,4 +1,4 @@
-import { MatchItem } from "@/types/match";
+import type { MatchItem } from "@/types/match";
 import MatchListCard from "./MatchListCard";
 
 interface MatchSectionProps {

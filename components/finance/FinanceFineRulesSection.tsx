@@ -1,4 +1,4 @@
-import { FineRule } from "@/types/finance";
+import type { FineRule } from "@/types/finance";
 import FinanceFineRuleCreateForm from "./FinanceFineRuleCreateForm";
 import FinanceFineRuleList from "./FinanceFineRuleList";
 
@@ -11,8 +11,8 @@ interface FinanceFineRuleSectionProps {
 
   fineRuleName: string;
   onChangeFineRuleName: (value: string) => void;
-  fineRuleTrigger: string;
-  onChangeFineRuleTrigger: (value: string) => void;
+  fineRuleTrigger: FineRule["trigger"];
+  onChangeFineRuleTrigger: (value: FineRule["trigger"]) => void;
   fineRuleAmount: number;
   onChangeFineRuleAmount: (value: number) => void;
   onCancelFineRule: () => void;

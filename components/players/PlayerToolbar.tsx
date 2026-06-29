@@ -10,6 +10,16 @@ interface PlayerToolbarProps {
   onOpen: () => void;
 }
 
+const sortOption: {
+  value: PlayerSortType;
+  label: string;
+}[] = [
+  { value: "latest", label: "최신순" },
+  { value: "number", label: "번호순" },
+  { value: "name", label: "가나다순" },
+  { value: "position", label: "포지션순" },
+];
+
 export default function PlayerToolbar({
   search,
   totalCount,
@@ -25,7 +35,7 @@ export default function PlayerToolbar({
         <input
           placeholder="선수 이름으로 검색"
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(event) => onSearchChange(event.target.value)}
           className="h-14 w-full rounded-xl border border-stone-200 bg-stone-50/50 pl-11 pr-4 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300 focus:bg-white"
         />
       </div>
@@ -48,52 +58,24 @@ export default function PlayerToolbar({
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => onChangeSortType("latest")}
-          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
-            sortType === "latest"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-          }`}
-        >
-          최신순
-        </button>
+        {sortOption.map((option) => {
+          const isActive = sortType === option.value;
 
-        <button
-          type="button"
-          onClick={() => onChangeSortType("number")}
-          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
-            sortType === "number"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-          }`}
-        >
-          번호순
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onChangeSortType("name")}
-          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
-            sortType === "name"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-          }`}
-        >
-          가나다순
-        </button>
-        <button
-          type="button"
-          onClick={() => onChangeSortType("position")}
-          className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
-            sortType === "position"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-          }`}
-        >
-          포지션순
-        </button>
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChangeSortType(option.value)}
+              className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+                isActive
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

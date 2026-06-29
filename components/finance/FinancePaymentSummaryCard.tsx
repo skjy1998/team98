@@ -1,4 +1,4 @@
-import { PaymentSummary } from "@/types/finance";
+import type { PaymentSummary } from "@/types/finance";
 
 interface FinancePaymentSummaryCardProps {
   paymentSummary: PaymentSummary;

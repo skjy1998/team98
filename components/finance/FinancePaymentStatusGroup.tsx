@@ -1,4 +1,4 @@
-import { PaymentStatusRow } from "@/types/finance";
+import type { PaymentStatusRow } from "@/types/finance";
 import FinancePaymentStatusItem from "./FinancePaymentStatusItem";
 
 interface FinancePaymentStatusGroupProps {

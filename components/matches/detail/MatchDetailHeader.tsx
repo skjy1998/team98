@@ -1,4 +1,4 @@
-import { MatchItem } from "@/types/match";
+import type { MatchItem } from "@/types/match";
 
 interface MatchDetailHeaderProps {
   match: MatchItem;
@@ -17,6 +17,7 @@ export default function MatchDetailHeader({
   opponentName,
   statusBadgeClassName,
 }: Readonly<MatchDetailHeaderProps>) {
+  const opponentInitial = opponentName.slice(0, 1);
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
       <div className="bg-stone-50/70 px-6 py-8 md:px-8">
@@ -42,7 +43,7 @@ export default function MatchDetailHeader({
 
           <div className="flex flex-col items-center justify-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-stone-100 text-3xl font-bold text-stone-700">
-              {opponentName.slice(0, 1)}
+              {opponentInitial}
             </div>
             <p className="mt-3 text-xl font-semibold text-stone-900">
               {opponentName}

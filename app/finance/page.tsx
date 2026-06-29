@@ -50,7 +50,6 @@ export default function FinancePage() {
   );
 
   // 기능 훅
-
   const payments = useFinancePayments({
     entries,
     players,
@@ -153,9 +152,9 @@ export default function FinancePage() {
             unpaidPaymentRows={payments.unpaidPaymentRows}
             paidPaymentRows={payments.paidPaymentRows}
             isUnpaidOpen={payments.isUnpaidOpen}
-            onToggleUnpaid={() => payments.setIsUnpaidOpen((prev) => !prev)}
+            onToggleUnpaid={payments.handleToggleUnpaid}
             isPaidOpen={payments.isPaidOpen}
-            onTogglePaid={() => payments.setIsPaidOpen((prev) => !prev)}
+            onTogglePaid={payments.handleTogglePaid}
             onChangePaymentStatus={payments.handleChangePaymentStatus}
           />
         )}

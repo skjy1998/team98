@@ -1,4 +1,9 @@
-import { MatchItem, MatchRecordMap, MatchType } from "@/types/match";
+import {
+  MatchDetailTab,
+  MatchItem,
+  MatchRecordMap,
+  MatchType,
+} from "@/types/match";
 
 export type MatchResultStatus =
   | "scheduled"
@@ -191,4 +196,14 @@ export function getDisplayMatches(
       isUpcoming,
     };
   });
+}
+
+export function getMatchDetailTab(value: string | null): MatchDetailTab {
+  return value === "info" ||
+    value === "vote" ||
+    value === "tactics" ||
+    value === "record" ||
+    value === "review"
+    ? value
+    : "info";
 }

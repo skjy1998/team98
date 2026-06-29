@@ -1,4 +1,4 @@
-import { RankingItem } from "@/types/stats";
+import type { RankingItem } from "@/types/stats";
 import StatsRankingCard from "./StatsRankingCard";
 
 interface StatsRankingSectionProps {

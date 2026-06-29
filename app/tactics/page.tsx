@@ -71,7 +71,7 @@ export default function TacticsPage() {
         />
 
         <TacticsSidebar
-          loaded={tactics.loaded}
+          loaded={tactics.playersLoaded}
           players={tactics.players}
           availablePlayers={sortedAvailablePlayers}
           selectedSlot={tactics.selectedSlot}

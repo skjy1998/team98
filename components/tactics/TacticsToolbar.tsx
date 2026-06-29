@@ -1,5 +1,5 @@
 import { formationTemplate } from "@/data/formationTemplates";
-import { FormationName } from "@/types/tactics";
+import type { FormationName } from "@/types/tactics";
 import { RotateCcw, Save, Trash2 } from "lucide-react";
 
 interface TacticsToolbarProps {
@@ -44,8 +44,8 @@ export default function TacticsToolbar({
             <select
               id="formation-select"
               value={formation}
-              onChange={(e) =>
-                onChangeFormation(e.target.value as FormationName)
+              onChange={(event) =>
+                onChangeFormation(event.target.value as FormationName)
               }
               className="h-14 w-full rounded-xl border border-stone-200 bg-stone-50 px-5 text-base font-semibold text-stone-800 outline-none transition focus:border-emerald-300 focus:bg-white"
             >
@@ -80,14 +80,14 @@ export default function TacticsToolbar({
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
             <input
               value={presetName}
-              onChange={(e) => onChangePresetName?.(e.target.value)}
+              onChange={(event) => onChangePresetName?.(event.target.value)}
               placeholder="전술 이름 입력"
               className="h-14 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300"
             />
 
             <select
               value={selectedPresetId}
-              onChange={(e) => onLoadPreset?.(e.target.value)}
+              onChange={(event) => onLoadPreset?.(event.target.value)}
               className="h-14 min-w-[220px] rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 outline-none transition focus:border-emerald-300"
             >
               <option value="">저장된 전술 불러오기</option>

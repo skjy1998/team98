@@ -1,4 +1,4 @@
-import { FeeType } from "@/types/finance";
+import type { FeeType } from "@/types/finance";
 import FinanceFeeTypeCreateForm from "./FinanceFeeTypeCreateForm";
 import FinanceFeeTypeList from "./FinanceFeeTypeList";
 
@@ -22,7 +22,7 @@ interface FinanceFeeSettingsSectionProps {
   editingFeeTypeId: string | null;
   editingFeeAmount: string;
   onChangeEditingFeeAmount: (value: string) => void;
-  onStartEditFeeType: (feeTypeId: string, amoun: number) => void;
+  onStartEditFeeType: (feeTypeId: string, amount: number) => void;
   onSaveEditFeeType: (feeTypeId: string) => void;
   onCancelEditFeeType: () => void;
   onDeleteFeeType: (feeTypeId: string) => void;

@@ -14,6 +14,7 @@ export default function MatchesPage() {
   const { matches, setMatches, matchesLoaded } = useMatches();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
   const displayMatches = useMemo(
     () => getDisplayMatches(matches, records),
     [matches, records],
@@ -28,15 +29,15 @@ export default function MatchesPage() {
     [displayMatches],
   );
 
+  const handleOpenCreate = () => {
+    setIsCreateOpen(true);
+  };
+
+  const handleCloseCreate = () => {
+    setIsCreateOpen(false);
+  };
+
   const handleCreateMatch = (value: MatchCreateFormValue) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const matchDate = new Date(value.date);
-    matchDate.setHours(0, 0, 0, 0);
-
-    const isUpcoming = matchDate >= today;
-
     const newMatch: MatchItem = {
       id: crypto.randomUUID(),
       title: value.title,
@@ -47,7 +48,7 @@ export default function MatchesPage() {
       location: value.location,
       opponent: value.opponent,
       status: "scheduled",
-      isUpcoming,
+      isUpcoming: getIsUpcomingMatch(value.date),
     };
     setMatches((prev) => [newMatch, ...prev]);
     setIsCreateOpen(false);
@@ -75,7 +76,7 @@ export default function MatchesPage() {
       />
       <button
         type="button"
-        onClick={() => setIsCreateOpen(true)}
+        onClick={handleOpenCreate}
         className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
       >
         일정 등록
@@ -97,7 +98,7 @@ export default function MatchesPage() {
       )}
       {isCreateOpen && (
         <MatchCreateModal
-          onClose={() => setIsCreateOpen(false)}
+          onClose={handleCloseCreate}
           onSave={handleCreateMatch}
         />
       )}

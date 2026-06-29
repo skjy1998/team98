@@ -31,6 +31,14 @@ export default function MatchInfoEditor({
     setErrorMessage("");
   }, [match]);
 
+  const handleChangeType = (nextType: MatchType) => {
+    setType(nextType);
+
+    if (nextType === "자체전") {
+      setOpponent("");
+    }
+  };
+
   const handleSubmit = () => {
     if (!date) {
       setErrorMessage("날짜를 선택해 주세요.");
@@ -66,6 +74,30 @@ export default function MatchInfoEditor({
     });
   };
 
+  const dateTimeFields = [
+    {
+      id: "edit-match-date",
+      label: "날짜",
+      type: "date" as const,
+      value: date,
+      onChange: setDate,
+    },
+    {
+      id: "edit-match-start-time",
+      label: "시작 시간",
+      type: "time" as const,
+      value: startTime,
+      onChange: setStartTime,
+    },
+    {
+      id: "edit-match-end-time",
+      label: "종료 시간",
+      type: "time" as const,
+      value: endTime,
+      onChange: setEndTime,
+    },
+  ];
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
       <div className="flex items-center justify-between gap-3">
@@ -96,7 +128,7 @@ export default function MatchInfoEditor({
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
-                onClick={() => setType("정규")}
+                onClick={() => handleChangeType("정규")}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   type === "정규"
                     ? "bg-emerald-600 text-white"
@@ -107,10 +139,7 @@ export default function MatchInfoEditor({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setType("자체전");
-                  setOpponent("");
-                }}
+                onClick={() => handleChangeType("자체전")}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   type === "자체전"
                     ? "bg-sky-600 text-white"
@@ -121,39 +150,23 @@ export default function MatchInfoEditor({
               </button>
             </div>
           </div>
-
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <label htmlFor="edit-match-date" className="text-sm text-stone-400">
-              날짜
-            </label>
-            <input
-              id="edit-match-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-            />
-          </div>
-
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <label className="text-sm text-stone-400">시작 시간</label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-            />
-          </div>
-
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <label className="text-sm text-stone-400">종료 시간</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-            />
-          </div>
+          {dateTimeFields.map((field) => (
+            <div
+              key={field.id}
+              className="rounded-xl border border-stone-200 bg-stone-50/70 p-4"
+            >
+              <label htmlFor={field.id} className="text-sm text-stone-400">
+                {field.label}
+              </label>
+              <input
+                id={field.id}
+                type={field.type}
+                value={field.value}
+                onChange={(event) => field.onChange(event.target.value)}
+                className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+              />
+            </div>
+          ))}
         </div>
 
         {type === "정규" && (
@@ -167,7 +180,7 @@ export default function MatchInfoEditor({
             <input
               id="edit-match-opponent"
               value={opponent}
-              onChange={(e) => setOpponent(e.target.value)}
+              onChange={(event) => setOpponent(event.target.value)}
               placeholder="예: FC 강남"
               className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
             />
@@ -184,7 +197,7 @@ export default function MatchInfoEditor({
           <input
             id="edit-match-location"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(event) => setLocation(event.target.value)}
             placeholder="장소를 입력하세요"
             className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />

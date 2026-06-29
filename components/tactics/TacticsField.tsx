@@ -1,5 +1,5 @@
-import { PlayerType } from "@/types/player";
-import { FormationName, FormationSlot } from "@/types/tactics";
+import type { PlayerType } from "@/types/player";
+import type { FormationName, FormationSlot } from "@/types/tactics";
 
 interface TacticsFieldProps {
   formation: FormationName;
@@ -16,6 +16,10 @@ export default function TacticsField({
   onSelectSlot,
   getPlayerById,
 }: Readonly<TacticsFieldProps>) {
+  const handleSelectSlot = (slotId: string) => {
+    onSelectSlot(selectedSlotId === slotId ? null : slotId);
+  };
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-4 md:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -51,9 +55,7 @@ export default function TacticsField({
             <button
               key={slot.id}
               type="button"
-              onClick={() =>
-                onSelectSlot(selectedSlotId === slot.id ? null : slot.id)
-              }
+              onClick={() => handleSelectSlot(slot.id)}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border text-center transition ${
                 isActive
                   ? "border-white bg-white/20 text-white ring-4 ring-white/15"

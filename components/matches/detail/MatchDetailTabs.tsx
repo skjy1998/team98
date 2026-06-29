@@ -6,11 +6,12 @@ import {
   NotebookPen,
   Users,
 } from "lucide-react";
+import type { ComponentType } from "react";
 
 const tabs: {
   id: MatchDetailTab;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
 }[] = [
   { id: "info", label: "정보", icon: Info },
   { id: "vote", label: "출석", icon: Users },

@@ -1,4 +1,4 @@
-import { MatchQuarter } from "@/types/tactics";
+import type { MatchQuarter } from "@/types/tactics";
 
 interface MatchQuarterTabsProps {
   quarters: MatchQuarter[];

@@ -21,9 +21,13 @@ export function useTacticsPresets({
   useEffect(() => {
     const saved = localStorage.getItem("tactics-presets");
 
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSavedPresets(JSON.parse(saved));
+    if (saved && saved !== "undefined") {
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSavedPresets(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem("tactics-presets");
+      }
     }
 
     setPresetLoaded(true);

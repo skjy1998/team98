@@ -1,10 +1,11 @@
-import { FinanceTab } from "@/types/finance";
+import type { FinanceTab } from "@/types/finance";
+import type { ComponentType } from "react";
 import { Coins, CreditCard, Settings } from "lucide-react";
 
 const tabs: {
   id: FinanceTab;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
 }[] = [
   { id: "transactions", label: "입출금", icon: Coins },
   { id: "payments", label: "납부현황", icon: CreditCard },

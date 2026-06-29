@@ -1,4 +1,4 @@
-import { PaymentStatusRow, PaymentSummary } from "@/types/finance";
+import type { PaymentStatusRow, PaymentSummary } from "@/types/finance";
 import FinancePaymentSummaryCard from "./FinancePaymentSummaryCard";
 import FinancePaymentHeader from "./FinancePaymentHeader";
 import FinancePaymentStatusGroup from "./FinancePaymentStatusGroup";

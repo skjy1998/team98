@@ -1,7 +1,7 @@
-import { FinanceEntry, FinanceEntryType } from "@/types/finance";
+import type { FinanceEntry, FinanceEntryType } from "@/types/finance";
 import { useState } from "react";
 
-interface UseFinanceTransactionParams {
+interface UseFinanceTransactionsParams {
   entries: FinanceEntry[];
   currentMonth: string;
   defaultDate: string;
@@ -19,7 +19,7 @@ export function useFinanceTransactions({
   addEntry,
   updateEntry,
   deleteEntry,
-}: UseFinanceTransactionParams) {
+}: UseFinanceTransactionsParams) {
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
   const [createEntryType, setCreateEntryType] =
     useState<FinanceEntryType>("income");

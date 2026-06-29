@@ -76,7 +76,7 @@ export default function FinanceEntryForm({
           className="h-11 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300"
         />
 
-        <div className="md:col-span-2 flex justify-end gap-2">
+        <div className="flex justify-end gap-2 md:col-span-2">
           {onCancel && (
             <button
               type="button"

@@ -12,6 +12,13 @@ export default function MatchInfoDisplay({
   onEdit,
   onDelete,
 }: Readonly<MatchInfoDisplayProps>) {
+  const infoItems = [
+    { label: "경기 유형", value: match.type },
+    { label: "날짜", value: match.date },
+    { label: "시작 시간", value: match.startTime },
+    { label: "종료 시간", value: match.endTime },
+  ];
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
       <div className="flex items-center justify-between gap-3">
@@ -36,33 +43,17 @@ export default function MatchInfoDisplay({
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-          <p className="text-sm text-stone-400">경기 유형</p>
-          <p className="mt-2 text-base font-semibold text-stone-900">
-            {match.type}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-          <p className="text-sm text-stone-400">날짜</p>
-          <p className="mt-2 text-base font-semibold text-stone-900">
-            {match.date}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-          <p className="text-sm text-stone-400">시작 시간</p>
-          <p className="mt-2 text-base font-semibold text-stone-900">
-            {match.startTime}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-          <p className="text-sm text-stone-400">종료 시간</p>
-          <p className="mt-2 text-base font-semibold text-stone-900">
-            {match.endTime}
-          </p>
-        </div>
+        {infoItems.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-xl border border-stone-200 bg-stone-50/70 p-4"
+          >
+            <p className="text-sm text-stone-400">{item.label}</p>
+            <p className="mt-2 text-base font-semibold text-stone-900">
+              {item.value}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

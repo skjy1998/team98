@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePlayers } from "./usePlayers";
-import { FormationName, FormationSlot, SavedFormation } from "@/types/tactics";
+import type {
+  FormationName,
+  FormationSlot,
+  SavedFormation,
+} from "@/types/tactics";
 import { formationTemplate } from "@/data/formationTemplates";
 
 interface UseTacticsBoardParams {
@@ -32,14 +36,18 @@ export function useTacticsBoard({
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
 
-    if (saved) {
-      const parsed = JSON.parse(saved) as SavedFormation;
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormation(parsed.formation);
-      setSlots(parsed.slots);
-      setCornerKickPlayerId(parsed.cornerKickPlayerId ?? "");
-      setFreeKickPlayerId(parsed.freeKickPlayerId ?? "");
-      setPenaltyKickPlayerId(parsed.penaltyKickPlayerId ?? "");
+    if (saved && saved !== "undefined") {
+      try {
+        const parsed = JSON.parse(saved) as SavedFormation;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormation(parsed.formation);
+        setSlots(parsed.slots);
+        setCornerKickPlayerId(parsed.cornerKickPlayerId ?? "");
+        setFreeKickPlayerId(parsed.freeKickPlayerId ?? "");
+        setPenaltyKickPlayerId(parsed.penaltyKickPlayerId ?? "");
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
     }
 
     setFormationLoaded(true);

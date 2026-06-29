@@ -54,6 +54,22 @@ export default function PlayersPage() {
     setIsCreateOpen(true);
   };
 
+  const handleCloseCreate = () => {
+    setIsCreateOpen(false);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingPlayer(null);
+  };
+
+  const handleOpenDelete = (player: PlayerType) => {
+    setDeletePlayer(player);
+  };
+
+  const handleCloseDelete = () => {
+    setDeletePlayer(null);
+  };
+
   // 생성 함수
   const handleCreate = (player: PlayerType) => {
     setPlayers((prev) => [...prev, player]);
@@ -103,22 +119,19 @@ export default function PlayersPage() {
       />
 
       {isCreateOpen && (
-        <PlayerCreateModal
-          onClose={() => setIsCreateOpen(false)}
-          onSave={handleCreate}
-        />
+        <PlayerCreateModal onClose={handleCloseCreate} onSave={handleCreate} />
       )}
 
       <PlayerTable
         players={filteredPlayers}
         onEdit={handleEdit}
-        onDelete={(player) => setDeletePlayer(player)}
+        onDelete={handleOpenDelete}
       />
 
       {editingPlayer && (
         <PlayerEditModal
           player={editingPlayer}
-          onClose={() => setEditingPlayer(null)}
+          onClose={handleCloseEdit}
           onSave={handleEditSave}
         />
       )}
@@ -126,7 +139,7 @@ export default function PlayersPage() {
       {deletePlayer && (
         <PlayerDeleteModal
           player={deletePlayer}
-          onClose={() => setDeletePlayer(null)}
+          onClose={handleCloseDelete}
           onDelete={handleDelete}
         />
       )}

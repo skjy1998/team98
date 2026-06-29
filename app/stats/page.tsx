@@ -39,31 +39,21 @@ export default function StatPage() {
   );
 
   // 선수 통계 기준 배열
-  const playerStats = useMemo(
-    () => getPlayerStats(players, matches, votes, records),
-    [players, matches, votes, records],
-  );
-
   // 득점 순위 top3
-  const topScorers = useMemo(() => getTopScorers(playerStats), [playerStats]);
-
   // 어시스트 순위 top3
-  const topAssisters = useMemo(
-    () => getTopAssisters(playerStats),
-    [playerStats],
-  );
-
   // 출전 순위 top3
-  const topAppearances = useMemo(
-    () => getTopAppearances(playerStats),
-    [playerStats],
-  );
-
   // 표용 정렬 배열
-  const rankedPlayerStats = useMemo(
-    () => getRankPlayerStats(playerStats),
-    [playerStats],
-  );
+  const { topScorers, topAssisters, topAppearances, rankedPlayerStats } =
+    useMemo(() => {
+      const playerStats = getPlayerStats(players, matches, votes, records);
+
+      return {
+        topScorers: getTopScorers(playerStats),
+        topAssisters: getTopAssisters(playerStats),
+        topAppearances: getTopAppearances(playerStats),
+        rankedPlayerStats: getRankPlayerStats(playerStats),
+      };
+    }, [players, matches, votes, records]);
 
   const scorerRankingItems = getRankingItems(topScorers, "goal");
   const assisterRankingItems = getRankingItems(topAssisters, "assist");

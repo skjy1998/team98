@@ -67,25 +67,30 @@ export default function MatchTacticsTab({
     [availablePlayers, selectedSlot],
   );
 
-  const handleFormationChange = (value: FormationName) => {
+  const updateCurrentQuarterTactics = (
+    updater: (
+      current: (typeof tacticsByQuarter)[MatchQuarter],
+    ) => (typeof tacticsByQuarter)[MatchQuarter],
+  ) => {
     setTacticsByQuarter((prev) => ({
       ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        formation: value,
-        slots: formationTemplate[value],
-      },
+      [selectedQuarter]: updater(prev[selectedQuarter]),
+    }));
+  };
+
+  const handleFormationChange = (value: FormationName) => {
+    updateCurrentQuarterTactics((current) => ({
+      ...current,
+      formation: value,
+      slots: formationTemplate[value],
     }));
     setSelectedSlotId(null);
   };
 
   const handleResetFormation = () => {
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        slots: formationTemplate[prev[selectedQuarter].formation],
-      },
+    updateCurrentQuarterTactics((current) => ({
+      ...current,
+      slots: formationTemplate[current.formation],
     }));
     setSelectedSlotId(null);
   };
@@ -93,14 +98,11 @@ export default function MatchTacticsTab({
   const handleAssignPlayer = (playerId: string) => {
     if (!selectedSlotId) return;
 
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        slots: prev[selectedQuarter].slots.map((slot) =>
-          slot.id === selectedSlotId ? { ...slot, playerId } : slot,
-        ),
-      },
+    updateCurrentQuarterTactics((current) => ({
+      ...current,
+      slots: current.slots.map((slot) =>
+        slot.id === selectedSlotId ? { ...slot, playerId } : slot,
+      ),
     }));
 
     setSelectedSlotId(null);
@@ -109,31 +111,30 @@ export default function MatchTacticsTab({
   const handleClearSlot = () => {
     if (!selectedSlotId) return;
 
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        slots: prev[selectedQuarter].slots.map((slot) =>
-          slot.id === selectedSlotId ? { ...slot, playerId: undefined } : slot,
-        ),
-      },
+    updateCurrentQuarterTactics((current) => ({
+      ...current,
+      slots: current.slots.map((slot) =>
+        slot.id === selectedSlotId ? { ...slot, playerId: undefined } : slot,
+      ),
     }));
 
     setSelectedSlotId(null);
   };
 
   const handleChangeSetPiecePlayer = (key: SetPieceKey, value: string) => {
-    setTacticsByQuarter((prev) => ({
-      ...prev,
-      [selectedQuarter]: {
-        ...prev[selectedQuarter],
-        [key]: value,
-      },
+    updateCurrentQuarterTactics((current) => ({
+      ...current,
+      [key]: value,
     }));
   };
 
   const findPlayerById = (playerId?: string) => {
     return getPlayerById(players, playerId);
+  };
+
+  const handleChangeQuarter = (quarter: MatchQuarter) => {
+    setSelectedQuarter(quarter);
+    setSelectedSlotId(null);
   };
 
   const cornerKickPlayer = findPlayerById(cornerKickPlayerId);
@@ -145,10 +146,7 @@ export default function MatchTacticsTab({
       <MatchQuarterTabs
         quarters={quarterOptions}
         selectedQuarter={selectedQuarter}
-        onChangeQuarter={(quarter) => {
-          setSelectedQuarter(quarter);
-          setSelectedSlotId(null);
-        }}
+        onChangeQuarter={handleChangeQuarter}
       />
       <TacticsToolbar
         formation={formation}

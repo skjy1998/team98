@@ -1,4 +1,4 @@
-import { FinanceEntryType } from "@/types/finance";
+import type { FinanceEntryType } from "@/types/finance";
 import FinanceEntryForm from "./FinanceEntryForm";
 
 interface FinanceCreateEntryCardProps {

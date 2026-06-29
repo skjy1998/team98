@@ -1,4 +1,10 @@
 export type RecentResult = "win" | "draw" | "lose";
+export type StatsSortKey =
+  | "attackPoint"
+  | "goal"
+  | "assist"
+  | "appearance"
+  | "attendanceRate";
 
 export interface RankingPlayer {
   id: string;
