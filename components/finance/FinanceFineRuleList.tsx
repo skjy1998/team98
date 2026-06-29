@@ -1,4 +1,4 @@
-import { FineRule } from "@/types/finance";
+import type { FineRule } from "@/types/finance";
 
 interface FinanceFineRuleListProps {
   fineRules: FineRule[];
@@ -18,6 +18,7 @@ export default function FinanceFineRuleList({
       </div>
     );
   }
+
   return (
     <div className="space-y-3">
       {fineRules.map((rule) => (

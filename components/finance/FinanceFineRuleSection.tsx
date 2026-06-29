@@ -67,6 +67,7 @@ export default function FinanceFineRuleSection({
           onSave={onSaveFineRule}
         />
       )}
+
       <FinanceFineRuleList
         fineRules={fineRules}
         fineTriggerLabel={fineTriggerLabel}

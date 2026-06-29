@@ -1,5 +1,5 @@
 import type { FeeType } from "@/types/finance";
-import FinanceFeeTypeCreateForm from "./FinanceFeeTypeCreateForm";
+import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
 import FinanceFeeTypeList from "./FinanceFeeTypeList";
 
 interface FinanceFeeSettingsSectionProps {
@@ -20,10 +20,14 @@ interface FinanceFeeSettingsSectionProps {
 
   feeTypes: FeeType[];
   editingFeeTypeId: string | null;
+  editingFeeName: string;
+  editingFeeDescription: string;
   editingFeeAmount: string;
+  onChangeEditingFeeName: (value: string) => void;
+  onChangeEditingFeeDescription: (value: string) => void;
   onChangeEditingFeeAmount: (value: string) => void;
-  onStartEditFeeType: (feeTypeId: string, amount: number) => void;
-  onSaveEditFeeType: (feeTypeId: string) => void;
+  onStartEditFeeType: (feeType: FeeType) => void;
+  onSaveEditFeeType: () => void;
   onCancelEditFeeType: () => void;
   onDeleteFeeType: (feeTypeId: string) => void;
 }
@@ -43,7 +47,11 @@ export default function FinanceFeeSettingsSection({
   onSaveFeeType,
   feeTypes,
   editingFeeTypeId,
+  editingFeeName,
+  editingFeeDescription,
   editingFeeAmount,
+  onChangeEditingFeeName,
+  onChangeEditingFeeDescription,
   onChangeEditingFeeAmount,
   onStartEditFeeType,
   onSaveEditFeeType,
@@ -53,6 +61,7 @@ export default function FinanceFeeSettingsSection({
   return (
     <section className="space-y-4">
       <p className="text-lg font-semibold text-stone-900">회비 설정</p>
+
       <div className="space-y-4">
         <div>
           <p className="mb-2 text-sm font-medium text-stone-500">납부 기준일</p>
@@ -72,21 +81,29 @@ export default function FinanceFeeSettingsSection({
         <p className="mb-2 text-sm font-medium text-stone-500">회비 기준</p>
 
         {isAddingFeeType && (
-          <FinanceFeeTypeCreateForm
+          <FinanceFeeTypeForm
             feeTypeName={feeTypeName}
             onChangeFeeTypeName={onChangeFeeTypeName}
             feeTypeDescription={feeTypeDescription}
             onChangeFeeTypeDescription={onChangeFeeTypeDescription}
             feeTypeAmount={feeTypeAmount}
-            onChangeFeeTypeAmount={onChangeFeeTypeAmount}
+            onChangeFeeTypeAmount={(value) =>
+              onChangeFeeTypeAmount(Number(value) || 0)
+            }
             onCancel={onCancelFeeType}
             onSave={onSaveFeeType}
+            submitLabel="추가"
           />
         )}
+
         <FinanceFeeTypeList
           feeTypes={feeTypes}
           editingFeeTypeId={editingFeeTypeId}
+          editingFeeName={editingFeeName}
+          editingFeeDescription={editingFeeDescription}
           editingFeeAmount={editingFeeAmount}
+          onChangeEditingFeeName={onChangeEditingFeeName}
+          onChangeEditingFeeDescription={onChangeEditingFeeDescription}
           onChangeEditingFeeAmount={onChangeEditingFeeAmount}
           onStartEditFeeType={onStartEditFeeType}
           onSaveEditFeeType={onSaveEditFeeType}
@@ -94,6 +111,7 @@ export default function FinanceFeeSettingsSection({
           onDeleteFeeType={onDeleteFeeType}
         />
       </div>
+
       <button
         type="button"
         onClick={onOpenAddFeeType}

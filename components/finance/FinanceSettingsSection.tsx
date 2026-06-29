@@ -1,7 +1,7 @@
 import type { FeeType, FineRule } from "@/types/finance";
 import { useState } from "react";
 import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
-import FinanceFineRuleSection from "./FinanceFineRulesSection";
+import FinanceFineRuleSection from "./FinanceFineRuleSection";
 
 interface FinanceSettingsSectionProps {
   dueDay: string;
@@ -12,7 +12,6 @@ interface FinanceSettingsSectionProps {
   onUpdateFeeType: (feeTypeId: string, updates: Partial<FeeType>) => void;
   onDeleteFeeType: (feeTypeId: string) => void;
   onAddFineRule: (nextFineRule: FineRule) => void;
-  onUpdateFineRule: (fineRuleId: string, updates: Partial<FineRule>) => void;
   onDeleteFineRule: (fineRuleId: string) => void;
 }
 
@@ -31,7 +30,6 @@ export default function FinanceSettingsSection({
   onUpdateFeeType,
   onDeleteFeeType,
   onAddFineRule,
-  onUpdateFineRule,
   onDeleteFineRule,
 }: Readonly<FinanceSettingsSectionProps>) {
   const [isAddingFeeType, setIsAddingFeeType] = useState(false);
@@ -41,10 +39,13 @@ export default function FinanceSettingsSection({
 
   const [isAddingFineRule, setIsAddingFineRule] = useState(false);
   const [fineRuleName, setFineRuleName] = useState("");
-  const [fineRuleTrigger, setFineRuleTrigger] = useState("late");
+  const [fineRuleTrigger, setFineRuleTrigger] =
+    useState<FineRule["trigger"]>("late");
   const [fineRuleAmount, setFineRuleAmount] = useState(5000);
 
   const [editingFeeTypeId, setEditingFeeTypeId] = useState<string | null>(null);
+  const [editingFeeName, setEditingFeeName] = useState("");
+  const [editingFeeDescription, setEditingFeeDescription] = useState("");
   const [editingFeeAmount, setEditingFeeAmount] = useState("");
 
   const handleCancelFeeType = () => {
@@ -80,24 +81,37 @@ export default function FinanceSettingsSection({
     setFineRuleAmount(5000);
   };
 
-  const handleStartEditFeeType = (feeTypeId: string, amount: number) => {
-    setEditingFeeTypeId(feeTypeId);
-    setEditingFeeAmount(String(amount));
+  const handleStartEditFeeType = (feeType: FeeType) => {
+    setIsAddingFeeType(false);
+    setEditingFeeTypeId(feeType.id);
+    setEditingFeeName(feeType.name);
+    setEditingFeeDescription(feeType.description ?? "");
+    setEditingFeeAmount(String(feeType.amount));
   };
 
   const handleCancelEditFeeType = () => {
     setEditingFeeTypeId(null);
+    setEditingFeeName("");
+    setEditingFeeDescription("");
     setEditingFeeAmount("");
   };
 
-  const handleSaveEditFeeType = (feeTypeId: string) => {
+  const handleSaveEditFeeType = () => {
+    if (!editingFeeTypeId || !editingFeeName.trim()) {
+      return;
+    }
+
     const nextAmount = Number(editingFeeAmount);
 
     if (nextAmount <= 0) {
       return;
     }
 
-    onUpdateFeeType(feeTypeId, { amount: nextAmount });
+    onUpdateFeeType(editingFeeTypeId, {
+      name: editingFeeName.trim(),
+      description: editingFeeDescription,
+      amount: nextAmount,
+    });
 
     handleCancelEditFeeType();
   };
@@ -127,7 +141,10 @@ export default function FinanceSettingsSection({
         dueDay={dueDay}
         onChangeDueDay={onChangeDueDay}
         isAddingFeeType={isAddingFeeType}
-        onOpenAddFeeType={() => setIsAddingFeeType(true)}
+        onOpenAddFeeType={() => {
+          handleCancelEditFeeType();
+          setIsAddingFeeType(true);
+        }}
         feeTypeName={feeTypeName}
         onChangeFeeTypeName={setFeeTypeName}
         feeTypeDescription={feeTypeDescription}
@@ -138,7 +155,11 @@ export default function FinanceSettingsSection({
         onSaveFeeType={handleSaveFeeType}
         feeTypes={feeTypes}
         editingFeeTypeId={editingFeeTypeId}
+        editingFeeName={editingFeeName}
+        editingFeeDescription={editingFeeDescription}
         editingFeeAmount={editingFeeAmount}
+        onChangeEditingFeeName={setEditingFeeName}
+        onChangeEditingFeeDescription={setEditingFeeDescription}
         onChangeEditingFeeAmount={setEditingFeeAmount}
         onStartEditFeeType={handleStartEditFeeType}
         onSaveEditFeeType={handleSaveEditFeeType}

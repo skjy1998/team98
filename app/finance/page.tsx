@@ -168,7 +168,6 @@ export default function FinancePage() {
             onUpdateFeeType={settings.handleUpdateFeeType}
             onDeleteFeeType={settings.handleDeleteFeeType}
             onAddFineRule={settings.handleAddFineRule}
-            onUpdateFineRule={settings.handleUpdateFineRule}
             onDeleteFineRule={settings.handleDeleteFineRule}
           />
         )}
