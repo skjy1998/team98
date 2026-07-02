@@ -15,6 +15,8 @@ export default function DashboardUpcomingMatchSection({
   votes,
   totalPlayers,
 }: Readonly<DashboardUpcomingMatchSectionProps>) {
+  const nextMatch = upcomingMatches[0];
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
@@ -35,8 +37,8 @@ export default function DashboardUpcomingMatchSection({
         </div>
       ) : (
         <DashboardUpcomingMatchCard
-          match={upcomingMatches[0]}
-          votes={votes[upcomingMatches[0].id] ?? []}
+          match={nextMatch}
+          votes={votes[nextMatch.id] ?? []}
           totalPlayers={totalPlayers}
         />
       )}

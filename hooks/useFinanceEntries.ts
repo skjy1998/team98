@@ -5,7 +5,7 @@ const DEFAULT_ENTRIES: FinanceEntry[] = [];
 
 export function useFinanceEntries() {
   const [entries, setEntries] = useState<FinanceEntry[]>(DEFAULT_ENTRIES);
-  const [loaded, setLoaded] = useState(false);
+  const [entriesLoaded, setEntriesLoaded] = useState(false);
 
   useEffect(() => {
     const savedEntries = localStorage.getItem("finance-entries");
@@ -18,13 +18,13 @@ export function useFinanceEntries() {
         localStorage.removeItem("finance-entries");
       }
     }
-    setLoaded(true);
+    setEntriesLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!entriesLoaded) return;
     localStorage.setItem("finance-entries", JSON.stringify(entries));
-  }, [entries, loaded]);
+  }, [entries, entriesLoaded]);
 
   const addEntry = (entry: Omit<FinanceEntry, "id">) => {
     const nextEntry: FinanceEntry = {
@@ -48,7 +48,7 @@ export function useFinanceEntries() {
 
   return {
     entries,
-    loaded,
+    entriesLoaded,
     addEntry,
     updateEntry,
     deleteEntry,

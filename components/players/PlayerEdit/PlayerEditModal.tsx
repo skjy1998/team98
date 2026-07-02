@@ -1,10 +1,16 @@
-import type { PlayerDetailPosition, PlayerType } from "@/types/player";
+import type {
+  PlayerDetailPosition,
+  PlayerPreferredFoot,
+  PlayerRole,
+  PlayerType,
+} from "@/types/player";
 import { X } from "lucide-react";
 import { useState } from "react";
 import PlayerEditSummaryCard from "./PlayerEditSummaryCard";
 import PlayerEditNumberSection from "./PlayerEditNumberSection";
 import PlayerEditPositionSection from "./PlayerEditPositionSection";
 import PlayerEditExtraInfoSection from "./PlayerEditExtraInfoSection";
+import PlayerEditRoleSection from "./PlayerEditRoleSection";
 
 interface PlayerEditModalProps {
   player: PlayerType;
@@ -24,9 +30,11 @@ export default function PlayerEditModal({
     PlayerDetailPosition[]
   >(player.detailPositions ?? []);
   const [birth, setBirth] = useState(player.birth ?? "");
-  const [appearance, setAppearance] = useState(String(player.appearance ?? 0));
-  const [goal, setGoal] = useState(String(player.goal ?? 0));
-  const [assist, setAssist] = useState(String(player.assist ?? 0));
+  const [role, setRole] = useState<PlayerRole>(player.role ?? "member");
+  const [preferredFoot, setPreferredFoot] = useState<PlayerPreferredFoot | "">(
+    player.preferredFoot ?? "",
+  );
+  const [note, setNote] = useState(player.note ?? "");
 
   const handleToggleDetailPosition = (detail: PlayerDetailPosition) => {
     setDetailPositions((prev) =>
@@ -37,16 +45,16 @@ export default function PlayerEditModal({
   };
 
   const handleSubmit = () => {
-    onSave({
+    const updatePlayer: PlayerType = {
       ...player,
-      name: player.name,
       number: number ? Number(number) : undefined,
       detailPositions: detailPositions.length > 0 ? detailPositions : undefined,
       birth: birth || undefined,
-      appearance: Number(appearance) || 0,
-      goal: Number(goal) || 0,
-      assist: Number(assist) || 0,
-    });
+      role,
+      preferredFoot: preferredFoot || undefined,
+      note: note.trim() || undefined,
+    };
+    onSave(updatePlayer);
   };
 
   return (
@@ -67,9 +75,9 @@ export default function PlayerEditModal({
             number={number}
             detailPositions={detailPositions}
             birth={birth}
-            appearance={appearance}
-            goal={goal}
-            assist={assist}
+            appearance={String(player.appearance ?? 0)}
+            goal={String(player.goal ?? 0)}
+            assist={String(player.assist ?? 0)}
           />
           <PlayerEditNumberSection number={number} onChangeNumber={setNumber} />
 
@@ -77,16 +85,15 @@ export default function PlayerEditModal({
             detailPositions={detailPositions}
             onToggleDetailPosition={handleToggleDetailPosition}
           />
+          <PlayerEditRoleSection role={role} onChangeRole={setRole} />
 
           <PlayerEditExtraInfoSection
             birth={birth}
             onChangeBirth={setBirth}
-            appearance={appearance}
-            onChangeAppearance={setAppearance}
-            goal={goal}
-            onChangeGoal={setGoal}
-            assist={assist}
-            onChangeAssist={setAssist}
+            preferredFoot={preferredFoot}
+            onChangePreferredFoot={setPreferredFoot}
+            note={note}
+            onChangeNote={setNote}
           />
 
           <div className="flex justify-end gap-2 pt-1">

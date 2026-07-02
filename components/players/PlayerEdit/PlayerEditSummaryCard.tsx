@@ -1,4 +1,4 @@
-import { PlayerDetailPosition } from "@/types/player";
+import type { PlayerDetailPosition } from "@/types/player";
 
 interface PlayerEditSummaryCardProps {
   playerName: string;
@@ -20,7 +20,7 @@ export default function PlayerEditSummaryCard({
   assist,
 }: Readonly<PlayerEditSummaryCardProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-6">
+    <section className="rounded-xl bg-gradient-to-b from-stone-50 to-white p-6">
       <div className="flex items-start gap-4">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-white text-3xl font-bold text-stone-700 shadow-sm">
           {playerName.slice(0, 1)}

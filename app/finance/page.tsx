@@ -30,7 +30,7 @@ export default function FinancePage() {
   const activeTab = getFinanceTab(searchParams.get("tab"));
 
   // 원본 데이터
-  const { entries, loaded, addEntry, updateEntry, deleteEntry } =
+  const { entries, entriesLoaded, addEntry, updateEntry, deleteEntry } =
     useFinanceEntries();
   const { defaultMonth, defaultDate, defaultTime } = useMemo(
     () => getFinanceDefaults(),
@@ -75,7 +75,7 @@ export default function FinancePage() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  if (!loaded || !playersLoaded || !settings.settingsLoaded) {
+  if (!entriesLoaded || !playersLoaded || !settings.settingsLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader

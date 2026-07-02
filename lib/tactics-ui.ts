@@ -1,6 +1,6 @@
 import { formationTemplate } from "@/data/formationTemplates";
 import { MatchVote } from "@/types/match-vote";
-import { PlayerType } from "@/types/player";
+import { PlayerDetailPosition, PlayerType } from "@/types/player";
 import {
   FormationSlot,
   MatchQuarter,
@@ -25,10 +25,10 @@ export const createDefaultMatchTactics = (): MatchTacticsByQuarter => ({
   "4Q": createDefaultQuarterTactics(),
 });
 
-export function normalizeSlotLabel(label?: string) {
+export function normalizeSlotLabel(label?: string): PlayerDetailPosition | "" {
   if (!label) return "";
 
-  const normalizedMap: Record<string, string> = {
+  const normalizedMap: Record<string, PlayerDetailPosition> = {
     GK: "GK",
     LB: "LB",
     RB: "RB",
@@ -52,7 +52,7 @@ export function normalizeSlotLabel(label?: string) {
     LS: "ST",
     RS: "ST",
   };
-  return normalizedMap[label] ?? label;
+  return normalizedMap[label] ?? "";
 }
 
 export function sortPlayersByRecommendedPosition(
@@ -74,12 +74,15 @@ export function sortPlayersByRecommendedPosition(
   return sortedByName
     .map((player) => ({
       ...player,
-      isRecommended: player.detailPositions?.includes(targetPosition) ?? false,
+      isRecommended: targetPosition
+        ? (player.detailPositions?.includes(targetPosition) ?? false)
+        : false,
     }))
     .sort((a, b) => {
       if (a.isRecommended !== b.isRecommended) {
         return a.isRecommended ? -1 : 1;
       }
+
       return a.name.localeCompare(b.name, "ko");
     });
 }

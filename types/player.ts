@@ -7,10 +7,18 @@ export const playerDetailPositions = {
   GK: ["GK"],
 } as const;
 
+export const playerPreferredFeet = ["right", "left", "both"] as const;
+
+export const playerRoles = ["member", "captain", "viceCaptain"] as const;
+
 export type PlayerDetailPositionGroup = keyof typeof playerDetailPositions;
+
+export type PlayerPreferredFoot = (typeof playerPreferredFeet)[number];
 
 export type PlayerDetailPosition =
   (typeof playerDetailPositions)[PlayerDetailPositionGroup][number];
+
+export type PlayerRole = (typeof playerRoles)[number];
 
 export interface PlayerType {
   id: string;
@@ -19,6 +27,9 @@ export interface PlayerType {
   detailPositions?: PlayerDetailPosition[];
   number?: number;
   birth?: string;
+  role?: PlayerRole;
+  preferredFoot?: PlayerPreferredFoot;
+  note?: string;
   appearance: number;
   goal: number;
   assist: number;

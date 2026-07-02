@@ -1,20 +1,12 @@
 import {
   BarChart3,
   CalendarDays,
-  ChevronRight,
   ClipboardList,
   HandCoins,
-  LucideIcon,
   Users,
 } from "lucide-react";
-import Link from "next/link";
-
-interface DashboardQuickLink {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  iconClassName: string;
-}
+import DashboardQuickLinkButton from "./DashboardQuickLinkButton";
+import type { DashboardQuickLink } from "@/types/dashboard";
 
 const quickLinks: DashboardQuickLink[] = [
   {
@@ -56,30 +48,15 @@ export default function DashboardQuickLinkSection() {
         <span className="text-sm font-semibold text-stone-900">빠른 이동</span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {quickLinks.map((link) => {
-          const Icon = link.icon;
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex h-16 items-center justify-between rounded-xl border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <span
-                  className={[
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",
-                    link.iconClassName,
-                  ].join(" ")}
-                >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span>{link.label}</span>
-              </div>
-              <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
-            </Link>
-          );
-        })}
+        {quickLinks.map((link) => (
+          <DashboardQuickLinkButton
+            key={link.href}
+            href={link.href}
+            label={link.label}
+            icon={link.icon}
+            iconClassName={link.iconClassName}
+          />
+        ))}
       </div>
     </section>
   );

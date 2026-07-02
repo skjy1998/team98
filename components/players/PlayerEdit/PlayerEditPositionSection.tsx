@@ -1,7 +1,8 @@
-import { PlayerDetailPosition, playerDetailPositions } from "@/types/player";
+import { playerDetailPositions } from "@/types/player";
+import type { PlayerDetailPosition } from "@/types/player";
 
 interface PlayerEditPositionSectionProps {
-  detailPositions: string[];
+  detailPositions: PlayerDetailPosition[];
   onToggleDetailPosition: (detail: PlayerDetailPosition) => void;
 }
 

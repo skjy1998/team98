@@ -21,14 +21,16 @@ export default function PlayerCreateModal({
       return;
     }
 
-    onSave({
+    const nextPlayer: PlayerType = {
       id: crypto.randomUUID(),
       name: trimmedName,
       birth: birth || undefined,
       appearance: 0,
       goal: 0,
       assist: 0,
-    });
+    };
+
+    onSave(nextPlayer);
   };
 
   return (
@@ -40,7 +42,7 @@ export default function PlayerCreateModal({
           className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-50"
           aria-label="닫기"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         <div className="mt-5">
@@ -56,12 +58,18 @@ export default function PlayerCreateModal({
         <div className="mt-8 space-y-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <label className="text-lg font-bold text-stone-900">이름</label>
+              <label
+                htmlFor="player-create-name"
+                className="text-lg font-bold text-stone-900"
+              >
+                이름
+              </label>
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                 필수
               </span>
             </div>
             <input
+              id="player-create-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="실명 또는 닉네임"
@@ -71,7 +79,10 @@ export default function PlayerCreateModal({
 
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <label className="text-lg font-bold text-stone-900">
+              <label
+                htmlFor="player-create-birth"
+                className="text-lg font-bold text-stone-900"
+              >
                 생년월일
               </label>
               <span className="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-500">
@@ -79,6 +90,7 @@ export default function PlayerCreateModal({
               </span>
             </div>
             <input
+              id="player-create-birth"
               value={birth}
               onChange={(event) => setBirth(event.target.value)}
               type="date"

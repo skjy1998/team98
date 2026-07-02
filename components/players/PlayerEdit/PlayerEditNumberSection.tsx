@@ -27,6 +27,7 @@ export default function PlayerEditNumberSection({
           <input
             id="player-number"
             type="number"
+            min={0}
             value={number}
             onChange={(event) => onChangeNumber(event.target.value)}
             placeholder="17"

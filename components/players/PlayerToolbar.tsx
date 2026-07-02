@@ -10,7 +10,7 @@ interface PlayerToolbarProps {
   onOpen: () => void;
 }
 
-const sortOption: {
+const sortOptions: {
   value: PlayerSortType;
   label: string;
 }[] = [
@@ -58,7 +58,7 @@ export default function PlayerToolbar({
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        {sortOption.map((option) => {
+        {sortOptions.map((option) => {
           const isActive = sortType === option.value;
 
           return (
