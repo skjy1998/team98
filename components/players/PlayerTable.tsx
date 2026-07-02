@@ -1,6 +1,6 @@
 import { getMainPositionFromDetail } from "@/lib/player-ui";
 import { PlayerType } from "@/types/player";
-import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface PlayerTableProps {
   players: PlayerType[];
@@ -104,7 +104,6 @@ export default function PlayerTable({
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
-                <ChevronRight className="h-4 w-4 text-stone-300 transition group-hover:text-stone-500" />
               </div>
             </div>
           </div>

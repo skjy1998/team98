@@ -16,14 +16,14 @@ export default function PlayerCreateModal({
 
   const handleSubmit = () => {
     const trimmedName = name.trim();
-    if (trimmedName) {
+    if (!trimmedName) {
       alert("이름을 입력해주세요.");
       return;
     }
 
     onSave({
       id: crypto.randomUUID(),
-      name: name.trim(),
+      name: trimmedName,
       birth: birth || undefined,
       appearance: 0,
       goal: 0,
