@@ -1,3 +1,4 @@
+import { formatMatchDate } from "@/lib/match-ui";
 import type { MatchItem } from "@/types/match";
 import { Trash2 } from "lucide-react";
 
@@ -14,7 +15,7 @@ export default function MatchInfoDisplay({
 }: Readonly<MatchInfoDisplayProps>) {
   const infoItems = [
     { label: "경기 유형", value: match.type },
-    { label: "날짜", value: match.date },
+    { label: "날짜", value: formatMatchDate(match.date) },
     { label: "시작 시간", value: match.startTime },
     { label: "종료 시간", value: match.endTime },
   ];

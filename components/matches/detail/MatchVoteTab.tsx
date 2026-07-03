@@ -21,9 +21,7 @@ export default function MatchVoteTab({ matchId }: Readonly<MatchVoteTabProps>) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<VoteFilter>("all");
 
-  const currentVotes = useMemo(() => {
-    return votes[matchId] ?? [];
-  }, [votes, matchId]);
+  const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
 
   const voteMembers = useMemo(
     () => getVoteMembers(players, currentVotes),

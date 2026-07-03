@@ -17,7 +17,7 @@ export default function MatchRecordCard({
   onDelete,
 }: Readonly<MatchRecordCardProps>) {
   const title =
-    event.type === "goal" ? event.playerName || "득점자 미지정" : "상대팀 실점";
+    event.type === "goal" ? event.playerName || "득점자 미지정" : "상대팀 득점";
 
   const meta = [
     event.quarter && event.quarter !== "unknown"

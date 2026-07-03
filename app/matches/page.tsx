@@ -21,11 +21,17 @@ export default function MatchesPage() {
   );
 
   const upcomingMatches = useMemo(
-    () => displayMatches.filter((match) => getIsUpcomingMatch(match.date)),
+    () =>
+      displayMatches
+        .filter((match) => getIsUpcomingMatch(match.date))
+        .sort((a, b) => a.date.localeCompare(b.date)),
     [displayMatches],
   );
   const pastMatches = useMemo(
-    () => displayMatches.filter((match) => !getIsUpcomingMatch(match.date)),
+    () =>
+      displayMatches
+        .filter((match) => !getIsUpcomingMatch(match.date))
+        .sort((a, b) => b.date.localeCompare(a.date)),
     [displayMatches],
   );
 

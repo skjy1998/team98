@@ -1,4 +1,4 @@
-import { MatchUniform } from "@/types/match";
+import type { MatchUniform } from "@/types/match";
 
 interface MatchCreateUniformSectionProps {
   uniform: MatchUniform;

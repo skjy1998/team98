@@ -2,15 +2,19 @@ import type { MatchCreateFormValue, MatchItem } from "@/types/match";
 import { useState } from "react";
 import MatchInfoDisplay from "@/components/matches/detail/MatchInfoDisplay";
 import MatchInfoEditor from "@/components/matches/detail/MatchInfoEditor";
+import MatchOpponentRecordCard from "./MatchOpponentRecordCard";
+import { getOpponentRecordSummary } from "@/lib/match-ui";
 
 interface MatchInfoTabProps {
   match: MatchItem;
+  matches: MatchItem[];
   onSave: (value: MatchCreateFormValue) => void;
   onDelete: () => void;
 }
 
 export function MatchInfoTab({
   match,
+  matches,
   onSave,
   onDelete,
 }: Readonly<MatchInfoTabProps>) {
@@ -29,6 +33,11 @@ export function MatchInfoTab({
     setIsEditing(false);
   };
 
+  const opponentRecord =
+    match.type === "정규" && match.opponent
+      ? getOpponentRecordSummary(matches, match.opponent, match.id)
+      : null;
+
   return (
     <div className="space-y-5">
       {isEditing ? (
@@ -45,12 +54,12 @@ export function MatchInfoTab({
         />
       )}
 
-      <section className="rounded-xl border border-stone-200 bg-white p-6">
-        <h2 className="text-xl font-semibold text-stone-900">메모</h2>
-        <p className="mt-4 text-sm leading-7 text-stone-500">
-          경기 관련 상세 정보
-        </p>
-      </section>
+      {match.type === "정규" && match.opponent && opponentRecord && (
+        <MatchOpponentRecordCard
+          opponent={match.opponent}
+          summary={opponentRecord}
+        />
+      )}
     </div>
   );
 }

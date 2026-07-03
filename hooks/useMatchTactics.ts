@@ -36,5 +36,6 @@ export function useMatchTactics(matchId: string) {
   return {
     tacticsByQuarter,
     setTacticsByQuarter,
+    tacticsLoaded,
   };
 }

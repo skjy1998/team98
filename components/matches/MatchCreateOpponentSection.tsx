@@ -1,4 +1,5 @@
-import { MatchType } from "@/types/match";
+import type { MatchType } from "@/types/match";
+import { Users } from "lucide-react";
 
 interface MatchCreateOpponentSectionProps {
   type: MatchType;
@@ -29,13 +30,16 @@ export default function MatchCreateOpponentSection({
         </span>
       </div>
 
-      <input
-        id="match-opponent"
-        value={opponent}
-        onChange={(event) => onChangeOpponent(event.target.value)}
-        placeholder="예: FC 강남"
-        className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
-      />
+      <div className="relative">
+        <Users className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-300" />
+        <input
+          id="match-opponent"
+          value={opponent}
+          onChange={(event) => onChangeOpponent(event.target.value)}
+          placeholder="팀 이름을 입력하세요."
+          className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
+        />
+      </div>
     </section>
   );
 }

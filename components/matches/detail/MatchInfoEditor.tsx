@@ -1,5 +1,6 @@
 import type { MatchCreateFormValue, MatchItem, MatchType } from "@/types/match";
 import { useEffect, useState } from "react";
+import MatchInfoFieldCard from "./MatchInfoFieldCard";
 
 interface MatchInfoEditorProps {
   match: MatchItem;
@@ -151,57 +152,39 @@ export default function MatchInfoEditor({
             </div>
           </div>
           {dateTimeFields.map((field) => (
-            <div
-              key={field.id}
-              className="rounded-xl border border-stone-200 bg-stone-50/70 p-4"
-            >
-              <label htmlFor={field.id} className="text-sm text-stone-400">
-                {field.label}
-              </label>
+            <MatchInfoFieldCard key={field.id} label={field.label}>
               <input
                 id={field.id}
                 type={field.type}
                 value={field.value}
                 onChange={(event) => field.onChange(event.target.value)}
-                className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+                className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
               />
-            </div>
+            </MatchInfoFieldCard>
           ))}
         </div>
 
         {type === "정규" && (
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <label
-              htmlFor="edit-match-opponent"
-              className="text-sm text-stone-400"
-            >
-              상대팀
-            </label>
+          <MatchInfoFieldCard label="상대팀">
             <input
               id="edit-match-opponent"
               value={opponent}
               onChange={(event) => setOpponent(event.target.value)}
-              placeholder="예: FC 강남"
-              className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
+              placeholder="상대팀을 입력하세요"
+              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
             />
-          </div>
+          </MatchInfoFieldCard>
         )}
 
-        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-          <label
-            htmlFor="edit-match-location"
-            className="text-sm text-stone-400"
-          >
-            장소
-          </label>
+        <MatchInfoFieldCard label="장소">
           <input
             id="edit-match-location"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
             placeholder="장소를 입력하세요"
-            className="mt-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
-        </div>
+        </MatchInfoFieldCard>
 
         {errorMessage && (
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">

@@ -8,6 +8,7 @@ import {
   typeMap,
 } from "@/lib/match-ui";
 import type { MatchItem } from "@/types/match";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 interface MatchListCardProps {
@@ -17,7 +18,7 @@ interface MatchListCardProps {
 export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
   const result = getMatchResult(match);
   const status = statusMap[result];
-  const scoreText = getMatchValueText(match);
+  const valueText = getMatchValueText(match);
   return (
     <Link
       href={`/matches/${match.id}`}
@@ -39,7 +40,7 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
             <p>
               {formatMatchDate(match.date)} · {formatMatchTime(match)}
             </p>
-            <p className="truncate">{match.location}</p>
+            <p className="truncate">{match.location || "장소 미정"}</p>
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2 text-right">
@@ -53,11 +54,9 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
           <p
             className={`text-sm font-semibold md:text-base ${status.scoreClassName}`}
           >
-            {scoreText}
+            {valueText}
           </p>
-          <span className="text-sm text-stone-300 transition-transform group-hover:translate-x-0.5">
-            →
-          </span>
+          <ChevronRight className="h-4 w-4 text-stone-300 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
     </Link>

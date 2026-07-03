@@ -1,11 +1,12 @@
 import { MatchCreateFormValue, MatchType, MatchUniform } from "@/types/match";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MatchCreateTypeSection from "./MatchCreateTypeSection";
 import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
 import MatchCreateUniformSection from "./MatchCreateUniformSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
 import MatchCreateLocationSection from "./MatchCreateLocationSection";
+import { getMatchCreateDefaults } from "@/lib/match-ui";
 
 interface MatchCreateModalProps {
   onClose: () => void;
@@ -16,12 +17,15 @@ export default function MatchCreateModal({
   onClose,
   onSave,
 }: Readonly<MatchCreateModalProps>) {
+  const { defaultDate, defaultStartTime, defaultEndTime, defaultLocation } =
+    useMemo(() => getMatchCreateDefaults(), []);
+
   const [type, setType] = useState<MatchType>("정규");
-  const [date, setDate] = useState("2026-05-26");
-  const [startTime, setStartTime] = useState("20:00");
-  const [endTime, setEndTime] = useState("22:00");
+  const [date, setDate] = useState(defaultDate);
+  const [startTime, setStartTime] = useState(defaultStartTime);
+  const [endTime, setEndTime] = useState(defaultEndTime);
   const [opponent, setOpponent] = useState("");
-  const [location, setLocation] = useState("데모 체육공원 축구장");
+  const [location, setLocation] = useState(defaultLocation);
   const [uniform, setUniform] = useState<MatchUniform>("home");
 
   const handleSave = () => {

@@ -1,7 +1,13 @@
 import type { MatchRecordEventType, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 
-const quaterOptions: MatchRecordQuarter[] = ["unknown", "1Q", "2Q", "3Q", "4Q"];
+const quarterOptions: MatchRecordQuarter[] = [
+  "unknown",
+  "1Q",
+  "2Q",
+  "3Q",
+  "4Q",
+];
 
 interface MatchRecordEditPanelProps {
   isOpen: boolean;
@@ -120,7 +126,7 @@ export default function MatchRecordEditPanel({
         <div>
           <p className="mb-3 text-sm font-semibold text-stone-700">쿼터</p>
           <div className="grid grid-cols-5 gap-2">
-            {quaterOptions.map((quarter) => {
+            {quarterOptions.map((quarter) => {
               const isActive = editingQuarter === quarter;
 
               return (

@@ -1,3 +1,4 @@
+import { formatMatchDate } from "@/lib/match-ui";
 import type { MatchItem } from "@/types/match";
 
 interface MatchDetailHeaderProps {
@@ -54,13 +55,13 @@ export default function MatchDetailHeader({
 
       <div className="border-t border-stone-200 px-6 py-4 md:px-8">
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-stone-500">
-          <span>{match.date}</span>
+          <span>{formatMatchDate(match.date)}</span>
           <span className="text-stone-300">|</span>
           <span>
             {match.startTime} - {match.endTime}
           </span>
           <span className="text-stone-300">|</span>
-          <span>{match.location}</span>
+          <span>{match.location || "장소 미정"}</span>
         </div>
       </div>
     </section>

@@ -9,9 +9,11 @@ import MatchTacticsTab from "@/components/matches/detail/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
 import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
 import { useMatches } from "@/hooks/useMatches";
+import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
 import { removeMatchRecords, removeMatchVotes } from "@/lib/match-storage";
 import {
+  getDisplayMatches,
   getIsUpcomingMatch,
   getMatchDetailStatusLabel,
   getMatchDetailSubText,
@@ -20,12 +22,15 @@ import {
   getOpponentName,
   statusMap,
 } from "@/lib/match-ui";
-import { MatchCreateFormValue, MatchDetailTab, MatchItem } from "@/types/match";
+import type {
+  MatchCreateFormValue,
+  MatchDetailTab,
+  MatchItem,
+} from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export default function MatchDetailPage() {
   const router = useRouter();
@@ -33,16 +38,14 @@ export default function MatchDetailPage() {
   const params = useParams();
 
   const activeTab = getMatchDetailTab(searchParams.get("tab"));
-
-  const { matches, matchesLoaded, setMatches } = useMatches();
-  const [deleteMatch, setDeleteMatch] = useState<MatchItem | null>(null);
-
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
 
-  const match = useMemo(() => {
-    return matches.find((item) => item.id === id);
-  }, [matches, id]);
+  const { matches, matchesLoaded, setMatches } = useMatches();
+  const { records } = useMatchRecordsMap();
+  const [deleteMatch, setDeleteMatch] = useState<MatchItem | null>(null);
 
+  const displayMatches = getDisplayMatches(matches, records);
+  const match = matches.find((item) => item.id === id);
   const safeMatchId = match?.id ?? "";
 
   const {
@@ -76,22 +79,20 @@ export default function MatchDetailPage() {
   const handleUpdateMatch = (value: MatchCreateFormValue) => {
     if (!match) return;
 
+    const updatedMatch: MatchItem = {
+      ...match,
+      title: value.title,
+      type: value.type,
+      date: value.date,
+      startTime: value.startTime,
+      endTime: value.endTime,
+      opponent: value.opponent,
+      location: value.location,
+      isUpcoming: getIsUpcomingMatch(value.date),
+    };
+
     setMatches((prev) =>
-      prev.map((item) =>
-        item.id === match.id
-          ? {
-              ...item,
-              title: value.title,
-              type: value.type,
-              date: value.date,
-              startTime: value.startTime,
-              endTime: value.endTime,
-              opponent: value.opponent,
-              location: value.location,
-              isUpcoming: getIsUpcomingMatch(value.date),
-            }
-          : item,
-      ),
+      prev.map((item) => (item.id === match.id ? updatedMatch : item)),
     );
   };
 
@@ -173,6 +174,7 @@ export default function MatchDetailPage() {
       {activeTab === "info" && (
         <MatchInfoTab
           match={resolvedMatch}
+          matches={displayMatches}
           onSave={handleUpdateMatch}
           onDelete={handleOpenDelete}
         />
