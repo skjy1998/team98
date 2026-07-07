@@ -1,4 +1,3 @@
-import AppShell from "@/components/layout/AppShell";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -17,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${pretendard.variable}`}>
       <body className="bg-background text-foreground antialiased">
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   );

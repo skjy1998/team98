@@ -1,5 +1,6 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
 import {
   BadgeDollarSign,
   CalendarDays,
@@ -10,7 +11,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type MenuItem = {
   label: string;
@@ -22,6 +24,17 @@ type MenuItem = {
 type MenuSection = {
   title: string;
   items: MenuItem[];
+};
+
+type SidebarUser = {
+  name: string;
+  email: string;
+};
+
+type SidebarTeam = {
+  name: string;
+  sport: "soccer" | "futsal" | "";
+  inviteCode: string;
 };
 
 const menuSections: MenuSection[] = [
@@ -75,23 +88,125 @@ const menuSections: MenuSection[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isCopied, setIsCopied] = useState(false);
+
+  const [user, setUser] = useState<SidebarUser>({
+    name: "",
+    email: "",
+  });
+
+  const [team, setTeam] = useState<SidebarTeam>({
+    name: "",
+    sport: "",
+    inviteCode: "",
+  });
+
+  useEffect(() => {
+    async function loadSidebarData() {
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+
+      if (!currentUser) return;
+
+      setUser({
+        name:
+          typeof currentUser.user_metadata?.name === "string" &&
+          currentUser.user_metadata.name.trim()
+            ? currentUser.user_metadata.name
+            : (currentUser.email?.split("@")[0] ?? "사용자"),
+        email: currentUser.email ?? "",
+      });
+
+      const { data: membership } = await supabase
+        .from("team_members")
+        .select("teams(name, sport, invite_code)")
+        .eq("user_id", currentUser.id)
+        .limit(1)
+        .maybeSingle();
+
+      const teamData = Array.isArray(membership?.teams)
+        ? membership.teams[0]
+        : membership?.teams;
+
+      if (!teamData) return;
+
+      setTeam({
+        name: teamData.name ?? "",
+        sport: teamData.sport ?? "",
+        inviteCode: teamData.invite_code ?? "",
+      });
+    }
+    loadSidebarData();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  const handleCopyInviteCode = async () => {
+    if (!team.inviteCode) return;
+
+    await navigator.clipboard.writeText(team.inviteCode);
+    setIsCopied(true);
+
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 1500);
+  };
+
+  const userInitial = user.name ? user.name.slice(0, 1) : "?";
+
   return (
     <aside className="hidden self-start lg:block">
-      {/* 사이드바 전체 */}
       <div className="rounded-xl border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
-        {/* 팀 박스 */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-              F
+        <div className="rounded-2xl border border-stone-200 bg-white/80 p-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
+              <span className="text-base font-extrabold text-stone-500">
+                {userInitial}
+              </span>
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-stone-900">
-              FC 98
-            </h2>
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-              축구
-            </span>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-stone-900">
+                {user.name || "사용자"}
+              </p>
+              <p className="truncate text-xs text-stone-400">
+                {user.email || "이메일 없음"}
+              </p>
+            </div>
           </div>
+        </div>
+        <div className="mt-5 border-t border-stone-200/80 pt-5" />
+        <div className="mb-4 rounded-xl border border-stone-200 bg-white/80 px-4 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-500">
+            SquadFlow
+          </p>
+
+          {team.name ? (
+            <div className="mt-2 flex items-center gap-2">
+              <p className="truncate text-lg font-semibold text-stone-900">
+                {team.name}
+              </p>
+              <span
+                className={[
+                  "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                  team.sport === "futsal"
+                    ? "bg-sky-50 text-sky-600"
+                    : "bg-emerald-50 text-emerald-600",
+                ].join(" ")}
+              >
+                {team.sport === "futsal" ? "풋살" : "축구"}
+              </span>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-stone-400">
+              팀 정보를 불러오는 중...
+            </p>
+          )}
         </div>
         <div className="mt-5 border-t border-stone-200/80 pt-5" />
         <nav className="space-y-1">
@@ -155,26 +270,36 @@ export default function Sidebar() {
           ))}
         </nav>
         <div className="mt-6 border-t border-stone-200 pt-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white/80 p-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
-              <span className="text-base font-extrabold text-stone-500">
-                송
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-stone-900">
-                송기준
-              </p>
-              <p className="truncate text-xs text-stone-400">회원</p>
-            </div>
+          <div className="rounded-xl border border-stone-200 bg-white/80 p-4">
+            <p className="text-xs font-semibold tracking-[0.18em] text-stone-400">
+              초대코드
+            </p>
+            <p className="mt-2 text-sm font-semibold text-stone-900">
+              {team.inviteCode || "초대코드 없음"}
+            </p>
+
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 transition hover:bg-stone-50"
-              aria-label="프로필 이동"
+              onClick={handleCopyInviteCode}
+              disabled={!team.inviteCode}
+              className={[
+                "mt-3 flex h-10 w-full items-center justify-center rounded-lg border text-sm font-medium transition",
+                team.inviteCode
+                  ? "border-stone-200 text-stone-600 hover:bg-stone-50"
+                  : "cursor-not-allowed border-stone-100 text-stone-300",
+              ].join(" ")}
             >
-              <ChevronRight className="h-4 w-4" />
+              {isCopied ? "복사됨!" : "초대코드 복사"}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-3 flex h-11 w-full items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
+          >
+            로그아웃
+          </button>
         </div>
       </div>
     </aside>
