@@ -11,6 +11,8 @@ export const playerPreferredFeet = ["right", "left", "both"] as const;
 
 export const playerRoles = ["member", "captain", "viceCaptain"] as const;
 
+export const teamMemberRoles = ["owner", "staff", "member"] as const;
+
 export type PlayerDetailPositionGroup = keyof typeof playerDetailPositions;
 
 export type PlayerPreferredFoot = (typeof playerPreferredFeet)[number];
@@ -20,8 +22,12 @@ export type PlayerDetailPosition =
 
 export type PlayerRole = (typeof playerRoles)[number];
 
+export type TeamMemberRole = (typeof teamMemberRoles)[number];
+
 export interface PlayerType {
   id: string;
+  userId?: string;
+  teamMemberRole?: TeamMemberRole;
   name: string;
   position?: string;
   detailPositions?: PlayerDetailPosition[];

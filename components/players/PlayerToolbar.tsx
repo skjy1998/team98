@@ -7,7 +7,7 @@ interface PlayerToolbarProps {
   sortType: PlayerSortType;
   onSearchChange: (value: string) => void;
   onChangeSortType: (value: PlayerSortType) => void;
-  onOpen: () => void;
+  onOpen?: () => void;
 }
 
 const sortOptions: {
@@ -48,14 +48,15 @@ export default function PlayerToolbar({
             <span>총 {totalCount}명</span>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={onOpen}
-          className="h-11 rounded-full border border-emerald-200 bg-emerald-600 px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
-        >
-          선수 추가
-        </button>
+        {onOpen && (
+          <button
+            type="button"
+            onClick={onOpen}
+            className="h-11 rounded-full border border-emerald-200 bg-emerald-600 px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
+          >
+            선수 추가
+          </button>
+        )}
       </div>
       <div className="flex flex-wrap gap-2">
         {sortOptions.map((option) => {

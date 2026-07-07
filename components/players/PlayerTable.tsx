@@ -4,8 +4,8 @@ import { Pencil, Trash2 } from "lucide-react";
 
 interface PlayerTableProps {
   players: PlayerType[];
-  onEdit: (player: PlayerType) => void;
-  onDelete: (player: PlayerType) => void;
+  onEdit?: (player: PlayerType) => void;
+  onDelete?: (player: PlayerType) => void;
 }
 
 const getPositionBadgeClassName = (position?: string) => {
@@ -114,24 +114,30 @@ export default function PlayerTable({
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => onEdit(player)}
-                    className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-stone-700"
-                    aria-label={`${player.name} 수정`}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(player)}
-                    className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-red-500"
-                    aria-label={`${player.name} 삭제`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                {(onEdit || onDelete) && (
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(player)}
+                        className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-stone-700"
+                        aria-label={`${player.name} 수정`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(player)}
+                        className="rounded-full p-2 text-stone-400 transition hover:bg-white hover:text-red-500"
+                        aria-label={`${player.name} 삭제`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           );

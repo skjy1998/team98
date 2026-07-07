@@ -10,6 +10,10 @@ import { FaFutbol } from "react-icons/fa6";
 type TeamSetupMode = "create" | "join";
 type TeamSport = "soccer" | "futsal";
 
+function createInviteCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
 export default function TeamSetupPage() {
   const router = useRouter();
   const [mode, setMode] = useState<TeamSetupMode>("create");
@@ -20,10 +24,6 @@ export default function TeamSetupPage() {
   const [isJoiningTeam, setIsJoiningTeam] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isCheckingTeam, setIsCheckingTeam] = useState(true);
-
-  function createInviteCode() {
-    return Math.random().toString(36).slice(2, 8).toUpperCase();
-  }
 
   useEffect(() => {
     async function checkUserTeam() {
@@ -101,6 +101,22 @@ export default function TeamSetupPage() {
       return;
     }
 
+    const displayName =
+      user.user_metadata.name?.trim() || user.email?.split("@")[0] || "새 회원";
+
+    const { error: playerError } = await supabase.from("players").insert({
+      team_id: team.id,
+      user_id: user.id,
+      name: displayName,
+      role: "member",
+      preferred_foot: "right",
+    });
+
+    if (playerError) {
+      setErrorMessage(playerError.message);
+      setIsCreatingTeam(false);
+    }
+
     setIsCreatingTeam(false);
     router.push("/dashboard");
   };
@@ -154,6 +170,23 @@ export default function TeamSetupPage() {
       } else {
         setErrorMessage(memberError.message);
       }
+      setIsJoiningTeam(false);
+      return;
+    }
+
+    const displayName =
+      user.user_metadata.name?.trim() || user.email?.split("@")[0] || "새 회원";
+
+    const { error: playerError } = await supabase.from("players").insert({
+      team_id: team.id,
+      user_id: user.id,
+      name: displayName,
+      role: "member",
+      preferred_foot: "right",
+    });
+
+    if (playerError) {
+      setErrorMessage(playerError.message);
       setIsJoiningTeam(false);
       return;
     }

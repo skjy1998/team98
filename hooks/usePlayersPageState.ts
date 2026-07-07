@@ -1,13 +1,7 @@
 import { PlayerSortType, PlayerType } from "@/types/player";
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 
-interface UsePlayersPageStateParams {
-  setPlayers: Dispatch<SetStateAction<PlayerType[]>>;
-}
-
-export function usePlayersPageState({
-  setPlayers,
-}: Readonly<UsePlayersPageStateParams>) {
+export function usePlayersPageState() {
   // 선수 이름 검색창 값
   const [search, setSearch] = useState("");
   // 어떤 기준으로 선수 목록을 정렬할지 저장
@@ -39,58 +33,11 @@ export function usePlayersPageState({
     setEditingPlayer(null);
   };
 
-  // 생성 함수
-  const handleCreate = (player: PlayerType) => {
-    setPlayers((prev) => [...prev, player]);
-    setIsCreateOpen(false);
-  };
-
-  // 수정 모달 저장 함수
-  const handleEditSave = (updatedPlayer: PlayerType) => {
-    setPlayers((prev) =>
-      prev.map((player) => {
-        if (player.id === updatedPlayer.id) {
-          return updatedPlayer;
-        }
-
-        if (updatedPlayer.role === "captain" && player.role === "captain") {
-          return {
-            ...player,
-            role: "member",
-          };
-        }
-
-        if (
-          updatedPlayer.role === "viceCaptain" &&
-          player.role === "viceCaptain"
-        ) {
-          return {
-            ...player,
-            role: "member",
-          };
-        }
-        return player;
-      }),
-    );
-
-    setEditingPlayer(null);
-  };
-
   const handleOpenDelete = (player: PlayerType) => {
     setDeletePlayer(player);
   };
 
   const handleCloseDelete = () => {
-    setDeletePlayer(null);
-  };
-
-  // 삭제 함수
-  const handleDelete = () => {
-    if (!deletePlayer) return;
-
-    setPlayers((prev) =>
-      prev.filter((player) => player.id !== deletePlayer.id),
-    );
     setDeletePlayer(null);
   };
 
@@ -106,10 +53,7 @@ export function usePlayersPageState({
     handleCloseCreate,
     handleEdit,
     handleCloseEdit,
-    handleCreate,
-    handleEditSave,
     handleOpenDelete,
     handleCloseDelete,
-    handleDelete,
   };
 }

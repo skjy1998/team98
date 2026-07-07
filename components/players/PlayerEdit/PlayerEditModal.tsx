@@ -3,6 +3,7 @@ import type {
   PlayerPreferredFoot,
   PlayerRole,
   PlayerType,
+  TeamMemberRole,
 } from "@/types/player";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -11,15 +12,17 @@ import PlayerEditNumberSection from "./PlayerEditNumberSection";
 import PlayerEditPositionSection from "./PlayerEditPositionSection";
 import PlayerEditExtraInfoSection from "./PlayerEditExtraInfoSection";
 import PlayerEditRoleSection from "./PlayerEditRoleSection";
+import PlayerEditPermissionSection from "./PlayerEditPermissionSection";
 
 interface PlayerEditModalProps {
   player: PlayerType;
   onClose: () => void;
-  onSave: (player: PlayerType) => void;
+  onSave: (player: PlayerType, teamRole: TeamMemberRole) => void;
 }
 
 export default function PlayerEditModal({
   player,
+
   onClose,
   onSave,
 }: Readonly<PlayerEditModalProps>) {
@@ -35,6 +38,9 @@ export default function PlayerEditModal({
     player.preferredFoot ?? "",
   );
   const [note, setNote] = useState(player.note ?? "");
+  const [teamRole, setTeamRole] = useState<TeamMemberRole>(
+    player.teamMemberRole ?? "member",
+  );
 
   const handleToggleDetailPosition = (detail: PlayerDetailPosition) => {
     setDetailPositions((prev) =>
@@ -54,7 +60,8 @@ export default function PlayerEditModal({
       preferredFoot: preferredFoot || undefined,
       note: note.trim() || undefined,
     };
-    onSave(updatePlayer);
+
+    onSave(updatePlayer, teamRole);
   };
 
   return (
@@ -86,6 +93,10 @@ export default function PlayerEditModal({
             onToggleDetailPosition={handleToggleDetailPosition}
           />
           <PlayerEditRoleSection role={role} onChangeRole={setRole} />
+          <PlayerEditPermissionSection
+            role={teamRole}
+            onChangeRole={setTeamRole}
+          />
 
           <PlayerEditExtraInfoSection
             birth={birth}
