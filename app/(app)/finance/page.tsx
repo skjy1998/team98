@@ -10,7 +10,7 @@ import { useFinanceEntries } from "@/hooks/useFinanceEntries";
 import { useFinancePayments } from "@/hooks/useFinancePayments";
 import { useFinanceSettings } from "@/hooks/useFinanceSettings";
 import { useFinanceTransactions } from "@/hooks/useFinanceTransactions";
-import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getFinanceDefaults,
   getFinanceSummary,

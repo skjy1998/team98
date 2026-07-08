@@ -1,4 +1,5 @@
 import type {
+  ConnectableTeamMember,
   PlayerDetailPosition,
   PlayerPreferredFoot,
   PlayerRole,
@@ -13,16 +14,18 @@ import PlayerEditPositionSection from "./PlayerEditPositionSection";
 import PlayerEditExtraInfoSection from "./PlayerEditExtraInfoSection";
 import PlayerEditRoleSection from "./PlayerEditRoleSection";
 import PlayerEditPermissionSection from "./PlayerEditPermissionSection";
+import PlayerEditAccountSection from "./PlayerEditAccountSection";
 
 interface PlayerEditModalProps {
   player: PlayerType;
+  connectableMembers: ConnectableTeamMember[];
   onClose: () => void;
   onSave: (player: PlayerType, teamRole: TeamMemberRole) => void;
 }
 
 export default function PlayerEditModal({
   player,
-
+  connectableMembers,
   onClose,
   onSave,
 }: Readonly<PlayerEditModalProps>) {
@@ -41,6 +44,7 @@ export default function PlayerEditModal({
   const [teamRole, setTeamRole] = useState<TeamMemberRole>(
     player.teamMemberRole ?? "member",
   );
+  const [linkedUserId, setLinkedUserId] = useState(player.userId ?? "");
 
   const handleToggleDetailPosition = (detail: PlayerDetailPosition) => {
     setDetailPositions((prev) =>
@@ -51,8 +55,9 @@ export default function PlayerEditModal({
   };
 
   const handleSubmit = () => {
-    const updatePlayer: PlayerType = {
+    const nextPlayer: PlayerType = {
       ...player,
+      userId: linkedUserId || undefined,
       number: number ? Number(number) : undefined,
       detailPositions: detailPositions.length > 0 ? detailPositions : undefined,
       birth: birth || undefined,
@@ -61,7 +66,7 @@ export default function PlayerEditModal({
       note: note.trim() || undefined,
     };
 
-    onSave(updatePlayer, teamRole);
+    onSave(nextPlayer, teamRole);
   };
 
   return (
@@ -96,6 +101,12 @@ export default function PlayerEditModal({
           <PlayerEditPermissionSection
             role={teamRole}
             onChangeRole={setTeamRole}
+          />
+          <PlayerEditAccountSection
+            linkedUserId={player.userId}
+            members={connectableMembers}
+            selectedUserId={linkedUserId}
+            onChangeSelectedUserId={setLinkedUserId}
           />
 
           <PlayerEditExtraInfoSection

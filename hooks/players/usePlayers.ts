@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
+import { getMainPositionFromDetail } from "@/lib/player-ui";
 import type {
   PlayerDetailPosition,
   PlayerRole,
@@ -8,7 +9,7 @@ import type {
   TeamMemberRole,
 } from "@/types/player";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "./useCurrentTeam";
+import { useCurrentTeam } from "../useCurrentTeam";
 
 type PlayerRow = {
   id: string;
@@ -123,7 +124,7 @@ export function usePlayers() {
         team_id: teamId,
         user_id: player.userId ?? null,
         name: player.name,
-        position: player.position ?? null,
+        position: getMainPositionFromDetail(player.detailPositions) ?? null,
         detail_positions: player.detailPositions ?? null,
         number: player.number ?? null,
         birth: player.birth ?? null,
@@ -150,7 +151,8 @@ export function usePlayers() {
       .update({
         user_id: updatedPlayer.userId ?? null,
         name: updatedPlayer.name,
-        position: updatedPlayer.position ?? null,
+        position:
+          getMainPositionFromDetail(updatedPlayer.detailPositions) ?? null,
         detail_positions: updatedPlayer.detailPositions ?? null,
         number: updatedPlayer.number ?? null,
         birth: updatedPlayer.birth ?? null,
@@ -186,6 +188,8 @@ export function usePlayers() {
       .eq("id", playerId);
 
     if (error) {
+      console.error("players delete error", error);
+      globalThis.alert(error.message);
       return false;
     }
 

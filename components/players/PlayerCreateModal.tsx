@@ -17,7 +17,7 @@ export default function PlayerCreateModal({
   const handleSubmit = () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      alert("이름을 입력해주세요.");
+      globalThis.alert("이름을 입력해주세요.");
       return;
     }
 

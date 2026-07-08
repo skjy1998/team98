@@ -4,7 +4,7 @@ import { useFinanceSettings } from "./useFinanceSettings";
 import { useMatches } from "./useMatches";
 import useMatchRecordsMap from "./useMatchRecordMap";
 import { useMatchVotes } from "./useMatchVotes";
-import { usePlayers } from "./usePlayers";
+import { usePlayers } from "./players/usePlayers";
 import {
   getFinanceDefaults,
   getFinanceSummary,

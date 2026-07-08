@@ -1,5 +1,5 @@
 import { getMainPositionFromDetail } from "@/lib/player-ui";
-import { PlayerType } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 import { Pencil, Trash2 } from "lucide-react";
 
 interface PlayerTableProps {
@@ -23,7 +23,7 @@ const getPositionBadgeClassName = (position?: string) => {
   }
 };
 
-const getRoleBadge = (role?: string) => {
+const getPlayerRoleBadge = (role?: string) => {
   if (role === "captain") {
     return {
       label: "주장",
@@ -34,6 +34,23 @@ const getRoleBadge = (role?: string) => {
   if (role === "viceCaptain") {
     return {
       label: "부주장",
+      className: "border-sky-200 bg-sky-50 text-sky-700",
+    };
+  }
+  return null;
+};
+
+const getTeamRoleBadge = (role?: string) => {
+  if (role === "owner") {
+    return {
+      label: "회장",
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+    };
+  }
+
+  if (role === "staff") {
+    return {
+      label: "운영진",
       className: "border-sky-200 bg-sky-50 text-sky-700",
     };
   }
@@ -64,7 +81,8 @@ export default function PlayerTable({
           const mainPosition = getMainPositionFromDetail(
             player.detailPositions,
           );
-          const roleBadge = getRoleBadge(player.role);
+          const playerRoleBadge = getPlayerRoleBadge(player.role);
+          const teamRoleBadge = getTeamRoleBadge(player.teamMemberRole);
           return (
             <div
               key={player.id}
@@ -74,7 +92,7 @@ export default function PlayerTable({
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-100">
                     <span className="text-sm font-semibold text-stone-700">
-                      {player.name.slice(0, 1)}
+                      {player.number ?? player.name.slice(0, 1)}
                     </span>
                   </div>
                   <div className="min-w-0">
@@ -82,26 +100,29 @@ export default function PlayerTable({
                       <p className="truncate text-[15px] font-semibold text-stone-900">
                         {player.name}
                       </p>
-                      {roleBadge && (
+                      {!player.userId && (
+                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                          미가입
+                        </span>
+                      )}
+                      {teamRoleBadge && (
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${roleBadge.className}`}
+                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${teamRoleBadge.className}`}
                         >
-                          {roleBadge.label}
+                          {teamRoleBadge.label}
+                        </span>
+                      )}
+                      {playerRoleBadge && (
+                        <span
+                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${playerRoleBadge.className}`}
+                        >
+                          {playerRoleBadge.label}
                         </span>
                       )}
                       <span
                         className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getPositionBadgeClassName(mainPosition)}`}
                       >
                         {mainPosition || player.position || "포지션 미지정"}
-                      </span>
-                      {player.detailPositions &&
-                        player.detailPositions.length > 0 && (
-                          <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] font-medium text-stone-500">
-                            {player.detailPositions.join(", ")}
-                          </span>
-                        )}
-                      <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[11px] font-medium text-stone-500">
-                        #{player.number}
                       </span>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-stone-400">

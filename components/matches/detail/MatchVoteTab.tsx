@@ -1,4 +1,4 @@
-import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayers } from "@/hooks/players/usePlayers";
 import { useMemo, useState } from "react";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";

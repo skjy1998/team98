@@ -6,7 +6,7 @@ import TeamSummaryCard from "@/components/stats/TeamSummaryCard";
 import { useMatches } from "@/hooks/useMatches";
 import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
 import { useMatchVotes } from "@/hooks/useMatchVotes";
-import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getPlayerStats,
   getRankingItems,

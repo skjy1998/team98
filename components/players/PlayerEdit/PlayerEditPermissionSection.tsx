@@ -20,8 +20,8 @@ const permissionOptions: {
   {
     value: "staff",
     label: "운영진",
-    dotClassName: "bg-amber-400",
-    activeClassName: "border-amber-300 bg-amber-50 text-amber-700",
+    dotClassName: "bg-sky-400",
+    activeClassName: "border-sky-300 bg-sky-50 text-sky-700",
   },
   {
     value: "member",

@@ -42,7 +42,7 @@ export default function PlayerEditExtraInfoSection({
   return (
     <section className="rounded-xl border border-stone-200 p-5">
       <div className="mb-4">
-        <p className="text-sm font-semibold text-emerald-600">04 추가 정보</p>
+        <p className="text-sm font-semibold text-emerald-600">06 추가 정보</p>
         <p className="mt-1 text-sm text-stone-400">
           선수 기본 프로필을 관리할 수 있어요.
         </p>

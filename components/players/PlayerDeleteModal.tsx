@@ -20,7 +20,7 @@ export default function PlayerDeleteModal({
         onClick={onClose}
       />
 
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl md:p-7">
+      <div className="relative z-10 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl md:p-7">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-rose-500">선수 삭제</p>
 

@@ -6,7 +6,7 @@ import TacticsToolbar from "@/components/tactics/TacticsToolbar";
 import { formationTemplate } from "@/data/formationTemplates";
 import { useMatchTactics } from "@/hooks/useMatchTactics";
 import { useMatchVotes } from "@/hooks/useMatchVotes";
-import { usePlayers } from "@/hooks/usePlayers";
+import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getAssignedPlayerIds,
   getAttendPlayerIds,

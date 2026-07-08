@@ -88,33 +88,22 @@ export default function TeamSetupPage() {
       setIsCreatingTeam(false);
       return;
     }
+    const displayName =
+      typeof user.user_metadata?.name === "string"
+        ? user.user_metadata.name
+        : null;
 
     const { error: memberError } = await supabase.from("team_members").insert({
       team_id: team.id,
       user_id: user.id,
       role: "owner",
+      display_name: displayName,
     });
 
     if (memberError) {
       setErrorMessage(memberError.message);
       setIsCreatingTeam(false);
       return;
-    }
-
-    const displayName =
-      user.user_metadata.name?.trim() || user.email?.split("@")[0] || "새 회원";
-
-    const { error: playerError } = await supabase.from("players").insert({
-      team_id: team.id,
-      user_id: user.id,
-      name: displayName,
-      role: "member",
-      preferred_foot: "right",
-    });
-
-    if (playerError) {
-      setErrorMessage(playerError.message);
-      setIsCreatingTeam(false);
     }
 
     setIsCreatingTeam(false);
@@ -158,10 +147,16 @@ export default function TeamSetupPage() {
       return;
     }
 
+    const displayName =
+      typeof user.user_metadata?.name === "string"
+        ? user.user_metadata.name
+        : null;
+
     const { error: memberError } = await supabase.from("team_members").insert({
       team_id: team.id,
       user_id: user.id,
       role: "member",
+      display_name: displayName,
     });
 
     if (memberError) {
@@ -170,23 +165,6 @@ export default function TeamSetupPage() {
       } else {
         setErrorMessage(memberError.message);
       }
-      setIsJoiningTeam(false);
-      return;
-    }
-
-    const displayName =
-      user.user_metadata.name?.trim() || user.email?.split("@")[0] || "새 회원";
-
-    const { error: playerError } = await supabase.from("players").insert({
-      team_id: team.id,
-      user_id: user.id,
-      name: displayName,
-      role: "member",
-      preferred_foot: "right",
-    });
-
-    if (playerError) {
-      setErrorMessage(playerError.message);
       setIsJoiningTeam(false);
       return;
     }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { usePlayers } from "./usePlayers";
+import { usePlayers } from "./players/usePlayers";
 import type {
   FormationName,
   FormationSlot,
