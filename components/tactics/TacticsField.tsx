@@ -7,6 +7,7 @@ interface TacticsFieldProps {
   selectedSlotId: string | null;
   onSelectSlot: (value: string | null) => void;
   getPlayerById: (playerId?: string) => PlayerType | undefined;
+  canManage: boolean;
 }
 
 export default function TacticsField({
@@ -15,8 +16,10 @@ export default function TacticsField({
   selectedSlotId,
   onSelectSlot,
   getPlayerById,
+  canManage,
 }: Readonly<TacticsFieldProps>) {
   const handleSelectSlot = (slotId: string) => {
+    if (!canManage) return;
     onSelectSlot(selectedSlotId === slotId ? null : slotId);
   };
 
@@ -28,7 +31,9 @@ export default function TacticsField({
             포메이션 보드
           </h2>
           <p className="mt-1 text-sm text-stone-500">
-            포지션을 선택한 뒤 오른쪽 선수 목록에서 배치할 수 있어요.
+            {canManage
+              ? "포지션을 선택한 뒤 오른쪽 선수 목록에서 배치할 수 있어요."
+              : "전술 배치를 확인할 수 있어요."}
           </p>
         </div>
 
@@ -56,10 +61,13 @@ export default function TacticsField({
               key={slot.id}
               type="button"
               onClick={() => handleSelectSlot(slot.id)}
+              aria-disabled={!canManage}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border text-center transition ${
                 isActive
                   ? "border-white bg-white/20 text-white ring-4 ring-white/15"
-                  : "border-white/35 bg-black/10 text-white/90 hover:bg-white/10"
+                  : canManage
+                    ? "border-white/35 bg-black/10 text-white/90 hover:bg-white/10"
+                    : "border-white/35 bg-black/10 text-white/90"
               }`}
               style={{ left: `${slot.x}%`, top: `${slot.y}%` }}
             >

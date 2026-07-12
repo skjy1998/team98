@@ -6,6 +6,7 @@ interface TacticsPlayerListProps {
   selectedSlotId: string | null;
   onAssignPlayer: (playerId: string) => void;
   emptyMessage?: string;
+  canManage: boolean;
 }
 
 export default function TacticsPlayerList({
@@ -14,6 +15,7 @@ export default function TacticsPlayerList({
   selectedSlotId,
   onAssignPlayer,
   emptyMessage = "배치 가능한 선수가 없습니다.",
+  canManage,
 }: Readonly<TacticsPlayerListProps>) {
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-4">
@@ -25,7 +27,11 @@ export default function TacticsPlayerList({
       </div>
 
       <div className="mt-4 max-h-[400px] space-y-2 overflow-y-auto pr-1">
-        {loaded ? (
+        {!canManage ? (
+          <div className="rounded-xl bg-stone-50 p-4 text-center text-sm text-stone-500">
+            선수 배치는 운영진만 수정할 수 있어요.
+          </div>
+        ) : loaded ? (
           availablePlayers.length === 0 ? (
             <div className="rounded-xl bg-stone-50 p-4 text-center text-sm text-stone-500">
               {emptyMessage}

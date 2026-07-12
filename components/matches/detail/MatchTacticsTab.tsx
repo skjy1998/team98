@@ -21,17 +21,19 @@ import MatchQuarterTabs from "./MatchQuarterTabs";
 
 interface MatchTacticsTabProps {
   matchId: string;
+  canManage: boolean;
 }
 
 export default function MatchTacticsTab({
   matchId,
+  canManage,
 }: Readonly<MatchTacticsTabProps>) {
   const { players, playersLoaded } = usePlayers();
   const { votes } = useMatchVotes();
-  const { tacticsByQuarter, setTacticsByQuarter } = useMatchTactics(matchId);
+  const { tacticsByQuarter, saveTacticsByQuarter, tacticsLoaded } =
+    useMatchTactics(matchId);
 
   const [selectedQuarter, setSelectedQuarter] = useState<MatchQuarter>("1Q");
-
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
   const currentTactics = tacticsByQuarter[selectedQuarter];
@@ -72,13 +74,15 @@ export default function MatchTacticsTab({
       current: (typeof tacticsByQuarter)[MatchQuarter],
     ) => (typeof tacticsByQuarter)[MatchQuarter],
   ) => {
-    setTacticsByQuarter((prev) => ({
+    saveTacticsByQuarter((prev) => ({
       ...prev,
       [selectedQuarter]: updater(prev[selectedQuarter]),
     }));
   };
 
   const handleFormationChange = (value: FormationName) => {
+    if (!canManage) return;
+
     updateCurrentQuarterTactics((current) => ({
       ...current,
       formation: value,
@@ -88,6 +92,8 @@ export default function MatchTacticsTab({
   };
 
   const handleResetFormation = () => {
+    if (!canManage) return;
+
     updateCurrentQuarterTactics((current) => ({
       ...current,
       slots: formationTemplate[current.formation],
@@ -96,6 +102,7 @@ export default function MatchTacticsTab({
   };
 
   const handleAssignPlayer = (playerId: string) => {
+    if (!canManage) return;
     if (!selectedSlotId) return;
 
     updateCurrentQuarterTactics((current) => ({
@@ -109,6 +116,7 @@ export default function MatchTacticsTab({
   };
 
   const handleClearSlot = () => {
+    if (!canManage) return;
     if (!selectedSlotId) return;
 
     updateCurrentQuarterTactics((current) => ({
@@ -122,6 +130,8 @@ export default function MatchTacticsTab({
   };
 
   const handleChangeSetPiecePlayer = (key: SetPieceKey, value: string) => {
+    if (!canManage) return;
+
     updateCurrentQuarterTactics((current) => ({
       ...current,
       [key]: value,
@@ -137,9 +147,22 @@ export default function MatchTacticsTab({
     setSelectedSlotId(null);
   };
 
+  const handleSelectSlot = (slotId: string | null) => {
+    if (!canManage) return;
+    setSelectedSlotId(slotId);
+  };
+
   const cornerKickPlayer = findPlayerById(cornerKickPlayerId);
   const freeKickPlayer = findPlayerById(freeKickPlayerId);
   const penaltyKickPlayer = findPlayerById(penaltyKickPlayerId);
+
+  if (!playersLoaded || !tacticsLoaded) {
+    return (
+      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
+        <p className="text-sm text-stone-500">전술 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -148,11 +171,17 @@ export default function MatchTacticsTab({
         selectedQuarter={selectedQuarter}
         onChangeQuarter={handleChangeQuarter}
       />
+      {!canManage && (
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+          전술 배치와 세트피스 설정은 운영진만 수정할 수 있어요.
+        </div>
+      )}
       <TacticsToolbar
         formation={formation}
         onChangeFormation={handleFormationChange}
         onReset={handleResetFormation}
         saveMode="auto"
+        canManage={canManage}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -160,8 +189,9 @@ export default function MatchTacticsTab({
           formation={formation}
           slots={slots}
           selectedSlotId={selectedSlotId}
-          onSelectSlot={setSelectedSlotId}
+          onSelectSlot={handleSelectSlot}
           getPlayerById={findPlayerById}
+          canManage={canManage}
         />
 
         <TacticsSidebar
@@ -189,6 +219,7 @@ export default function MatchTacticsTab({
           freeKickPlayer={freeKickPlayer}
           penaltyKickPlayer={penaltyKickPlayer}
           playerListemptyMessage="출석 탭에서 참석 선수를 먼저 체크하세요."
+          canManage={canManage}
         />
       </div>
     </div>

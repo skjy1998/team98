@@ -23,6 +23,7 @@ interface TacticsSidebarProps {
   freeKickPlayer?: PlayerType;
   penaltyKickPlayer?: PlayerType;
   playerListemptyMessage?: string;
+  canManage: boolean;
 }
 
 export default function TacticsSidebar({
@@ -44,6 +45,7 @@ export default function TacticsSidebar({
   freeKickPlayer,
   penaltyKickPlayer,
   playerListemptyMessage,
+  canManage,
 }: Readonly<TacticsSidebarProps>) {
   return (
     <aside className="space-y-4">
@@ -51,6 +53,7 @@ export default function TacticsSidebar({
         selectedSlot={selectedSlot}
         getPlayerById={getPlayerById}
         onClearSlot={onClearSlot}
+        canManage={canManage}
       />
       <TacticsPlayerList
         loaded={loaded}
@@ -58,6 +61,7 @@ export default function TacticsSidebar({
         selectedSlotId={selectedSlotId}
         onAssignPlayer={onAssignPlayer}
         emptyMessage={playerListemptyMessage}
+        canManage={canManage}
       />
       <TacticsKickerSection
         players={players}
@@ -70,6 +74,7 @@ export default function TacticsSidebar({
         cornerKickPlayer={cornerKickPlayer}
         freeKickPlayer={freeKickPlayer}
         penaltyKickPlayer={penaltyKickPlayer}
+        canManage={canManage}
       />
     </aside>
   );

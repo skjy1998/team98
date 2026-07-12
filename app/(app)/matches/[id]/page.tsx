@@ -181,7 +181,9 @@ export default function MatchDetailPage() {
       {activeTab === "vote" && (
         <MatchVoteTab matchId={match.id} match={resolvedMatch} />
       )}
-      {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
+      {activeTab === "tactics" && (
+        <MatchTacticsTab matchId={match.id} canManage={canManage} />
+      )}
       {activeTab === "record" && (
         <MatchRecordTab
           matchId={match.id}

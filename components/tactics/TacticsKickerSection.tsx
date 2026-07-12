@@ -11,6 +11,7 @@ interface TacticsKickerSectionProps {
   cornerKickPlayer?: PlayerType;
   freeKickPlayer?: PlayerType;
   penaltyKickPlayer?: PlayerType;
+  canManage: boolean;
 }
 
 export default function TacticsKickerSection({
@@ -24,6 +25,7 @@ export default function TacticsKickerSection({
   cornerKickPlayer,
   freeKickPlayer,
   penaltyKickPlayer,
+  canManage,
 }: Readonly<TacticsKickerSectionProps>) {
   const kickerFields = [
     {
@@ -67,7 +69,12 @@ export default function TacticsKickerSection({
               id={field.id}
               value={field.value}
               onChange={(event) => field.onChange(event.target.value)}
-              className="mt-2 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+              disabled={!canManage}
+              className={`mt-2 h-12 w-full rounded-xl border px-4 text-sm outline-none ${
+                canManage
+                  ? "border-stone-200 bg-white text-stone-800 focus:border-emerald-300"
+                  : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+              }`}
             >
               <option value="">선택 안 함</option>
               {players.map((player) => (

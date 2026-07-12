@@ -6,6 +6,7 @@ interface TacticsToolbarProps {
   formation: FormationName;
   onChangeFormation: (value: FormationName) => void;
   onReset: () => void;
+  canManage: boolean;
   presetName?: string;
   onChangePresetName?: (value: string) => void;
   savedPresets?: { id: string; name: string }[];
@@ -20,6 +21,7 @@ export default function TacticsToolbar({
   formation,
   onChangeFormation,
   onReset,
+  canManage,
   presetName,
   onChangePresetName,
   savedPresets,
@@ -47,7 +49,12 @@ export default function TacticsToolbar({
               onChange={(event) =>
                 onChangeFormation(event.target.value as FormationName)
               }
-              className="h-14 w-full rounded-xl border border-stone-200 bg-stone-50 px-5 text-base font-semibold text-stone-800 outline-none transition focus:border-emerald-300 focus:bg-white"
+              disabled={!canManage}
+              className={`h-14 w-full rounded-xl border border-stone-200 px-5 text-base font-semibold outline-none transition ${
+                canManage
+                  ? "bg-stone-50 text-stone-800 focus:border-emerald-300 focus:bg-white"
+                  : "bg-stone-100 text-stone-400"
+              }`}
             >
               {Object.keys(formationTemplate).map((item) => (
                 <option key={item} value={item}>
@@ -61,7 +68,12 @@ export default function TacticsToolbar({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex h-14 items-center gap-2 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-600 transition hover:bg-stone-50"
+              disabled={!canManage}
+              className={`inline-flex h-14 items-center gap-2 rounded-xl border px-5 text-sm font-medium transition ${
+                canManage
+                  ? "border-stone-200 text-stone-600 hover:bg-stone-50"
+                  : "border-stone-200 bg-stone-100 text-stone-400"
+              }`}
             >
               <RotateCcw className="h-4 w-4" />
               초기화
@@ -82,7 +94,12 @@ export default function TacticsToolbar({
               value={presetName}
               onChange={(event) => onChangePresetName?.(event.target.value)}
               placeholder="전술 이름 입력"
-              className="h-14 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300"
+              disabled={!canManage}
+              className={`h-14 flex-1 rounded-xl border px-4 text-sm outline-none transition placeholder:text-stone-400 ${
+                canManage
+                  ? "border-stone-200 bg-white text-stone-800 focus:border-emerald-300"
+                  : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+              }`}
             />
 
             <select
@@ -102,7 +119,12 @@ export default function TacticsToolbar({
               <button
                 type="button"
                 onClick={onSave}
-                className="inline-flex h-14 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                disabled={!canManage}
+                className={`inline-flex h-14 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition ${
+                  canManage
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : "cursor-not-allowed bg-stone-200 text-stone-400"
+                }`}
               >
                 <Save className="h-4 w-4" />
                 저장하기
@@ -111,7 +133,12 @@ export default function TacticsToolbar({
               <button
                 type="button"
                 onClick={onDelete}
-                className="inline-flex h-14 items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-5 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
+                disabled={!canManage}
+                className={`inline-flex h-14 items-center gap-2 rounded-xl border px-5 text-sm font-semibold transition ${
+                  canManage
+                    ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                    : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+                }`}
               >
                 <Trash2 className="h-4 w-4" />
                 삭제

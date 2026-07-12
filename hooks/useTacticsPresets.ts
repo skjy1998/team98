@@ -1,5 +1,7 @@
 import { SavedFormation, SaveTacticPreset } from "@/types/tactics";
 import { useEffect, useState } from "react";
+import { useCurrentTeam } from "./useCurrentTeam";
+import { supabase } from "@/lib/supabase";
 
 interface UseTacticsPresetsParams {
   exportTactics: () => SavedFormation;
@@ -12,6 +14,9 @@ export function useTacticsPresets({
   importTactics,
   resetTactics,
 }: UseTacticsPresetsParams) {
+  const { team, teamLoaded } = useCurrentTeam();
+  const teamId = team?.id;
+
   const [presetName, setPresetName] = useState("");
   const [savedPresets, setSavedPresets] = useState<SaveTacticPreset[]>([]);
   const [presetLoaded, setPresetLoaded] = useState(false);
@@ -19,24 +24,46 @@ export function useTacticsPresets({
   const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
-    const saved = localStorage.getItem("tactics-presets");
+    async function loadPresets() {
+      if (!teamLoaded) return;
 
-    if (saved && saved !== "undefined") {
-      try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSavedPresets(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem("tactics-presets");
+      if (!teamId) {
+        setSavedPresets([]);
+        setPresetLoaded(true);
+        return;
       }
+
+      const { data, error } = await supabase
+        .from("team_tactics_presets")
+        .select(
+          "id, name, formation, slots, corner_kick_player_id, free_kick_player_id, penalty_kick_player_id, updated_at",
+        )
+        .eq("team_id", teamId)
+        .order("updated_at", { ascending: false });
+
+      if (error || !data) {
+        setSavedPresets([]);
+        setPresetLoaded(true);
+        return;
+      }
+
+      setSavedPresets(
+        data.map((preset) => ({
+          id: preset.id,
+          name: preset.name,
+          formation: preset.formation,
+          slots: preset.slots,
+          cornerKickPlayerId: preset.corner_kick_player_id ?? "",
+          freeKickPlayerId: preset.free_kick_player_id ?? "",
+          penaltyKickPlayerId: preset.penalty_kick_player_id ?? "",
+          saveAt: preset.updated_at,
+        })),
+      );
+
+      setPresetLoaded(true);
     }
-
-    setPresetLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!presetLoaded) return;
-    localStorage.setItem("tactics-presets", JSON.stringify(savedPresets));
-  }, [savedPresets, presetLoaded]);
+    loadPresets();
+  }, [teamLoaded, teamId]);
 
   useEffect(() => {
     if (!saveMessage) return;
@@ -48,15 +75,41 @@ export function useTacticsPresets({
     return () => clearTimeout(timer);
   }, [saveMessage]);
 
-  const handleSavePreset = () => {
+  const handleSavePreset = async () => {
     if (!presetName.trim()) {
-      alert("전술 이름을 입력해주세요.");
+      globalThis.alert("전술 이름을 입력해주세요.");
+      return;
+    }
+
+    if (!teamId) {
+      globalThis.alert("팀 정보를 불러오지 못했어요.");
       return;
     }
 
     const exported = exportTactics();
 
     if (selectedPresetId) {
+      const updatedAt = new Date().toISOString();
+
+      const { error } = await supabase
+        .from("team_tactics_presets")
+        .update({
+          name: presetName.trim(),
+          formation: exported.formation,
+          slots: exported.slots,
+          corner_kick_player_id: exported.cornerKickPlayerId || null,
+          free_kick_player_id: exported.freeKickPlayerId || null,
+          penalty_kick_player_id: exported.penaltyKickPlayerId || null,
+          updated_at: updatedAt,
+        })
+        .eq("id", selectedPresetId)
+        .eq("team_id", teamId);
+
+      if (error) {
+        globalThis.alert("전술 수정 저장에 실패했어요.");
+        return;
+      }
+
       setSavedPresets((prev) =>
         prev.map((preset) =>
           preset.id === selectedPresetId
@@ -68,24 +121,47 @@ export function useTacticsPresets({
                 cornerKickPlayerId: exported.cornerKickPlayerId,
                 freeKickPlayerId: exported.freeKickPlayerId,
                 penaltyKickPlayerId: exported.penaltyKickPlayerId,
-                saveAt: new Date().toISOString(),
+                saveAt: updatedAt,
               }
             : preset,
         ),
       );
+
       setSaveMessage("전술이 수정 저장되었습니다.");
       return;
     }
 
+    const createdAt = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from("team_tactics_presets")
+      .insert({
+        team_id: teamId,
+        name: presetName.trim(),
+        formation: exported.formation,
+        slots: exported.slots,
+        corner_kick_player_id: exported.cornerKickPlayerId || null,
+        free_kick_player_id: exported.freeKickPlayerId || null,
+        penalty_kick_player_id: exported.penaltyKickPlayerId || null,
+        updated_at: createdAt,
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      globalThis.alert("전술 저장에 실패했어요.");
+      return;
+    }
+
     const newPreset: SaveTacticPreset = {
-      id: crypto.randomUUID(),
+      id: data.id,
       name: presetName.trim(),
       formation: exported.formation,
       slots: exported.slots,
       cornerKickPlayerId: exported.cornerKickPlayerId,
       freeKickPlayerId: exported.freeKickPlayerId,
       penaltyKickPlayerId: exported.penaltyKickPlayerId,
-      saveAt: new Date().toISOString(),
+      saveAt: createdAt,
     };
 
     setSavedPresets((prev) => [newPreset, ...prev]);
@@ -110,19 +186,37 @@ export function useTacticsPresets({
     });
   };
 
-  const handleDeletePreset = () => {
+  const handleDeletePreset = async () => {
     if (!selectedPresetId) {
-      alert("삭제할 전술을 먼저 선택해주세요.");
+      globalThis.alert("삭제할 전술을 먼저 선택해주세요.");
       return;
     }
-    const confirmed = globalThis.confirm("선택한 전술을 삭제할까요 ?");
+
+    if (!teamId) {
+      globalThis.alert("팀 정보를 불러오지 못했어요.");
+      return;
+    }
+
+    const confirmed = globalThis.confirm("선택한 전술을 삭제할까요?");
     if (!confirmed) return;
+
+    const { error } = await supabase
+      .from("team_tactics_presets")
+      .delete()
+      .eq("id", selectedPresetId)
+      .eq("team_id", teamId);
+
+    if (error) {
+      globalThis.alert("전술 삭제에 실패했어요.");
+      return;
+    }
 
     setSavedPresets((prev) =>
       prev.filter((preset) => preset.id !== selectedPresetId),
     );
-
     setSelectedPresetId("");
+    setPresetName("");
+    setSaveMessage("전술이 삭제되었습니다.");
   };
 
   const handleResetPresetState = () => {
@@ -137,6 +231,7 @@ export function useTacticsPresets({
     savedPresets,
     selectedPresetId,
     saveMessage,
+    presetLoaded,
     handleSavePreset,
     handleLoadPreset,
     handleDeletePreset,

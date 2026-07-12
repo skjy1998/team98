@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { usePlayers } from "./players/usePlayers";
 import type {
   FormationName,
@@ -7,15 +7,7 @@ import type {
 } from "@/types/tactics";
 import { formationTemplate } from "@/data/formationTemplates";
 
-interface UseTacticsBoardParams {
-  storageKey: string;
-  autoSave?: boolean;
-}
-
-export function useTacticsBoard({
-  storageKey,
-  autoSave = true,
-}: UseTacticsBoardParams) {
+export function useTacticsBoard() {
   const { players, playersLoaded } = usePlayers();
   // 포메이션 상태
   const [formation, setFormation] = useState<FormationName>("4-4-2");
@@ -25,58 +17,9 @@ export function useTacticsBoard({
   const [slots, setSlots] = useState<FormationSlot[]>(
     formationTemplate["4-4-2"],
   );
-  // localStorage 에서 저장된 전술을 다 읽었는지 체크하는 플래그
-  const [formationLoaded, setFormationLoaded] = useState(false);
-
   const [cornerKickPlayerId, setCornerKickPlayerId] = useState("");
   const [freeKickPlayerId, setFreeKickPlayerId] = useState("");
   const [penaltyKickPlayerId, setPenaltyKickPlayerId] = useState("");
-
-  // localStorage에서 불러오기
-  useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-
-    if (saved && saved !== "undefined") {
-      try {
-        const parsed = JSON.parse(saved) as SavedFormation;
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFormation(parsed.formation);
-        setSlots(parsed.slots);
-        setCornerKickPlayerId(parsed.cornerKickPlayerId ?? "");
-        setFreeKickPlayerId(parsed.freeKickPlayerId ?? "");
-        setPenaltyKickPlayerId(parsed.penaltyKickPlayerId ?? "");
-      } catch {
-        localStorage.removeItem(storageKey);
-      }
-    }
-
-    setFormationLoaded(true);
-  }, [storageKey]);
-
-  // localStorage에 저장
-  useEffect(() => {
-    if (!formationLoaded || !autoSave) return;
-
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        formation,
-        slots,
-        cornerKickPlayerId,
-        freeKickPlayerId,
-        penaltyKickPlayerId,
-      }),
-    );
-  }, [
-    storageKey,
-    autoSave,
-    formation,
-    slots,
-    formationLoaded,
-    cornerKickPlayerId,
-    freeKickPlayerId,
-    penaltyKickPlayerId,
-  ]);
 
   // 현재 선택된 슬롯 계산
   const selectedSlot = useMemo(

@@ -5,12 +5,14 @@ interface TacticsSelectedSlotCardProps {
   selectedSlot?: FormationSlot;
   getPlayerById: (playerId?: string) => PlayerType | undefined;
   onClearSlot: () => void;
+  canManage: boolean;
 }
 
 export default function TacticsSelectedSlotCard({
   selectedSlot,
   getPlayerById,
   onClearSlot,
+  canManage,
 }: Readonly<TacticsSelectedSlotCardProps>) {
   const assignedPlayerName = selectedSlot?.playerId
     ? (getPlayerById(selectedSlot.playerId)?.name ?? "")
@@ -28,15 +30,21 @@ export default function TacticsSelectedSlotCard({
             <p className="mt-1 text-sm text-stone-500">
               {selectedSlot.playerId
                 ? `${assignedPlayerName} 배치됨`
-                : "오른쪽에서 선수를 눌러 배치하세요."}
+                : canManage
+                  ? "오른쪽에서 선수를 눌러 배치하세요."
+                  : "현재 포지션에 배치된 선수가 없습니다."}
             </p>
           </>
         ) : (
-          <p className="text-sm text-stone-500">포지션을 선택하세요.</p>
+          <p className="text-sm text-stone-500">
+            {canManage
+              ? "포지션을 선택하세요."
+              : "포메이션 배치를 확인할 수 있어요."}
+          </p>
         )}
       </div>
 
-      {selectedSlot?.playerId && (
+      {canManage && selectedSlot?.playerId && (
         <button
           type="button"
           onClick={onClearSlot}
