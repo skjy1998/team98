@@ -1,7 +1,7 @@
-import { MatchRecordEventType } from "@/types/match";
+import type { MatchRecordEventType } from "@/types/match";
 
 interface MatchRecordScoreActionsProps {
-  onAddEvent: (type: MatchRecordEventType) => void;
+  onAddEvent: (type: MatchRecordEventType) => Promise<void>;
 }
 
 export default function MatchRecordScoreActions({
@@ -14,7 +14,7 @@ export default function MatchRecordScoreActions({
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <button
           type="button"
-          onClick={() => onAddEvent("goal")}
+          onClick={() => void onAddEvent("goal")}
           className="h-16 rounded-2xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200"
         >
           + 득점
@@ -22,7 +22,7 @@ export default function MatchRecordScoreActions({
 
         <button
           type="button"
-          onClick={() => onAddEvent("concede")}
+          onClick={() => void onAddEvent("concede")}
           className="h-16 rounded-xl bg-rose-100 text-lg font-semibold text-rose-600 transition hover:bg-rose-200"
         >
           + 실점

@@ -8,6 +8,7 @@ interface MatchRecordCardProps {
   isEditing: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  canManage: boolean;
 }
 
 export default function MatchRecordCard({
@@ -15,6 +16,7 @@ export default function MatchRecordCard({
   isEditing,
   onEdit,
   onDelete,
+  canManage,
 }: Readonly<MatchRecordCardProps>) {
   const title =
     event.type === "goal" ? event.playerName || "득점자 미지정" : "상대팀 득점";
@@ -34,6 +36,7 @@ export default function MatchRecordCard({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: event.id,
+      disabled: !canManage,
     });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -51,15 +54,17 @@ export default function MatchRecordCard({
       }`}
     >
       <div className="flex items-stretch gap-3">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          className="flex shrink-0 items-center self-stretch px-1 text-stone-300 transition hover:text-stone-500"
-          aria-label="기록 순서 변경"
-        >
-          <GripVertical className="h-5 w-5" />
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="flex shrink-0 items-center self-stretch px-1 text-stone-300 transition hover:text-stone-500"
+            aria-label="기록 순서 변경"
+          >
+            <GripVertical className="h-5 w-5" />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -84,23 +89,25 @@ export default function MatchRecordCard({
           <p className="mt-3 text-sm text-stone-500">{meta}</p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={onEdit}
-            className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50"
-          >
-            {isEditing ? "닫기" : "수정"}
-          </button>
+        {canManage && (
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50"
+            >
+              {isEditing ? "닫기" : "수정"}
+            </button>
 
-          <button
-            type="button"
-            onClick={onDelete}
-            className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-100"
-          >
-            삭제
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-100"
+            >
+              삭제
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

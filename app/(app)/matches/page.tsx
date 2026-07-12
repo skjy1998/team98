@@ -4,14 +4,16 @@ import PageHeader from "@/components/PageHeader";
 import MatchSection from "@/components/matches/MatchSection";
 import { useMemo, useState } from "react";
 import MatchCreateModal from "@/components/matches/MatchCreateModal";
-import { MatchCreateFormValue, MatchItem } from "@/types/match";
+import { MatchCreateFormValue } from "@/types/match";
 import { useMatches } from "@/hooks/useMatches";
 import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/match-ui";
 import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
+import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
 
 export default function MatchesPage() {
   const { records } = useMatchRecordsMap();
-  const { matches, setMatches, matchesLoaded } = useMatches();
+  const { matches, matchesLoaded, addMatch } = useMatches();
+  const { canManage, memberLoaded } = useCurrentTeamMember();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -43,24 +45,15 @@ export default function MatchesPage() {
     setIsCreateOpen(false);
   };
 
-  const handleCreateMatch = (value: MatchCreateFormValue) => {
-    const newMatch: MatchItem = {
-      id: crypto.randomUUID(),
-      title: value.title,
-      type: value.type,
-      date: value.date,
-      startTime: value.startTime,
-      endTime: value.endTime,
-      location: value.location,
-      opponent: value.opponent,
-      status: "scheduled",
-      isUpcoming: getIsUpcomingMatch(value.date),
-    };
-    setMatches((prev) => [newMatch, ...prev]);
-    setIsCreateOpen(false);
+  const handleCreateMatch = async (value: MatchCreateFormValue) => {
+    const success = await addMatch(value);
+
+    if (success) {
+      setIsCreateOpen(false);
+    }
   };
 
-  if (!matchesLoaded) {
+  if (!matchesLoaded || !memberLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -80,13 +73,15 @@ export default function MatchesPage() {
         title="경기 일정"
         description="다가오는 경기와 지난 경기를 확인하고 관리하세요."
       />
-      <button
-        type="button"
-        onClick={handleOpenCreate}
-        className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-      >
-        일정 등록
-      </button>
+      {canManage && (
+        <button
+          type="button"
+          onClick={handleOpenCreate}
+          className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          일정 등록
+        </button>
+      )}
       {upcomingMatches.length === 0 && pastMatches.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 p-10 text-center">
           <p className="text-lg font-semibold text-stone-900">

@@ -4,22 +4,17 @@ import type {
   MatchRecordEventType,
   MatchRecordQuarter,
 } from "@/types/match";
-
 import { useMemo, useState } from "react";
-
 import MatchRecordScoreActions from "./MatchRecordScoreActions";
-
 import { useMatchVotes } from "@/hooks/useMatchVotes";
 import {
   defaultEditingRecordForm,
-  EditingRecordForm,
   getAttendPlayerIdsByVotes,
   getAttendPlayers,
   getGroupedMatchRecordEvents,
-  getPlayersAfterRecordDelete,
-  getPlayersAfterRecordEdit,
   quarterSections,
 } from "@/lib/match-record";
+import type { EditingRecordForm } from "@/lib/match-record";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 import { DragEndEvent } from "@dnd-kit/core";
 
@@ -27,10 +22,14 @@ interface MatchRecordTabProps {
   matchId: string;
   events: MatchRecordEvent[];
   recordsLoaded: boolean;
-  addEvent: (type: MatchRecordEventType) => void;
-  deleteEvent: (eventId: string) => void;
-  updateEvent: (eventId: string, updates: Partial<MatchRecordEvent>) => void;
-  reorderEvents: (activeId: string, overId: string) => void;
+  addEvent: (type: MatchRecordEventType) => Promise<boolean>;
+  deleteEvent: (eventId: string) => Promise<boolean>;
+  updateEvent: (
+    eventId: string,
+    updates: Partial<MatchRecordEvent>,
+  ) => Promise<boolean>;
+  reorderEvents: (activeId: string, overId: string) => Promise<boolean>;
+  canManage: boolean;
 }
 
 export default function MatchRecordTab({
@@ -41,8 +40,9 @@ export default function MatchRecordTab({
   deleteEvent,
   updateEvent,
   reorderEvents,
+  canManage,
 }: Readonly<MatchRecordTabProps>) {
-  const { players, setPlayers, playersLoaded } = usePlayers();
+  const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded } = useMatchVotes();
   const [editingForm, setEditingForm] = useState<EditingRecordForm>(
     defaultEditingRecordForm,
@@ -65,16 +65,10 @@ export default function MatchRecordTab({
     [players, attendPlayerIds],
   );
 
-  if (!playersLoaded || !recordsLoaded || !votesLoaded) {
-    return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">기록 정보를 불러오는 중...</p>
-      </div>
-    );
-  }
-
   // 수정 시작 함수
   const handleStartEdit = (event: MatchRecordEvent) => {
+    if (!canManage) return;
+
     setEditingForm({
       eventId: event.id,
       playerId: event.playerId ?? "",
@@ -89,29 +83,38 @@ export default function MatchRecordTab({
     setEditingForm(defaultEditingRecordForm);
   };
 
+  const handleAddEvent = async (type: MatchRecordEventType) => {
+    if (!canManage) return;
+
+    const success = await addEvent(type);
+
+    if (!success) {
+      globalThis.alert("기록 추가에 실패했어요.");
+    }
+  };
+
   // 선수 기록 삭제 함수
-  const handleDeleteRecord = (event: MatchRecordEvent) => {
+  const handleDeleteRecord = async (event: MatchRecordEvent) => {
+    if (!canManage) return;
+
     const confirmed = globalThis.confirm("이 기록을 삭제할까요?");
     if (!confirmed) return;
-    setPlayers((prevPlayers) =>
-      getPlayersAfterRecordDelete(prevPlayers, event),
-    );
 
     if (editingForm.eventId === event.id) {
       handleCancelEdit();
     }
 
-    deleteEvent(event.id);
+    const success = await deleteEvent(event.id);
+
+    if (!success) {
+      globalThis.alert("기록 삭제에 실패했어요.");
+    }
   };
 
   /// 수정 완료 함수
-  const handleSubmitEdit = () => {
+  const handleSubmitEdit = async () => {
+    if (!canManage) return;
     if (!editingForm.eventId) return;
-
-    const currentEvent = events.find(
-      (event) => event.id === editingForm.eventId,
-    );
-    if (!currentEvent) return;
 
     const selectPlayer = players.find(
       (player) => player.id === editingForm.playerId,
@@ -120,14 +123,7 @@ export default function MatchRecordTab({
       (player) => player.id === editingForm.assistPlayerId,
     );
 
-    setPlayers((prevPlayers) =>
-      getPlayersAfterRecordEdit(prevPlayers, currentEvent, {
-        playerId: editingForm.playerId,
-        assistPlayerId: editingForm.assistPlayerId,
-      }),
-    );
-
-    updateEvent(editingForm.eventId, {
+    const success = await updateEvent(editingForm.eventId, {
       playerId: editingForm.playerId,
       playerName: selectPlayer?.name ?? "",
       assistPlayerId: editingForm.assistPlayerId,
@@ -136,15 +132,26 @@ export default function MatchRecordTab({
       minute: editingForm.minute,
     });
 
+    if (!success) {
+      globalThis.alert("기록 수정에 실패했어요.");
+      return;
+    }
+
     handleCancelEdit();
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
+    if (!canManage) return;
+
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
 
-    reorderEvents(String(active.id), String(over.id));
+    const success = await reorderEvents(String(active.id), String(over.id));
+
+    if (!success) {
+      globalThis.alert("기록 순서 변경에 실패했어요.");
+    }
   };
 
   const handleChangeEditingPlayerId = (value: string) => {
@@ -175,10 +182,22 @@ export default function MatchRecordTab({
     }));
   };
 
+  if (!playersLoaded || !recordsLoaded || !votesLoaded) {
+    return (
+      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
+        <p className="text-sm text-stone-500">기록 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
-      <MatchRecordScoreActions onAddEvent={addEvent} />
-
+      {canManage && <MatchRecordScoreActions onAddEvent={handleAddEvent} />}
+      {!canManage && (
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+          경기 기록은 운영진만 수정할 수 있어요.
+        </div>
+      )}
       <section className="rounded-xl border border-stone-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-stone-900">골 기록 추가</h2>
@@ -201,6 +220,7 @@ export default function MatchRecordTab({
                   quarterEvents={groupedEvents[section.key]}
                   editingForm={editingForm}
                   attendPlayers={attendPlayers}
+                  canManage={canManage}
                   onStartEdit={handleStartEdit}
                   onCancelEdit={handleCancelEdit}
                   onDeleteRecord={handleDeleteRecord}

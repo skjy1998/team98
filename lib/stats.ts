@@ -22,16 +22,26 @@ export function getMatchScoreFromEvent(
   return { goals, conceded };
 }
 
+function hasRecordEvents(records: MatchRecordMap, matchId: string) {
+  const events = records[matchId] ?? [];
+  return events.length > 0;
+}
+
 // 최근 5경기 결과
 export function getRecentResults(
   matches: MatchItem[],
   records: MatchRecordMap,
 ): RecentResult[] {
-  const pastMatches = matches
-    .filter((match) => !getIsUpcomingMatch(match.date))
+  const completedMatches = matches
+    .filter(
+      (match) =>
+        match.status !== "canceled" &&
+        !getIsUpcomingMatch(match.date) &&
+        hasRecordEvents(records, match.id),
+    )
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  return pastMatches.slice(-5).map((match) => {
+  return completedMatches.slice(-5).map((match) => {
     const { goals, conceded } = getMatchScoreFromEvent(records, match.id);
 
     if (goals > conceded) return "win" as const;
@@ -51,11 +61,14 @@ export function getTeamSummary(matches: MatchItem[], records: MatchRecordMap) {
     conceded: 0,
   };
 
-  const pastMatches = matches.filter(
-    (match) => !getIsUpcomingMatch(match.date),
+  const completedMatches = matches.filter(
+    (match) =>
+      match.status !== "canceled" &&
+      !getIsUpcomingMatch(match.date) &&
+      hasRecordEvents(records, match.id),
   );
 
-  pastMatches.forEach((match) => {
+  completedMatches.forEach((match) => {
     const { goals, conceded } = getMatchScoreFromEvent(records, match.id);
 
     summary.total += 1;
@@ -88,16 +101,16 @@ export function getPlayerStats(
   votes: MatchVotesByMatchId,
   records: MatchRecordMap,
 ) {
-  const pastMatchIds = getPastMatchIds(matches);
-  const matchIds = matches.map((match) => match.id);
+  const validMatches = matches.filter((match) => match.status !== "canceled");
+  const pastMatchIds = getPastMatchIds(validMatches);
 
   return players.map((player) => {
     const appearance = getPlayerAppearanceCount(player.id, pastMatchIds, votes);
-    const goal = getPlayerGoalCount(player.id, records, matchIds);
-    const assist = getPlayerAssistCount(player.id, records, matchIds);
+    const goal = getPlayerGoalCount(player.id, records, pastMatchIds);
+    const assist = getPlayerAssistCount(player.id, records, pastMatchIds);
     const attackPoint = goal + assist;
 
-    const attendCount = matchIds.reduce((count, matchId) => {
+    const attendCount = pastMatchIds.reduce((count, matchId) => {
       const matchVotes = votes[matchId] ?? [];
       const attended = matchVotes.some(
         (vote) => vote.playerId === player.id && vote.status === "attend",
@@ -107,8 +120,8 @@ export function getPlayerStats(
     }, 0);
 
     const attendanceRate =
-      matchIds.length > 0
-        ? Math.round((attendCount / matchIds.length) * 100)
+      pastMatchIds.length > 0
+        ? Math.round((attendCount / pastMatchIds.length) * 100)
         : 0;
 
     return {

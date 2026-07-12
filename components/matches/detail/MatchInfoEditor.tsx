@@ -71,7 +71,7 @@ export default function MatchInfoEditor({
       endTime,
       opponent: type === "정규" ? opponent : "",
       location,
-      uniform: "home",
+      uniform: match.uniform,
     });
   };
 

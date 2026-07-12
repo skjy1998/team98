@@ -3,34 +3,79 @@
 import {
   MatchRecordEvent,
   MatchRecordEventType,
-  MatchRecordMap,
+  MatchRecordQuarter,
 } from "@/types/match";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCurrentTeam } from "./useCurrentTeam";
+import { supabase } from "@/lib/supabase";
+
+type MatchRecordRow = {
+  id: string;
+  type: MatchRecordEventType;
+  player_id: string | null;
+  player_name: string | null;
+  assist_player_id: string | null;
+  assist_player_name: string | null;
+  minute: string | null;
+  quarter: MatchRecordQuarter;
+  sort_order: number;
+};
+
+function mapMatchRecordRow(row: MatchRecordRow): MatchRecordEvent {
+  return {
+    id: row.id,
+    type: row.type,
+    playerId: row.player_id ?? "",
+    playerName: row.player_name ?? "",
+    assistPlayerId: row.assist_player_id ?? "",
+    assistPlayerName: row.assist_player_name ?? "",
+    minute: row.minute ?? "",
+    quarter: row.quarter ?? "unknown",
+  };
+}
 
 export function useMatchRecords(matchId: string) {
-  const [records, setRecords] = useState<MatchRecordMap>({});
+  const { team, teamLoaded } = useCurrentTeam();
+  const teamId = team?.id;
+
+  const [events, setEvents] = useState<MatchRecordEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("match-records");
+  const loadRecords = useCallback(async () => {
+    if (!teamLoaded) return;
 
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRecords(JSON.parse(saved));
+    if (!teamId || !matchId) {
+      setEvents([]);
+      setLoaded(true);
+      return;
     }
 
+    setLoaded(false);
+
+    const { data, error } = await supabase
+      .from("match_records")
+      .select(
+        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
+      )
+      .eq("team_id", teamId)
+      .eq("match_id", matchId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error || !data) {
+      setEvents([]);
+      setLoaded(true);
+      return;
+    }
+
+    setEvents(data.map((row) => mapMatchRecordRow(row as MatchRecordRow)));
     setLoaded(true);
-  }, []);
+  }, [teamLoaded, teamId, matchId]);
 
   useEffect(() => {
-    if (!loaded) return;
-
-    localStorage.setItem("match-records", JSON.stringify(records));
-  }, [records, loaded]);
-
-  const events = useMemo(() => {
-    return records[matchId] ?? [];
-  }, [records, matchId]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRecords();
+  }, [loadRecords]);
 
   const ourScore = useMemo(() => {
     return events.filter((event) => event.type === "goal").length;
@@ -40,72 +85,115 @@ export function useMatchRecords(matchId: string) {
     return events.filter((event) => event.type === "concede").length;
   }, [events]);
 
-  const addEvent = (type: MatchRecordEventType) => {
-    setRecords((prev) => {
-      const prevEvents = prev[matchId] ?? [];
+  const addEvent = async (type: MatchRecordEventType) => {
+    if (!teamId || !matchId) return false;
 
-      return {
-        ...prev,
-        [matchId]: [
-          ...prevEvents,
-          {
-            id: crypto.randomUUID(),
-            type,
-            playerId: "",
-            playerName: "",
-            assistPlayerId: "",
-            assistPlayerName: "",
-            minute: "",
-            quarter: "unknown",
-          },
-        ],
-      };
-    });
+    const nextSortOrder = events.length;
+
+    const { data, error } = await supabase
+      .from("match_records")
+      .insert({
+        team_id: teamId,
+        match_id: matchId,
+        type,
+        player_id: null,
+        player_name: "",
+        assist_player_id: null,
+        assist_player_name: "",
+        minute: "",
+        quarter: "unknown",
+        sort_order: nextSortOrder,
+      })
+      .select(
+        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
+      )
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    setEvents((prev) => [...prev, mapMatchRecordRow(data as MatchRecordRow)]);
+    return true;
   };
 
-  const deleteEvent = (eventId: string) => {
-    setRecords((prev) => {
-      const prevEvents = prev[matchId] ?? [];
+  const deleteEvent = async (eventId: string) => {
+    const { error } = await supabase
+      .from("match_records")
+      .delete()
+      .eq("id", eventId);
 
-      return {
-        ...prev,
-        [matchId]: prevEvents.filter((event) => event.id !== eventId),
-      };
-    });
+    if (error) {
+      return false;
+    }
+
+    setEvents((prev) => prev.filter((event) => event.id !== eventId));
+    return true;
   };
 
-  const updateEvent = (eventId: string, updates: Partial<MatchRecordEvent>) => {
-    setRecords((prev) => {
-      const prevEvents = prev[matchId] ?? [];
+  const updateEvent = async (
+    eventId: string,
+    updates: Partial<MatchRecordEvent>,
+  ) => {
+    const { data, error } = await supabase
+      .from("match_records")
+      .update({
+        player_id: updates.playerId || null,
+        player_name: updates.playerName ?? "",
+        assist_player_id: updates.assistPlayerId || null,
+        assist_player_name: updates.assistPlayerName ?? "",
+        minute: updates.minute ?? "",
+        quarter: updates.quarter ?? "unknown",
+      })
+      .eq("id", eventId)
+      .select(
+        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
+      )
+      .single();
 
-      return {
-        ...prev,
-        [matchId]: prevEvents.map((event) =>
-          event.id === eventId ? { ...event, ...updates } : event,
-        ),
-      };
-    });
+    if (error || !data) {
+      return false;
+    }
+
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === eventId
+          ? mapMatchRecordRow(data as MatchRecordRow)
+          : event,
+      ),
+    );
+    return true;
   };
 
-  const reorderEvents = (activeId: string, overId: string) => {
-    setRecords((prev) => {
-      const prevEvents = prev[matchId] ?? [];
+  const reorderEvents = async (activeId: string, overId: string) => {
+    const oldIndex = events.findIndex((event) => event.id === activeId);
+    const newIndex = events.findIndex((event) => event.id === overId);
 
-      const oldIndex = prevEvents.findIndex((event) => event.id === activeId);
-      const newIndex = prevEvents.findIndex((event) => event.id === overId);
+    if (oldIndex === -1 || newIndex === -1) {
+      return false;
+    }
 
-      if (oldIndex === -1 || newIndex === -1) {
-        return prev;
-      }
-      const nextEvents = [...prevEvents];
-      const [movedEvent] = nextEvents.splice(oldIndex, 1);
-      nextEvents.splice(newIndex, 0, movedEvent);
+    const nextEvents = [...events];
+    const [movedEvent] = nextEvents.splice(oldIndex, 1);
+    nextEvents.splice(newIndex, 0, movedEvent);
 
-      return {
-        ...prev,
-        [matchId]: nextEvents,
-      };
-    });
+    setEvents(nextEvents);
+
+    const results = await Promise.all(
+      nextEvents.map((event, index) =>
+        supabase
+          .from("match_records")
+          .update({ sort_order: index })
+          .eq("id", event.id),
+      ),
+    );
+
+    if (results.some((result) => result.error)) {
+      await loadRecords();
+      return false;
+    }
+
+    return true;
   };
 
   return {
@@ -117,5 +205,6 @@ export function useMatchRecords(matchId: string) {
     deleteEvent,
     updateEvent,
     reorderEvents,
+    reloadRecords: loadRecords,
   };
 }

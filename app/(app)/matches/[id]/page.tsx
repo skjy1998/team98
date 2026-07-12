@@ -8,13 +8,12 @@ import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder
 import MatchTacticsTab from "@/components/matches/detail/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
 import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
+import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
 import { useMatches } from "@/hooks/useMatches";
 import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
 import { useMatchRecords } from "@/hooks/useMatchRecords";
-import { removeMatchRecords, removeMatchVotes } from "@/lib/match-storage";
 import {
   getDisplayMatches,
-  getIsUpcomingMatch,
   getMatchDetailStatusLabel,
   getMatchDetailSubText,
   getMatchDetailTab,
@@ -40,10 +39,16 @@ export default function MatchDetailPage() {
   const activeTab = getMatchDetailTab(searchParams.get("tab"));
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
 
-  const { matches, matchesLoaded, setMatches } = useMatches();
+  const {
+    matches,
+    matchesLoaded,
+    updateMatch,
+    deleteMatch: removeMatch,
+  } = useMatches();
   const { records } = useMatchRecordsMap();
-  const [deleteMatch, setDeleteMatch] = useState<MatchItem | null>(null);
+  const { canManage, memberLoaded } = useCurrentTeamMember();
 
+  const [deleteTarget, setDeleteTarget] = useState<MatchItem | null>(null);
   const displayMatches = getDisplayMatches(matches, records);
   const match = matches.find((item) => item.id === id);
   const safeMatchId = match?.id ?? "";
@@ -69,45 +74,38 @@ export default function MatchDetailPage() {
 
   const handleOpenDelete = () => {
     if (!match) return;
-    setDeleteMatch(match);
+    setDeleteTarget(match);
   };
 
   const handleCloseDelete = () => {
-    setDeleteMatch(null);
+    setDeleteTarget(null);
   };
 
-  const handleUpdateMatch = (value: MatchCreateFormValue) => {
+  const handleUpdateMatch = async (value: MatchCreateFormValue) => {
     if (!match) return;
 
-    const updatedMatch: MatchItem = {
-      ...match,
-      title: value.title,
-      type: value.type,
-      date: value.date,
-      startTime: value.startTime,
-      endTime: value.endTime,
-      opponent: value.opponent,
-      location: value.location,
-      isUpcoming: getIsUpcomingMatch(value.date),
-    };
+    const success = await updateMatch(match.id, value);
 
-    setMatches((prev) =>
-      prev.map((item) => (item.id === match.id ? updatedMatch : item)),
-    );
+    if (!success) {
+      globalThis.alert("경기 정보 수정에 실패했어요.");
+    }
   };
 
-  const handleDeleteMatch = () => {
-    if (!deleteMatch) return;
+  const handleDeleteMatch = async () => {
+    if (!deleteTarget) return;
 
-    removeMatchRecords(deleteMatch.id);
-    removeMatchVotes(deleteMatch.id);
+    const success = await removeMatch(deleteTarget.id);
 
-    setMatches((prev) => prev.filter((item) => item.id !== deleteMatch.id));
-    setDeleteMatch(null);
+    if (!success) {
+      globalThis.alert("경기 삭제에 실패했어요.");
+      return;
+    }
+
+    setDeleteTarget(null);
     router.push("/matches");
   };
 
-  if (!matchesLoaded) {
+  if (!matchesLoaded || !memberLoaded) {
     return (
       <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
         <p className="text-sm text-stone-500">경기 정보를 불러오는 중...</p>
@@ -177,9 +175,12 @@ export default function MatchDetailPage() {
           matches={displayMatches}
           onSave={handleUpdateMatch}
           onDelete={handleOpenDelete}
+          canManage={canManage}
         />
       )}
-      {activeTab === "vote" && <MatchVoteTab matchId={match.id} />}
+      {activeTab === "vote" && (
+        <MatchVoteTab matchId={match.id} match={resolvedMatch} />
+      )}
       {activeTab === "tactics" && <MatchTacticsTab matchId={match.id} />}
       {activeTab === "record" && (
         <MatchRecordTab
@@ -190,12 +191,13 @@ export default function MatchDetailPage() {
           deleteEvent={deleteEvent}
           updateEvent={updateEvent}
           reorderEvents={reorderEvents}
+          canManage={canManage}
         />
       )}
       {activeTab === "review" && <MatchTabPlaceholder label="후기" />}
-      {deleteMatch && (
+      {deleteTarget && (
         <MatchDeleteModal
-          match={deleteMatch}
+          match={deleteTarget}
           onClose={handleCloseDelete}
           onDelete={handleDeleteMatch}
         />

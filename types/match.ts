@@ -38,6 +38,7 @@ export interface MatchItem {
   endTime: string;
   location?: string;
   opponent?: string;
+  uniform: MatchUniform;
   status: MatchStatus;
   ourScore?: number;
   opponentScore?: number;

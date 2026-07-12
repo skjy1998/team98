@@ -10,6 +10,7 @@ interface MatchInfoTabProps {
   matches: MatchItem[];
   onSave: (value: MatchCreateFormValue) => void;
   onDelete: () => void;
+  canManage: boolean;
 }
 
 export function MatchInfoTab({
@@ -17,10 +18,12 @@ export function MatchInfoTab({
   matches,
   onSave,
   onDelete,
+  canManage,
 }: Readonly<MatchInfoTabProps>) {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleStartEdit = () => {
+    if (!canManage) return;
     setIsEditing(true);
   };
 
@@ -51,6 +54,7 @@ export function MatchInfoTab({
           match={match}
           onEdit={handleStartEdit}
           onDelete={onDelete}
+          canManage={canManage}
         />
       )}
 
