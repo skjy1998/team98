@@ -1,74 +1,180 @@
 import type { FeeType, FineRule } from "@/types/finance";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useCurrentTeam } from "./useCurrentTeam";
+import { supabase } from "@/lib/supabase";
 
 export function useFinanceSettings() {
+  const { team, teamLoaded } = useCurrentTeam();
+  const teamId = team?.id;
+
   const [feeTypes, setFeeTypes] = useState<FeeType[]>([]);
   const [fineRules, setFineRules] = useState<FineRule[]>([]);
   const [dueDay, setDueDay] = useState("1");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("finance-settings");
+  const loadSettings = useCallback(async () => {
+    if (!teamLoaded) return;
 
-    if (savedSettings && savedSettings !== "undefined") {
-      try {
-        const parsed = JSON.parse(savedSettings);
-
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFeeTypes(parsed.feeTypes ?? []);
-        setFineRules(parsed.fineRules ?? []);
-        setDueDay(parsed.dueDay ?? "1");
-      } catch {
-        localStorage.removeItem("finance-settings");
-      }
+    if (!teamId) {
+      setFeeTypes([]);
+      setFineRules([]);
+      setDueDay("1");
+      setSettingsLoaded(true);
+      return;
     }
+
+    setSettingsLoaded(false);
+
+    const { data, error } = await supabase
+      .from("finance_settings")
+      .select("due_day, fee_types, fine_rules")
+      .eq("team_id", teamId)
+      .maybeSingle();
+
+    if (error || !data) {
+      setFeeTypes([]);
+      setFineRules([]);
+      setDueDay("1");
+      setSettingsLoaded(true);
+      return;
+    }
+
+    setFeeTypes((data.fee_types as FeeType[] | null) ?? []);
+    setFineRules((data.fine_rules as FineRule[] | null) ?? []);
+    setDueDay(data.due_day ?? "1");
     setSettingsLoaded(true);
-  }, []);
+  }, [teamLoaded, teamId]);
 
   useEffect(() => {
-    if (!settingsLoaded) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSettings();
+  }, [loadSettings]);
 
-    localStorage.setItem(
-      "finance-settings",
-      JSON.stringify({
-        feeTypes,
-        fineRules,
-        dueDay,
-      }),
+  const saveSettings = async (next: {
+    dueDay: string;
+    feeTypes: FeeType[];
+    fineRules: FineRule[];
+  }) => {
+    if (!teamId) return false;
+
+    const { error } = await supabase.from("finance_settings").upsert(
+      {
+        team_id: teamId,
+        due_day: next.dueDay,
+        fee_types: next.feeTypes,
+        fine_rules: next.fineRules,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "team_id" },
     );
-  }, [feeTypes, dueDay, fineRules, settingsLoaded]);
+    return !error;
+  };
 
-  const handleChangeDueDay = (value: string) => {
+  const handleChangeDueDay = async (value: string) => {
+    const success = await saveSettings({
+      dueDay: value,
+      feeTypes,
+      fineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("납부 기준일 저장에 실패했어요.");
+      return;
+    }
+
     setDueDay(value);
   };
 
-  const handleAddFeeType = (nextFeeType: FeeType) => {
-    setFeeTypes((prev) => [nextFeeType, ...prev]);
+  const handleAddFeeType = async (nextFeeType: FeeType) => {
+    const nextFeeTypes = [nextFeeType, ...feeTypes];
+
+    const success = await saveSettings({
+      dueDay,
+      feeTypes: nextFeeTypes,
+      fineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("회비 유형 저장에 실패했어요.");
+      return;
+    }
+
+    setFeeTypes(nextFeeTypes);
   };
 
-  const handleUpdateFeeType = (
+  const handleUpdateFeeType = async (
     feeTypeId: string,
     updates: Partial<FeeType>,
   ) => {
-    setFeeTypes((prev) =>
-      prev.map((feeType) =>
-        feeType.id === feeTypeId ? { ...feeType, ...updates } : feeType,
-      ),
+    const nextFeeTypes = feeTypes.map((feeType) =>
+      feeType.id === feeTypeId ? { ...feeType, ...updates } : feeType,
     );
+
+    const success = await saveSettings({
+      dueDay,
+      feeTypes: nextFeeTypes,
+      fineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("회비 유형 수정에 실패했어요.");
+      return;
+    }
+
+    setFeeTypes(nextFeeTypes);
   };
 
-  const handleDeleteFeeType = (feeTypeId: string) => {
-    setFeeTypes((prev) => prev.filter((feeType) => feeType.id !== feeTypeId));
+  const handleDeleteFeeType = async (feeTypeId: string) => {
+    const nextFeeTypes = feeTypes.filter((feeType) => feeType.id !== feeTypeId);
+
+    const success = await saveSettings({
+      dueDay,
+      feeTypes: nextFeeTypes,
+      fineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("회비 유형 삭제에 실패했어요.");
+      return;
+    }
+
+    setFeeTypes(nextFeeTypes);
   };
 
-  const handleAddFineRule = (nextFineRule: FineRule) => {
-    setFineRules((prev) => [nextFineRule, ...prev]);
+  const handleAddFineRule = async (nextFineRule: FineRule) => {
+    const nextFineRules = [nextFineRule, ...fineRules];
+
+    const success = await saveSettings({
+      dueDay,
+      feeTypes,
+      fineRules: nextFineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("벌금 규칙 저장에 실패했어요.");
+      return;
+    }
+
+    setFineRules(nextFineRules);
   };
 
-  const handleDeleteFineRule = (fineRuleId: string) => {
-    setFineRules((prev) =>
-      prev.filter((fineRule) => fineRule.id !== fineRuleId),
+  const handleDeleteFineRule = async (fineRuleId: string) => {
+    const nextFineRules = fineRules.filter(
+      (fineRule) => fineRule.id !== fineRuleId,
     );
+
+    const success = await saveSettings({
+      dueDay,
+      feeTypes,
+      fineRules: nextFineRules,
+    });
+
+    if (!success) {
+      globalThis.alert("벌금 규칙 삭제에 실패했어요.");
+      return;
+    }
+
+    setFineRules(nextFineRules);
   };
 
   return {
@@ -82,5 +188,6 @@ export function useFinanceSettings() {
     handleDeleteFeeType,
     handleAddFineRule,
     handleDeleteFineRule,
+    reloadSettings: loadSettings,
   };
 }

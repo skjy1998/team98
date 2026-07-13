@@ -1,6 +1,7 @@
 import { PaymentStatusRow } from "@/types/finance";
 
 interface FinancePaymentStatusItemProps {
+  canManage: boolean;
   row: PaymentStatusRow;
   onChangePaymentStatus: (
     playerName: string,
@@ -9,6 +10,7 @@ interface FinancePaymentStatusItemProps {
 }
 
 export default function FinancePaymentStatusItem({
+  canManage,
   row,
   onChangePaymentStatus,
 }: Readonly<FinancePaymentStatusItemProps>) {
@@ -38,7 +40,12 @@ export default function FinancePaymentStatusItem({
               event.target.value as "paid" | "unpaid",
             )
           }
-          className="h-10 rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-700 outline-none focus:border-orange-300"
+          disabled={!canManage}
+          className={`h-10 rounded-xl border px-4 text-sm outline-none ${
+            canManage
+              ? "border-stone-200 bg-white text-stone-700 focus:border-orange-300"
+              : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+          }`}
         >
           <option value="unpaid">미납</option>
           <option value="paid">납부 완료</option>

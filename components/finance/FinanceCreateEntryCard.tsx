@@ -2,8 +2,6 @@ import type { FinanceEntryType } from "@/types/finance";
 import FinanceEntryForm from "./FinanceEntryForm";
 
 interface FinanceCreateEntryCardProps {
-  isOpen: boolean;
-  onToggle: () => void;
   createEntryType: FinanceEntryType;
   onChangeCreateEntryType: (value: FinanceEntryType) => void;
   createEntryAmount: string;
@@ -18,8 +16,6 @@ interface FinanceCreateEntryCardProps {
 }
 
 export default function FinanceCreateEntryCard({
-  isOpen,
-  onToggle,
   createEntryType,
   onChangeCreateEntryType,
   createEntryAmount,
@@ -34,34 +30,27 @@ export default function FinanceCreateEntryCard({
 }: Readonly<FinanceCreateEntryCardProps>) {
   return (
     <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-4 text-left"
-      >
+      <div className="px-5 py-4">
         <span className="text-base font-semibold text-stone-900">
           수기 입력
         </span>
-        <span className="text-stone-400">{isOpen ? "⌃" : "⌄"}</span>
-      </button>
+      </div>
 
-      {isOpen && (
-        <FinanceEntryForm
-          className="border-t border-stone-200 px-5 py-5"
-          entryType={createEntryType}
-          onChangeEntryType={onChangeCreateEntryType}
-          entryAmount={createEntryAmount}
-          onChangeEntryAmount={onChangeCreateEntryAmount}
-          entryDescription={createEntryDescription}
-          onChangeEntryDescription={onChangeCreateEntryDescription}
-          entryDate={createEntryDate}
-          onChangeEntryDate={onChangeCreateEntryDate}
-          entryTime={createEntryTime}
-          onChangeEntryTime={onChangeCreateEntryTime}
-          onSubmit={onSubmitCreateEntry}
-          submitLabel="거래 추가"
-        />
-      )}
+      <FinanceEntryForm
+        className="border-t border-stone-200 px-5 py-5"
+        entryType={createEntryType}
+        onChangeEntryType={onChangeCreateEntryType}
+        entryAmount={createEntryAmount}
+        onChangeEntryAmount={onChangeCreateEntryAmount}
+        entryDescription={createEntryDescription}
+        onChangeEntryDescription={onChangeCreateEntryDescription}
+        entryDate={createEntryDate}
+        onChangeEntryDate={onChangeCreateEntryDate}
+        entryTime={createEntryTime}
+        onChangeEntryTime={onChangeCreateEntryTime}
+        onSubmit={onSubmitCreateEntry}
+        submitLabel="거래 추가"
+      />
     </div>
   );
 }

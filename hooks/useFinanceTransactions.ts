@@ -6,9 +6,12 @@ interface UseFinanceTransactionsParams {
   currentMonth: string;
   defaultDate: string;
   defaultTime: string;
-  addEntry: (entry: Omit<FinanceEntry, "id">) => void;
-  updateEntry: (entryId: string, updates: Omit<FinanceEntry, "id">) => void;
-  deleteEntry: (entryId: string) => void;
+  addEntry: (entry: Omit<FinanceEntry, "id">) => Promise<boolean>;
+  updateEntry: (
+    entryId: string,
+    updates: Omit<FinanceEntry, "id">,
+  ) => Promise<boolean>;
+  deleteEntry: (entryId: string) => Promise<boolean>;
 }
 
 export function useFinanceTransactions({
@@ -50,7 +53,7 @@ export function useFinanceTransactions({
     setCreateEntryTime(defaultTime);
   };
 
-  const handleSubmitCreateEntry = () => {
+  const handleSubmitCreateEntry = async () => {
     if (
       !createEntryDescription.trim() ||
       !createEntryAmount.trim() ||
@@ -59,13 +62,18 @@ export function useFinanceTransactions({
       return;
     }
 
-    addEntry({
+    const success = await addEntry({
       type: createEntryType,
       amount: Number(createEntryAmount),
       description: createEntryDescription.trim(),
       date: createEntryDate,
       time: createEntryTime,
     });
+
+    if (!success) {
+      globalThis.alert("거래 내역 저장에 실패했어요.");
+      return;
+    }
 
     resetCreateForm();
     setIsEntryFormOpen(false);
@@ -90,7 +98,7 @@ export function useFinanceTransactions({
     setEditEntryTime(entry.time);
   };
 
-  const handleSubmitEditEntry = () => {
+  const handleSubmitEditEntry = async () => {
     if (!editingEntryId) return;
 
     if (
@@ -101,13 +109,18 @@ export function useFinanceTransactions({
       return;
     }
 
-    updateEntry(editingEntryId, {
+    const success = await updateEntry(editingEntryId, {
       type: editEntryType,
       amount: Number(editEntryAmount),
       description: editEntryDescription.trim(),
       date: editEntryDate,
       time: editEntryTime,
     });
+
+    if (!success) {
+      globalThis.alert("거래 내역 수정에 실패했어요.");
+      return;
+    }
 
     resetEditForm();
   };
@@ -116,11 +129,15 @@ export function useFinanceTransactions({
     resetEditForm();
   };
 
-  const handleDeleteEntry = (entryId: string) => {
+  const handleDeleteEntry = async (entryId: string) => {
     const confirmed = globalThis.confirm("이 내역을 삭제할까요?");
     if (!confirmed) return;
 
-    deleteEntry(entryId);
+    const success = await deleteEntry(entryId);
+
+    if (!success) {
+      globalThis.alert("거래 내역 삭제에 실패했어요.");
+    }
   };
 
   const handleToggleEntryForm = () => {

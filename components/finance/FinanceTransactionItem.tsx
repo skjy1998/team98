@@ -5,12 +5,14 @@ interface FinanceTransactionItemProps {
   entry: FinanceEntry;
   onStartEdit: (entry: FinanceEntry) => void;
   onDeleteEntry: (entryId: string) => void;
+  canManage: boolean;
 }
 
 export default function FinanceTransactionItem({
   entry,
   onStartEdit,
   onDeleteEntry,
+  canManage,
 }: Readonly<FinanceTransactionItemProps>) {
   const isIncome = entry.type === "income";
   const typeLabel = isIncome ? "입금" : "출금";
@@ -42,24 +44,26 @@ export default function FinanceTransactionItem({
             {amountPrefix}
             {entry.amount.toLocaleString()}원
           </p>
-
-          <button
-            type="button"
-            onClick={() => onStartEdit(entry)}
-            className="rounded-lg p-2 text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
-            aria-label="거래 수정"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onDeleteEntry(entry.id)}
-            className="rounded-lg p-2 text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
-            aria-label="거래 삭제"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => onStartEdit(entry)}
+              className="rounded-lg p-2 text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+              aria-label="거래 수정"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => onDeleteEntry(entry.id)}
+              className="rounded-lg p-2 text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
+              aria-label="거래 삭제"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>

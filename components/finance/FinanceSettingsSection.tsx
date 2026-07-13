@@ -4,6 +4,7 @@ import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
 import FinanceFineRuleSection from "./FinanceFineRuleSection";
 
 interface FinanceSettingsSectionProps {
+  canManage: boolean;
   dueDay: string;
   feeTypes: FeeType[];
   fineRules: FineRule[];
@@ -22,6 +23,7 @@ const fineTriggerLabel: Record<string, string> = {
 };
 
 export default function FinanceSettingsSection({
+  canManage,
   dueDay,
   feeTypes,
   fineRules,
@@ -137,7 +139,13 @@ export default function FinanceSettingsSection({
 
   return (
     <div className="space-y-8">
+      {!canManage && (
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+          회비 설정과 벌금 규칙은 조회할 수 있고, 수정은 운영진만 할 수 있어요.
+        </div>
+      )}
       <FinanceFeeSettingsSection
+        canManage={canManage}
         dueDay={dueDay}
         onChangeDueDay={onChangeDueDay}
         isAddingFeeType={isAddingFeeType}
@@ -168,6 +176,7 @@ export default function FinanceSettingsSection({
       />
 
       <FinanceFineRuleSection
+        canManage={canManage}
         fineRules={fineRules}
         fineTriggerLabel={fineTriggerLabel}
         isAddingFineRule={isAddingFineRule}

@@ -4,6 +4,7 @@ import FinancePaymentHeader from "./FinancePaymentHeader";
 import FinancePaymentStatusGroup from "./FinancePaymentStatusGroup";
 
 interface FinancePaymentsSectionProps {
+  canManage: boolean;
   currentMonthLabel: string;
   onMoveMonth: (direction: "prev" | "next") => void;
   paymentSummary: PaymentSummary;
@@ -20,6 +21,7 @@ interface FinancePaymentsSectionProps {
 }
 
 export default function FinancePaymentsSection({
+  canManage,
   currentMonthLabel,
   onMoveMonth,
   paymentSummary,
@@ -38,7 +40,13 @@ export default function FinancePaymentsSection({
         onMoveMonth={onMoveMonth}
       />
       <FinancePaymentSummaryCard paymentSummary={paymentSummary} />
+      {!canManage && (
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+          납부 현황은 조회할 수 있고, 납부 상태 변경은 운영진만 할 수 있어요.
+        </div>
+      )}
       <FinancePaymentStatusGroup
+        canManage={canManage}
         title="미납"
         count={paymentSummary.unpaidCount}
         tone="unpaid"
@@ -49,6 +57,7 @@ export default function FinancePaymentsSection({
       />
 
       <FinancePaymentStatusGroup
+        canManage={canManage}
         title="납부 완료"
         count={paymentSummary.paidCount}
         tone="paid"

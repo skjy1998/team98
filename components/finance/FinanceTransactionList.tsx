@@ -3,6 +3,7 @@ import FinanceTransactionEditItem from "./FinanceTransactionEditItem";
 import FinanceTransactionItem from "./FinanceTransactionItem";
 
 interface FinanceTransactionListProps {
+  canManage: boolean;
   entries: FinanceEntry[];
   editingEntryId: string | null;
 
@@ -24,6 +25,7 @@ interface FinanceTransactionListProps {
 }
 
 export default function FinanceTransactionList({
+  canManage,
   entries,
   editingEntryId,
   editEntryType,
@@ -45,7 +47,6 @@ export default function FinanceTransactionList({
     <div className="space-y-3">
       {entries.map((entry) => {
         const isEditing = editingEntryId === entry.id;
-
         if (isEditing) {
           return (
             <FinanceTransactionEditItem
@@ -72,6 +73,7 @@ export default function FinanceTransactionList({
             entry={entry}
             onStartEdit={onStartEdit}
             onDeleteEntry={onDeleteEntry}
+            canManage={canManage}
           />
         );
       })}

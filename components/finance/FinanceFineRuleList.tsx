@@ -1,12 +1,14 @@
 import type { FineRule } from "@/types/finance";
 
 interface FinanceFineRuleListProps {
+  canManage: boolean;
   fineRules: FineRule[];
   fineTriggerLabel: Record<string, string>;
   onDeleteFineRule: (ruleId: string) => void;
 }
 
 export default function FinanceFineRuleList({
+  canManage,
   fineRules,
   fineTriggerLabel,
   onDeleteFineRule,
@@ -40,13 +42,15 @@ export default function FinanceFineRuleList({
               <p className="text-3xl font-semibold text-rose-500">
                 {rule.amount.toLocaleString()}원
               </p>
-              <button
-                type="button"
-                onClick={() => onDeleteFineRule(rule.id)}
-                className="text-xl text-rose-400 transition hover:text-rose-500"
-              >
-                ×
-              </button>
+              {canManage && (
+                <button
+                  type="button"
+                  onClick={() => onDeleteFineRule(rule.id)}
+                  className="text-xl text-rose-400 transition hover:text-rose-500"
+                >
+                  ×
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import FinanceFineRuleCreateForm from "./FinanceFineRuleCreateForm";
 import FinanceFineRuleList from "./FinanceFineRuleList";
 
 interface FinanceFineRuleSectionProps {
+  canManage: boolean;
   fineRules: FineRule[];
   fineTriggerLabel: Record<string, string>;
 
@@ -22,6 +23,7 @@ interface FinanceFineRuleSectionProps {
 }
 
 export default function FinanceFineRuleSection({
+  canManage,
   fineRules,
   fineTriggerLabel,
   isAddingFineRule,
@@ -45,17 +47,18 @@ export default function FinanceFineRuleSection({
             경기 완료 시 자동으로 벌금이 부과됩니다
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={onOpenAddFineRule}
-          className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
-        >
-          + 추가
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={onOpenAddFineRule}
+            className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
+          >
+            + 추가
+          </button>
+        )}
       </div>
 
-      {isAddingFineRule && (
+      {canManage && isAddingFineRule && (
         <FinanceFineRuleCreateForm
           fineRuleName={fineRuleName}
           onChangeFineRuleName={onChangeFineRuleName}
@@ -69,6 +72,7 @@ export default function FinanceFineRuleSection({
       )}
 
       <FinanceFineRuleList
+        canManage={canManage}
         fineRules={fineRules}
         fineTriggerLabel={fineTriggerLabel}
         onDeleteFineRule={onDeleteFineRule}

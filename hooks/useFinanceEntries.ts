@@ -1,49 +1,140 @@
 import { FinanceEntry } from "@/types/finance";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useCurrentTeam } from "./useCurrentTeam";
+import { supabase } from "@/lib/supabase";
 
 const DEFAULT_ENTRIES: FinanceEntry[] = [];
 
 export function useFinanceEntries() {
+  const { team, teamLoaded } = useCurrentTeam();
+  const teamId = team?.id;
+
   const [entries, setEntries] = useState<FinanceEntry[]>(DEFAULT_ENTRIES);
   const [entriesLoaded, setEntriesLoaded] = useState(false);
 
-  useEffect(() => {
-    const savedEntries = localStorage.getItem("finance-entries");
+  const loadEntries = useCallback(async () => {
+    if (!teamLoaded) return;
 
-    if (savedEntries && savedEntries !== "undefined") {
-      try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setEntries(JSON.parse(savedEntries));
-      } catch {
-        localStorage.removeItem("finance-entries");
-      }
+    if (!teamId) {
+      setEntries([]);
+      setEntriesLoaded(true);
+      return;
     }
+
+    setEntriesLoaded(false);
+
+    const { data, error } = await supabase
+      .from("finance_entries")
+      .select("id, type, amount, description, date, time")
+      .eq("team_id", teamId)
+      .order("date", { ascending: false })
+      .order("time", { ascending: false });
+
+    if (error || !data) {
+      setEntries([]);
+      setEntriesLoaded(true);
+      return;
+    }
+
+    setEntries(
+      data.map((entry) => ({
+        id: entry.id,
+        type: entry.type,
+        amount: entry.amount,
+        description: entry.description,
+        date: entry.date,
+        time: entry.time,
+      })),
+    );
     setEntriesLoaded(true);
-  }, []);
+  }, [teamLoaded, teamId]);
 
   useEffect(() => {
-    if (!entriesLoaded) return;
-    localStorage.setItem("finance-entries", JSON.stringify(entries));
-  }, [entries, entriesLoaded]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadEntries();
+  }, [loadEntries]);
 
-  const addEntry = (entry: Omit<FinanceEntry, "id">) => {
-    const nextEntry: FinanceEntry = {
-      id: crypto.randomUUID(),
-      ...entry,
-    };
-    setEntries((prev) => [nextEntry, ...prev]);
+  const addEntry = async (entry: Omit<FinanceEntry, "id">) => {
+    if (!teamId) return false;
+
+    const { data, error } = await supabase
+      .from("finance_entries")
+      .insert({
+        team_id: teamId,
+        type: entry.type,
+        amount: entry.amount,
+        description: entry.description,
+        date: entry.date,
+        time: entry.time,
+      })
+      .select("id, type, amount, description, date, time")
+      .single();
+
+    if (error || !data) return false;
+
+    setEntries((prev) => [
+      {
+        id: data.id,
+        type: data.type,
+        amount: data.amount,
+        description: data.description,
+        date: data.date,
+        time: data.time,
+      },
+      ...prev,
+    ]);
+
+    if (error || !data) {
+      console.log("finance_entries insert error", error);
+      return false;
+    }
+
+    return true;
   };
 
-  const updateEntry = (entryId: string, updates: Omit<FinanceEntry, "id">) => {
+  const updateEntry = async (
+    entryId: string,
+    updates: Omit<FinanceEntry, "id">,
+  ) => {
+    if (!teamId) return false;
+
+    const { error } = await supabase
+      .from("finance_entries")
+      .update({
+        type: updates.type,
+        amount: updates.amount,
+        description: updates.description,
+        date: updates.date,
+        time: updates.time,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", entryId)
+      .eq("team_id", teamId);
+
+    if (error) return false;
+
     setEntries((prev) =>
       prev.map((entry) =>
         entry.id === entryId ? { ...entry, ...updates } : entry,
       ),
     );
+
+    return true;
   };
 
-  const deleteEntry = (entryId: string) => {
+  const deleteEntry = async (entryId: string) => {
+    if (!teamId) return false;
+
+    const { error } = await supabase
+      .from("finance_entries")
+      .delete()
+      .eq("id", entryId)
+      .eq("team_id", teamId);
+
+    if (error) return false;
+
     setEntries((prev) => prev.filter((entry) => entry.id !== entryId));
+    return true;
   };
 
   return {
@@ -52,6 +143,6 @@ export function useFinanceEntries() {
     addEntry,
     updateEntry,
     deleteEntry,
-    setEntries,
+    reloadEntries: loadEntries,
   };
 }

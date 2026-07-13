@@ -13,8 +13,8 @@ interface UseFinancePaymentsParams {
   players: PlayerType[];
   defaultMonth: string;
   primaryFeeAmount: number;
-  addEntry: (entry: Omit<FinanceEntry, "id">) => void;
-  deleteEntry: (entryId: string) => void;
+  addEntry: (entry: Omit<FinanceEntry, "id">) => Promise<boolean>;
+  deleteEntry: (entryId: string) => Promise<boolean>;
 }
 
 export function useFinancePayments({
@@ -84,7 +84,7 @@ export function useFinancePayments({
     setIsPaidOpen((prev) => !prev);
   };
 
-  const handleChangePaymentStatus = (
+  const handleChangePaymentStatus = async (
     playerName: string,
     nextStatus: PaymentStatusRow["status"],
   ) => {
@@ -96,16 +96,25 @@ export function useFinancePayments({
       const now = new Date();
       const currentTime = now.toTimeString().slice(0, 5);
 
-      addEntry({
+      const success = await addEntry({
         type: "income",
         amount: primaryFeeAmount,
         description: `${currentMonth} 회비 (${playerName})`,
         date: `${currentMonth}-01`,
         time: currentTime,
       });
+
+      if (!success) {
+        globalThis.alert("납부 상태 변경에 실패했어요.");
+      }
     }
+
     if (nextStatus === "unpaid" && existingPaymentEntry) {
-      deleteEntry(existingPaymentEntry.id);
+      const success = await deleteEntry(existingPaymentEntry.id);
+
+      if (!success) {
+        globalThis.alert("납부 상태 변경에 실패했어요.");
+      }
     }
   };
 

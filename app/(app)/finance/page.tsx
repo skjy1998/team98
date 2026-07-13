@@ -19,8 +19,8 @@ import {
 } from "@/lib/finance";
 import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { useMemo } from "react";
+import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
 
 export default function FinancePage() {
   // 탭 / 라우팅
@@ -38,6 +38,7 @@ export default function FinancePage() {
   );
   const { players, playersLoaded } = usePlayers();
   const settings = useFinanceSettings();
+  const { canManage, memberLoaded } = useCurrentTeamMember();
 
   // 파생값
   const primaryFeeAmount = useMemo(
@@ -75,7 +76,12 @@ export default function FinancePage() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  if (!entriesLoaded || !playersLoaded || !settings.settingsLoaded) {
+  if (
+    !entriesLoaded ||
+    !playersLoaded ||
+    !settings.settingsLoaded ||
+    !memberLoaded
+  ) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -105,6 +111,7 @@ export default function FinancePage() {
       <div className="space-y-6 pt-3">
         {activeTab === "transactions" && (
           <FinanceTransactionSection
+            canManage={canManage}
             search={transactions.search}
             onChangeSearch={transactions.setSearch}
             entryFilter={transactions.entryFilter}
@@ -146,6 +153,7 @@ export default function FinancePage() {
         )}
         {activeTab === "payments" && (
           <FinancePaymentsSection
+            canManage={canManage}
             currentMonthLabel={payments.currentMonthLabel}
             onMoveMonth={payments.handleMoveMonth}
             paymentSummary={payments.paymentSummary}
@@ -160,6 +168,7 @@ export default function FinancePage() {
         )}
         {activeTab === "settings" && (
           <FinanceSettingsSection
+            canManage={canManage}
             dueDay={settings.dueDay}
             feeTypes={settings.feeTypes}
             fineRules={settings.fineRules}

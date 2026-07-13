@@ -3,6 +3,7 @@ import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
 import FinanceFeeTypeList from "./FinanceFeeTypeList";
 
 interface FinanceFeeSettingsSectionProps {
+  canManage: boolean;
   dueDay: string;
   onChangeDueDay: (value: string) => void;
 
@@ -33,6 +34,7 @@ interface FinanceFeeSettingsSectionProps {
 }
 
 export default function FinanceFeeSettingsSection({
+  canManage,
   dueDay,
   onChangeDueDay,
   isAddingFeeType,
@@ -68,7 +70,12 @@ export default function FinanceFeeSettingsSection({
           <select
             value={dueDay}
             onChange={(event) => onChangeDueDay(event.target.value)}
-            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-900 outline-none focus:border-orange-300"
+            disabled={!canManage}
+            className={`w-full rounded-xl border px-5 py-4 text-base font-semibold outline-none ${
+              canManage
+                ? "border-stone-200 bg-stone-50 text-stone-900 focus:border-orange-300"
+                : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+            }`}
           >
             {Array.from({ length: 28 }, (_, index) => index + 1).map((day) => (
               <option key={day} value={String(day)}>
@@ -80,7 +87,7 @@ export default function FinanceFeeSettingsSection({
 
         <p className="mb-2 text-sm font-medium text-stone-500">회비 기준</p>
 
-        {isAddingFeeType && (
+        {canManage && isAddingFeeType && (
           <FinanceFeeTypeForm
             feeTypeName={feeTypeName}
             onChangeFeeTypeName={onChangeFeeTypeName}
@@ -97,6 +104,7 @@ export default function FinanceFeeSettingsSection({
         )}
 
         <FinanceFeeTypeList
+          canManage={canManage}
           feeTypes={feeTypes}
           editingFeeTypeId={editingFeeTypeId}
           editingFeeName={editingFeeName}
@@ -111,14 +119,15 @@ export default function FinanceFeeSettingsSection({
           onDeleteFeeType={onDeleteFeeType}
         />
       </div>
-
-      <button
-        type="button"
-        onClick={onOpenAddFeeType}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-100"
-      >
-        + 회비 유형 추가
-      </button>
+      {canManage && (
+        <button
+          type="button"
+          onClick={onOpenAddFeeType}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-100"
+        >
+          + 회비 유형 추가
+        </button>
+      )}
     </section>
   );
 }

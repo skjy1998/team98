@@ -1,21 +1,25 @@
 import type { FinanceEntryFilter } from "@/types/finance";
 
 interface FinanceTransactionToolbarProps {
+  canManage: boolean;
   currentMonthLabel: string;
   onMoveMonth: (direction: "prev" | "next") => void;
   search: string;
   onChangeSearch: (value: string) => void;
   entryFilter: FinanceEntryFilter;
   onChangeEntryFilter: (value: FinanceEntryFilter) => void;
+  onToggleEntryForm: () => void;
 }
 
 export default function FinanceTransactionToolbar({
+  canManage,
   currentMonthLabel,
   onMoveMonth,
   search,
   onChangeSearch,
   entryFilter,
   onChangeEntryFilter,
+  onToggleEntryForm,
 }: Readonly<FinanceTransactionToolbarProps>) {
   return (
     <div className="space-y-4">
@@ -61,12 +65,15 @@ export default function FinanceTransactionToolbar({
             <option value="income">입금</option>
             <option value="expense">출금</option>
           </select>
-          <button
-            type="button"
-            className="h-11 rounded-xl bg-stone-100 px-4 text-sm font-medium text-stone-600 transition hover:bg-stone-200"
-          >
-            편집
-          </button>
+          {canManage && (
+            <button
+              type="button"
+              onClick={onToggleEntryForm}
+              className="h-11 rounded-xl bg-stone-100 px-4 text-sm font-medium text-stone-600 transition hover:bg-stone-200"
+            >
+              거래 추가
+            </button>
+          )}
         </div>
       </div>
     </div>

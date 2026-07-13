@@ -2,6 +2,7 @@ import type { PaymentStatusRow } from "@/types/finance";
 import FinancePaymentStatusItem from "./FinancePaymentStatusItem";
 
 interface FinancePaymentStatusGroupProps {
+  canManage: boolean;
   title: string;
   count: number;
   tone: "paid" | "unpaid";
@@ -15,6 +16,7 @@ interface FinancePaymentStatusGroupProps {
 }
 
 export default function FinancePaymentStatusGroup({
+  canManage,
   title,
   count,
   tone,
@@ -48,6 +50,7 @@ export default function FinancePaymentStatusGroup({
             key={row.playerId}
             row={row}
             onChangePaymentStatus={onChangePaymentStatus}
+            canManage={canManage}
           />
         ))}
     </section>
