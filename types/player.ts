@@ -5,9 +5,12 @@ export const playerDetailPositions = {
   DF: ["CB", "LB", "RB"],
   GK: ["GK"],
 } as const;
+
 export const playerPreferredFeet = ["right", "left", "both"] as const;
 export const playerRoles = ["member", "captain", "viceCaptain"] as const;
 export const teamMemberRoles = ["owner", "staff", "member"] as const;
+
+export type PlayerPosition = (typeof playerPositions)[number];
 export type PlayerDetailPositionGroup = keyof typeof playerDetailPositions;
 export type PlayerPreferredFoot = (typeof playerPreferredFeet)[number];
 export type PlayerDetailPosition =
@@ -16,10 +19,9 @@ export type PlayerRole = (typeof playerRoles)[number];
 export type TeamMemberRole = (typeof teamMemberRoles)[number];
 export type PlayerSortType = "latest" | "number" | "name" | "position";
 
-export interface PlayerType {
+export interface PlayerBase {
   id: string;
   userId?: string;
-  teamMemberRole?: TeamMemberRole;
   name: string;
   position?: string;
   detailPositions?: PlayerDetailPosition[];
@@ -28,9 +30,16 @@ export interface PlayerType {
   role?: PlayerRole;
   preferredFoot?: PlayerPreferredFoot;
   note?: string;
+}
+
+export interface PlayerStats {
   appearance: number;
   goal: number;
   assist: number;
+}
+
+export interface PlayerType extends PlayerBase, PlayerStats {
+  teamMemberRole?: TeamMemberRole;
 }
 
 export interface ConnectableTeamMember {

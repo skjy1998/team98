@@ -70,11 +70,11 @@ export default function PlayerEditPositionSection({
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {positionSections.map((section) => (
           <div
             key={section.title}
-            className="rounded-[20px] border border-stone-200 bg-white px-4 py-4"
+            className="rounded-[18px] border border-stone-200 bg-white px-4 py-3"
           >
             <div className="flex items-center gap-2">
               <span
@@ -85,7 +85,7 @@ export default function PlayerEditPositionSection({
               </p>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3.5 flex flex-wrap gap-2">
               {section.items.map((item) => {
                 const isActive = detailPositions.includes(item.value);
 
@@ -95,7 +95,7 @@ export default function PlayerEditPositionSection({
                     type="button"
                     onClick={() => onToggleDetailPosition(item.value)}
                     className={[
-                      "rounded-full border px-4 py-2 text-sm font-semibold transition",
+                      "rounded-full border px-4 py-2 text-xs font-semibold transition",
                       isActive
                         ? section.activeClassName
                         : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",

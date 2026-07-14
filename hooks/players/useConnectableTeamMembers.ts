@@ -12,6 +12,13 @@ interface UseConnectableTeamMembersParams {
   editingPlayer: PlayerType | null;
 }
 
+function getConnectableMemberLabel(member: {
+  display_name: string | null;
+  user_id: string;
+}) {
+  return member.display_name || member.user_id;
+}
+
 export function useConnectableTeamMembers({
   teamId,
   players,
@@ -41,7 +48,7 @@ export function useConnectableTeamMembers({
       const members = data.map((member) => ({
         userId: member.user_id,
         role: member.role as TeamMemberRole,
-        label: member.display_name || member.user_id,
+        label: getConnectableMemberLabel(member),
       }));
 
       setConnectableMembers(members);

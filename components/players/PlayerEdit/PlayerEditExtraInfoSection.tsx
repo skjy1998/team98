@@ -3,14 +3,14 @@ import type { PlayerPreferredFoot } from "@/types/player";
 interface PlayerEditExtraInfoSectionProps {
   birth: string;
   onChangeBirth: (value: string) => void;
-  preferredFoot: PlayerPreferredFoot | "";
-  onChangePreferredFoot: (value: PlayerPreferredFoot | "") => void;
+  preferredFoot: PlayerPreferredFoot;
+  onChangePreferredFoot: (value: PlayerPreferredFoot) => void;
   note: string;
   onChangeNote: (value: string) => void;
 }
 
 const preferredFootOptions: {
-  value: PlayerPreferredFoot | "";
+  value: PlayerPreferredFoot;
   label: string;
   activeClassName: string;
 }[] = [
@@ -74,7 +74,7 @@ export default function PlayerEditExtraInfoSection({
 
               return (
                 <button
-                  key={option.value || "none"}
+                  key={option.value}
                   type="button"
                   onClick={() => onChangePreferredFoot(option.value)}
                   className={[
@@ -102,7 +102,7 @@ export default function PlayerEditExtraInfoSection({
             id="player-note"
             value={note}
             onChange={(event) => onChangeNote(event.target.value)}
-            placeholder="예: 수비 선호, 주말 참석 가능, 체력 좋음"
+            placeholder="예: 선호 포지션 보조 가능, 주말 위주 참석, 수비 조율 강점"
             rows={4}
             className="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
           />

@@ -11,7 +11,7 @@ export function usePlayersPageState() {
   // 어떤 선수를 수정 중인지 기억
   const [editingPlayer, setEditingPlayer] = useState<PlayerType | null>(null);
   // 어떠 선수를 삭제하려는지 기억
-  const [deletePlayer, setDeletePlayer] = useState<PlayerType | null>(null);
+  const [deletingPlayer, setDeletingPlayer] = useState<PlayerType | null>(null);
 
   // 새 선수 추가 버튼 눌렀을 때 실행
   const handleOpenCreate = () => {
@@ -34,11 +34,11 @@ export function usePlayersPageState() {
   };
 
   const handleOpenDelete = (player: PlayerType) => {
-    setDeletePlayer(player);
+    setDeletingPlayer(player);
   };
 
   const handleCloseDelete = () => {
-    setDeletePlayer(null);
+    setDeletingPlayer(null);
   };
 
   return {
@@ -48,7 +48,7 @@ export function usePlayersPageState() {
     setSortType,
     isCreateOpen,
     editingPlayer,
-    deletePlayer,
+    deletingPlayer,
     handleOpenCreate,
     handleCloseCreate,
     handleEdit,

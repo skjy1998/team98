@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { getMainPositionFromDetail } from "@/lib/player-ui";
 import type {
   PlayerDetailPosition,
+  PlayerPosition,
+  PlayerPreferredFoot,
   PlayerRole,
   PlayerType,
   TeamMemberRole,
@@ -15,13 +17,18 @@ type PlayerRow = {
   id: string;
   user_id: string | null;
   name: string;
-  position: string | null;
-  detail_positions: string[] | null;
+  position: PlayerPosition | null;
+  detail_positions: PlayerDetailPosition[] | null;
   number: number | null;
   birth: string | null;
-  role: string | null;
-  preferred_foot: string | null;
+  role: PlayerRole | null;
+  preferred_foot: PlayerPreferredFoot | null;
   note: string | null;
+};
+
+type TeamMemberRoleRow = {
+  user_id: string;
+  role: TeamMemberRole;
 };
 
 function mapPlayerRow(
@@ -34,18 +41,32 @@ function mapPlayerRow(
     teamMemberRole,
     name: player.name,
     position: player.position ?? undefined,
-    detailPositions:
-      (player.detail_positions as PlayerDetailPosition[] | null) ?? undefined,
+    detailPositions: player.detail_positions ?? undefined,
     number: player.number ?? undefined,
     birth: player.birth ?? undefined,
-    role: (player.role as PlayerRole | null) ?? "member",
-    preferredFoot:
-      (player.preferred_foot as PlayerType["preferredFoot"] | null) ?? "right",
+    role: player.role ?? "member",
+    preferredFoot: player.preferred_foot ?? "right",
     note: player.note ?? undefined,
     appearance: 0,
     goal: 0,
     assist: 0,
   };
+}
+
+function mergePlayersWithTeamMemberRoles(
+  players: PlayerRow[],
+  teamMembers: TeamMemberRoleRow[],
+) {
+  const teamMemberRoleMap = new Map(
+    teamMembers.map((member) => [member.user_id, member.role]),
+  );
+
+  return players.map((player) =>
+    mapPlayerRow(
+      player,
+      player.user_id ? teamMemberRoleMap.get(player.user_id) : undefined,
+    ),
+  );
 }
 
 export function usePlayers() {
@@ -66,7 +87,7 @@ export function usePlayers() {
 
     setPlayersLoaded(false);
 
-    const { data, error } = await supabase
+    const { data: playerRows, error: playersError } = await supabase
       .from("players")
       .select(
         "id, user_id, name, position, detail_positions, number, birth, role, preferred_foot, note",
@@ -74,39 +95,29 @@ export function usePlayers() {
       .eq("team_id", teamId)
       .order("created_at", { ascending: true });
 
-    if (error || !data) {
+    if (playersError || !playerRows) {
       setPlayers([]);
       setPlayersLoaded(true);
       return;
     }
 
-    const { data: teamMembers, error: teamMembersError } = await supabase
+    const { data: teamMemberRows, error: teamMembersError } = await supabase
       .from("team_members")
       .select("user_id, role")
       .eq("team_id", teamId);
 
-    if (teamMembersError) {
-      setPlayers(data.map((player) => mapPlayerRow(player)));
+    if (teamMembersError || !teamMemberRows) {
+      setPlayers(playerRows.map((player) => mapPlayerRow(player)));
       setPlayersLoaded(true);
       return;
     }
 
-    const teamMemberRoleMap = new Map(
-      (teamMembers ?? []).map((member) => [
-        member.user_id,
-        member.role as TeamMemberRole,
-      ]),
-    );
-
     setPlayers(
-      data.map((player) =>
-        mapPlayerRow(
-          player,
-          player.user_id ? teamMemberRoleMap.get(player.user_id) : undefined,
-        ),
+      mergePlayersWithTeamMemberRoles(
+        playerRows,
+        teamMemberRows as TeamMemberRoleRow[],
       ),
     );
-
     setPlayersLoaded(true);
   }, [teamLoaded, teamId]);
 

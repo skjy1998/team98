@@ -20,7 +20,7 @@ export default function PlayerEditSummaryCard({
   assist,
 }: Readonly<PlayerEditSummaryCardProps>) {
   return (
-    <section className="rounded-xl bg-gradient-to-b from-stone-50 to-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-5 pr-14">
       <div className="flex items-start gap-4">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-white text-3xl font-bold text-stone-700 shadow-sm">
           {playerName.slice(0, 1)}
@@ -51,26 +51,28 @@ export default function PlayerEditSummaryCard({
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3 text-center shadow-sm">
-          <p className="text-xs font-semibold tracking-[0.12em] text-stone-400">
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-stone-400">
             출전
           </p>
-          <p className="mt-1 text-lg font-bold text-stone-900">{appearance}</p>
+          <p className="mt-1 text-base font-bold text-stone-900">
+            {appearance}
+          </p>
         </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3 text-center shadow-sm">
-          <p className="text-xs font-semibold tracking-[0.12em] text-stone-400">
+        <div className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-stone-400">
             득점
           </p>
-          <p className="mt-1 text-lg font-bold text-stone-900">{goal}</p>
+          <p className="mt-1 text-base font-bold text-stone-900">{goal}</p>
         </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white px-3 py-3 text-center shadow-sm">
-          <p className="text-xs font-semibold tracking-[0.12em] text-stone-400">
+        <div className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-center">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-stone-400">
             어시
           </p>
-          <p className="mt-1 text-lg font-bold text-stone-900">{assist}</p>
+          <p className="mt-1 text-base font-bold text-stone-900">{assist}</p>
         </div>
       </div>
     </section>

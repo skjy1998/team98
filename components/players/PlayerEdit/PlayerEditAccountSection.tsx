@@ -19,6 +19,9 @@ export default function PlayerEditAccountSection({
   selectedUserId,
   onChangeSelectedUserId,
 }: Readonly<PlayerEditAccountSectionProps>) {
+  const linkedMember = members.find((member) => member.userId === linkedUserId);
+  const hasConnectableMembers = members.length > 0;
+
   return (
     <section className="rounded-xl border border-stone-200 p-5">
       <div className="mb-4">
@@ -34,10 +37,16 @@ export default function PlayerEditAccountSection({
           <p className="mt-1 text-sm font-semibold text-stone-900">
             {linkedUserId ? "가입된 계정과 연결됨" : "미가입 선수"}
           </p>
+          {linkedUserId && linkedMember && (
+            <p className="mt-1 text-xs text-stone-500">
+              연결 계정: {linkedMember.label} ·{" "}
+              {roleLabelMap[linkedMember.role]}
+            </p>
+          )}
         </div>
 
-        <div>
-          <p className="mb-2 text-sm font-medium text-stone-500">연결할 계정</p>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-stone-500">팀원 계정 선택</p>
           <select
             value={selectedUserId}
             onChange={(event) => onChangeSelectedUserId(event.target.value)}
@@ -50,6 +59,11 @@ export default function PlayerEditAccountSection({
               </option>
             ))}
           </select>
+          {!hasConnectableMembers && (
+            <p className="text-xs text-stone-400">
+              아직 연결 가능한 가입 계정이 없어요.
+            </p>
+          )}
         </div>
       </div>
     </section>

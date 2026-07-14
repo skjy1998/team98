@@ -16,11 +16,11 @@ export default function PlayerEditNumberSection({
         </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-2">
+      <div className="grid items-start gap-3 md:grid-cols-[120px_minmax(0,1fr)]">
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="player-number"
-            className="text-sm font-semibold text-stone-700"
+            className="text-sm font-semibold leading-5 text-stone-700"
           >
             등번호
           </label>
@@ -30,7 +30,7 @@ export default function PlayerEditNumberSection({
             min={0}
             value={number}
             onChange={(event) => onChangeNumber(event.target.value)}
-            placeholder="17"
+            placeholder="-"
             className="h-14 w-full rounded-xl border border-stone-200 px-4 text-sm font-semibold text-stone-900 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
           />
         </div>

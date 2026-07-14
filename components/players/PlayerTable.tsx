@@ -1,4 +1,8 @@
-import { getMainPositionFromDetail } from "@/lib/player-ui";
+import {
+  getMainPositionFromDetail,
+  getPlayerBadges,
+  getPositionBadgeClassName,
+} from "@/lib/player-ui";
 import type { PlayerType } from "@/types/player";
 import { Pencil, Trash2 } from "lucide-react";
 
@@ -7,55 +11,6 @@ interface PlayerTableProps {
   onEdit?: (player: PlayerType) => void;
   onDelete?: (player: PlayerType) => void;
 }
-
-const getPositionBadgeClassName = (position?: string) => {
-  switch (position) {
-    case "GK":
-      return "border-amber-200 bg-amber-50 text-amber-700";
-    case "DF":
-      return "border-blue-200 bg-blue-50 text-blue-700";
-    case "MF":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
-    case "FW":
-      return "border-rose-200 bg-rose-50 text-rose-700";
-    default:
-      return "border-stone-200 bg-stone-50 text-stone-500";
-  }
-};
-
-const getPlayerRoleBadge = (role?: string) => {
-  if (role === "captain") {
-    return {
-      label: "주장",
-      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    };
-  }
-
-  if (role === "viceCaptain") {
-    return {
-      label: "부주장",
-      className: "border-sky-200 bg-sky-50 text-sky-700",
-    };
-  }
-  return null;
-};
-
-const getTeamRoleBadge = (role?: string) => {
-  if (role === "owner") {
-    return {
-      label: "회장",
-      className: "border-rose-200 bg-rose-50 text-rose-700",
-    };
-  }
-
-  if (role === "staff") {
-    return {
-      label: "운영진",
-      className: "border-sky-200 bg-sky-50 text-sky-700",
-    };
-  }
-  return null;
-};
 
 export default function PlayerTable({
   players,
@@ -81,12 +36,11 @@ export default function PlayerTable({
           const mainPosition = getMainPositionFromDetail(
             player.detailPositions,
           );
-          const playerRoleBadge = getPlayerRoleBadge(player.role);
-          const teamRoleBadge = getTeamRoleBadge(player.teamMemberRole);
+          const badges = getPlayerBadges(player);
           return (
             <div
               key={player.id}
-              className="group rounded-[22px] px-3 py-3 transition hover:bg-stone-50"
+              className="rounded-[22px] px-3 py-3 transition hover:bg-stone-50"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
@@ -100,25 +54,14 @@ export default function PlayerTable({
                       <p className="truncate text-[15px] font-semibold text-stone-900">
                         {player.name}
                       </p>
-                      {!player.userId && (
-                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                          미가입
-                        </span>
-                      )}
-                      {teamRoleBadge && (
+                      {badges.map((badge) => (
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${teamRoleBadge.className}`}
+                          key={`${player.id}-${badge.label}`}
+                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${badge.className}`}
                         >
-                          {teamRoleBadge.label}
+                          {badge.label}
                         </span>
-                      )}
-                      {playerRoleBadge && (
-                        <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${playerRoleBadge.className}`}
-                        >
-                          {playerRoleBadge.label}
-                        </span>
-                      )}
+                      ))}
                       <span
                         className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getPositionBadgeClassName(mainPosition)}`}
                       >
@@ -126,7 +69,6 @@ export default function PlayerTable({
                       </span>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-stone-400">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
                       <span>출전 {player.appearance}</span>
                       <span>·</span>
                       <span>득점 {player.goal}</span>

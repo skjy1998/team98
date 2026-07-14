@@ -40,7 +40,7 @@ export default function PlayerEditRoleSection({
       <div className="mb-4">
         <p className="text-sm font-semibold text-emerald-600">03 팀 역할</p>
         <p className="mt-1 text-sm text-stone-400">
-          주장과 부주장은 각각 한 명만 지정할 수 있어요.
+          주장은 한 명만 지정할 수 있어요.
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-3">

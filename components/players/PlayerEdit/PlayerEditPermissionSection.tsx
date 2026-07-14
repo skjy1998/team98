@@ -1,4 +1,4 @@
-type TeamMemberRole = "owner" | "staff" | "member";
+import type { TeamMemberRole } from "@/types/player";
 
 interface PlayerEditPermissionSectionProps {
   role: TeamMemberRole;
@@ -40,7 +40,8 @@ export default function PlayerEditPermissionSection({
       <div className="mb-4">
         <p className="text-sm font-semibold text-emerald-600">04 서비스 권한</p>
         <p className="mt-1 text-sm text-stone-400">
-          팀 관리 권한을 설정할 수 있어요.
+          서비스 접근 권한을 설정해요. 회장과 운영진만 선수/일정/회비를 관리할
+          수 있어요.
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-3">

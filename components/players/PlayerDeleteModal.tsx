@@ -1,4 +1,5 @@
 import type { PlayerType } from "@/types/player";
+import { useEffect } from "react";
 
 interface PlayerDeleteModalProps {
   player: PlayerType;
@@ -11,8 +12,22 @@ export default function PlayerDeleteModal({
   onClose,
   onDelete,
 }: Readonly<PlayerDeleteModalProps>) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    globalThis.window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      globalThis.window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4">
       <button
         type="button"
         aria-label="삭제 모달 닫기"
@@ -37,7 +52,7 @@ export default function PlayerDeleteModal({
           <button
             type="button"
             onClick={onClose}
-            className="h-12 flex-1 rounded-xl border border-stone-200 bg-white text-sm font-medium text-stone-500 transition hover:bg-stone-50"
+            className="h-12 flex-1 rounded-full border border-stone-200 bg-white text-sm font-medium text-stone-500 transition hover:bg-stone-50"
           >
             취소
           </button>
@@ -45,7 +60,7 @@ export default function PlayerDeleteModal({
           <button
             type="button"
             onClick={onDelete}
-            className="h-12 flex-1 rounded-xl bg-rose-500 text-sm font-semibold text-white transition hover:bg-rose-600"
+            className="h-12 flex-1 rounded-full bg-rose-500 text-sm font-semibold text-white transition hover:bg-rose-600"
           >
             삭제
           </button>
