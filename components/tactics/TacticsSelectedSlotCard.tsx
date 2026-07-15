@@ -14,9 +14,9 @@ export default function TacticsSelectedSlotCard({
   onClearSlot,
   canManage,
 }: Readonly<TacticsSelectedSlotCardProps>) {
-  const assignedPlayerName = selectedSlot?.playerId
-    ? (getPlayerById(selectedSlot.playerId)?.name ?? "")
-    : "";
+  const assignedPlayer = selectedSlot?.playerId
+    ? getPlayerById(selectedSlot.playerId)
+    : undefined;
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-4">
       <h3 className="text-lg font-semibold text-stone-900">선택한 포지션</h3>
@@ -29,7 +29,7 @@ export default function TacticsSelectedSlotCard({
             </p>
             <p className="mt-1 text-sm text-stone-500">
               {selectedSlot.playerId
-                ? `${assignedPlayerName} 배치됨`
+                ? `${assignedPlayer?.name ?? ""} 배치됨`
                 : canManage
                   ? "오른쪽에서 선수를 눌러 배치하세요."
                   : "현재 포지션에 배치된 선수가 없습니다."}

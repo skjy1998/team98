@@ -5,9 +5,11 @@ import VoteManagementPanel from "./VoteManagementPanel";
 import type { VoteFilter, VoteStatus } from "@/types/match-vote";
 import { useMatchVotes } from "@/hooks/useMatchVotes";
 import {
+  formatVoteDeadline,
   getFilteredVoteMembers,
   getVoteMembers,
   getVoteSummary,
+  isVoteClosed,
 } from "@/lib/match-vote";
 import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
 import MyVoteCard from "./MyVoteCard";
@@ -18,28 +20,12 @@ interface MatchVoteTabProps {
   match: MatchItem;
 }
 
-function formatVoteDeadline(date: string, time: string) {
-  const parsedDate = new Date(`${date}T${time}`);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return `${date} ${time}`;
-  }
-
-  return parsedDate.toLocaleString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
 export default function MatchVoteTab({
   matchId,
   match,
 }: Readonly<MatchVoteTabProps>) {
   const { players, playersLoaded } = usePlayers();
-  const { votes, votesLoaded, saveVote } = useMatchVotes();
+  const { votes, votesLoaded, saveVote, deleteVote } = useMatchVotes();
   const { member, memberLoaded, canManage } = useCurrentTeamMember();
 
   const [search, setSearch] = useState("");
@@ -66,12 +52,20 @@ export default function MatchVoteTab({
 
   const myVoteStatus =
     currentVotes.find((vote) => vote.playerId === myPlayer?.id)?.status ??
-    "pending";
+    "unvoted";
 
+  const isClosed = isVoteClosed(match.date, match.startTime);
   const voteDeadlineText = formatVoteDeadline(match.date, match.startTime);
 
   const handleChangeStatus = async (playerId: string, status: VoteStatus) => {
-    const success = await saveVote(matchId, playerId, status);
+    const currentStatus =
+      currentVotes.find((vote) => vote.playerId === playerId)?.status ??
+      "unvoted";
+
+    const success =
+      currentStatus === status
+        ? await deleteVote(matchId, playerId)
+        : await saveVote(matchId, playerId, status);
 
     if (!success) {
       globalThis.alert("투표 저장에 실패했어요.");
@@ -88,36 +82,41 @@ export default function MatchVoteTab({
 
   return (
     <div className="space-y-5">
+      {!isClosed &&
+        (myPlayer ? (
+          <MyVoteCard
+            playerId={myPlayer.id}
+            status={myVoteStatus}
+            deadlineText={voteDeadlineText}
+            onChangeStatus={handleChangeStatus}
+          />
+        ) : (
+          <section className="rounded-xl border border-stone-200 bg-white p-6">
+            <h2 className="text-xl font-semibold text-stone-900">내 투표</h2>
+            <p className="mt-4 text-sm text-stone-500">
+              현재 계정에 연결된 선수 정보가 없어서 개인 투표를 진행할 수
+              없어요.
+            </p>
+          </section>
+        ))}
       <VoteSummaryCard
         attend={summary.attend}
         pending={summary.pending}
         absent={summary.absent}
+        unvoted={summary.unvoted}
         total={summary.total}
       />
-      {myPlayer ? (
-        <MyVoteCard
-          playerId={myPlayer.id}
-          status={myVoteStatus}
-          deadlineText={voteDeadlineText}
-          onChangeStatus={handleChangeStatus}
-        />
-      ) : (
-        <section className="rounded-xl border border-stone-200 bg-white p-6">
-          <h2 className="text-xl font-semibold text-stone-900">내 투표</h2>
-          <p className="mt-4 text-sm text-stone-500">
-            현재 계정에 연결된 선수 정보가 없어서 개인 투표를 진행할 수 없어요.
-          </p>
-        </section>
-      )}
       <VoteManagementPanel
         title="전체 투표 현황"
-        search={search}
-        filter={filter}
         members={filteredMembers}
-        showFilters={canManage}
         canManage={canManage}
-        onSearchChange={setSearch}
-        onFilterChange={setFilter}
+        filterState={{
+          search,
+          filter,
+          showFilters: canManage,
+          onSearchChange: setSearch,
+          onFilterChange: setFilter,
+        }}
         onChangeStatus={handleChangeStatus}
       />
     </div>

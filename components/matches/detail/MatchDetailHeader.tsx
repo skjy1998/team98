@@ -3,6 +3,7 @@ import type { MatchItem } from "@/types/match";
 
 interface MatchDetailHeaderProps {
   match: MatchItem;
+  teamName: string;
   displayScore: string;
   matchStatusLabel: string;
   matchSubText: string;
@@ -12,20 +13,25 @@ interface MatchDetailHeaderProps {
 
 export default function MatchDetailHeader({
   match,
+  teamName,
   displayScore,
   matchStatusLabel,
   matchSubText,
   opponentName,
   statusBadgeClassName,
 }: Readonly<MatchDetailHeaderProps>) {
+  const safeTeamName = teamName || "우리 팀";
+  const teamInitial = safeTeamName.slice(0, 1);
+  const safeOpponentName = opponentName || "상대 팀";
   const opponentInitial = opponentName.slice(0, 1);
+
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
       <div className="bg-stone-50/70 px-6 py-8 md:px-8">
         <div className="grid items-center gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex flex-col items-center justify-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-3xl font-bold text-emerald-700">
-              F
+              {teamInitial}
             </div>
             <p className="mt-3 text-xl font-semibold text-stone-900">FC 98</p>
           </div>
@@ -47,7 +53,7 @@ export default function MatchDetailHeader({
               {opponentInitial}
             </div>
             <p className="mt-3 text-xl font-semibold text-stone-900">
-              {opponentName}
+              {safeOpponentName}
             </p>
           </div>
         </div>

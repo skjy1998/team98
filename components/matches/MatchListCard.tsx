@@ -19,6 +19,7 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
   const result = getMatchResult(match);
   const status = statusMap[result];
   const valueText = getMatchValueText(match);
+
   return (
     <Link
       href={`/matches/${match.id}`}
@@ -26,21 +27,23 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="mb-3 flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <h3 className="truncate text-sm font-semibold text-stone-900 md:text-base">
+              {match.title}
+            </h3>
             <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${typeMap[match.type]}`}
+              className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${typeMap[match.type]}`}
             >
               {match.type}
             </span>
           </div>
-          <h3 className="truncate text-sm font-semibold text-stone-900 md:text-base">
-            {match.title}
-          </h3>
-          <div className="mt-2 space-y-1 text-sm text-stone-400">
-            <p>
+          <div className="mt-2 space-y-1 text-sm">
+            <p className="text-stone-500">
               {formatMatchDate(match.date)} · {formatMatchTime(match)}
             </p>
-            <p className="truncate">{match.location || "장소 미정"}</p>
+            <p className="truncate text-stone-400">
+              {match.location || "장소 미정"}
+            </p>
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2 text-right">
@@ -56,7 +59,7 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
           >
             {valueText}
           </p>
-          <ChevronRight className="h-4 w-4 text-stone-300 transition-transform group-hover:translate-x-1" />
+          <ChevronRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
     </Link>

@@ -33,6 +33,11 @@ const filterOptions: {
     label: "불참",
     activeClassName: "bg-rose-600 text-white",
   },
+  {
+    value: "unvoted",
+    label: "미투표",
+    activeClassName: "bg-stone-500 text-white",
+  },
 ];
 
 export default function VoteFilterToolbar({

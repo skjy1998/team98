@@ -1,5 +1,6 @@
-import type { MatchRecordEventType, MatchRecordQuarter } from "@/types/match";
+import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
+import { useState } from "react";
 
 const quarterOptions: MatchRecordQuarter[] = [
   "unknown",
@@ -10,37 +11,44 @@ const quarterOptions: MatchRecordQuarter[] = [
 ];
 
 interface MatchRecordEditPanelProps {
-  isOpen: boolean;
-  eventType: MatchRecordEventType;
+  event: MatchRecordEvent;
   attendPlayers: PlayerType[];
-  editingPlayerId: string;
-  editingAssistPlayerId: string;
-  editingQuarter: MatchRecordQuarter;
-  editingMinute: string;
-  onChangePlayerId: (playerId: string) => void;
-  onChangeAssistPlayerId: (playerId: string) => void;
-  onChangeQuarter: (quarter: MatchRecordQuarter) => void;
-  onChangeMinute: (minute: string) => void;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (
+    eventId: string,
+    updates: {
+      playerId: string;
+      assistPlayerId: string;
+      quarter: MatchRecordQuarter;
+      minute: string;
+    },
+  ) => void | Promise<void>;
 }
 
 export default function MatchRecordEditPanel({
-  isOpen,
-  eventType,
+  event,
   attendPlayers,
-  editingPlayerId,
-  editingAssistPlayerId,
-  editingQuarter,
-  editingMinute,
-  onChangePlayerId,
-  onChangeAssistPlayerId,
-  onChangeQuarter,
-  onChangeMinute,
   onCancel,
   onSubmit,
 }: Readonly<MatchRecordEditPanelProps>) {
-  if (!isOpen) return null;
+  const [playerId, setPlayerId] = useState(event.playerId ?? "");
+  const [assistPlayerId, setAssistPlayerId] = useState(
+    event.assistPlayerId ?? "",
+  );
+  const [quarter, setQuarter] = useState<MatchRecordQuarter>(
+    event.quarter ?? "unknown",
+  );
+  const [minute, setMinute] = useState(event.minute ?? "");
+
+  const handleSubmit = async () => {
+    await onSubmit(event.id, {
+      playerId,
+      assistPlayerId,
+      quarter,
+      minute,
+    });
+  };
+
   return (
     <section className="rounded-xl border border-stone-200 bg-stone-50/80 p-6">
       <div className="flex items-center justify-between">
@@ -55,7 +63,7 @@ export default function MatchRecordEditPanel({
       </div>
 
       <div className="mt-6 space-y-6">
-        {eventType === "goal" && (
+        {event.type === "goal" && (
           <>
             <div>
               <p className="mb-3 text-sm font-semibold text-stone-700">
@@ -63,13 +71,13 @@ export default function MatchRecordEditPanel({
               </p>
               <div className="flex flex-wrap gap-2">
                 {attendPlayers.map((player) => {
-                  const isActive = editingPlayerId === player.id;
+                  const isActive = playerId === player.id;
 
                   return (
                     <button
                       key={player.id}
                       type="button"
-                      onClick={() => onChangePlayerId(player.id)}
+                      onClick={() => setPlayerId(player.id)}
                       className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                         isActive
                           ? "bg-amber-500 text-white"
@@ -90,9 +98,9 @@ export default function MatchRecordEditPanel({
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => onChangeAssistPlayerId("")}
+                  onClick={() => setAssistPlayerId("")}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    editingAssistPlayerId === ""
+                    assistPlayerId === ""
                       ? "bg-stone-900 text-white"
                       : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
                   }`}
@@ -101,13 +109,13 @@ export default function MatchRecordEditPanel({
                 </button>
 
                 {attendPlayers.map((player) => {
-                  const isActive = editingAssistPlayerId === player.id;
+                  const isActive = assistPlayerId === player.id;
 
                   return (
                     <button
                       key={player.id}
                       type="button"
-                      onClick={() => onChangeAssistPlayerId(player.id)}
+                      onClick={() => setAssistPlayerId(player.id)}
                       className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                         isActive
                           ? "bg-emerald-500 text-white"
@@ -126,21 +134,21 @@ export default function MatchRecordEditPanel({
         <div>
           <p className="mb-3 text-sm font-semibold text-stone-700">쿼터</p>
           <div className="grid grid-cols-5 gap-2">
-            {quarterOptions.map((quarter) => {
-              const isActive = editingQuarter === quarter;
+            {quarterOptions.map((item) => {
+              const isActive = quarter === item;
 
               return (
                 <button
-                  key={quarter}
+                  key={item}
                   type="button"
-                  onClick={() => onChangeQuarter(quarter)}
+                  onClick={() => setQuarter(item)}
                   className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
                       ? "bg-orange-500 text-white"
                       : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
                   }`}
                 >
-                  {quarter === "unknown" ? "모름" : quarter}
+                  {item === "unknown" ? "모름" : item}
                 </button>
               );
             })}
@@ -152,8 +160,8 @@ export default function MatchRecordEditPanel({
             시간
           </label>
           <input
-            value={editingMinute}
-            onChange={(event) => onChangeMinute(event.target.value)}
+            value={minute}
+            onChange={(event) => setMinute(event.target.value)}
             placeholder="시간 입력"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
@@ -170,7 +178,7 @@ export default function MatchRecordEditPanel({
 
           <button
             type="button"
-            onClick={onSubmit}
+            onClick={handleSubmit}
             className="h-12 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600"
           >
             수정 완료

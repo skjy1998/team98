@@ -1,6 +1,6 @@
 import { formationTemplate } from "@/data/formationTemplates";
 import type { FormationName } from "@/types/tactics";
-import { RotateCcw, Save, Trash2 } from "lucide-react";
+import { ChevronDown, RotateCcw, Save, Trash2 } from "lucide-react";
 
 interface TacticsToolbarProps {
   formation: FormationName;
@@ -42,26 +42,32 @@ export default function TacticsToolbar({
             >
               포메이션
             </label>
-
-            <select
-              id="formation-select"
-              value={formation}
-              onChange={(event) =>
-                onChangeFormation(event.target.value as FormationName)
-              }
-              disabled={!canManage}
-              className={`h-14 w-full rounded-xl border border-stone-200 px-5 text-base font-semibold outline-none transition ${
-                canManage
-                  ? "bg-stone-50 text-stone-800 focus:border-emerald-300 focus:bg-white"
-                  : "bg-stone-100 text-stone-400"
-              }`}
-            >
-              {Object.keys(formationTemplate).map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="formation-select"
+                value={formation}
+                onChange={(event) =>
+                  onChangeFormation(event.target.value as FormationName)
+                }
+                disabled={!canManage}
+                className={`h-14 w-full appearance-none rounded-xl border border-stone-200 px-5 pr-12 text-base font-semibold outline-none transition ${
+                  canManage
+                    ? "bg-stone-50 text-stone-800 focus:border-emerald-300 focus:bg-white"
+                    : "bg-stone-100 text-stone-400"
+                }`}
+              >
+                {Object.keys(formationTemplate).map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className={`pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 ${
+                  canManage ? "text-stone-400" : "text-stone-300"
+                }`}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

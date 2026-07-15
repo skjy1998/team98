@@ -8,37 +8,33 @@ import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 import MatchRecordCard from "./MatchRecordCard";
 import MatchRecordEditPanel from "./MatchRecordEditPanel";
-import { MatchRecordQuarterSectionItem } from "@/lib/match-record";
-
-interface EditingRecordForm {
-  eventId: string | null;
-  playerId: string;
-  assistPlayerId: string;
-  quarter: MatchRecordQuarter;
-  minute: string;
-}
+import type { MatchRecordQuarterSectionItem } from "@/lib/match-record";
 
 interface MatchRecordQuarterSectionProps {
   section: MatchRecordQuarterSectionItem;
   quarterEvents: MatchRecordEvent[];
-  editingForm: EditingRecordForm;
+  editingEventId: string | null;
   attendPlayers: PlayerType[];
   canManage: boolean;
   onStartEdit: (event: MatchRecordEvent) => void;
   onCancelEdit: () => void;
   onDeleteRecord: (event: MatchRecordEvent) => void;
-  onSubmitEdit: () => void;
+  onSubmitEdit: (
+    eventId: string,
+    updates: {
+      playerId: string;
+      assistPlayerId: string;
+      quarter: MatchRecordQuarter;
+      minute: string;
+    },
+  ) => void | Promise<void>;
   onDragEnd: (event: DragEndEvent) => void;
-  onChangePlayerId: (value: string) => void;
-  onChangeAssistPlayerId: (value: string) => void;
-  onChangeQuarter: (value: MatchRecordQuarter) => void;
-  onChangeMinute: (value: string) => void;
 }
 
 export default function MatchRecordQuarterSection({
   section,
   quarterEvents,
-  editingForm,
+  editingEventId,
   attendPlayers,
   canManage,
   onStartEdit,
@@ -46,10 +42,6 @@ export default function MatchRecordQuarterSection({
   onDeleteRecord,
   onSubmitEdit,
   onDragEnd,
-  onChangePlayerId,
-  onChangeAssistPlayerId,
-  onChangeQuarter,
-  onChangeMinute,
 }: Readonly<MatchRecordQuarterSectionProps>) {
   if (quarterEvents.length === 0) {
     return null;
@@ -77,23 +69,14 @@ export default function MatchRecordQuarterSection({
               strategy={verticalListSortingStrategy}
             >
               {quarterEvents.map((event) => {
-                const isEditing = editingForm.eventId === event.id;
+                const isEditing = editingEventId === event.id;
 
                 return (
                   <div key={event.id} className="space-y-3">
-                    {canManage && isEditing && (
+                    {isEditing && (
                       <MatchRecordEditPanel
-                        isOpen={isEditing}
-                        eventType={event.type}
+                        event={event}
                         attendPlayers={attendPlayers}
-                        editingPlayerId={editingForm.playerId}
-                        editingAssistPlayerId={editingForm.assistPlayerId}
-                        editingQuarter={editingForm.quarter}
-                        editingMinute={editingForm.minute}
-                        onChangePlayerId={onChangePlayerId}
-                        onChangeAssistPlayerId={onChangeAssistPlayerId}
-                        onChangeQuarter={onChangeQuarter}
-                        onChangeMinute={onChangeMinute}
                         onCancel={onCancelEdit}
                         onSubmit={onSubmitEdit}
                       />

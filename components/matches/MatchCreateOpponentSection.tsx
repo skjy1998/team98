@@ -36,7 +36,7 @@ export default function MatchCreateOpponentSection({
           id="match-opponent"
           value={opponent}
           onChange={(event) => onChangeOpponent(event.target.value)}
-          placeholder="팀 이름을 입력하세요."
+          placeholder="상대 팀 이름을 입력하세요."
           className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
         />
       </div>

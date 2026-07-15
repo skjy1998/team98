@@ -63,7 +63,7 @@ export default function MatchCreateScheduleSection({
             />
           </div>
 
-          <span className="pb-5 text-center text-2xl font-semibold text-stone-600">
+          <span className="pb-5 text-center text-xl font-medium text-stone-400">
             -
           </span>
 

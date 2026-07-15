@@ -8,11 +8,7 @@ interface VoteMemberRowProps {
   onChangeStatus: (playerId: string, status: VoteStatus) => void;
 }
 
-const statusOptions: {
-  value: VoteStatus;
-  label: string;
-  activeClassName: string;
-}[] = [
+const statusOptions = [
   {
     value: "attend",
     label: "참석",
@@ -28,18 +24,20 @@ const statusOptions: {
     label: "불참",
     activeClassName: "bg-rose-600 text-white",
   },
-];
+] as const;
 
 const readOnlyStatusClassName: Record<VoteStatus, string> = {
   attend: "bg-emerald-100 text-emerald-700",
   pending: "bg-amber-100 text-amber-700",
   absent: "bg-rose-100 text-rose-700",
+  unvoted: "bg-stone-100 text-stone-600",
 };
 
 const readOnlyStatusLabel: Record<VoteStatus, string> = {
   attend: "참석",
   pending: "미정",
   absent: "불참",
+  unvoted: "미투표",
 };
 
 export default function VoteMemberRow({

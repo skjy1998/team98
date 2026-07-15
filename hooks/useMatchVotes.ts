@@ -101,5 +101,34 @@ export function useMatchVotes() {
     return true;
   };
 
-  return { votes, votesLoaded, saveVote, reloadVotes: loadVotes };
+  const deleteVote = async (matchId: string, playerId: string) => {
+    if (!teamId) return false;
+
+    const { error } = await supabase
+      .from("match_votes")
+      .delete()
+      .eq("team_id", teamId)
+      .eq("match_id", matchId)
+      .eq("player_id", playerId);
+
+    if (error) {
+      return false;
+    }
+
+    setVotes((prev) => {
+      const currentVotes = prev[matchId] ?? [];
+      const filtered = currentVotes.filter(
+        (vote) => vote.playerId !== playerId,
+      );
+
+      return {
+        ...prev,
+        [matchId]: filtered,
+      };
+    });
+
+    return true;
+  };
+
+  return { votes, votesLoaded, saveVote, deleteVote, reloadVotes: loadVotes };
 }

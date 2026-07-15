@@ -1,5 +1,5 @@
 import type { MatchCreateFormValue, MatchItem } from "@/types/match";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MatchInfoDisplay from "@/components/matches/detail/MatchInfoDisplay";
 import MatchInfoEditor from "@/components/matches/detail/MatchInfoEditor";
 import MatchOpponentRecordCard from "./MatchOpponentRecordCard";
@@ -8,7 +8,7 @@ import { getOpponentRecordSummary } from "@/lib/match-ui";
 interface MatchInfoTabProps {
   match: MatchItem;
   matches: MatchItem[];
-  onSave: (value: MatchCreateFormValue) => void;
+  onSave: (value: MatchCreateFormValue) => Promise<boolean>;
   onDelete: () => void;
   canManage: boolean;
 }
@@ -31,15 +31,23 @@ export function MatchInfoTab({
     setIsEditing(false);
   };
 
-  const handleSave = (value: MatchCreateFormValue) => {
-    onSave(value);
+  const handleSave = async (value: MatchCreateFormValue) => {
+    const success = await onSave(value);
+
+    if (!success) {
+      return;
+    }
+
     setIsEditing(false);
   };
 
-  const opponentRecord =
-    match.type === "정규" && match.opponent
-      ? getOpponentRecordSummary(matches, match.opponent, match.id)
-      : null;
+  const opponentRecord = useMemo(() => {
+    if (match.type !== "정규" || !match.opponent) {
+      return null;
+    }
+
+    return getOpponentRecordSummary(matches, match.opponent, match.id);
+  }, [match, matches]);
 
   return (
     <div className="space-y-5">

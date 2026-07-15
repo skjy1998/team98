@@ -29,7 +29,7 @@ export default function MatchCreateLocationSection({
           id="match-location"
           value={location}
           onChange={(event) => onChangeLocation(event.target.value)}
-          placeholder="장소를 입력하세요"
+          placeholder="경기 장소를 입력하세요"
           className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
         />
       </div>

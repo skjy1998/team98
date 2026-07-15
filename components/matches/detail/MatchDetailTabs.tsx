@@ -1,4 +1,4 @@
-import { MatchDetailTab } from "@/types/match";
+import type { MatchDetailTab } from "@/types/match";
 import {
   ClipboardList,
   Info,

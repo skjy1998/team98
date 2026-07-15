@@ -1,7 +1,7 @@
-import { PlayerType } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 
 interface TacticsPlayerListProps {
-  loaded: boolean;
+  playersLoaded: boolean;
   availablePlayers: (PlayerType & { isRecommended?: boolean })[];
   selectedSlotId: string | null;
   onAssignPlayer: (playerId: string) => void;
@@ -10,7 +10,7 @@ interface TacticsPlayerListProps {
 }
 
 export default function TacticsPlayerList({
-  loaded,
+  playersLoaded,
   availablePlayers,
   selectedSlotId,
   onAssignPlayer,
@@ -22,7 +22,7 @@ export default function TacticsPlayerList({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-stone-900">선수 선택</h3>
         <span className="text-sm text-stone-400">
-          {loaded ? `${availablePlayers.length}명` : ""}
+          {playersLoaded ? `${availablePlayers.length}명` : ""}
         </span>
       </div>
 
@@ -31,7 +31,7 @@ export default function TacticsPlayerList({
           <div className="rounded-xl bg-stone-50 p-4 text-center text-sm text-stone-500">
             선수 배치는 운영진만 수정할 수 있어요.
           </div>
-        ) : loaded ? (
+        ) : playersLoaded ? (
           availablePlayers.length === 0 ? (
             <div className="rounded-xl bg-stone-50 p-4 text-center text-sm text-stone-500">
               {emptyMessage}

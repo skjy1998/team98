@@ -15,7 +15,7 @@ export default function MatchRecordScoreActions({
         <button
           type="button"
           onClick={() => void onAddEvent("goal")}
-          className="h-16 rounded-2xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200"
+          className="h-16 rounded-xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200"
         >
           + 득점
         </button>

@@ -38,11 +38,13 @@ export default function MatchTacticsTab({
 
   const currentTactics = tacticsByQuarter[selectedQuarter];
 
-  const formation = currentTactics.formation;
-  const slots = currentTactics.slots;
-  const cornerKickPlayerId = currentTactics.cornerKickPlayerId ?? "";
-  const freeKickPlayerId = currentTactics.freeKickPlayerId ?? "";
-  const penaltyKickPlayerId = currentTactics.penaltyKickPlayerId ?? "";
+  const {
+    formation,
+    slots,
+    cornerKickPlayerId = "",
+    freeKickPlayerId = "",
+    penaltyKickPlayerId = "",
+  } = currentTactics;
 
   const selectedSlot = useMemo(
     () => slots.find((slot) => slot.id === selectedSlotId),
@@ -138,9 +140,8 @@ export default function MatchTacticsTab({
     }));
   };
 
-  const findPlayerById = (playerId?: string) => {
-    return getPlayerById(players, playerId);
-  };
+  const findPlayerById = (playerId?: string) =>
+    getPlayerById(players, playerId);
 
   const handleChangeQuarter = (quarter: MatchQuarter) => {
     setSelectedQuarter(quarter);
@@ -151,10 +152,6 @@ export default function MatchTacticsTab({
     if (!canManage) return;
     setSelectedSlotId(slotId);
   };
-
-  const cornerKickPlayer = findPlayerById(cornerKickPlayerId);
-  const freeKickPlayer = findPlayerById(freeKickPlayerId);
-  const penaltyKickPlayer = findPlayerById(penaltyKickPlayerId);
 
   if (!playersLoaded || !tacticsLoaded) {
     return (
@@ -195,7 +192,7 @@ export default function MatchTacticsTab({
         />
 
         <TacticsSidebar
-          loaded={playersLoaded}
+          playersLoaded={playersLoaded}
           players={players}
           availablePlayers={sortedAvailablePlayers}
           selectedSlot={selectedSlot}
@@ -215,10 +212,7 @@ export default function MatchTacticsTab({
           onChangePenaltyKickPlayerId={(value) =>
             handleChangeSetPiecePlayer("penaltyKickPlayerId", value)
           }
-          cornerKickPlayer={cornerKickPlayer}
-          freeKickPlayer={freeKickPlayer}
-          penaltyKickPlayer={penaltyKickPlayer}
-          playerListemptyMessage="출석 탭에서 참석 선수를 먼저 체크하세요."
+          playerListEmptyMessage="출석 탭에서 참석 선수를 먼저 체크하세요."
           canManage={canManage}
         />
       </div>

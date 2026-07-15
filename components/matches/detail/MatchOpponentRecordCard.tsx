@@ -1,4 +1,4 @@
-import {
+import type {
   MatchOpponentRecordItem,
   MatchOpponentRecordSummary,
 } from "@/types/match";
@@ -105,7 +105,7 @@ export default function MatchOpponentRecordCard({
           </span>
         </div>
 
-        <span className="font-semibold text-orange-500">
+        <span className="font-semibold text-stone-500">
           승률 {summary.winRate}%
         </span>
       </div>

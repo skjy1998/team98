@@ -12,9 +12,7 @@ export default function MatchCreateTypeSection({
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
-        <label className="text-lg font-semibold text-stone-900">
-          경기 종류
-        </label>
+        <p className="text-lg font-semibold text-stone-900">경기 종류</p>
         <span className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-500">
           필수
         </span>
@@ -35,7 +33,7 @@ export default function MatchCreateTypeSection({
               type === "정규" ? "text-emerald-400" : "text-stone-400"
             }`}
           >
-            상대팀
+            상대팀과 경기
           </p>
         </button>
         <button
@@ -53,7 +51,7 @@ export default function MatchCreateTypeSection({
               type === "자체전" ? "text-sky-400" : "text-stone-400"
             }`}
           >
-            우리끼리
+            팀 내 자체 경기
           </p>
         </button>
       </div>

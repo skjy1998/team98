@@ -5,7 +5,7 @@ import TacticsPlayerList from "./TacticsPlayerList";
 import TacticsKickerSection from "./TacticsKickerSection";
 
 interface TacticsSidebarProps {
-  loaded: boolean;
+  playersLoaded: boolean;
   players: PlayerType[];
   availablePlayers: PlayerType[];
   selectedSlot?: FormationSlot;
@@ -19,15 +19,12 @@ interface TacticsSidebarProps {
   onChangeCornerKickPlayerId: (value: string) => void;
   onChangeFreeKickPlayerId: (value: string) => void;
   onChangePenaltyKickPlayerId: (value: string) => void;
-  cornerKickPlayer?: PlayerType;
-  freeKickPlayer?: PlayerType;
-  penaltyKickPlayer?: PlayerType;
-  playerListemptyMessage?: string;
+  playerListEmptyMessage?: string;
   canManage: boolean;
 }
 
 export default function TacticsSidebar({
-  loaded,
+  playersLoaded,
   players,
   availablePlayers,
   selectedSlot,
@@ -41,12 +38,12 @@ export default function TacticsSidebar({
   onChangeCornerKickPlayerId,
   onChangeFreeKickPlayerId,
   onChangePenaltyKickPlayerId,
-  cornerKickPlayer,
-  freeKickPlayer,
-  penaltyKickPlayer,
-  playerListemptyMessage,
+  playerListEmptyMessage,
   canManage,
 }: Readonly<TacticsSidebarProps>) {
+  const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
+  const freeKickPlayer = getPlayerById(freeKickPlayerId);
+  const penaltyKickPlayer = getPlayerById(penaltyKickPlayerId);
   return (
     <aside className="space-y-4">
       <TacticsSelectedSlotCard
@@ -56,11 +53,11 @@ export default function TacticsSidebar({
         canManage={canManage}
       />
       <TacticsPlayerList
-        loaded={loaded}
+        playersLoaded={playersLoaded}
         availablePlayers={availablePlayers}
         selectedSlotId={selectedSlotId}
         onAssignPlayer={onAssignPlayer}
-        emptyMessage={playerListemptyMessage}
+        emptyMessage={playerListEmptyMessage}
         canManage={canManage}
       />
       <TacticsKickerSection

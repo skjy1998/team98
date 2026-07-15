@@ -7,6 +7,7 @@ import {
   MatchType,
 } from "@/types/match";
 
+// 1. 타입 / 상수
 export type MatchResultStatus =
   | "scheduled"
   | "win"
@@ -60,6 +61,7 @@ export const typeMap: Record<MatchType, string> = {
   자체전: "bg-sky-50 text-sky-600",
 };
 
+// 2. 기본 계산 함수
 export function getMatchResult(match: MatchItem): MatchResultStatus {
   if (match.status === "canceled") {
     return "canceled";
@@ -80,14 +82,6 @@ export function getMatchResult(match: MatchItem): MatchResultStatus {
   return "draw";
 }
 
-export function getMatchStatusLabel(result: MatchResultStatus) {
-  if (result === "win") return "승";
-  if (result === "lose") return "패";
-  if (result === "draw") return "무";
-  if (result === "canceled") return "취소";
-  return "예정";
-}
-
 export function getOpponentName(match: MatchItem) {
   if (match.type === "자체전") {
     return "자체전";
@@ -95,10 +89,17 @@ export function getOpponentName(match: MatchItem) {
   return match.opponent || match.title.replace("vs ", "");
 }
 
-export function formatMatchTime(match: MatchItem) {
-  return `${match.startTime} - ${match.endTime}`;
+export function getIsUpcomingMatch(date: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const matchDate = new Date(date);
+  matchDate.setHours(0, 0, 0, 0);
+
+  return matchDate >= today;
 }
 
+// 3. 포맷 함수
 export function formatMatchDate(date: string) {
   if (!date) return "";
 
@@ -107,11 +108,24 @@ export function formatMatchDate(date: string) {
   return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
+export function formatMatchTime(match: MatchItem) {
+  return `${match.startTime} - ${match.endTime}`;
+}
+
 export function getMatchScoreText(match: MatchItem) {
   if (match.ourScore === undefined || match.opponentScore === undefined) {
     return null;
   }
   return `${match.ourScore} : ${match.opponentScore}`;
+}
+
+// 4. 목록 페이지용 함수
+export function getMatchStatusLabel(result: MatchResultStatus) {
+  if (result === "win") return "승";
+  if (result === "lose") return "패";
+  if (result === "draw") return "무";
+  if (result === "canceled") return "취소";
+  return "예정";
 }
 
 export function getMatchValueText(match: MatchItem) {
@@ -129,46 +143,6 @@ export function shouldShowMatchStatusBadge(match: MatchItem) {
     return false;
   }
   return true;
-}
-
-export function getMatchDetailStatusLabel(match: MatchItem) {
-  const result = getMatchResult(match);
-
-  if (result === "scheduled") {
-    return match.isUpcoming ? "예정" : "기록 전";
-  }
-  if (result === "canceled") {
-    return "취소";
-  }
-  if (result === "win") {
-    return "승";
-  }
-  if (result === "lose") {
-    return "패";
-  }
-  return "무";
-}
-
-export function getMatchDetailSubText(match: MatchItem) {
-  const result = getMatchResult(match);
-
-  if (result === "scheduled") {
-    return match.isUpcoming ? "경기 전" : "기록 대기";
-  }
-  if (result === "canceled") {
-    return "취소됨";
-  }
-  return "종료";
-}
-
-export function getIsUpcomingMatch(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const matchDate = new Date(date);
-  matchDate.setHours(0, 0, 0, 0);
-
-  return matchDate >= today;
 }
 
 // matches 원본과 records를 받아서 화면에 보여줄 경기 목록으로 바꿔주는 역할
@@ -199,7 +173,69 @@ export function getDisplayMatches(
     };
   });
 }
+// 5. 상세 페이지용 함수
+export function getMatchDetailStatusLabel(match: MatchItem) {
+  const result = getMatchResult(match);
 
+  if (result === "scheduled") {
+    return match.isUpcoming ? "예정" : "기록 전";
+  }
+  if (result === "canceled") {
+    return "취소";
+  }
+  if (result === "win") {
+    return "승";
+  }
+  if (result === "lose") {
+    return "패";
+  }
+  return "무";
+}
+
+export function getMatchDetailSubText(match: MatchItem) {
+  const result = getMatchResult(match);
+
+  if (result === "scheduled") {
+    return match.isUpcoming ? "경기 전" : "기록 대기";
+  }
+  if (result === "canceled") {
+    return "취소됨";
+  }
+  return "종료";
+}
+
+export function getMatchDetailDisplay(match: MatchItem) {
+  const displayScore =
+    match.ourScore !== undefined && match.opponentScore !== undefined
+      ? `${match.ourScore}: ${match.opponentScore}`
+      : "-";
+
+  const result = getMatchResult(match);
+  const status = statusMap[result];
+  const matchStatusLabel = getMatchDetailStatusLabel(match);
+  const matchSubText = getMatchDetailSubText(match);
+  const opponentName = getOpponentName(match);
+
+  return {
+    displayScore,
+    matchStatusLabel,
+    matchSubText,
+    opponentName,
+    statusBadgeClassName: status.badgeClassName,
+  };
+}
+
+export function getMatchDetailTab(value: string | null): MatchDetailTab {
+  return value === "info" ||
+    value === "vote" ||
+    value === "tactics" ||
+    value === "record" ||
+    value === "review"
+    ? value
+    : "info";
+}
+
+// 6. 상대 전적 함수
 export function getOpponentRecordSummary(
   matches: MatchItem[],
   opponent: string,
@@ -279,6 +315,7 @@ export function getOpponentRecordSummary(
   };
 }
 
+// 7. 생성 모달용 유틸
 export function getMatchCreateDefaults() {
   const now = new Date();
   const year = now.getFullYear();
@@ -291,14 +328,4 @@ export function getMatchCreateDefaults() {
     defaultEndTime: "22:00",
     defaultLocation: "",
   };
-}
-
-export function getMatchDetailTab(value: string | null): MatchDetailTab {
-  return value === "info" ||
-    value === "vote" ||
-    value === "tactics" ||
-    value === "record" ||
-    value === "review"
-    ? value
-    : "info";
 }

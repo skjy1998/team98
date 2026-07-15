@@ -35,9 +35,15 @@ const statusMeta: Record<
     cardClassName: "bg-rose-600 text-white",
     icon: UserRoundX,
   },
+  unvoted: {
+    label: "미투표",
+    badgeClassName: "bg-stone-100 text-stone-600",
+    cardClassName: "bg-stone-400 text-white",
+    icon: CircleHelp,
+  },
 };
 
-const voteOptions: VoteStatus[] = ["attend", "pending", "absent"];
+const voteOptions = ["attend", "pending", "absent"] as const;
 
 export default function MyVoteCard({
   playerId,

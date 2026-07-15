@@ -1,4 +1,4 @@
-export type VoteStatus = "attend" | "pending" | "absent";
+export type VoteStatus = "attend" | "pending" | "absent" | "unvoted";
 
 export interface MatchVote {
   playerId: string;

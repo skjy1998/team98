@@ -1,4 +1,4 @@
-import { MatchVote, VoteFilter, VoteMember } from "@/types/match-vote";
+import type { MatchVote, VoteFilter, VoteMember } from "@/types/match-vote";
 import { PlayerType } from "@/types/player";
 
 export function getVoteMembers(
@@ -11,7 +11,7 @@ export function getVoteMembers(
     return {
       id: player.id,
       name: player.name,
-      status: vote?.status ?? "pending",
+      status: vote?.status ?? "unvoted",
     };
   });
 }
@@ -38,11 +38,41 @@ export function getVoteSummary(voteMembers: VoteMember[]) {
   const absent = voteMembers.filter(
     (member) => member.status === "absent",
   ).length;
+  const unvoted = voteMembers.filter(
+    (member) => member.status === "unvoted",
+  ).length;
 
   return {
     attend,
     pending,
     absent,
+    unvoted,
     total: voteMembers.length,
   };
+}
+
+export function formatVoteDeadline(date: string, time: string) {
+  const parsedDate = new Date(`${date}T${time}`);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return `${date} ${time}`;
+  }
+
+  return parsedDate.toLocaleString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+export function isVoteClosed(date: string, time: string) {
+  const voteDeadline = new Date(`${date}T${time}`);
+
+  if (Number.isNaN(voteDeadline.getTime())) {
+    return false;
+  }
+
+  return voteDeadline.getTime() < Date.now();
 }

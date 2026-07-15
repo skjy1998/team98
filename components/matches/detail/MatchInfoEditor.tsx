@@ -5,7 +5,7 @@ import MatchInfoFieldCard from "./MatchInfoFieldCard";
 interface MatchInfoEditorProps {
   match: MatchItem;
   onCancel: () => void;
-  onSave: (value: MatchCreateFormValue) => void;
+  onSave: (value: MatchCreateFormValue) => Promise<void>;
 }
 
 export default function MatchInfoEditor({
@@ -40,7 +40,7 @@ export default function MatchInfoEditor({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!date) {
       setErrorMessage("날짜를 선택해 주세요.");
       return;
@@ -63,7 +63,7 @@ export default function MatchInfoEditor({
 
     setErrorMessage("");
 
-    onSave({
+    await onSave({
       title: type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전",
       type,
       date,
@@ -170,7 +170,7 @@ export default function MatchInfoEditor({
               id="edit-match-opponent"
               value={opponent}
               onChange={(event) => setOpponent(event.target.value)}
-              placeholder="상대팀을 입력하세요"
+              placeholder="상대 팀 이름을 입력하세요"
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
             />
           </MatchInfoFieldCard>
@@ -181,7 +181,7 @@ export default function MatchInfoEditor({
             id="edit-match-location"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
-            placeholder="장소를 입력하세요"
+            placeholder="경기 장소를 입력하세요"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
         </MatchInfoFieldCard>

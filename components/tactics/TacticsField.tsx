@@ -61,7 +61,7 @@ export default function TacticsField({
               key={slot.id}
               type="button"
               onClick={() => handleSelectSlot(slot.id)}
-              aria-disabled={!canManage}
+              disabled={!canManage}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border text-center transition ${
                 isActive
                   ? "border-white bg-white/20 text-white ring-4 ring-white/15"

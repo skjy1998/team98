@@ -1,6 +1,6 @@
 import { formatMatchDate } from "@/lib/match-ui";
 import type { MatchItem } from "@/types/match";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface MatchInfoDisplayProps {
   match: MatchItem;
@@ -31,9 +31,9 @@ export default function MatchInfoDisplay({
             <button
               type="button"
               onClick={onEdit}
-              className="rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-50"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 transition hover:bg-stone-100"
             >
-              수정하기
+              <Pencil className="h-4 w-4" />
             </button>
             <button
               type="button"
