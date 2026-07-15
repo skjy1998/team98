@@ -12,7 +12,13 @@ export type FormationName =
   | "4-2-3-1"
   | "3-5-2"
   | "3-4-3"
-  | "4-1-4-1";
+  | "4-1-4-1"
+  | "4-5-1"
+  | "4-3-1-2"
+  | "3-4-1-2"
+  | "5-3-2"
+  | "5-4-1";
+
 export type SetPieceKey =
   | "cornerKickPlayerId"
   | "freeKickPlayerId"
