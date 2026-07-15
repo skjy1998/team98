@@ -1,12 +1,12 @@
 import { MatchCreateFormValue, MatchType, MatchUniform } from "@/types/match";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { getMatchCreateDefaults } from "@/lib/match-ui";
 import MatchCreateTypeSection from "./MatchCreateTypeSection";
 import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
-import MatchCreateUniformSection from "./MatchCreateUniformSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
 import MatchCreateLocationSection from "./MatchCreateLocationSection";
-import { getMatchCreateDefaults } from "@/lib/match-ui";
+import MatchCreateUniformSection from "./MatchCreateUniformSection";
 
 interface MatchCreateModalProps {
   onClose: () => void;

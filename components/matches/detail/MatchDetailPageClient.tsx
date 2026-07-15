@@ -2,16 +2,16 @@
 import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
 import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
 import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
-import MatchRecordTab from "@/components/matches/detail/MatchRecordTab";
+
 import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
-import MatchTacticsTab from "@/components/matches/detail/MatchTacticsTab";
-import MatchVoteTab from "@/components/matches/detail/MatchVoteTab";
+import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
+import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
 import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
 import { useCurrentTeam } from "@/hooks/useCurrentTeam";
 import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
-import { useMatches } from "@/hooks/useMatches";
-import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
-import { useMatchRecords } from "@/hooks/useMatchRecords";
+import { useMatches } from "@/hooks/matches/useMatches";
+import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
+import { useMatchRecords } from "@/hooks/matches/useMatchRecords";
 import {
   getDisplayMatches,
   getMatchDetailDisplay,
@@ -26,6 +26,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import MatchRecordTab from "./record/MatchRecordTab";
 
 interface MatchDetailPageClientProps {
   matchId: string;

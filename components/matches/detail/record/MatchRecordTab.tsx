@@ -6,15 +6,15 @@ import type {
 } from "@/types/match";
 import { useMemo, useState } from "react";
 import MatchRecordScoreActions from "./MatchRecordScoreActions";
-import { useMatchVotes } from "@/hooks/useMatchVotes";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import {
   getAttendPlayerIdsByVotes,
   getAttendPlayers,
   getGroupedMatchRecordEvents,
   quarterSections,
 } from "@/lib/match-record";
-import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 import { DragEndEvent } from "@dnd-kit/core";
+import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 
 interface MatchRecordTabProps {
   matchId: string;

@@ -6,7 +6,7 @@ import type {
   MatchTacticsByQuarter,
 } from "@/types/tactics";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "./useCurrentTeam";
+import { useCurrentTeam } from "../useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 type MatchTacticsRow = {

@@ -3,9 +3,9 @@ import PageHeader from "@/components/PageHeader";
 import StatsPlayerTable from "@/components/stats/StatsPlayerTable";
 import StatsRankingSection from "@/components/stats/StatsRankingSection";
 import TeamSummaryCard from "@/components/stats/TeamSummaryCard";
-import { useMatches } from "@/hooks/useMatches";
-import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
-import { useMatchVotes } from "@/hooks/useMatchVotes";
+import { useMatches } from "@/hooks/matches/useMatches";
+import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getPlayerStats,

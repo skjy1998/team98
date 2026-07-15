@@ -1,9 +1,7 @@
 import { usePlayers } from "@/hooks/players/usePlayers";
 import { useMemo, useState } from "react";
-import VoteSummaryCard from "./VoteSummaryCard";
-import VoteManagementPanel from "./VoteManagementPanel";
 import type { VoteFilter, VoteStatus } from "@/types/match-vote";
-import { useMatchVotes } from "@/hooks/useMatchVotes";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import {
   formatVoteDeadline,
   getFilteredVoteMembers,
@@ -14,6 +12,8 @@ import {
 import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
 import MyVoteCard from "./MyVoteCard";
 import { MatchItem } from "@/types/match";
+import VoteSummaryCard from "./VoteSummaryCard";
+import VoteManagementPanel from "./VoteManagementPanel";
 
 interface MatchVoteTabProps {
   matchId: string;

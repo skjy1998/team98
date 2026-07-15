@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useFinanceEntries } from "./useFinanceEntries";
 import { useFinanceSettings } from "./useFinanceSettings";
-import { useMatches } from "./useMatches";
-import useMatchRecordsMap from "./useMatchRecordMap";
-import { useMatchVotes } from "./useMatchVotes";
+import { useMatches } from "./matches/useMatches";
+import useMatchRecordsMap from "./matches/useMatchRecordMap";
+import { useMatchVotes } from "./matches/useMatchVotes";
 import { usePlayers } from "./players/usePlayers";
 import {
   getFinanceDefaults,

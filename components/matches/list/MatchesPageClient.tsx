@@ -1,14 +1,15 @@
 "use client";
 
 import PageHeader from "@/components/PageHeader";
-import MatchSection from "@/components/matches/MatchSection";
+
 import { useMemo, useState } from "react";
-import MatchCreateModal from "@/components/matches/MatchCreateModal";
-import { MatchCreateFormValue } from "@/types/match";
-import { useMatches } from "@/hooks/useMatches";
+import { useMatches } from "@/hooks/matches/useMatches";
 import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/match-ui";
-import useMatchRecordsMap from "@/hooks/useMatchRecordMap";
+import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import { MatchCreateFormValue } from "@/types/match";
+import MatchSection from "./MatchSection";
+import MatchCreateModal from "./MatchCreateModal";
 
 export default function MatchesPageClient() {
   const { records } = useMatchRecordsMap();

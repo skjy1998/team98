@@ -4,8 +4,8 @@ import TacticsField from "@/components/tactics/TacticsField";
 import TacticsSidebar from "@/components/tactics/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/TacticsToolbar";
 import { formationTemplate } from "@/data/formationTemplates";
-import { useMatchTactics } from "@/hooks/useMatchTactics";
-import { useMatchVotes } from "@/hooks/useMatchVotes";
+import { useMatchTactics } from "@/hooks/matches/useMatchTactics";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getAssignedPlayerIds,
@@ -17,7 +17,7 @@ import {
 } from "@/lib/tactics-ui";
 import type { FormationName, MatchQuarter, SetPieceKey } from "@/types/tactics";
 import { useMemo, useState } from "react";
-import MatchQuarterTabs from "./MatchQuarterTabs";
+import MatchQuarterTabs from "../MatchQuarterTabs";
 
 interface MatchTacticsTabProps {
   matchId: string;

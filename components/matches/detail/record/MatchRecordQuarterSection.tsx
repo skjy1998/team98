@@ -6,9 +6,10 @@ import {
 } from "@dnd-kit/sortable";
 import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
-import MatchRecordCard from "./MatchRecordCard";
+
 import MatchRecordEditPanel from "./MatchRecordEditPanel";
 import type { MatchRecordQuarterSectionItem } from "@/lib/match-record";
+import MatchRecordCard from "./MatchRecordCard";
 
 interface MatchRecordQuarterSectionProps {
   section: MatchRecordQuarterSectionItem;
