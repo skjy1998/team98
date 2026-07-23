@@ -1,7 +1,9 @@
 import type { FeeType, FineRule } from "@/types/finance";
-import { useState } from "react";
 import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
 import FinanceFineRuleSection from "./FinanceFineRuleSection";
+import FinanceReadonlyNotice from "./FinanceReadonlyNotice";
+import { useFinanceFeeSettingsState } from "@/hooks/useFinanceFeeSettingsState";
+import { useFinanceFineRuleState } from "@/hooks/useFinanceFineRuleState";
 
 interface FinanceSettingsSectionProps {
   canManage: boolean;
@@ -12,7 +14,7 @@ interface FinanceSettingsSectionProps {
   onAddFeeType: (nextFeeType: FeeType) => void;
   onUpdateFeeType: (feeTypeId: string, updates: Partial<FeeType>) => void;
   onDeleteFeeType: (feeTypeId: string) => void;
-  onAddFineRule: (nextFineRule: FineRule) => void;
+  onAddFineRule: (nextFineRule: FineRule) => Promise<void>;
   onDeleteFineRule: (fineRuleId: string) => void;
 }
 
@@ -34,162 +36,87 @@ export default function FinanceSettingsSection({
   onAddFineRule,
   onDeleteFineRule,
 }: Readonly<FinanceSettingsSectionProps>) {
-  const [isAddingFeeType, setIsAddingFeeType] = useState(false);
-  const [feeTypeName, setFeeTypeName] = useState("");
-  const [feeTypeDescription, setFeeTypeDescription] = useState("");
-  const [feeTypeAmount, setFeeTypeAmount] = useState(30000);
+  const feeSettings = useFinanceFeeSettingsState({
+    onAddFeeType,
+    onUpdateFeeType,
+    onDeleteFeeType,
+  });
 
-  const [isAddingFineRule, setIsAddingFineRule] = useState(false);
-  const [fineRuleName, setFineRuleName] = useState("");
-  const [fineRuleTrigger, setFineRuleTrigger] =
-    useState<FineRule["trigger"]>("late");
-  const [fineRuleAmount, setFineRuleAmount] = useState(5000);
+  const fineRuleSettings = useFinanceFineRuleState({
+    onAddFineRule,
+    onDeleteFineRule,
+  });
 
-  const [editingFeeTypeId, setEditingFeeTypeId] = useState<string | null>(null);
-  const [editingFeeName, setEditingFeeName] = useState("");
-  const [editingFeeDescription, setEditingFeeDescription] = useState("");
-  const [editingFeeAmount, setEditingFeeAmount] = useState("");
-
-  const handleCancelFeeType = () => {
-    setIsAddingFeeType(false);
-    setFeeTypeName("");
-    setFeeTypeDescription("");
-    setFeeTypeAmount(30000);
+  const dueDayState = {
+    dueDay,
+    onChangeDueDay,
   };
 
-  const handleSaveFeeType = () => {
-    if (!feeTypeName.trim() || feeTypeAmount <= 0) {
-      return;
-    }
-
-    onAddFeeType({
-      id: crypto.randomUUID(),
-      name: feeTypeName.trim(),
-      description: feeTypeDescription,
-      amount: feeTypeAmount,
-    });
-
-    handleCancelFeeType();
+  const createFeeTypeState = {
+    isAddingFeeType: feeSettings.isAddingFeeType,
+    onOpenAddFeeType: () => {
+      feeSettings.handleCancelEditFeeType();
+      feeSettings.setIsAddingFeeType(true);
+    },
+    feeTypeName: feeSettings.feeTypeName,
+    onChangeFeeTypeName: feeSettings.setFeeTypeName,
+    feeTypeDescription: feeSettings.feeTypeDescription,
+    onChangeFeeTypeDescription: feeSettings.setFeeTypeDescription,
+    feeTypeAmount: feeSettings.feeTypeAmount,
+    onChangeFeeTypeAmount: feeSettings.setFeeTypeAmount,
+    onCancelFeeType: feeSettings.handleCancelFeeType,
+    onSaveFeeType: feeSettings.handleSaveFeeType,
   };
 
-  const handleDeleteFeeType = (feeTypeId: string) => {
-    onDeleteFeeType(feeTypeId);
+  const editFeeTypeState = {
+    editingFeeTypeId: feeSettings.editingFeeTypeId,
+    editingFeeName: feeSettings.editingFeeName,
+    editingFeeDescription: feeSettings.editingFeeDescription,
+    editingFeeAmount: feeSettings.editingFeeAmount,
+    onChangeEditingFeeName: feeSettings.setEditingFeeName,
+    onChangeEditingFeeDescription: feeSettings.setEditingFeeDescription,
+    onChangeEditingFeeAmount: feeSettings.setEditingFeeAmount,
+    onStartEditFeeType: feeSettings.handleStartEditFeeType,
+    onSaveEditFeeType: feeSettings.handleSaveEditFeeType,
+    onCancelEditFeeType: feeSettings.handleCancelEditFeeType,
+    onDeleteFeeType: feeSettings.handleDeleteFeeType,
   };
 
-  const handleCancelFineRule = () => {
-    setIsAddingFineRule(false);
-    setFineRuleName("");
-    setFineRuleTrigger("late");
-    setFineRuleAmount(5000);
+  const createFineRuleState = {
+    isAddingFineRule: fineRuleSettings.isAddingFineRule,
+    onOpenAddFineRule: () => fineRuleSettings.setIsAddingFineRule(true),
+    fineRuleName: fineRuleSettings.fineRuleName,
+    onChangeFineRuleName: fineRuleSettings.setFineRuleName,
+    fineRuleTrigger: fineRuleSettings.fineRuleTrigger,
+    onChangeFineRuleTrigger: fineRuleSettings.setFineRuleTrigger,
+    fineRuleAmount: fineRuleSettings.fineRuleAmount,
+    onChangeFineRuleAmount: fineRuleSettings.setFineRuleAmount,
+    onCancelFineRule: fineRuleSettings.handleCancelFineRule,
+    onSaveFineRule: fineRuleSettings.handleSaveFineRule,
   };
 
-  const handleStartEditFeeType = (feeType: FeeType) => {
-    setIsAddingFeeType(false);
-    setEditingFeeTypeId(feeType.id);
-    setEditingFeeName(feeType.name);
-    setEditingFeeDescription(feeType.description ?? "");
-    setEditingFeeAmount(String(feeType.amount));
-  };
-
-  const handleCancelEditFeeType = () => {
-    setEditingFeeTypeId(null);
-    setEditingFeeName("");
-    setEditingFeeDescription("");
-    setEditingFeeAmount("");
-  };
-
-  const handleSaveEditFeeType = () => {
-    if (!editingFeeTypeId || !editingFeeName.trim()) {
-      return;
-    }
-
-    const nextAmount = Number(editingFeeAmount);
-
-    if (nextAmount <= 0) {
-      return;
-    }
-
-    onUpdateFeeType(editingFeeTypeId, {
-      name: editingFeeName.trim(),
-      description: editingFeeDescription,
-      amount: nextAmount,
-    });
-
-    handleCancelEditFeeType();
-  };
-
-  const handleSaveFineRule = () => {
-    if (!fineRuleName.trim() || fineRuleAmount <= 0) {
-      return;
-    }
-
-    onAddFineRule({
-      id: crypto.randomUUID(),
-      name: fineRuleName.trim(),
-      trigger: fineRuleTrigger,
-      amount: fineRuleAmount,
-    });
-
-    handleCancelFineRule();
-  };
-
-  const handleDeleteFineRule = (ruleId: string) => {
-    onDeleteFineRule(ruleId);
+  const fineRuleListState = {
+    fineRules,
+    fineTriggerLabel,
+    onDeleteFineRule: fineRuleSettings.handleDeleteFineRule,
   };
 
   return (
     <div className="space-y-8">
       {!canManage && (
-        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
-          회비 설정과 벌금 규칙은 조회할 수 있고, 수정은 운영진만 할 수 있어요.
-        </div>
+        <FinanceReadonlyNotice message="회비 설정과 벌금 규칙은 조회할 수 있고, 수정은 운영진만 할 수 있어요." />
       )}
       <FinanceFeeSettingsSection
         canManage={canManage}
-        dueDay={dueDay}
-        onChangeDueDay={onChangeDueDay}
-        isAddingFeeType={isAddingFeeType}
-        onOpenAddFeeType={() => {
-          handleCancelEditFeeType();
-          setIsAddingFeeType(true);
-        }}
-        feeTypeName={feeTypeName}
-        onChangeFeeTypeName={setFeeTypeName}
-        feeTypeDescription={feeTypeDescription}
-        onChangeFeeTypeDescription={setFeeTypeDescription}
-        feeTypeAmount={feeTypeAmount}
-        onChangeFeeTypeAmount={setFeeTypeAmount}
-        onCancelFeeType={handleCancelFeeType}
-        onSaveFeeType={handleSaveFeeType}
+        dueDayState={dueDayState}
+        createFeeTypeState={createFeeTypeState}
         feeTypes={feeTypes}
-        editingFeeTypeId={editingFeeTypeId}
-        editingFeeName={editingFeeName}
-        editingFeeDescription={editingFeeDescription}
-        editingFeeAmount={editingFeeAmount}
-        onChangeEditingFeeName={setEditingFeeName}
-        onChangeEditingFeeDescription={setEditingFeeDescription}
-        onChangeEditingFeeAmount={setEditingFeeAmount}
-        onStartEditFeeType={handleStartEditFeeType}
-        onSaveEditFeeType={handleSaveEditFeeType}
-        onCancelEditFeeType={handleCancelEditFeeType}
-        onDeleteFeeType={handleDeleteFeeType}
+        editFeeTypeState={editFeeTypeState}
       />
-
       <FinanceFineRuleSection
         canManage={canManage}
-        fineRules={fineRules}
-        fineTriggerLabel={fineTriggerLabel}
-        isAddingFineRule={isAddingFineRule}
-        onOpenAddFineRule={() => setIsAddingFineRule(true)}
-        fineRuleName={fineRuleName}
-        onChangeFineRuleName={setFineRuleName}
-        fineRuleTrigger={fineRuleTrigger}
-        onChangeFineRuleTrigger={setFineRuleTrigger}
-        fineRuleAmount={fineRuleAmount}
-        onChangeFineRuleAmount={setFineRuleAmount}
-        onCancelFineRule={handleCancelFineRule}
-        onSaveFineRule={handleSaveFineRule}
-        onDeleteFineRule={handleDeleteFineRule}
+        createState={createFineRuleState}
+        listState={fineRuleListState}
       />
     </div>
   );

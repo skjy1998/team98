@@ -1,4 +1,4 @@
-import { FineRule } from "@/types/finance";
+import type { FineRule } from "@/types/finance";
 
 interface FinanceFineRuleCreateFormProps {
   fineRuleName: string;
@@ -38,7 +38,9 @@ export default function FinanceFineRuleCreateForm({
           <p className="mb-2 text-sm font-medium text-stone-500">트리거</p>
           <select
             value={fineRuleTrigger}
-            onChange={(event) => onChangeFineRuleTrigger(event.target.value)}
+            onChange={(event) =>
+              onChangeFineRuleTrigger(event.target.value as FineRule["trigger"])
+            }
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none focus:border-orange-300"
           >
             <option value="late">지각</option>

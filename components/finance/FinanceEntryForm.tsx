@@ -1,21 +1,4 @@
-import type { FinanceEntryType } from "@/types/finance";
-
-interface FinanceEntryFormProps {
-  entryType: FinanceEntryType;
-  onChangeEntryType: (value: FinanceEntryType) => void;
-  entryAmount: string;
-  onChangeEntryAmount: (value: string) => void;
-  entryDescription: string;
-  onChangeEntryDescription: (value: string) => void;
-  entryDate: string;
-  onChangeEntryDate: (value: string) => void;
-  entryTime: string;
-  onChangeEntryTime: (value: string) => void;
-  onSubmit: () => void;
-  submitLabel: string;
-  onCancel?: () => void;
-  className?: string;
-}
+import type { FinanceEntryFormProps, FinanceEntryType } from "@/types/finance";
 
 export default function FinanceEntryForm({
   entryType,

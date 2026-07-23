@@ -12,9 +12,9 @@ export default function FinancePaymentSummaryCard({
       <p className="text-sm font-medium text-stone-500">납부 통계</p>
 
       <div className="mt-5 flex items-center gap-4">
-        <div className="h-4 flex-1 overflow-hidden rounded-full bg-stone-900">
+        <div className="h-4 flex-1 overflow-hidden rounded-full bg-stone-200">
           <div
-            className="h-full rounded-full bg-emerald-400"
+            className="h-full rounded-full bg-emerald-500"
             style={{ width: `${paymentSummary.paidRate}%` }}
           />
         </div>

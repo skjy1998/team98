@@ -1,50 +1,28 @@
-import type { FinanceEntryType } from "@/types/finance";
+import type { FinanceTransactionEditState } from "@/types/finance-ui";
 import FinanceEntryForm from "./FinanceEntryForm";
 
 interface FinanceTransactionEditItemProps {
-  editEntryType: FinanceEntryType;
-  onChangeEditEntryType: (value: FinanceEntryType) => void;
-  editEntryAmount: string;
-  onChangeEditEntryAmount: (value: string) => void;
-  editEntryDescription: string;
-  onChangeEditEntryDescription: (value: string) => void;
-  editEntryDate: string;
-  onChangeEditEntryDate: (value: string) => void;
-  editEntryTime: string;
-  onChangeEditEntryTime: (value: string) => void;
-  onSubmitEditEntry: () => void;
-  onCancelEdit: () => void;
+  editState: FinanceTransactionEditState;
 }
 
 export default function FinanceTransactionEditItem({
-  editEntryType,
-  onChangeEditEntryType,
-  editEntryAmount,
-  onChangeEditEntryAmount,
-  editEntryDescription,
-  onChangeEditEntryDescription,
-  editEntryDate,
-  onChangeEditEntryDate,
-  editEntryTime,
-  onChangeEditEntryTime,
-  onSubmitEditEntry,
-  onCancelEdit,
+  editState,
 }: Readonly<FinanceTransactionEditItemProps>) {
   return (
     <div className="rounded-xl border border-orange-200 bg-orange-50/40 px-4 py-3 shadow-sm">
       <FinanceEntryForm
-        entryType={editEntryType}
-        onChangeEntryType={onChangeEditEntryType}
-        entryAmount={editEntryAmount}
-        onChangeEntryAmount={onChangeEditEntryAmount}
-        entryDescription={editEntryDescription}
-        onChangeEntryDescription={onChangeEditEntryDescription}
-        entryDate={editEntryDate}
-        onChangeEntryDate={onChangeEditEntryDate}
-        entryTime={editEntryTime}
-        onChangeEntryTime={onChangeEditEntryTime}
-        onSubmit={onSubmitEditEntry}
-        onCancel={onCancelEdit}
+        entryType={editState.editEntryType}
+        onChangeEntryType={editState.onChangeEditEntryType}
+        entryAmount={editState.editEntryAmount}
+        onChangeEntryAmount={editState.onChangeEditEntryAmount}
+        entryDescription={editState.editEntryDescription}
+        onChangeEntryDescription={editState.onChangeEditEntryDescription}
+        entryDate={editState.editEntryDate}
+        onChangeEntryDate={editState.onChangeEditEntryDate}
+        entryTime={editState.editEntryTime}
+        onChangeEntryTime={editState.onChangeEditEntryTime}
+        onSubmit={editState.onSubmitEditEntry}
+        onCancel={editState.onCancelEdit}
         submitLabel="거래 수정"
       />
     </div>

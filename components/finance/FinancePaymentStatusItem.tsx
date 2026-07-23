@@ -1,4 +1,4 @@
-import { PaymentStatusRow } from "@/types/finance";
+import type { PaymentStatusRow } from "@/types/finance";
 
 interface FinancePaymentStatusItemProps {
   canManage: boolean;
@@ -41,7 +41,7 @@ export default function FinancePaymentStatusItem({
             )
           }
           disabled={!canManage}
-          className={`h-10 rounded-xl border px-4 text-sm outline-none ${
+          className={`h-10 min-w-[110px] rounded-xl border px-4 text-sm outline-none ${
             canManage
               ? "border-stone-200 bg-white text-stone-700 focus:border-orange-300"
               : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"

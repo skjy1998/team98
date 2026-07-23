@@ -1,32 +1,12 @@
-import type { FinanceEntryType } from "@/types/finance";
+import type { FinanceCreateEntryState } from "@/types/finance-ui";
 import FinanceEntryForm from "./FinanceEntryForm";
 
 interface FinanceCreateEntryCardProps {
-  createEntryType: FinanceEntryType;
-  onChangeCreateEntryType: (value: FinanceEntryType) => void;
-  createEntryAmount: string;
-  onChangeCreateEntryAmount: (value: string) => void;
-  createEntryDescription: string;
-  onChangeCreateEntryDescription: (value: string) => void;
-  createEntryDate: string;
-  onChangeCreateEntryDate: (value: string) => void;
-  createEntryTime: string;
-  onChangeCreateEntryTime: (value: string) => void;
-  onSubmitCreateEntry: () => void;
+  createState: FinanceCreateEntryState;
 }
 
 export default function FinanceCreateEntryCard({
-  createEntryType,
-  onChangeCreateEntryType,
-  createEntryAmount,
-  onChangeCreateEntryAmount,
-  createEntryDescription,
-  onChangeCreateEntryDescription,
-  createEntryDate,
-  onChangeCreateEntryDate,
-  createEntryTime,
-  onChangeCreateEntryTime,
-  onSubmitCreateEntry,
+  createState,
 }: Readonly<FinanceCreateEntryCardProps>) {
   return (
     <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
@@ -38,17 +18,17 @@ export default function FinanceCreateEntryCard({
 
       <FinanceEntryForm
         className="border-t border-stone-200 px-5 py-5"
-        entryType={createEntryType}
-        onChangeEntryType={onChangeCreateEntryType}
-        entryAmount={createEntryAmount}
-        onChangeEntryAmount={onChangeCreateEntryAmount}
-        entryDescription={createEntryDescription}
-        onChangeEntryDescription={onChangeCreateEntryDescription}
-        entryDate={createEntryDate}
-        onChangeEntryDate={onChangeCreateEntryDate}
-        entryTime={createEntryTime}
-        onChangeEntryTime={onChangeCreateEntryTime}
-        onSubmit={onSubmitCreateEntry}
+        entryType={createState.createEntryType}
+        onChangeEntryType={createState.onChangeCreateEntryType}
+        entryAmount={createState.createEntryAmount}
+        onChangeEntryAmount={createState.onChangeCreateEntryAmount}
+        entryDescription={createState.createEntryDescription}
+        onChangeEntryDescription={createState.onChangeCreateEntryDescription}
+        entryDate={createState.createEntryDate}
+        onChangeEntryDate={createState.onChangeCreateEntryDate}
+        entryTime={createState.createEntryTime}
+        onChangeEntryTime={createState.onChangeCreateEntryTime}
+        onSubmit={createState.onSubmitCreateEntry}
         submitLabel="거래 추가"
       />
     </div>

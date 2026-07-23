@@ -1,12 +1,10 @@
-interface FinancePaymentHeaderProps {
-  currentMonthLabel: string;
-  onMoveMonth: (direction: "prev" | "next") => void;
-}
+import type { FinancePaymentsHeaderState } from "@/types/finance-ui";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function FinancePaymentHeader({
   currentMonthLabel,
   onMoveMonth,
-}: Readonly<FinancePaymentHeaderProps>) {
+}: Readonly<FinancePaymentsHeaderState>) {
   return (
     <div className="flex items-center justify-between gap-4">
       <p className="text-sm font-semibold text-stone-900">납부 현황</p>
@@ -14,9 +12,10 @@ export default function FinancePaymentHeader({
         <button
           type="button"
           onClick={() => onMoveMonth("prev")}
-          className="rounded-lg px-2 py-1 text-stone-500 transition hover:bg-stone-50"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 transition hover:bg-stone-50"
+          aria-label="이전 달"
         >
-          &lt;
+          <ChevronLeft className="h-4 w-4" />
         </button>
 
         <p className="min-w-16 text-center text-sm font-semibold text-stone-900">
@@ -26,9 +25,10 @@ export default function FinancePaymentHeader({
         <button
           type="button"
           onClick={() => onMoveMonth("next")}
-          className="rounded-lg px-2 py-1 text-stone-500 transition hover:bg-stone-50"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 transition hover:bg-stone-50"
+          aria-label="다음 달"
         >
-          &gt;
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
     </div>

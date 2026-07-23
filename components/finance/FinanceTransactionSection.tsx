@@ -1,141 +1,46 @@
-import { FinanceEntry, FinanceEntryType } from "@/types/finance";
-import FinanceTransactionToolbar from "./FinanceTransactionToolbar";
 import FinanceCreateEntryCard from "./FinanceCreateEntryCard";
 import FinanceTransactionList from "./FinanceTransactionList";
+import FinanceTransactionToolbar from "./FinanceTransactionToolbar";
+import FinanceReadonlyNotice from "./FinanceReadonlyNotice";
+import FinanceEmptyState from "./FinanceEmptyState";
+import type {
+  FinanceCreateEntryState,
+  FinanceTransactionEditState,
+  FinanceTransactionListState,
+  FinanceTransactionToolbarState,
+} from "@/types/finance-ui";
 
 interface FinanceTransactionSectionProps {
-  canManage: boolean;
-  search: string;
-  onChangeSearch: (value: string) => void;
-  entryFilter: "all" | FinanceEntryType;
-  onChangeEntryFilter: (value: "all" | FinanceEntryType) => void;
-  isEntryFormOpen: boolean;
-  onToggleEntryForm: () => void;
-  createEntryType: FinanceEntryType;
-  onChangeCreateEntryType: (value: FinanceEntryType) => void;
-  createEntryAmount: string;
-  onChangeCreateEntryAmount: (value: string) => void;
-  createEntryDescription: string;
-  onChangeCreateEntryDescription: (value: string) => void;
-  createEntryDate: string;
-  onChangeCreateEntryDate: (value: string) => void;
-  createEntryTime: string;
-  onChangeCreateEntryTime: (value: string) => void;
-  onSubmitCreateEntry: () => void;
-  editingEntryId: string | null;
-  editEntryType: FinanceEntryType;
-  onChangeEditEntryType: (value: FinanceEntryType) => void;
-  editEntryAmount: string;
-  onChangeEditEntryAmount: (value: string) => void;
-  editEntryDescription: string;
-  onChangeEditEntryDescription: (value: string) => void;
-  editEntryDate: string;
-  onChangeEditEntryDate: (value: string) => void;
-  editEntryTime: string;
-  onChangeEditEntryTime: (value: string) => void;
-  onSubmitEditEntry: () => void;
-  onCancelEdit: () => void;
-  entries: FinanceEntry[];
-  onStartEdit: (entry: FinanceEntry) => void;
-  onDeleteEntry: (entryId: string) => void;
-  currentMonthLabel: string;
-  onMoveMonth: (direction: "prev" | "next") => void;
+  toolbarState: FinanceTransactionToolbarState;
+  createState: FinanceCreateEntryState;
+  editState: FinanceTransactionEditState;
+  listState: FinanceTransactionListState;
 }
 
 export default function FinanceTransactionSection({
-  canManage,
-  search,
-  onChangeSearch,
-  entryFilter,
-  onChangeEntryFilter,
-  isEntryFormOpen,
-  onToggleEntryForm,
-  createEntryType,
-  onChangeCreateEntryType,
-  createEntryAmount,
-  onChangeCreateEntryAmount,
-  createEntryDescription,
-  onChangeCreateEntryDescription,
-  createEntryDate,
-  onChangeCreateEntryDate,
-  createEntryTime,
-  onChangeCreateEntryTime,
-  onSubmitCreateEntry,
-  editingEntryId,
-  editEntryType,
-  onChangeEditEntryType,
-  editEntryAmount,
-  onChangeEditEntryAmount,
-  editEntryDescription,
-  onChangeEditEntryDescription,
-  editEntryDate,
-  onChangeEditEntryDate,
-  editEntryTime,
-  onChangeEditEntryTime,
-  onSubmitEditEntry,
-  onCancelEdit,
-  entries,
-  onStartEdit,
-  onDeleteEntry,
-  currentMonthLabel,
-  onMoveMonth,
+  toolbarState,
+  createState,
+  editState,
+  listState,
 }: Readonly<FinanceTransactionSectionProps>) {
   return (
     <>
-      <FinanceTransactionToolbar
-        canManage={canManage}
-        currentMonthLabel={currentMonthLabel}
-        onMoveMonth={onMoveMonth}
-        search={search}
-        onChangeSearch={onChangeSearch}
-        entryFilter={entryFilter}
-        onChangeEntryFilter={onChangeEntryFilter}
-        onToggleEntryForm={onToggleEntryForm}
-      />
-      {canManage && isEntryFormOpen && (
-        <FinanceCreateEntryCard
-          createEntryType={createEntryType}
-          onChangeCreateEntryType={onChangeCreateEntryType}
-          createEntryAmount={createEntryAmount}
-          onChangeCreateEntryAmount={onChangeCreateEntryAmount}
-          createEntryDescription={createEntryDescription}
-          onChangeCreateEntryDescription={onChangeCreateEntryDescription}
-          createEntryDate={createEntryDate}
-          onChangeCreateEntryDate={onChangeCreateEntryDate}
-          createEntryTime={createEntryTime}
-          onChangeCreateEntryTime={onChangeCreateEntryTime}
-          onSubmitCreateEntry={onSubmitCreateEntry}
-        />
+      <FinanceTransactionToolbar {...toolbarState} />
+
+      {toolbarState.canManage && toolbarState.isEntryFormOpen && (
+        <FinanceCreateEntryCard createState={createState} />
       )}
-      {!canManage && (
-        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
-          거래 내역은 조회할 수 있고, 추가/수정/삭제는 운영진만 할 수 있어요.
-        </div>
+      {!toolbarState.canManage && (
+        <FinanceReadonlyNotice message="거래 내역은 조회할 수 있고, 추가/수정/삭제는 운영진만 할 수 있어요." />
       )}
 
-      {entries.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-8 text-center">
-          <p className="text-sm text-stone-500">이번 달 거래 내역이 없어요.</p>
-        </div>
+      {listState.entries.length === 0 ? (
+        <FinanceEmptyState message="이번 달 거래 내역이 없어요." />
       ) : (
         <FinanceTransactionList
-          canManage={canManage}
-          entries={entries}
-          editingEntryId={editingEntryId}
-          editEntryType={editEntryType}
-          onChangeEditEntryType={onChangeEditEntryType}
-          editEntryAmount={editEntryAmount}
-          onChangeEditEntryAmount={onChangeEditEntryAmount}
-          editEntryDescription={editEntryDescription}
-          onChangeEditEntryDescription={onChangeEditEntryDescription}
-          editEntryDate={editEntryDate}
-          onChangeEditEntryDate={onChangeEditEntryDate}
-          editEntryTime={editEntryTime}
-          onChangeEditEntryTime={onChangeEditEntryTime}
-          onSubmitEditEntry={onSubmitEditEntry}
-          onCancelEdit={onCancelEdit}
-          onStartEdit={onStartEdit}
-          onDeleteEntry={onDeleteEntry}
+          canManage={toolbarState.canManage}
+          editState={editState}
+          listState={listState}
         />
       )}
     </>

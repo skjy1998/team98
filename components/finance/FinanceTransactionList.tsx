@@ -1,69 +1,28 @@
-import type { FinanceEntry, FinanceEntryType } from "@/types/finance";
-import FinanceTransactionEditItem from "./FinanceTransactionEditItem";
 import FinanceTransactionItem from "./FinanceTransactionItem";
+import FinanceTransactionEditItem from "./FinanceTransactionEditItem";
+import type {
+  FinanceTransactionEditState,
+  FinanceTransactionListState,
+} from "@/types/finance-ui";
 
 interface FinanceTransactionListProps {
   canManage: boolean;
-  entries: FinanceEntry[];
-  editingEntryId: string | null;
-
-  editEntryType: FinanceEntryType;
-  onChangeEditEntryType: (value: FinanceEntryType) => void;
-  editEntryAmount: string;
-  onChangeEditEntryAmount: (value: string) => void;
-  editEntryDescription: string;
-  onChangeEditEntryDescription: (value: string) => void;
-  editEntryDate: string;
-  onChangeEditEntryDate: (value: string) => void;
-  editEntryTime: string;
-  onChangeEditEntryTime: (value: string) => void;
-  onSubmitEditEntry: () => void;
-  onCancelEdit: () => void;
-
-  onStartEdit: (entry: FinanceEntry) => void;
-  onDeleteEntry: (entryId: string) => void;
+  editState: FinanceTransactionEditState;
+  listState: FinanceTransactionListState;
 }
 
 export default function FinanceTransactionList({
   canManage,
-  entries,
-  editingEntryId,
-  editEntryType,
-  onChangeEditEntryType,
-  editEntryAmount,
-  onChangeEditEntryAmount,
-  editEntryDescription,
-  onChangeEditEntryDescription,
-  editEntryDate,
-  onChangeEditEntryDate,
-  editEntryTime,
-  onChangeEditEntryTime,
-  onSubmitEditEntry,
-  onCancelEdit,
-  onStartEdit,
-  onDeleteEntry,
+  editState,
+  listState,
 }: Readonly<FinanceTransactionListProps>) {
   return (
     <div className="space-y-3">
-      {entries.map((entry) => {
-        const isEditing = editingEntryId === entry.id;
+      {listState.entries.map((entry) => {
+        const isEditing = editState.editingEntryId === entry.id;
         if (isEditing) {
           return (
-            <FinanceTransactionEditItem
-              key={entry.id}
-              editEntryType={editEntryType}
-              onChangeEditEntryType={onChangeEditEntryType}
-              editEntryAmount={editEntryAmount}
-              onChangeEditEntryAmount={onChangeEditEntryAmount}
-              editEntryDescription={editEntryDescription}
-              onChangeEditEntryDescription={onChangeEditEntryDescription}
-              editEntryDate={editEntryDate}
-              onChangeEditEntryDate={onChangeEditEntryDate}
-              editEntryTime={editEntryTime}
-              onChangeEditEntryTime={onChangeEditEntryTime}
-              onSubmitEditEntry={onSubmitEditEntry}
-              onCancelEdit={onCancelEdit}
-            />
+            <FinanceTransactionEditItem key={entry.id} editState={editState} />
           );
         }
 
@@ -71,8 +30,8 @@ export default function FinanceTransactionList({
           <FinanceTransactionItem
             key={entry.id}
             entry={entry}
-            onStartEdit={onStartEdit}
-            onDeleteEntry={onDeleteEntry}
+            onStartEdit={listState.onStartEdit}
+            onDeleteEntry={listState.onDeleteEntry}
             canManage={canManage}
           />
         );

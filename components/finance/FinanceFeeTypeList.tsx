@@ -1,36 +1,17 @@
 import type { FeeType } from "@/types/finance";
 import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
+import { FinanceEditFeeTypeState } from "@/types/finance-ui";
 
 interface FinanceFeeTypeListProps {
   canManage: boolean;
   feeTypes: FeeType[];
-  editingFeeTypeId: string | null;
-  editingFeeName: string;
-  editingFeeDescription: string;
-  editingFeeAmount: string;
-  onChangeEditingFeeName: (value: string) => void;
-  onChangeEditingFeeDescription: (value: string) => void;
-  onChangeEditingFeeAmount: (value: string) => void;
-  onStartEditFeeType: (feeType: FeeType) => void;
-  onSaveEditFeeType: () => void;
-  onCancelEditFeeType: () => void;
-  onDeleteFeeType: (feeTypeId: string) => void;
+  editState: FinanceEditFeeTypeState;
 }
 
 export default function FinanceFeeTypeList({
   canManage,
   feeTypes,
-  editingFeeTypeId,
-  editingFeeName,
-  editingFeeDescription,
-  editingFeeAmount,
-  onChangeEditingFeeName,
-  onChangeEditingFeeDescription,
-  onChangeEditingFeeAmount,
-  onStartEditFeeType,
-  onSaveEditFeeType,
-  onCancelEditFeeType,
-  onDeleteFeeType,
+  editState,
 }: Readonly<FinanceFeeTypeListProps>) {
   if (feeTypes.length === 0) {
     return (
@@ -43,21 +24,23 @@ export default function FinanceFeeTypeList({
   return (
     <div className="rounded-xl border border-stone-200 bg-white shadow-sm">
       {feeTypes.map((feeType, index) => {
-        const isEditing = editingFeeTypeId === feeType.id;
+        const isEditing = editState.editingFeeTypeId === feeType.id;
 
         return (
           <div key={feeType.id}>
             {isEditing && canManage ? (
               <div className="px-5 py-5">
                 <FinanceFeeTypeForm
-                  feeTypeName={editingFeeName}
-                  onChangeFeeTypeName={onChangeEditingFeeName}
-                  feeTypeDescription={editingFeeDescription}
-                  onChangeFeeTypeDescription={onChangeEditingFeeDescription}
-                  feeTypeAmount={editingFeeAmount}
-                  onChangeFeeTypeAmount={onChangeEditingFeeAmount}
-                  onCancel={onCancelEditFeeType}
-                  onSave={onSaveEditFeeType}
+                  feeTypeName={editState.editingFeeName}
+                  onChangeFeeTypeName={editState.onChangeEditingFeeName}
+                  feeTypeDescription={editState.editingFeeDescription}
+                  onChangeFeeTypeDescription={
+                    editState.onChangeEditingFeeDescription
+                  }
+                  feeTypeAmount={editState.editingFeeAmount}
+                  onChangeFeeTypeAmount={editState.onChangeEditingFeeAmount}
+                  onCancel={editState.onCancelEditFeeType}
+                  onSave={editState.onSaveEditFeeType}
                   submitLabel="저장"
                   variant="plain"
                 />
@@ -67,7 +50,7 @@ export default function FinanceFeeTypeList({
                 {canManage ? (
                   <button
                     type="button"
-                    onClick={() => onStartEditFeeType(feeType)}
+                    onClick={() => editState.onStartEditFeeType(feeType)}
                     className="text-left"
                   >
                     <p className="text-base font-semibold text-stone-900">
@@ -98,7 +81,7 @@ export default function FinanceFeeTypeList({
                   {canManage && (
                     <button
                       type="button"
-                      onClick={() => onDeleteFeeType(feeType.id)}
+                      onClick={() => editState.onDeleteFeeType(feeType.id)}
                       className="text-xl text-stone-400 transition hover:text-stone-600"
                     >
                       ×
