@@ -55,9 +55,12 @@ export function useTacticsBoard() {
   };
 
   // 포메이션 초기화
-  const handleResetFormation = () => {
+  const handleResetTactics = () => {
     setSlots(formationTemplate[formation]);
     setSelectedSlotId(null);
+    setCornerKickPlayerId("");
+    setFreeKickPlayerId("");
+    setPenaltyKickPlayerId("");
   };
 
   // 선수 배치하기
@@ -128,7 +131,7 @@ export function useTacticsBoard() {
     setPenaltyKickPlayerId,
 
     handleFormationChange,
-    handleResetFormation,
+    handleResetTactics,
     handleAssignPlayer,
     handleClearSlot,
 

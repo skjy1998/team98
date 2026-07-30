@@ -1,9 +1,9 @@
 "use client";
 
 import PageHeader from "@/components/PageHeader";
-import TacticsField from "@/components/tactics/TacticsField";
-import TacticsSidebar from "@/components/tactics/TacticsSidebar";
-import TacticsToolbar from "@/components/tactics/TacticsToolbar";
+import TacticsField from "@/components/tactics/board/TacticsField";
+import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
+import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
 import { useTacticsBoard } from "@/hooks/tactics/useTacticsBoard";
 import { useTacticsPresets } from "@/hooks/tactics/useTacticsPresets";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
@@ -12,7 +12,6 @@ import { useMemo } from "react";
 
 export default function TacticsPageClient() {
   const { canManage, memberLoaded } = useCurrentTeamMember();
-
   const tactics = useTacticsBoard();
   const {
     playersLoaded,
@@ -31,7 +30,7 @@ export default function TacticsPageClient() {
     setFreeKickPlayerId,
     setPenaltyKickPlayerId,
     handleFormationChange,
-    handleResetFormation,
+    handleResetTactics,
     handleAssignPlayer,
     handleClearSlot,
     exportTactics,
@@ -41,7 +40,7 @@ export default function TacticsPageClient() {
   const presets = useTacticsPresets({
     exportTactics,
     importTactics,
-    resetTactics: handleResetFormation,
+    resetTactics: handleResetTactics,
   });
 
   const {
@@ -71,7 +70,7 @@ export default function TacticsPageClient() {
     [savedPresets],
   );
 
-  if (!memberLoaded || !presetLoaded) {
+  if (!memberLoaded || !playersLoaded || !presetLoaded) {
     return (
       <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
         <p className="text-sm text-stone-500">전술 정보를 불러오는 중...</p>

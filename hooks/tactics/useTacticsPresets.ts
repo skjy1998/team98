@@ -1,4 +1,4 @@
-import { SavedFormation, SaveTacticPreset } from "@/types/tactics";
+import type { SavedFormation, SaveTacticPreset } from "@/types/tactics";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCurrentTeam } from "../team/useCurrentTeam";

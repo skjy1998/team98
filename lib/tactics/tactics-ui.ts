@@ -1,7 +1,7 @@
 import { formationTemplate } from "@/data/formationTemplates";
-import { MatchVote } from "@/types/match-vote";
-import { PlayerDetailPosition, PlayerType } from "@/types/player";
-import {
+import type { MatchVote } from "@/types/match-vote";
+import type { PlayerDetailPosition, PlayerType } from "@/types/player";
+import type {
   FormationSlot,
   MatchQuarter,
   MatchTacticsByQuarter,

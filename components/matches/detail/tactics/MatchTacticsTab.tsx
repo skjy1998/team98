@@ -1,8 +1,8 @@
 "use client";
 
-import TacticsField from "@/components/tactics/TacticsField";
-import TacticsSidebar from "@/components/tactics/TacticsSidebar";
-import TacticsToolbar from "@/components/tactics/TacticsToolbar";
+import TacticsField from "@/components/tactics/board/TacticsField";
+import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
+import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
 import { formationTemplate } from "@/data/formationTemplates";
 import { useMatchTactics } from "@/hooks/matches/useMatchTactics";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
