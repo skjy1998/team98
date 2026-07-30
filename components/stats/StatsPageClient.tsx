@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import StatsPlayerTable from "@/components/stats/StatsPlayerTable";
 import StatsRankingSection from "@/components/stats/StatsRankingSection";
 import TeamSummaryCard from "@/components/stats/TeamSummaryCard";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { useMatches } from "@/hooks/matches/useMatches";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
@@ -19,14 +19,13 @@ import {
   getTopAppearances,
   getTopAssisters,
   getTopScorers,
-} from "@/lib/stats";
+} from "@/lib/stats/stats";
 
 type StatsTab = "team" | "ranking" | "me";
 
 export default function StatsPageClient() {
   const { matches, matchesLoaded } = useMatches();
   const { players, playersLoaded } = usePlayers();
-  3;
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { votes, votesLoaded } = useMatchVotes();
   const { member, memberLoaded } = useCurrentTeamMember();

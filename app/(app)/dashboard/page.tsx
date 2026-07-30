@@ -6,7 +6,7 @@ import DashboardSeasonSummarySection from "@/components/dashboard/DashboardSeaso
 import DashboardTopRecordSection from "@/components/dashboard/DashboardTopRecordSection";
 import DashboardUpcomingMatchSection from "@/components/dashboard/DashboardUpcomingMatchSection";
 import PageHeader from "@/components/PageHeader";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboardData } from "@/hooks/dashboard/useDashboardData";
 
 export default function DashboardPage() {
   const {

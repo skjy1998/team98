@@ -1,5 +1,5 @@
 import { MatchItem, MatchRecordMap } from "@/types/match";
-import { getIsUpcomingMatch } from "./match-ui";
+import { getIsUpcomingMatch } from "../matches/match-ui";
 import { PlayerType } from "@/types/player";
 import { MatchVotesByMatchId } from "@/types/match-vote";
 import {
@@ -7,7 +7,7 @@ import {
   getPlayerAppearanceCount,
   getPlayerAssistCount,
   getPlayerGoalCount,
-} from "./player-stats";
+} from "../players/player-stats";
 import { RankingPlayer, RecentResult } from "@/types/stats";
 
 // 점수 계산 helper

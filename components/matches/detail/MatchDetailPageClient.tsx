@@ -6,8 +6,8 @@ import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
 import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
 import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
-import { useCurrentTeam } from "@/hooks/useCurrentTeam";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { useMatches } from "@/hooks/matches/useMatches";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useMatchRecords } from "@/hooks/matches/useMatchRecords";
@@ -15,7 +15,7 @@ import {
   getDisplayMatches,
   getMatchDetailDisplay,
   getMatchDetailTab,
-} from "@/lib/match-ui";
+} from "@/lib/matches/match-ui";
 import type {
   MatchCreateFormValue,
   MatchDetailTab,

@@ -1,5 +1,5 @@
 import { MatchVotesByMatchId } from "@/types/match-vote";
-import { getIsUpcomingMatch } from "./match-ui";
+import { getIsUpcomingMatch } from "../matches/match-ui";
 import { MatchItem, MatchRecordMap } from "@/types/match";
 import { PlayerSortType, PlayerType } from "@/types/player";
 import { getMainPositionFromDetail } from "./player-ui";

@@ -8,7 +8,7 @@ import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 
 import MatchRecordEditPanel from "./MatchRecordEditPanel";
-import type { MatchRecordQuarterSectionItem } from "@/lib/match-record";
+import type { MatchRecordQuarterSectionItem } from "@/lib/matches/match-record";
 import MatchRecordCard from "./MatchRecordCard";
 
 interface MatchRecordQuarterSectionProps {

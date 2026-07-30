@@ -1,4 +1,4 @@
-import { getIsUpcomingMatch } from "@/lib/match-ui";
+import { getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import {
   MatchCreateFormValue,
   MatchItem,
@@ -7,7 +7,7 @@ import {
   MatchUniform,
 } from "@/types/match";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 type MatchRow = {

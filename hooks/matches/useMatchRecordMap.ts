@@ -5,7 +5,7 @@ import type {
   MatchRecordQuarter,
 } from "@/types/match";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 type MatchRecordRow = {

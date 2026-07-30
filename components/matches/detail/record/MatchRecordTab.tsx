@@ -12,7 +12,7 @@ import {
   getAttendPlayers,
   getGroupedMatchRecordEvents,
   quarterSections,
-} from "@/lib/match-record";
+} from "@/lib/matches/match-record";
 import { DragEndEvent } from "@dnd-kit/core";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 

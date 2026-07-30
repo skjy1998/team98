@@ -5,9 +5,10 @@ import type {
   FineChargeStatus,
   FineRuleTrigger,
 } from "@/types/finance";
-import { useCurrentTeam } from "./useCurrentTeam";
+
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 
 interface FineChargeRow {
   id: string;

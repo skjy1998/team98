@@ -1,4 +1,4 @@
-import { createDefaultMatchTactics } from "@/lib/tactics-ui";
+import { createDefaultMatchTactics } from "@/lib/tactics/tactics-ui";
 import type {
   FormationName,
   FormationSlot,
@@ -6,7 +6,7 @@ import type {
   MatchTacticsByQuarter,
 } from "@/types/tactics";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 type MatchTacticsRow = {

@@ -3,7 +3,7 @@ import {
   getMonthlyPaymentEntries,
   getPaymentStatusRows,
   getPaymentSummary,
-} from "@/lib/finance";
+} from "@/lib/finance/finance";
 import type { FinanceEntry, PaymentStatusRow } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
 import { useMemo, useState } from "react";

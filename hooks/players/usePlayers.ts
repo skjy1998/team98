@@ -1,7 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import { getMainPositionFromDetail } from "@/lib/player-ui";
+import { getMainPositionFromDetail } from "@/lib/players/player-ui";
 import type {
   PlayerDetailPosition,
   PlayerPosition,
@@ -11,7 +11,7 @@ import type {
   TeamMemberRole,
 } from "@/types/player";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 
 type PlayerRow = {
   id: string;
@@ -156,47 +156,14 @@ export function usePlayers() {
     return true;
   };
 
-  const updatePlayer = async (updatedPlayer: PlayerType) => {
-    const { data, error } = await supabase
-      .from("players")
-      .update({
-        user_id: updatedPlayer.userId ?? null,
-        name: updatedPlayer.name,
-        position:
-          getMainPositionFromDetail(updatedPlayer.detailPositions) ?? null,
-        detail_positions: updatedPlayer.detailPositions ?? null,
-        number: updatedPlayer.number ?? null,
-        birth: updatedPlayer.birth ?? null,
-        role: updatedPlayer.role ?? "member",
-        preferred_foot: updatedPlayer.preferredFoot ?? "right",
-        note: updatedPlayer.note ?? null,
-      })
-      .eq("id", updatedPlayer.id)
-      .select(
-        "id, user_id, name, position, detail_positions, number, birth, role, preferred_foot, note",
-      )
-      .single();
-
-    if (error || !data) {
-      return false;
-    }
-
-    setPlayers((prev) =>
-      prev.map((player) =>
-        player.id === updatedPlayer.id
-          ? mapPlayerRow(data, updatedPlayer.teamMemberRole)
-          : player,
-      ),
-    );
-
-    return true;
-  };
-
   const deletePlayer = async (playerId: string) => {
+    if (!teamId) return false;
+
     const { error } = await supabase
       .from("players")
       .delete()
-      .eq("id", playerId);
+      .eq("id", playerId)
+      .eq("team_id", teamId);
 
     if (error) {
       console.error("players delete error", error);
@@ -212,7 +179,6 @@ export function usePlayers() {
     players,
     playersLoaded,
     addPlayer,
-    updatePlayer,
     deletePlayer,
     reloadPlayers: loadPlayers,
   };

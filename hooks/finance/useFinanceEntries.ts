@@ -1,7 +1,7 @@
 import { FinanceEntry } from "@/types/finance";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "./useCurrentTeam";
 import { supabase } from "@/lib/supabase";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 
 const DEFAULT_ENTRIES: FinanceEntry[] = [];
 

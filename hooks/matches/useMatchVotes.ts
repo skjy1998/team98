@@ -1,6 +1,6 @@
 import type { MatchVotesByMatchId, VoteStatus } from "@/types/match-vote";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 type MatchVoteRow = {

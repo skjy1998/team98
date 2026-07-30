@@ -2,34 +2,31 @@
 
 import { useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
-import PlayerCreateModal from "@/components/players/PlayerCreateModal";
-import PlayerDeleteModal from "@/components/players/PlayerDeleteModal";
-import PlayerEditModal from "@/components/players/PlayerEdit/PlayerEditModal";
-import PlayerTable from "@/components/players/PlayerTable";
-import PlayerToolbar from "@/components/players/PlayerToolbar";
+import PlayerCreateModal from "@/components/players/modal/PlayerCreateModal";
+import PlayerDeleteModal from "@/components/players/modal/PlayerDeleteModal";
+import PlayerEditModal from "@/components/players/modal/edit/PlayerEditModal";
+import PlayerTable from "@/components/players/list/PlayerTable";
+import PlayerToolbar from "@/components/players/list/PlayerToolbar";
 import { useMatches } from "@/hooks/matches/useMatches";
-import { getDisplayPlayers, getFilteredPlayers } from "@/lib/player-stats";
+import {
+  getDisplayPlayers,
+  getFilteredPlayers,
+} from "@/lib/players/player-stats";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { usePlayersPageState } from "@/hooks/players/usePlayersPageState";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
-import { useCurrentTeam } from "@/hooks/useCurrentTeam";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
+import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
 import { useConnectableTeamMembers } from "@/hooks/players/useConnectableTeamMembers";
 import { usePlayersPageActions } from "@/hooks/players/usePlayersPageActions";
 import { usePlayers } from "@/hooks/players/usePlayers";
 
 export default function PlayersPageClient() {
-  const {
-    players,
-    playersLoaded,
-    addPlayer,
-    updatePlayer,
-    deletePlayer,
-    reloadPlayers,
-  } = usePlayers();
-  const { matches } = useMatches();
-  const { votes } = useMatchVotes();
-  const { records } = useMatchRecordsMap();
+  const { players, playersLoaded, addPlayer, deletePlayer, reloadPlayers } =
+    usePlayers();
+  const { matches, matchesLoaded } = useMatches();
+  const { votes, votesLoaded } = useMatchVotes();
+  const { records, recordsLoaded } = useMatchRecordsMap();
   const { canManage, memberLoaded } = useCurrentTeamMember();
   const { team } = useCurrentTeam();
   const {
@@ -48,7 +45,7 @@ export default function PlayersPageClient() {
     handleCloseDelete,
   } = usePlayersPageState();
 
-  const { availableMembers } = useConnectableTeamMembers({
+  const { availableMembers, membersLoaded } = useConnectableTeamMembers({
     teamId: team?.id,
     players,
     editingPlayer,
@@ -59,7 +56,6 @@ export default function PlayersPageClient() {
       teamId: team?.id,
       players,
       addPlayer,
-      updatePlayer,
       deletePlayer,
       reloadPlayers,
       deletingPlayer,
@@ -80,7 +76,14 @@ export default function PlayersPageClient() {
     [displayPlayers, search, sortType],
   );
 
-  if (!playersLoaded || !memberLoaded) {
+  const isLoaded =
+    playersLoaded &&
+    matchesLoaded &&
+    votesLoaded &&
+    recordsLoaded &&
+    memberLoaded;
+
+  if (!isLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -126,7 +129,7 @@ export default function PlayersPageClient() {
         onDelete={canManage ? handleOpenDelete : undefined}
       />
 
-      {canManage && editingPlayer && (
+      {canManage && editingPlayer && membersLoaded && (
         <PlayerEditModal
           key={editingPlayer.id}
           player={editingPlayer}

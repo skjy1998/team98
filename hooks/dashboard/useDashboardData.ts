@@ -1,18 +1,18 @@
 import { useMemo } from "react";
-import { useFinanceEntries } from "./useFinanceEntries";
-import { useFinanceSettings } from "./useFinanceSettings";
-import { useMatches } from "./matches/useMatches";
-import useMatchRecordsMap from "./matches/useMatchRecordMap";
-import { useMatchVotes } from "./matches/useMatchVotes";
-import { usePlayers } from "./players/usePlayers";
+
+import { useFinanceSettings } from "../finance/useFinanceSettings";
+import { useMatches } from "../matches/useMatches";
+import useMatchRecordsMap from "../matches/useMatchRecordMap";
+import { useMatchVotes } from "../matches/useMatchVotes";
+import { usePlayers } from "../players/usePlayers";
 import {
   getFinanceDefaults,
   getFinanceSummary,
   getMonthlyPaymentEntries,
   getPaymentStatusRows,
   getPaymentSummary,
-} from "@/lib/finance";
-import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/match-ui";
+} from "@/lib/finance/finance";
+import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import {
   getPlayerStats,
   getRecentResults,
@@ -20,7 +20,8 @@ import {
   getTopAppearances,
   getTopAssisters,
   getTopScorers,
-} from "@/lib/stats";
+} from "@/lib/stats/stats";
+import { useFinanceEntries } from "../finance/useFinanceEntries";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();

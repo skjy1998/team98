@@ -2,7 +2,7 @@ import type {
   MatchAttendanceByMatchId,
   MatchAttendanceStatus,
 } from "@/types/match-attendance";
-import { useCurrentTeam } from "../useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 

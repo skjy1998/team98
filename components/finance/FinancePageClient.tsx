@@ -6,26 +6,26 @@ import FinanceSummaryCard from "@/components/finance/FinanceSummaryCard";
 import FinanceTabs from "@/components/finance/FinanceTabs";
 import FinanceTransactionSection from "@/components/finance/FinanceTransactionSection";
 import PageHeader from "@/components/PageHeader";
-import { useFinanceEntries } from "@/hooks/useFinanceEntries";
-import { useFinancePayments } from "@/hooks/useFinancePayments";
-import { useFinanceSettings } from "@/hooks/useFinanceSettings";
-import { useFinanceTransactions } from "@/hooks/useFinanceTransactions";
+import { useFinancePayments } from "@/hooks/finance/useFinancePayments";
+import { useFinanceSettings } from "@/hooks/finance/useFinanceSettings";
+import { useFinanceTransactions } from "@/hooks/finance/useFinanceTransactions";
 import { usePlayers } from "@/hooks/players/usePlayers";
 import {
   getFinanceDefaults,
   getFinanceSummary,
   getFinanceTab,
   getPrimaryFeeAmount,
-} from "@/lib/finance";
+} from "@/lib/finance/finance";
 import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import FinanceFineSection from "./FinanceFineSection";
 import { useMatches } from "@/hooks/matches/useMatches";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
-import { useFinanceFineCharges } from "@/hooks/useFinanceFineCharges";
+import { useFinanceFineCharges } from "@/hooks/finance/useFinanceFineCharges";
+import { useFinanceEntries } from "@/hooks/finance/useFinanceEntries";
 
 export default function FinancePageClient() {
   // 탭 / 라우팅

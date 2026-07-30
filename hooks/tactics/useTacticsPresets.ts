@@ -1,7 +1,7 @@
 import { SavedFormation, SaveTacticPreset } from "@/types/tactics";
 import { useEffect, useState } from "react";
-import { useCurrentTeam } from "./useCurrentTeam";
 import { supabase } from "@/lib/supabase";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 
 interface UseTacticsPresetsParams {
   exportTactics: () => SavedFormation;

@@ -8,8 +8,8 @@ import {
   getVoteMembers,
   getVoteSummary,
   isVoteClosed,
-} from "@/lib/match-vote";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+} from "@/lib/matches/match-vote";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import MyVoteCard from "./MyVoteCard";
 import { MatchItem } from "@/types/match";
 import VoteSummaryCard from "./VoteSummaryCard";

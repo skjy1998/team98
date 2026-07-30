@@ -27,13 +27,17 @@ export function useConnectableTeamMembers({
   const [connectableMembers, setConnectableMembers] = useState<
     ConnectableTeamMember[]
   >([]);
+  const [membersLoaded, setMembersLoaded] = useState(false);
 
   useEffect(() => {
     async function loadConnectableMembers() {
       if (!teamId) {
         setConnectableMembers([]);
+        setMembersLoaded(true);
         return;
       }
+
+      setMembersLoaded(false);
 
       const { data, error } = await supabase
         .from("team_members")
@@ -42,6 +46,7 @@ export function useConnectableTeamMembers({
 
       if (error || !data) {
         setConnectableMembers([]);
+        setMembersLoaded(true);
         return;
       }
 
@@ -52,6 +57,7 @@ export function useConnectableTeamMembers({
       }));
 
       setConnectableMembers(members);
+      setMembersLoaded(true);
     }
 
     loadConnectableMembers();
@@ -75,5 +81,5 @@ export function useConnectableTeamMembers({
     );
   }, [connectableMembers, editingPlayer, players]);
 
-  return { availableMembers };
+  return { availableMembers, membersLoaded };
 }

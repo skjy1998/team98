@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import MatchInfoDisplay from "@/components/matches/detail/MatchInfoDisplay";
 import MatchInfoEditor from "@/components/matches/detail/MatchInfoEditor";
 import MatchOpponentRecordCard from "./MatchOpponentRecordCard";
-import { getOpponentRecordSummary } from "@/lib/match-ui";
+import { getOpponentRecordSummary } from "@/lib/matches/match-ui";
 
 interface MatchInfoTabProps {
   match: MatchItem;

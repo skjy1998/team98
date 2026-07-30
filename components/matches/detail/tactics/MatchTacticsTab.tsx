@@ -14,7 +14,7 @@ import {
   getPlayerById,
   quarterOptions,
   sortPlayersByRecommendedPosition,
-} from "@/lib/tactics-ui";
+} from "@/lib/tactics/tactics-ui";
 import type { FormationName, MatchQuarter, SetPieceKey } from "@/types/tactics";
 import { useMemo, useState } from "react";
 import MatchQuarterTabs from "../MatchQuarterTabs";

@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { usePlayers } from "./players/usePlayers";
+
 import type {
   FormationName,
   FormationSlot,
   SavedFormation,
 } from "@/types/tactics";
 import { formationTemplate } from "@/data/formationTemplates";
+import { usePlayers } from "../players/usePlayers";
 
 export function useTacticsBoard() {
   const { players, playersLoaded } = usePlayers();

@@ -2,8 +2,8 @@ import type { FeeType, FineRule } from "@/types/finance";
 import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
 import FinanceFineRuleSection from "./FinanceFineRuleSection";
 import FinanceReadonlyNotice from "./FinanceReadonlyNotice";
-import { useFinanceFeeSettingsState } from "@/hooks/useFinanceFeeSettingsState";
-import { useFinanceFineRuleState } from "@/hooks/useFinanceFineRuleState";
+import { useFinanceFeeSettingsState } from "@/hooks/finance/useFinanceFeeSettingsState";
+import { useFinanceFineRuleState } from "@/hooks/finance/useFinanceFineRuleState";
 
 interface FinanceSettingsSectionProps {
   canManage: boolean;

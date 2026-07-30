@@ -4,9 +4,9 @@ import PageHeader from "@/components/PageHeader";
 
 import { useMemo, useState } from "react";
 import { useMatches } from "@/hooks/matches/useMatches";
-import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/match-ui";
+import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { MatchCreateFormValue } from "@/types/match";
 import MatchSection from "./MatchSection";
 import MatchCreateModal from "./MatchCreateModal";

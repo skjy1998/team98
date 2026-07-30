@@ -4,10 +4,10 @@ import PageHeader from "@/components/PageHeader";
 import TacticsField from "@/components/tactics/TacticsField";
 import TacticsSidebar from "@/components/tactics/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/TacticsToolbar";
-import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
-import { useTacticsBoard } from "@/hooks/useTacticsBoard";
-import { useTacticsPresets } from "@/hooks/useTacticsPresets";
-import { sortPlayersByRecommendedPosition } from "@/lib/tactics-ui";
+import { useTacticsBoard } from "@/hooks/tactics/useTacticsBoard";
+import { useTacticsPresets } from "@/hooks/tactics/useTacticsPresets";
+import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
+import { sortPlayersByRecommendedPosition } from "@/lib/tactics/tactics-ui";
 import { useMemo } from "react";
 
 export default function TacticsPageClient() {

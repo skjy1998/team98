@@ -2,7 +2,7 @@ import {
   getMainPositionFromDetail,
   getPlayerBadges,
   getPositionBadgeClassName,
-} from "@/lib/player-ui";
+} from "@/lib/players/player-ui";
 import type { PlayerType } from "@/types/player";
 import { Pencil, Trash2 } from "lucide-react";
 

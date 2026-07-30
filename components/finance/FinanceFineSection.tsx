@@ -9,8 +9,8 @@ import { PlayerType } from "@/types/player";
 import { MatchVotesByMatchId } from "@/types/match-vote";
 import { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import { useMemo, useState } from "react";
-import { getFineTargetsByMatch } from "@/lib/finance-fine";
-import { formatFinanceEntryDescription } from "@/lib/finance";
+import { getFineTargetsByMatch } from "@/lib/finance/finance-fine";
+import { formatFinanceEntryDescription } from "@/lib/finance/finance";
 import FinanceManualFineForm from "./FinanceManualFineForm";
 
 interface FinanceFineSectionProps {

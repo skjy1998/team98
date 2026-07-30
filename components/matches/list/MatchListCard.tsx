@@ -6,7 +6,7 @@ import {
   shouldShowMatchStatusBadge,
   statusMap,
   typeMap,
-} from "@/lib/match-ui";
+} from "@/lib/matches/match-ui";
 import type { MatchItem } from "@/types/match";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";

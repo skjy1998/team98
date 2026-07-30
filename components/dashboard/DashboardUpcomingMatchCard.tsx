@@ -1,4 +1,4 @@
-import { getOpponentName } from "@/lib/match-ui";
+import { getOpponentName } from "@/lib/matches/match-ui";
 import { MatchItem } from "@/types/match";
 import { MatchVote } from "@/types/match-vote";
 import { Clock3, MapPin } from "lucide-react";

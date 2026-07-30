@@ -1,6 +1,6 @@
 import type { FeeType, FineRule } from "@/types/finance";
 import { useCallback, useEffect, useState } from "react";
-import { useCurrentTeam } from "./useCurrentTeam";
+import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
 export function useFinanceSettings() {

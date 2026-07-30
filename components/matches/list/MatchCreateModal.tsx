@@ -1,7 +1,7 @@
 import { MatchCreateFormValue, MatchType, MatchUniform } from "@/types/match";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getMatchCreateDefaults } from "@/lib/match-ui";
+import { getMatchCreateDefaults } from "@/lib/matches/match-ui";
 import MatchCreateTypeSection from "./MatchCreateTypeSection";
 import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
