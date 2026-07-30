@@ -11,7 +11,7 @@ import {
 } from "@/lib/matches/match-vote";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import MyVoteCard from "./MyVoteCard";
-import { MatchItem } from "@/types/match";
+import type { MatchItem } from "@/types/match";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
 

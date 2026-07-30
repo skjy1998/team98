@@ -1,5 +1,5 @@
 import MatchDetailPageClient from "@/components/matches/detail/MatchDetailPageClient";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>;

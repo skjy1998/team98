@@ -92,7 +92,7 @@ export default function MatchAttendanceTab({
               <button
                 type="button"
                 onClick={handleMarkAllAttend}
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semiobold text-emerald-700 transition hover:bg-emerald-100"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
               >
                 전원 출석 처리
               </button>

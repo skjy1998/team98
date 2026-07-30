@@ -29,7 +29,7 @@ export default function MatchTacticsTab({
   canManage,
 }: Readonly<MatchTacticsTabProps>) {
   const { players, playersLoaded } = usePlayers();
-  const { votes } = useMatchVotes();
+  const { votes, votesLoaded } = useMatchVotes();
   const { tacticsByQuarter, saveTacticsByQuarter, tacticsLoaded } =
     useMatchTactics(matchId);
 
@@ -153,7 +153,7 @@ export default function MatchTacticsTab({
     setSelectedSlotId(slotId);
   };
 
-  if (!playersLoaded || !tacticsLoaded) {
+  if (!playersLoaded || !votesLoaded || !tacticsLoaded) {
     return (
       <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
         <p className="text-sm text-stone-500">전술 정보를 불러오는 중...</p>

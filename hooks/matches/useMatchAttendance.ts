@@ -100,11 +100,6 @@ export function useMatchAttendance() {
       };
     });
 
-    if (error) {
-      console.error("saveAttendance error", error);
-      return false;
-    }
-
     return true;
   };
 
@@ -127,11 +122,6 @@ export function useMatchAttendance() {
         [matchId]: current.filter((item) => item.playerId !== playerId),
       };
     });
-
-    if (error) {
-      console.error("deleteAttendance error", error);
-      return false;
-    }
 
     return true;
   };

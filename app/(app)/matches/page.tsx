@@ -1,5 +1,5 @@
-import { Metadata } from "next";
-import MatchesPageClient from "@/components/matches/list/MatchesPageClient";
+import type { Metadata } from "next";
+import MatchesPageClient from "@/components/matches/MatchesPageClient";
 
 export const metadata: Metadata = {
   title: "경기 일정 | SquadFlow",

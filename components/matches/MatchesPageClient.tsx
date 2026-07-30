@@ -1,18 +1,16 @@
 "use client";
-
 import PageHeader from "@/components/PageHeader";
-
 import { useMemo, useState } from "react";
 import { useMatches } from "@/hooks/matches/useMatches";
 import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
-import { MatchCreateFormValue } from "@/types/match";
-import MatchSection from "./MatchSection";
-import MatchCreateModal from "./MatchCreateModal";
+import type { MatchCreateFormValue } from "@/types/match";
+import MatchSection from "./list/MatchSection";
+import MatchCreateModal from "./list/create/MatchCreateModal";
 
 export default function MatchesPageClient() {
-  const { records } = useMatchRecordsMap();
+  const { records, recordsLoaded } = useMatchRecordsMap();
   const { matches, matchesLoaded, addMatch } = useMatches();
   const { canManage, memberLoaded } = useCurrentTeamMember();
 
@@ -60,7 +58,7 @@ export default function MatchesPageClient() {
     }
   };
 
-  if (!matchesLoaded || !memberLoaded) {
+  if (!matchesLoaded || !recordsLoaded || !memberLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader

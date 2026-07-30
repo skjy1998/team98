@@ -23,7 +23,7 @@ export default function MatchDetailHeader({
   const safeTeamName = teamName || "우리 팀";
   const teamInitial = safeTeamName.slice(0, 1);
   const safeOpponentName = opponentName || "상대 팀";
-  const opponentInitial = opponentName.slice(0, 1);
+  const opponentInitial = safeOpponentName.slice(0, 1);
 
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
@@ -33,7 +33,9 @@ export default function MatchDetailHeader({
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-3xl font-bold text-emerald-700">
               {teamInitial}
             </div>
-            <p className="mt-3 text-xl font-semibold text-stone-900">FC 98</p>
+            <p className="mt-3 text-xl font-semibold text-stone-900">
+              {safeTeamName}
+            </p>
           </div>
 
           <div className="text-center">

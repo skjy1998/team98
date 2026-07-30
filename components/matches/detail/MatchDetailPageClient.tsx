@@ -1,11 +1,11 @@
 "use client";
 import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
 import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
-import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
+import { MatchInfoTab } from "@/components/matches/detail/info/MatchInfoTab";
 
 import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
-import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
+import MatchDeleteModal from "@/components/matches/detail/MatchDeleteModal";
 import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { useMatches } from "@/hooks/matches/useMatches";
@@ -50,11 +50,12 @@ export default function MatchDetailPageClient({
     updateMatch,
     deleteMatch: removeMatch,
   } = useMatches();
-  const { records } = useMatchRecordsMap();
+
+  const { records, recordsLoaded: recordsMapLoaded } = useMatchRecordsMap();
   const { votes, votesLoaded } = useMatchVotes();
   const { players, playersLoaded } = usePlayers();
   const { canManage, memberLoaded } = useCurrentTeamMember();
-  const { team } = useCurrentTeam();
+  const { team, teamLoaded } = useCurrentTeam();
   const { attendance, attendanceLoaded, saveAttendance, deleteAttendance } =
     useMatchAttendance();
 
@@ -89,7 +90,7 @@ export default function MatchDetailPageClient({
 
   // 5. records hook
   const {
-    loaded: recordsLoaded,
+    loaded: matchRecordsLoaded,
     events,
     ourScore,
     opponentScore,
@@ -146,7 +147,9 @@ export default function MatchDetailPageClient({
 
   // 7. early return
   if (
+    !teamLoaded ||
     !matchesLoaded ||
+    !recordsMapLoaded ||
     !memberLoaded ||
     !votesLoaded ||
     !playersLoaded ||
@@ -177,7 +180,7 @@ export default function MatchDetailPageClient({
 
   // 8. 최종 파생값
   const resolvedMatch =
-    recordsLoaded && events.length > 0
+    matchRecordsLoaded && events.length > 0
       ? {
           ...match,
           ourScore,
@@ -246,7 +249,7 @@ export default function MatchDetailPageClient({
         <MatchRecordTab
           matchId={match.id}
           events={events}
-          recordsLoaded={recordsLoaded}
+          recordsLoaded={matchRecordsLoaded}
           addEvent={addEvent}
           deleteEvent={deleteEvent}
           updateEvent={updateEvent}

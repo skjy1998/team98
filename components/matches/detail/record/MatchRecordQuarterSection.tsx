@@ -58,7 +58,7 @@ export default function MatchRecordQuarterSection({
         </div>
 
         <span className="text-sm font-medium text-stone-400">
-          {quarterEvents.length}골
+          {quarterEvents.length}개 기록
         </span>
       </div>
 

@@ -1,7 +1,7 @@
 import type { MatchCreateFormValue, MatchItem } from "@/types/match";
 import { useMemo, useState } from "react";
-import MatchInfoDisplay from "@/components/matches/detail/MatchInfoDisplay";
-import MatchInfoEditor from "@/components/matches/detail/MatchInfoEditor";
+import MatchInfoDisplay from "@/components/matches/detail/info/MatchInfoDisplay";
+import MatchInfoEditor from "@/components/matches/detail/info/MatchInfoEditor";
 import MatchOpponentRecordCard from "./MatchOpponentRecordCard";
 import { getOpponentRecordSummary } from "@/lib/matches/match-ui";
 

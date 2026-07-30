@@ -1,4 +1,8 @@
-import { MatchCreateFormValue, MatchType, MatchUniform } from "@/types/match";
+import type {
+  MatchCreateFormValue,
+  MatchType,
+  MatchUniform,
+} from "@/types/match";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getMatchCreateDefaults } from "@/lib/matches/match-ui";
@@ -10,7 +14,7 @@ import MatchCreateUniformSection from "./MatchCreateUniformSection";
 
 interface MatchCreateModalProps {
   onClose: () => void;
-  onSave: (value: MatchCreateFormValue) => void;
+  onSave: (value: MatchCreateFormValue) => void | Promise<void>;
 }
 
 export default function MatchCreateModal({
@@ -40,7 +44,7 @@ export default function MatchCreateModal({
     return () => {
       globalThis.window.removeEventListener("keydown", handleKeyDown);
     };
-  });
+  }, [onClose]);
 
   const handleSave = () => {
     const title =
@@ -59,14 +63,14 @@ export default function MatchCreateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
       <button
         type="button"
         aria-label="일정 등록 모달 닫기"
         className="absolute inset-0 bg-black/35"
         onClick={onClose}
       />
-      <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8">
+      <div className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8">
         <button
           type="button"
           onClick={onClose}

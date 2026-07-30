@@ -13,7 +13,7 @@ import {
   getGroupedMatchRecordEvents,
   quarterSections,
 } from "@/lib/matches/match-record";
-import { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 
 interface MatchRecordTabProps {

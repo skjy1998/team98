@@ -118,14 +118,16 @@ export function useMatchRecords(matchId: string) {
   };
 
   const deleteEvent = async (eventId: string) => {
+    if (!teamId || !matchId) return false;
+
     const { error } = await supabase
       .from("match_records")
       .delete()
-      .eq("id", eventId);
+      .eq("id", eventId)
+      .eq("team_id", teamId)
+      .eq("match_id", matchId);
 
-    if (error) {
-      return false;
-    }
+    if (error) return false;
 
     setEvents((prev) => prev.filter((event) => event.id !== eventId));
     return true;
@@ -135,6 +137,8 @@ export function useMatchRecords(matchId: string) {
     eventId: string,
     updates: Partial<MatchRecordEvent>,
   ) => {
+    if (!teamId || !matchId) return false;
+
     const { data, error } = await supabase
       .from("match_records")
       .update({
@@ -146,6 +150,8 @@ export function useMatchRecords(matchId: string) {
         quarter: updates.quarter ?? "unknown",
       })
       .eq("id", eventId)
+      .eq("team_id", teamId)
+      .eq("match_id", matchId)
       .select(
         "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
       )
@@ -166,6 +172,8 @@ export function useMatchRecords(matchId: string) {
   };
 
   const reorderEvents = async (activeId: string, overId: string) => {
+    if (!teamId || !matchId) return false;
+
     const oldIndex = events.findIndex((event) => event.id === activeId);
     const newIndex = events.findIndex((event) => event.id === overId);
 
@@ -184,7 +192,9 @@ export function useMatchRecords(matchId: string) {
         supabase
           .from("match_records")
           .update({ sort_order: index })
-          .eq("id", event.id),
+          .eq("id", event.id)
+          .eq("team_id", teamId)
+          .eq("match_id", matchId),
       ),
     );
 
