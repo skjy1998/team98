@@ -2,7 +2,7 @@ import type { FineRule } from "@/types/finance";
 import { useState } from "react";
 
 interface UseFinanceFineRuleStateParams {
-  onAddFineRule: (nextFineRule: FineRule) => Promise<void>;
+  onAddFineRule: (nextFineRule: FineRule) => Promise<boolean>;
   onDeleteFineRule: (fineRuleId: string) => void;
 }
 
@@ -28,12 +28,14 @@ export function useFinanceFineRuleState({
       return;
     }
 
-    onAddFineRule({
+    const success = await onAddFineRule({
       id: crypto.randomUUID(),
       name: fineRuleName.trim(),
       trigger: fineRuleTrigger,
       amount: fineRuleAmount,
     });
+
+    if (!success) return;
 
     handleCancelFineRule();
   };

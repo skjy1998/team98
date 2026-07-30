@@ -228,9 +228,9 @@ export function getMatchDetailDisplay(match: MatchItem) {
 export function getMatchDetailTab(value: string | null): MatchDetailTab {
   return value === "info" ||
     value === "vote" ||
+    value === "attendance" ||
     value === "tactics" ||
-    value === "record" ||
-    value === "review"
+    value === "record"
     ? value
     : "info";
 }

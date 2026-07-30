@@ -3,7 +3,6 @@ import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
 import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
 import { MatchInfoTab } from "@/components/matches/detail/MatchInfoTab";
 
-import MatchTabPlaceholder from "@/components/matches/detail/MatchTabPlaceholder";
 import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
 import MatchDeleteModal from "@/components/matches/MatchDeleteModal";
@@ -27,6 +26,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import MatchRecordTab from "./record/MatchRecordTab";
+import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
+import { usePlayers } from "@/hooks/players/usePlayers";
+import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
 
 interface MatchDetailPageClientProps {
   matchId: string;
@@ -48,8 +51,30 @@ export default function MatchDetailPageClient({
     deleteMatch: removeMatch,
   } = useMatches();
   const { records } = useMatchRecordsMap();
+  const { votes, votesLoaded } = useMatchVotes();
+  const { players, playersLoaded } = usePlayers();
   const { canManage, memberLoaded } = useCurrentTeamMember();
   const { team } = useCurrentTeam();
+  const { attendance, attendanceLoaded, saveAttendance, deleteAttendance } =
+    useMatchAttendance();
+
+  const matchVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
+  const matchAttendance = attendance[matchId] ?? [];
+
+  const attendPlayerIds = useMemo(
+    () =>
+      new Set(
+        matchVotes
+          .filter((vote) => vote.status === "attend")
+          .map((vote) => vote.playerId),
+      ),
+    [matchVotes],
+  );
+
+  const attendancePlayers = useMemo(
+    () => players.filter((player) => attendPlayerIds.has(player.id)),
+    [players, attendPlayerIds],
+  );
 
   // 3. UI state
   const [deleteTarget, setDeleteTarget] = useState<MatchItem | null>(null);
@@ -120,7 +145,13 @@ export default function MatchDetailPageClient({
   };
 
   // 7. early return
-  if (!matchesLoaded || !memberLoaded) {
+  if (
+    !matchesLoaded ||
+    !memberLoaded ||
+    !votesLoaded ||
+    !playersLoaded ||
+    !attendanceLoaded
+  ) {
     return (
       <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
         <p className="text-sm text-stone-500">경기 정보를 불러오는 중...</p>
@@ -196,6 +227,16 @@ export default function MatchDetailPageClient({
       {activeTab === "vote" && (
         <MatchVoteTab matchId={match.id} match={resolvedMatch} />
       )}
+      {activeTab === "attendance" && (
+        <MatchAttendanceTab
+          matchId={match.id}
+          players={attendancePlayers}
+          attendance={matchAttendance}
+          canManage={canManage}
+          saveAttendance={saveAttendance}
+          deleteAttendance={deleteAttendance}
+        />
+      )}
 
       {activeTab === "tactics" && (
         <MatchTacticsTab matchId={match.id} canManage={canManage} />
@@ -213,7 +254,7 @@ export default function MatchDetailPageClient({
           canManage={canManage}
         />
       )}
-      {activeTab === "review" && <MatchTabPlaceholder label="후기" />}
+
       {deleteTarget && (
         <MatchDeleteModal
           match={deleteTarget}

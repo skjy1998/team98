@@ -14,7 +14,7 @@ interface FinanceSettingsSectionProps {
   onAddFeeType: (nextFeeType: FeeType) => void;
   onUpdateFeeType: (feeTypeId: string, updates: Partial<FeeType>) => void;
   onDeleteFeeType: (feeTypeId: string) => void;
-  onAddFineRule: (nextFineRule: FineRule) => Promise<void>;
+  onAddFineRule: (nextFineRule: FineRule) => Promise<boolean>;
   onDeleteFineRule: (fineRuleId: string) => void;
 }
 
@@ -22,6 +22,7 @@ const fineTriggerLabel: Record<string, string> = {
   late: "지각",
   absence: "무단 결석",
   noshow: "미투표",
+  etc: "기타",
 };
 
 export default function FinanceSettingsSection({

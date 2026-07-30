@@ -77,9 +77,13 @@ export interface FinancePaymentsSectionProps {
   unpaidGroupState: FinancePaymentStatusGroupState;
   paidGroupState: FinancePaymentStatusGroupState;
   onChangePaymentStatus: (
+    playerId: string,
     playerName: string,
     nextStatus: "paid" | "unpaid",
-  ) => void;
+  ) => Promise<boolean>;
+  onBulkMarkPaid: (
+    players: Array<{ playerId: string; playerName: string }>,
+  ) => Promise<boolean>;
 }
 
 export interface FinanceReadonlyNoticeProps {

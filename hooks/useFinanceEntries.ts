@@ -25,7 +25,9 @@ export function useFinanceEntries() {
 
     const { data, error } = await supabase
       .from("finance_entries")
-      .select("id, type, amount, description, date, time")
+      .select(
+        "id, type, amount, description, date, time, category, player_id, match_id",
+      )
       .eq("team_id", teamId)
       .order("date", { ascending: false })
       .order("time", { ascending: false });
@@ -44,6 +46,9 @@ export function useFinanceEntries() {
         description: entry.description,
         date: entry.date,
         time: entry.time,
+        category: entry.category ?? "etc",
+        playerId: entry.player_id ?? undefined,
+        matchId: entry.match_id ?? undefined,
       })),
     );
     setEntriesLoaded(true);
@@ -54,8 +59,10 @@ export function useFinanceEntries() {
     loadEntries();
   }, [loadEntries]);
 
-  const addEntry = async (entry: Omit<FinanceEntry, "id">) => {
-    if (!teamId) return false;
+  const addEntryWithResult = async (
+    entry: Omit<FinanceEntry, "id">,
+  ): Promise<FinanceEntry | null> => {
+    if (!teamId) return null;
 
     const { data, error } = await supabase
       .from("finance_entries")
@@ -66,30 +73,37 @@ export function useFinanceEntries() {
         description: entry.description,
         date: entry.date,
         time: entry.time,
+        category: entry.category ?? "etc",
+        player_id: entry.playerId ?? null,
+        match_id: entry.matchId ?? null,
       })
-      .select("id, type, amount, description, date, time")
+      .select(
+        "id, type, amount, description, date, time, category, player_id, match_id",
+      )
       .single();
 
-    if (error || !data) return false;
+    if (error || !data) return null;
 
-    setEntries((prev) => [
-      {
-        id: data.id,
-        type: data.type,
-        amount: data.amount,
-        description: data.description,
-        date: data.date,
-        time: data.time,
-      },
-      ...prev,
-    ]);
+    const createdEntry: FinanceEntry = {
+      id: data.id,
+      type: data.type,
+      amount: data.amount,
+      description: data.description,
+      date: data.date,
+      time: data.time,
+      category: data.category ?? "etc",
+      playerId: data.player_id ?? undefined,
+      matchId: data.match_id ?? undefined,
+    };
 
-    if (error || !data) {
-      console.log("finance_entries insert error", error);
-      return false;
-    }
+    setEntries((prev) => [createdEntry, ...prev]);
 
-    return true;
+    return createdEntry;
+  };
+
+  const addEntry = async (entry: Omit<FinanceEntry, "id">) => {
+    const createdEntry = await addEntryWithResult(entry);
+    return createdEntry !== null;
   };
 
   const updateEntry = async (
@@ -106,6 +120,9 @@ export function useFinanceEntries() {
         description: updates.description,
         date: updates.date,
         time: updates.time,
+        category: updates.category ?? "etc",
+        player_id: updates.playerId ?? null,
+        match_id: updates.matchId ?? null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", entryId)
@@ -141,6 +158,7 @@ export function useFinanceEntries() {
     entries,
     entriesLoaded,
     addEntry,
+    addEntryWithResult,
     updateEntry,
     deleteEntry,
     reloadEntries: loadEntries,

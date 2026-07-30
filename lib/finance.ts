@@ -75,8 +75,8 @@ export function getPaymentStatusRows(
   monthlyPaymentEntries: FinanceEntry[],
 ): PaymentStatusRow[] {
   return players.map((player) => {
-    const paymentEntry = monthlyPaymentEntries.find((entry) =>
-      entry.description.includes(player.name),
+    const paymentEntry = monthlyPaymentEntries.find(
+      (entry) => entry.category === "fee" && entry.playerId === player.id,
     );
 
     return {
@@ -111,16 +111,37 @@ export function getPaymentSummary(
 }
 
 export function getPrimaryFeeAmount(feeTypes: FeeType[]) {
-  const generalFee =
-    feeTypes.find((feeType) => feeType.name.includes("일반")) ?? feeTypes[0];
+  const monthlyFee = feeTypes.find((feeType) => {
+    const name = feeType.name.replaceAll(" ", "");
+    const description = feeType.description.replaceAll(" ", "");
 
-  return generalFee?.amount ?? 0;
+    return (
+      name === "월회비" ||
+      description.includes("월회비") ||
+      name.includes("일반")
+    );
+  });
+
+  return monthlyFee?.amount ?? 0;
 }
 
 export function getFinanceTab(tab: string | null): FinanceTab {
-  if (tab === "transactions" || tab === "payments" || tab === "settings") {
+  if (
+    tab === "transactions" ||
+    tab === "payments" ||
+    tab === "fines" ||
+    tab === "settings"
+  ) {
     return tab;
   }
 
   return "transactions";
+}
+
+export function formatFinanceEntryDescription(description: string) {
+  return description
+    .replace("[late] ", "")
+    .replace("[absence] ", "")
+    .replace("[noshow] ", "")
+    .replace("[etc] ", "");
 }

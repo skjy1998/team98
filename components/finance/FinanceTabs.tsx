@@ -1,6 +1,6 @@
 import type { FinanceTab } from "@/types/finance";
 import type { ComponentType } from "react";
-import { Coins, CreditCard, Settings } from "lucide-react";
+import { Coins, CreditCard, ReceiptText, Settings } from "lucide-react";
 
 const tabs: {
   id: FinanceTab;
@@ -9,6 +9,7 @@ const tabs: {
 }[] = [
   { id: "transactions", label: "입출금", icon: Coins },
   { id: "payments", label: "납부현황", icon: CreditCard },
+  { id: "fines", label: "벌금", icon: ReceiptText },
   { id: "settings", label: "설정", icon: Settings },
 ];
 
@@ -23,7 +24,7 @@ export default function FinanceTabs({
 }: Readonly<FinanceTabsProps>) {
   return (
     <section className="rounded-xl border border-stone-200 bg-white">
-      <div className="grid grid-cols-3 border-b border-stone-200">
+      <div className="grid grid-cols-4 border-b border-stone-200">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

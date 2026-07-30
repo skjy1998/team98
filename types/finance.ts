@@ -1,6 +1,9 @@
 export type FinanceEntryType = "income" | "expense";
-export type FinanceTab = "transactions" | "payments" | "settings";
+export type FinanceTab = "transactions" | "payments" | "fines" | "settings";
 export type FinanceEntryFilter = "all" | FinanceEntryType;
+export type FinanceEntryCategory = "fee" | "fine" | "etc";
+export type FineRuleTrigger = "late" | "absence" | "noshow" | "etc";
+export type FineChargeStatus = "unpaid" | "paid";
 
 export interface FinanceEntry {
   id: string;
@@ -9,6 +12,9 @@ export interface FinanceEntry {
   description: string;
   date: string;
   time: string;
+  category?: FinanceEntryCategory;
+  playerId?: string;
+  matchId?: string;
 }
 
 export interface PaymentStatusRow {
@@ -34,8 +40,33 @@ export interface FeeType {
 export interface FineRule {
   id: string;
   name: string;
-  trigger: string;
+  trigger: FineRuleTrigger;
   amount: number;
+}
+
+export interface FineCharge {
+  id: string;
+  matchId?: string;
+  playerId: string;
+  ruleId: string;
+  ruleName: string;
+  trigger: FineRuleTrigger;
+  amount: number;
+  description: string;
+  status: FineChargeStatus;
+  paidEntryId?: string;
+  chargedAt: string;
+  paidAt?: string;
+}
+
+export interface CreateFineChargeInput {
+  matchId?: string;
+  playerId: string;
+  ruleId: string;
+  ruleName: string;
+  trigger: FineRuleTrigger;
+  amount: number;
+  description: string;
 }
 
 export interface FinanceEntryFormProps {

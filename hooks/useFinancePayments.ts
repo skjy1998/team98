@@ -85,11 +85,12 @@ export function useFinancePayments({
   };
 
   const handleChangePaymentStatus = async (
+    playerId: string,
     playerName: string,
     nextStatus: PaymentStatusRow["status"],
   ) => {
-    const existingPaymentEntry = monthlyPaymentEntries.find((entry) =>
-      entry.description.includes(playerName),
+    const existingPaymentEntry = monthlyPaymentEntries.find(
+      (entry) => entry.category === "fee" && entry.playerId === playerId,
     );
 
     if (nextStatus === "paid" && !existingPaymentEntry) {
@@ -102,11 +103,16 @@ export function useFinancePayments({
         description: `${currentMonth} 회비 (${playerName})`,
         date: `${currentMonth}-01`,
         time: currentTime,
+        category: "fee",
+        playerId,
       });
 
       if (!success) {
         globalThis.alert("납부 상태 변경에 실패했어요.");
+        return false;
       }
+
+      return true;
     }
 
     if (nextStatus === "unpaid" && existingPaymentEntry) {
@@ -114,8 +120,31 @@ export function useFinancePayments({
 
       if (!success) {
         globalThis.alert("납부 상태 변경에 실패했어요.");
+        return false;
+      }
+
+      return true;
+    }
+
+    return true;
+  };
+
+  const handleBulkMarkPaid = async (
+    playersToMark: Array<{ playerId: string; playerName: string }>,
+  ) => {
+    for (const player of playersToMark) {
+      const success = await handleChangePaymentStatus(
+        player.playerId,
+        player.playerName,
+        "paid",
+      );
+
+      if (!success) {
+        return false;
       }
     }
+
+    return true;
   };
 
   return {
@@ -130,5 +159,6 @@ export function useFinancePayments({
     handleToggleUnpaid,
     handleTogglePaid,
     handleChangePaymentStatus,
+    handleBulkMarkPaid,
   };
 }

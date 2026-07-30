@@ -14,10 +14,10 @@ const tabs: {
   icon: ComponentType<{ className?: string }>;
 }[] = [
   { id: "info", label: "정보", icon: Info },
-  { id: "vote", label: "출석", icon: Users },
+  { id: "vote", label: "투표", icon: Users },
+  { id: "attendance", label: "출석", icon: NotebookPen },
   { id: "tactics", label: "전술", icon: LayoutGrid },
   { id: "record", label: "기록", icon: ClipboardList },
-  { id: "review", label: "후기", icon: NotebookPen },
 ];
 
 interface MatchDetailTabsProps {

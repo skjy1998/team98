@@ -1,3 +1,4 @@
+import { formatFinanceEntryDescription } from "@/lib/finance";
 import type { FinanceEntry } from "@/types/finance";
 import { Pencil, Trash2 } from "lucide-react";
 
@@ -26,7 +27,7 @@ export default function FinanceTransactionItem({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-stone-900">
-            {entry.description}
+            {formatFinanceEntryDescription(entry.description)}
           </p>
           <p className="mt-1 text-xs text-stone-400">
             {entry.date} · {entry.time}

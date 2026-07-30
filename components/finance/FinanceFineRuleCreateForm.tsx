@@ -46,6 +46,7 @@ export default function FinanceFineRuleCreateForm({
             <option value="late">지각</option>
             <option value="absence">무단 결석</option>
             <option value="noshow">미투표</option>
+            <option value="etc">기타</option>
           </select>
         </div>
 

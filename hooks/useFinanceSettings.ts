@@ -86,7 +86,7 @@ export function useFinanceSettings() {
   };
 
   const handleAddFeeType = async (nextFeeType: FeeType) => {
-    const nextFeeTypes = [nextFeeType, ...feeTypes];
+    const nextFeeTypes = [...feeTypes, nextFeeType];
 
     const success = await saveSettings({
       dueDay,
@@ -152,10 +152,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("벌금 규칙 저장에 실패했어요.");
-      return;
+      return false;
     }
 
     setFineRules(nextFineRules);
+    return true;
   };
 
   const handleDeleteFineRule = async (fineRuleId: string) => {

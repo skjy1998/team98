@@ -21,6 +21,11 @@ import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useCurrentTeamMember } from "@/hooks/useCurrentTeamMember";
+import FinanceFineSection from "./FinanceFineSection";
+import { useMatches } from "@/hooks/matches/useMatches";
+import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
+import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
+import { useFinanceFineCharges } from "@/hooks/useFinanceFineCharges";
 
 export default function FinancePageClient() {
   // 탭 / 라우팅
@@ -30,15 +35,35 @@ export default function FinancePageClient() {
   const activeTab = getFinanceTab(searchParams.get("tab"));
 
   // 원본 데이터
-  const { entries, entriesLoaded, addEntry, updateEntry, deleteEntry } =
-    useFinanceEntries();
+  const {
+    entries,
+    entriesLoaded,
+    addEntry,
+    addEntryWithResult,
+    updateEntry,
+    deleteEntry,
+  } = useFinanceEntries();
   const { defaultMonth, defaultDate, defaultTime } = useMemo(
     () => getFinanceDefaults(),
     [],
   );
+
   const { players, playersLoaded } = usePlayers();
   const settings = useFinanceSettings();
   const { canManage, memberLoaded } = useCurrentTeamMember();
+  const { matches, matchesLoaded } = useMatches();
+  const { votes, votesLoaded } = useMatchVotes();
+  const { attendance, attendanceLoaded } = useMatchAttendance();
+  const {
+    fineCharges,
+    fineChargesLoaded,
+    createFineCharges,
+    deleteFineCharge,
+    handleChangeFineChargeStatus,
+  } = useFinanceFineCharges({
+    addEntryWithResult,
+    deleteEntry,
+  });
 
   // 파생값
   const primaryFeeAmount = useMemo(
@@ -151,7 +176,11 @@ export default function FinancePageClient() {
     !entriesLoaded ||
     !playersLoaded ||
     !settings.settingsLoaded ||
-    !memberLoaded
+    !memberLoaded ||
+    !matchesLoaded ||
+    !votesLoaded ||
+    !attendanceLoaded ||
+    !fineChargesLoaded
   ) {
     return (
       <div className="space-y-6">
@@ -196,6 +225,21 @@ export default function FinancePageClient() {
             unpaidGroupState={unpaidPaymentGroupState}
             paidGroupState={paidPaymentGroupState}
             onChangePaymentStatus={payments.handleChangePaymentStatus}
+            onBulkMarkPaid={payments.handleBulkMarkPaid}
+          />
+        )}
+        {activeTab === "fines" && (
+          <FinanceFineSection
+            fineCharges={fineCharges}
+            canManage={canManage}
+            matches={matches}
+            players={players}
+            votes={votes}
+            attendance={attendance}
+            fineRules={settings.fineRules}
+            createFineCharges={createFineCharges}
+            deleteFineCharge={deleteFineCharge}
+            onChangeFineChargeStatus={handleChangeFineChargeStatus}
           />
         )}
         {activeTab === "settings" && (

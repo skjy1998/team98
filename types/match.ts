@@ -4,7 +4,13 @@ export type MatchUniform = "home" | "away";
 export type MatchRecordEventType = "goal" | "concede";
 export type MatchRecordQuarter = "1Q" | "2Q" | "3Q" | "4Q" | "unknown";
 export type MatchRecordMap = Record<string, MatchRecordEvent[]>;
-export type MatchDetailTab = "info" | "vote" | "tactics" | "record" | "review";
+export type MatchDetailTab =
+  | "info"
+  | "vote"
+  | "attendance"
+  | "tactics"
+  | "record";
+
 export type MatchOpponentRecordResult = "win" | "draw" | "lose";
 
 export interface MatchRecordEvent {

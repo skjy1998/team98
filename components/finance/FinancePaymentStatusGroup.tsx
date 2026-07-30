@@ -1,56 +1,72 @@
-import FinancePaymentStatusItem from "./FinancePaymentStatusItem";
+import type { FinancePaymentStatusGroupState } from "@/types/finance-ui";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { FinancePaymentStatusGroupState } from "@/types/finance-ui";
+import FinancePaymentStatusItem from "./FinancePaymentStatusItem";
 
 interface FinancePaymentStatusGroupProps {
   canManage: boolean;
   groupState: FinancePaymentStatusGroupState;
   onChangePaymentStatus: (
+    playerId: string,
     playerName: string,
     nextStatus: "paid" | "unpaid",
-  ) => void;
+  ) => Promise<boolean>;
+  selectable?: boolean;
+  selectedPlayerIds?: string[];
+  onTogglePlayer?: (playerId: string) => void;
 }
 
 export default function FinancePaymentStatusGroup({
   canManage,
   groupState,
   onChangePaymentStatus,
+  selectable = false,
+  selectedPlayerIds = [],
+  onTogglePlayer,
 }: Readonly<FinancePaymentStatusGroupProps>) {
-  const headerClassName =
-    groupState.tone === "paid"
-      ? "bg-emerald-50/70 text-emerald-600"
-      : "bg-rose-50/70 text-rose-500";
-
-  const iconClassName =
-    groupState.tone === "paid" ? "text-emerald-400" : "text-rose-400";
-
   return (
-    <section className="space-y-3">
+    <section className="rounded-xl border border-stone-200 bg-white">
       <button
         type="button"
         onClick={groupState.onToggle}
-        className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left ${headerClassName}`}
+        className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
-        <p className="text-sm font-semibold">
-          {groupState.title} ({groupState.count}명)
-        </p>
-        <span className={iconClassName}>
-          {groupState.isOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </span>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-stone-900">
+            {groupState.title}
+          </h3>
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+              groupState.tone === "paid"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-rose-100 text-rose-700"
+            }`}
+          >
+            {groupState.count}명
+          </span>
+        </div>
+
+        {groupState.isOpen ? (
+          <ChevronUp className="h-5 w-5 text-stone-400" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-stone-400" />
+        )}
       </button>
-      {groupState.isOpen &&
-        groupState.rows.map((row) => (
-          <FinancePaymentStatusItem
-            key={row.playerId}
-            row={row}
-            onChangePaymentStatus={onChangePaymentStatus}
-            canManage={canManage}
-          />
-        ))}
+
+      {groupState.isOpen && (
+        <div className="divide-y divide-stone-200 border-t border-stone-200">
+          {groupState.rows.map((row) => (
+            <FinancePaymentStatusItem
+              key={row.playerId}
+              row={row}
+              canManage={canManage}
+              onChangePaymentStatus={onChangePaymentStatus}
+              selectable={selectable}
+              selected={selectedPlayerIds.includes(row.playerId)}
+              onToggleSelect={() => onTogglePlayer?.(row.playerId)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
