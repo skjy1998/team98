@@ -6,7 +6,8 @@ interface FinanceFeeTypeFormProps {
   feeTypeAmount: string | number;
   onChangeFeeTypeAmount: (value: string) => void;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: () => Promise<void>;
+  isSubmitting: boolean;
   submitLabel: string;
   variant?: "card" | "plain";
 }
@@ -20,6 +21,7 @@ export default function FinanceFeeTypeForm({
   onChangeFeeTypeAmount,
   onCancel,
   onSave,
+  isSubmitting,
   submitLabel,
   variant = "card",
 }: Readonly<FinanceFeeTypeFormProps>) {
@@ -38,7 +40,8 @@ export default function FinanceFeeTypeForm({
             value={feeTypeName}
             onChange={(event) => onChangeFeeTypeName(event.target.value)}
             placeholder="예: 일반"
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
         </div>
 
@@ -49,7 +52,8 @@ export default function FinanceFeeTypeForm({
             value={feeTypeAmount}
             onChange={(event) => onChangeFeeTypeAmount(event.target.value)}
             placeholder="30000"
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
         </div>
 
@@ -59,7 +63,8 @@ export default function FinanceFeeTypeForm({
             value={feeTypeDescription}
             onChange={(event) => onChangeFeeTypeDescription(event.target.value)}
             placeholder="예: 월 회비"
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
         </div>
       </div>
@@ -68,7 +73,8 @@ export default function FinanceFeeTypeForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl border border-stone-200 px-4 py-3 text-base font-medium text-stone-500 transition hover:bg-stone-100"
+          disabled={isSubmitting}
+          className="flex-1 rounded-xl border border-stone-200 px-4 py-3 text-base font-medium text-stone-500 transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           취소
         </button>
@@ -76,9 +82,10 @@ export default function FinanceFeeTypeForm({
         <button
           type="button"
           onClick={onSave}
-          className="flex-1 rounded-xl bg-orange-500 px-4 py-3 text-base font-semibold text-white transition hover:bg-orange-600"
+          disabled={isSubmitting}
+          className="flex-1 rounded-xl bg-orange-500 px-4 py-3 text-base font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
         >
-          {submitLabel}
+          {isSubmitting ? "저장 중..." : submitLabel}
         </button>
       </div>
     </div>

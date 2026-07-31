@@ -1,6 +1,6 @@
 import type { FeeType } from "@/types/finance";
 import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
-import { FinanceEditFeeTypeState } from "@/types/finance-ui";
+import type { FinanceEditFeeTypeState } from "@/types/finance-ui";
 
 interface FinanceFeeTypeListProps {
   canManage: boolean;
@@ -41,6 +41,7 @@ export default function FinanceFeeTypeList({
                   onChangeFeeTypeAmount={editState.onChangeEditingFeeAmount}
                   onCancel={editState.onCancelEditFeeType}
                   onSave={editState.onSaveEditFeeType}
+                  isSubmitting={editState.isSubmitting}
                   submitLabel="저장"
                   variant="plain"
                 />
@@ -51,7 +52,8 @@ export default function FinanceFeeTypeList({
                   <button
                     type="button"
                     onClick={() => editState.onStartEditFeeType(feeType)}
-                    className="text-left"
+                    disabled={editState.isSubmitting}
+                    className="text-left disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <p className="text-base font-semibold text-stone-900">
                       {feeType.name}{" "}
@@ -82,7 +84,8 @@ export default function FinanceFeeTypeList({
                     <button
                       type="button"
                       onClick={() => editState.onDeleteFeeType(feeType.id)}
-                      className="text-xl text-stone-400 transition hover:text-stone-600"
+                      disabled={editState.isSubmitting}
+                      className="text-xl text-stone-400 transition hover:text-stone-600 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       ×
                     </button>

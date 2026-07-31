@@ -1,4 +1,4 @@
-import { FeeType } from "@/types/finance";
+import type { FeeType } from "@/types/finance";
 import type { FinanceEditFeeTypeState } from "@/types/finance-ui";
 import FinanceFeeTypeList from "./FinanceFeeTypeList";
 

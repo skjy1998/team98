@@ -1,10 +1,10 @@
 import type { FeeType } from "@/types/finance";
-import {
+import type {
   FinanceCreateFeeTypeState,
   FinanceDueDayState,
   FinanceEditFeeTypeState,
 } from "@/types/finance-ui";
-import FinanceDueDayCard from "./FinanceDueDayCard";
+import FinanceDueDayCard from "../FinanceDueDayCard";
 import FinanceFeeTypeCreateCard from "./FinanceFeeTypeCreateCard";
 import FinanceFeeTypeListSection from "./FinanceFeeTypeListSection";
 

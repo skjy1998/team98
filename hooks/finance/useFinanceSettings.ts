@@ -79,10 +79,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("납부 기준일 저장에 실패했어요.");
-      return;
+      return false;
     }
 
     setDueDay(value);
+    return true;
   };
 
   const handleAddFeeType = async (nextFeeType: FeeType) => {
@@ -96,10 +97,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("회비 유형 저장에 실패했어요.");
-      return;
+      return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    return true;
   };
 
   const handleUpdateFeeType = async (
@@ -118,10 +120,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("회비 유형 수정에 실패했어요.");
-      return;
+      return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    return true;
   };
 
   const handleDeleteFeeType = async (feeTypeId: string) => {
@@ -135,10 +138,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("회비 유형 삭제에 실패했어요.");
-      return;
+      return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    return true;
   };
 
   const handleAddFineRule = async (nextFineRule: FineRule) => {
@@ -172,10 +176,11 @@ export function useFinanceSettings() {
 
     if (!success) {
       globalThis.alert("벌금 규칙 삭제에 실패했어요.");
-      return;
+      return false;
     }
 
     setFineRules(nextFineRules);
+    return true;
   };
 
   return {

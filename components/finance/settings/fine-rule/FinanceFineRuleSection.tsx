@@ -1,4 +1,4 @@
-import {
+import type {
   FinanceCreateFineRuleState,
   FinanceFineRuleListState,
 } from "@/types/finance-ui";

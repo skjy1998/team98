@@ -124,7 +124,10 @@ export function useFinanceFineCharges({
 
     const { data, error } = await supabase
       .from("finance_fine_charges")
-      .insert(rows)
+      .upsert(rows, {
+        onConflict: "team_id,match_id,player_id,rule_id",
+        ignoreDuplicates: true,
+      })
       .select(FINE_CHARGE_COLUMNS);
 
     if (error) {

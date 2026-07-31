@@ -1,7 +1,7 @@
 import type { FeeType, FineRule } from "@/types/finance";
-import FinanceFeeSettingsSection from "./FinanceFeeSettingsSection";
-import FinanceFineRuleSection from "./FinanceFineRuleSection";
-import FinanceReadonlyNotice from "./FinanceReadonlyNotice";
+import FinanceFeeSettingsSection from "./fee/FinanceFeeSettingsSection";
+import FinanceFineRuleSection from "./fine-rule/FinanceFineRuleSection";
+import FinanceReadonlyNotice from "../FinanceReadonlyNotice";
 import { useFinanceFeeSettingsState } from "@/hooks/finance/useFinanceFeeSettingsState";
 import { useFinanceFineRuleState } from "@/hooks/finance/useFinanceFineRuleState";
 
@@ -10,12 +10,15 @@ interface FinanceSettingsSectionProps {
   dueDay: string;
   feeTypes: FeeType[];
   fineRules: FineRule[];
-  onChangeDueDay: (value: string) => void;
-  onAddFeeType: (nextFeeType: FeeType) => void;
-  onUpdateFeeType: (feeTypeId: string, updates: Partial<FeeType>) => void;
-  onDeleteFeeType: (feeTypeId: string) => void;
+  onChangeDueDay: (value: string) => Promise<boolean>;
+  onAddFeeType: (nextFeeType: FeeType) => Promise<boolean>;
+  onUpdateFeeType: (
+    feeTypeId: string,
+    updates: Partial<FeeType>,
+  ) => Promise<boolean>;
+  onDeleteFeeType: (feeTypeId: string) => Promise<boolean>;
   onAddFineRule: (nextFineRule: FineRule) => Promise<boolean>;
-  onDeleteFineRule: (fineRuleId: string) => void;
+  onDeleteFineRule: (fineRuleId: string) => Promise<boolean>;
 }
 
 const fineTriggerLabel: Record<string, string> = {
@@ -59,6 +62,7 @@ export default function FinanceSettingsSection({
       feeSettings.handleCancelEditFeeType();
       feeSettings.setIsAddingFeeType(true);
     },
+    isSubmitting: feeSettings.isFeeTypeSubmitting,
     feeTypeName: feeSettings.feeTypeName,
     onChangeFeeTypeName: feeSettings.setFeeTypeName,
     feeTypeDescription: feeSettings.feeTypeDescription,
@@ -70,6 +74,7 @@ export default function FinanceSettingsSection({
   };
 
   const editFeeTypeState = {
+    isSubmitting: feeSettings.isFeeTypeSubmitting,
     editingFeeTypeId: feeSettings.editingFeeTypeId,
     editingFeeName: feeSettings.editingFeeName,
     editingFeeDescription: feeSettings.editingFeeDescription,
@@ -85,6 +90,7 @@ export default function FinanceSettingsSection({
 
   const createFineRuleState = {
     isAddingFineRule: fineRuleSettings.isAddingFineRule,
+    isSubmitting: fineRuleSettings.isSubmitting,
     onOpenAddFineRule: () => fineRuleSettings.setIsAddingFineRule(true),
     fineRuleName: fineRuleSettings.fineRuleName,
     onChangeFineRuleName: fineRuleSettings.setFineRuleName,
@@ -99,6 +105,7 @@ export default function FinanceSettingsSection({
   const fineRuleListState = {
     fineRules,
     fineTriggerLabel,
+    isSubmitting: fineRuleSettings.isSubmitting,
     onDeleteFineRule: fineRuleSettings.handleDeleteFineRule,
   };
 

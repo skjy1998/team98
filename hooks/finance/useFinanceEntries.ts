@@ -1,4 +1,4 @@
-import { FinanceEntry } from "@/types/finance";
+import type { FinanceEntry } from "@/types/finance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCurrentTeam } from "../team/useCurrentTeam";

@@ -1,11 +1,11 @@
-import {
+import type {
   FeeType,
   FinanceEntry,
   FinanceTab,
   PaymentStatusRow,
   PaymentSummary,
 } from "@/types/finance";
-import { PlayerType } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 
 export function getFinanceDefaults(date = new Date()) {
   const defaultMonth = `${date.getFullYear()}-${String(
@@ -61,13 +61,12 @@ export function getMonthlyPaymentEntries(
   entries: FinanceEntry[],
   currentMonth: string,
 ) {
-  return entries.filter((entry) => {
-    const matchesMonth = entry.date.startsWith(currentMonth);
-    const isIncome = entry.type === "income";
-    const isFeePayment = entry.description.includes("회비");
-
-    return matchesMonth && isIncome && isFeePayment;
-  });
+  return entries.filter(
+    (entry) =>
+      entry.date.startsWith(currentMonth) &&
+      entry.type === "income" &&
+      entry.category === "fee",
+  );
 }
 
 export function getPaymentStatusRows(

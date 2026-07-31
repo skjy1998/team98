@@ -1,4 +1,4 @@
-import { FinanceCreateFeeTypeState } from "@/types/finance-ui";
+import type { FinanceCreateFeeTypeState } from "@/types/finance-ui";
 import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
 
 interface FinanceFeeTypeCreateCardProps {
@@ -24,6 +24,7 @@ export default function FinanceFeeTypeCreateCard({
           }
           onCancel={createState.onCancelFeeType}
           onSave={createState.onSaveFeeType}
+          isSubmitting={createState.isSubmitting}
           submitLabel="추가"
         />
       )}
@@ -31,7 +32,8 @@ export default function FinanceFeeTypeCreateCard({
         <button
           type="button"
           onClick={createState.onOpenAddFeeType}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-100"
+          disabled={createState.isSubmitting}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           + 회비 유형 추가
         </button>

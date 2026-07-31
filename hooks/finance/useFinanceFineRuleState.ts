@@ -1,9 +1,9 @@
 import type { FineRule } from "@/types/finance";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface UseFinanceFineRuleStateParams {
   onAddFineRule: (nextFineRule: FineRule) => Promise<boolean>;
-  onDeleteFineRule: (fineRuleId: string) => void;
+  onDeleteFineRule: (fineRuleId: string) => Promise<boolean>;
 }
 
 export function useFinanceFineRuleState({
@@ -15,6 +15,23 @@ export function useFinanceFineRuleState({
   const [fineRuleTrigger, setFineRuleTrigger] =
     useState<FineRule["trigger"]>("late");
   const [fineRuleAmount, setFineRuleAmount] = useState(5000);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
+
+  const runFineRuleMutation = async (mutation: () => Promise<boolean>) => {
+    if (isSubmittingRef.current) return false;
+
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+
+    try {
+      return await mutation();
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
 
   const handleCancelFineRule = () => {
     setIsAddingFineRule(false);
@@ -28,23 +45,34 @@ export function useFinanceFineRuleState({
       return;
     }
 
-    const success = await onAddFineRule({
-      id: crypto.randomUUID(),
-      name: fineRuleName.trim(),
-      trigger: fineRuleTrigger,
-      amount: fineRuleAmount,
-    });
+    const success = await runFineRuleMutation(() =>
+      onAddFineRule({
+        id: crypto.randomUUID(),
+        name: fineRuleName.trim(),
+        trigger: fineRuleTrigger,
+        amount: fineRuleAmount,
+      }),
+    );
 
     if (!success) return;
 
     handleCancelFineRule();
   };
 
-  const handleDeleteFineRule = (ruleId: string) => {
-    onDeleteFineRule(ruleId);
+  const handleDeleteFineRule = async (ruleId: string) => {
+    if (isSubmittingRef.current) return;
+
+    const confirmed = globalThis.confirm(
+      "이 벌금 규칙을 삭제할까요? 이미 부과된 벌금 내역은 유지됩니다.",
+    );
+
+    if (!confirmed) return;
+
+    await runFineRuleMutation(() => onDeleteFineRule(ruleId));
   };
 
   return {
+    isSubmitting,
     isAddingFineRule,
     setIsAddingFineRule,
     fineRuleName,

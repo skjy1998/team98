@@ -2,13 +2,15 @@ import type { FineRule } from "@/types/finance";
 
 interface FinanceFineRuleListProps {
   canManage: boolean;
+  isSubmitting: boolean;
   fineRules: FineRule[];
   fineTriggerLabel: Record<string, string>;
-  onDeleteFineRule: (ruleId: string) => void;
+  onDeleteFineRule: (ruleId: string) => Promise<void>;
 }
 
 export default function FinanceFineRuleList({
   canManage,
+  isSubmitting,
   fineRules,
   fineTriggerLabel,
   onDeleteFineRule,
@@ -45,8 +47,9 @@ export default function FinanceFineRuleList({
               {canManage && (
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={() => onDeleteFineRule(rule.id)}
-                  className="text-xl text-rose-400 transition hover:text-rose-500"
+                  className="text-xl text-rose-400 transition hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   ×
                 </button>

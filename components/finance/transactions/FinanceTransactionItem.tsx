@@ -22,6 +22,9 @@ export default function FinanceTransactionItem({
     : "bg-rose-100 text-rose-600";
   const amountClassName = isIncome ? "text-emerald-600" : "text-rose-500";
   const amountPrefix = isIncome ? "+" : "-";
+  const isManualEntry = !entry.category || entry.category === "etc";
+  const canEditEntry = canManage && isManualEntry;
+
   return (
     <div className="rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -45,7 +48,7 @@ export default function FinanceTransactionItem({
             {amountPrefix}
             {entry.amount.toLocaleString()}원
           </p>
-          {canManage && (
+          {canEditEntry && (
             <button
               type="button"
               onClick={() => onStartEdit(entry)}
@@ -55,7 +58,7 @@ export default function FinanceTransactionItem({
               <Pencil className="h-4 w-4" />
             </button>
           )}
-          {canManage && (
+          {canEditEntry && (
             <button
               type="button"
               onClick={() => onDeleteEntry(entry.id)}

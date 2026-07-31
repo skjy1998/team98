@@ -96,11 +96,12 @@ export interface FinanceEmptyStateProps {
 
 export interface FinanceDueDayState {
   dueDay: string;
-  onChangeDueDay: (value: string) => void;
+  onChangeDueDay: (value: string) => Promise<boolean>;
 }
 
 export interface FinanceCreateFeeTypeState {
   isAddingFeeType: boolean;
+  isSubmitting: boolean;
   onOpenAddFeeType: () => void;
   feeTypeName: string;
   onChangeFeeTypeName: (value: string) => void;
@@ -109,10 +110,11 @@ export interface FinanceCreateFeeTypeState {
   feeTypeAmount: number;
   onChangeFeeTypeAmount: (value: number) => void;
   onCancelFeeType: () => void;
-  onSaveFeeType: () => void;
+  onSaveFeeType: () => Promise<void>;
 }
 
 export interface FinanceEditFeeTypeState {
+  isSubmitting: boolean;
   editingFeeTypeId: string | null;
   editingFeeName: string;
   editingFeeDescription: string;
@@ -121,13 +123,14 @@ export interface FinanceEditFeeTypeState {
   onChangeEditingFeeDescription: (value: string) => void;
   onChangeEditingFeeAmount: (value: string) => void;
   onStartEditFeeType: (feeType: FeeType) => void;
-  onSaveEditFeeType: () => void;
+  onSaveEditFeeType: () => Promise<void>;
   onCancelEditFeeType: () => void;
-  onDeleteFeeType: (feeTypeId: string) => void;
+  onDeleteFeeType: (feeTypeId: string) => Promise<void>;
 }
 
 export interface FinanceCreateFineRuleState {
   isAddingFineRule: boolean;
+  isSubmitting: boolean;
   onOpenAddFineRule: () => void;
   fineRuleName: string;
   onChangeFineRuleName: (value: string) => void;
@@ -142,5 +145,6 @@ export interface FinanceCreateFineRuleState {
 export interface FinanceFineRuleListState {
   fineRules: FineRule[];
   fineTriggerLabel: Record<string, string>;
-  onDeleteFineRule: (ruleId: string) => void;
+  isSubmitting: boolean;
+  onDeleteFineRule: (ruleId: string) => Promise<void>;
 }

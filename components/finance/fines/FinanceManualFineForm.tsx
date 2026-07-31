@@ -18,7 +18,8 @@ interface FinanceManualFineFormProps {
   players: PlayerType[];
   matches: MatchItem[];
   formState: FinanceManualFineFormState;
-  onSubmit: () => void;
+  isSubmitting: boolean;
+  onSubmit: () => Promise<void>;
 }
 
 export default function FinanceManualFineForm({
@@ -26,6 +27,7 @@ export default function FinanceManualFineForm({
   players,
   matches,
   formState,
+  isSubmitting,
   onSubmit,
 }: Readonly<FinanceManualFineFormProps>) {
   if (rules.length === 0) {
@@ -61,7 +63,8 @@ export default function FinanceManualFineForm({
             id="manual-fine-rule"
             value={formState.ruleId}
             onChange={(event) => formState.onChangeRuleId(event.target.value)}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           >
             <option value="">규칙을 선택하세요</option>
             {rules.map((rule) => (
@@ -83,7 +86,8 @@ export default function FinanceManualFineForm({
             id="manual-fine-player"
             value={formState.playerId}
             onChange={(event) => formState.onChangePlayerId(event.target.value)}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           >
             <option value="">선수를 선택하세요</option>
             {players.map((player) => (
@@ -105,7 +109,8 @@ export default function FinanceManualFineForm({
             id="manual-fine-match"
             value={formState.matchId}
             onChange={(event) => formState.onChangeMatchId(event.target.value)}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300"
+            disabled={isSubmitting}
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           >
             <option value="">관련 경기 없음</option>
             {matches.map((match) => (
@@ -127,8 +132,9 @@ export default function FinanceManualFineForm({
             id="manual-fine-reason"
             value={formState.reason}
             onChange={(event) => formState.onChangeReason(event.target.value)}
+            disabled={isSubmitting}
             placeholder="예: 공용 장비 미반납"
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300"
+            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
         </div>
       </div>
@@ -138,11 +144,14 @@ export default function FinanceManualFineForm({
           type="button"
           onClick={onSubmit}
           disabled={
-            !formState.ruleId || !formState.playerId || !formState.reason.trim()
+            isSubmitting ||
+            !formState.ruleId ||
+            !formState.playerId ||
+            !formState.reason.trim()
           }
           className="h-12 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
         >
-          기타 벌금 부과하기
+          {isSubmitting ? "부과 중..." : "기타 벌금 부과하기"}
         </button>
       </div>
     </section>

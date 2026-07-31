@@ -1,10 +1,10 @@
 "use client";
 
-import FinancePaymentsSection from "@/components/finance/FinancePaymentsSection";
-import FinanceSettingsSection from "@/components/finance/FinanceSettingsSection";
+import FinancePaymentsSection from "@/components/finance/payments/FinancePaymentsSection";
+import FinanceSettingsSection from "@/components/finance/settings/FinanceSettingsSection";
 import FinanceSummaryCard from "@/components/finance/FinanceSummaryCard";
 import FinanceTabs from "@/components/finance/FinanceTabs";
-import FinanceTransactionSection from "@/components/finance/FinanceTransactionSection";
+import FinanceTransactionSection from "@/components/finance/transactions/FinanceTransactionSection";
 import PageHeader from "@/components/PageHeader";
 import { useFinancePayments } from "@/hooks/finance/useFinancePayments";
 import { useFinanceSettings } from "@/hooks/finance/useFinanceSettings";
@@ -20,7 +20,7 @@ import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
-import FinanceFineSection from "./FinanceFineSection";
+import FinanceFineSection from "./fines/FinanceFineSection";
 import { useMatches } from "@/hooks/matches/useMatches";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";

@@ -13,6 +13,7 @@ export default function FinanceFineRuleListSection({
   return (
     <FinanceFineRuleList
       canManage={canManage}
+      isSubmitting={listState.isSubmitting}
       fineRules={listState.fineRules}
       fineTriggerLabel={listState.fineTriggerLabel}
       onDeleteFineRule={listState.onDeleteFineRule}

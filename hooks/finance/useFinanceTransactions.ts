@@ -89,6 +89,12 @@ export function useFinanceTransactions({
   };
 
   const handleStartEdit = (entry: FinanceEntry) => {
+    if (entry.category && entry.category !== "etc") {
+      globalThis.alert("회비와 벌금 내역은 해당 관리 탭에서 변경해주세요.");
+
+      return;
+    }
+
     setIsEntryFormOpen(false);
     setEditingEntryId(entry.id);
     setEditEntryType(entry.type);
@@ -130,6 +136,15 @@ export function useFinanceTransactions({
   };
 
   const handleDeleteEntry = async (entryId: string) => {
+    const targetEntry = entries.find((entry) => entry.id === entryId);
+
+    if (!targetEntry) return;
+
+    if (targetEntry.category && targetEntry.category !== "etc") {
+      globalThis.alert("회비와 벌금 내역은 해당 관리 탭에서 변경해주세요.");
+      return;
+    }
+
     const confirmed = globalThis.confirm("이 내역을 삭제할까요?");
     if (!confirmed) return;
 
