@@ -12,7 +12,6 @@ import {
   getDisplayPlayers,
   getFilteredPlayers,
 } from "@/lib/players/player-stats";
-import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { usePlayersPageState } from "@/hooks/players/usePlayersPageState";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
@@ -20,12 +19,13 @@ import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
 import { useConnectableTeamMembers } from "@/hooks/players/useConnectableTeamMembers";
 import { usePlayersPageActions } from "@/hooks/players/usePlayersPageActions";
 import { usePlayers } from "@/hooks/players/usePlayers";
+import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
 
 export default function PlayersPageClient() {
   const { players, playersLoaded, addPlayer, deletePlayer, reloadPlayers } =
     usePlayers();
   const { matches, matchesLoaded } = useMatches();
-  const { votes, votesLoaded } = useMatchVotes();
+  const { attendance, attendanceLoaded } = useMatchAttendance();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { canManage, memberLoaded } = useCurrentTeamMember();
   const { team } = useCurrentTeam();
@@ -66,8 +66,8 @@ export default function PlayersPageClient() {
 
   // 원본 선수, 경기, 출석, 기록 데이터 합쳐서 표에 보여줄 선수 목록을 만드는 단계
   const displayPlayers = useMemo(
-    () => getDisplayPlayers(players, matches, votes, records),
-    [players, matches, votes, records],
+    () => getDisplayPlayers(players, matches, attendance, records),
+    [players, matches, attendance, records],
   );
 
   // displayPlayers에 검색과 정렬을 적용한 최종 리스트를 만들기 위해
@@ -79,7 +79,7 @@ export default function PlayersPageClient() {
   const isLoaded =
     playersLoaded &&
     matchesLoaded &&
-    votesLoaded &&
+    attendanceLoaded &&
     recordsLoaded &&
     memberLoaded;
 

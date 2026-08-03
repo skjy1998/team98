@@ -1,8 +1,92 @@
-import { MatchVotesByMatchId } from "@/types/match-vote";
+import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import { getIsUpcomingMatch } from "../matches/match-ui";
 import { MatchItem, MatchRecordMap } from "@/types/match";
 import { PlayerSortType, PlayerType } from "@/types/player";
 import { getMainPositionFromDetail } from "./player-ui";
+import { PlayerRecentMatch } from "@/types/stats";
+
+export function getPlayerStats(
+  players: PlayerType[],
+  matches: MatchItem[],
+  attendance: MatchAttendanceByMatchId,
+  records: MatchRecordMap,
+) {
+  const validMatches = matches.filter((match) => match.status !== "canceled");
+  const pastMatches = validMatches
+    .filter((match) => !getIsUpcomingMatch(match.date))
+    .sort((a, b) => {
+      const aTime = new Date(`${a.date}T${a.startTime}`).getTime();
+      const bTime = new Date(`${b.date}T${b.startTime}`).getTime();
+
+      return bTime - aTime;
+    });
+
+  const pastMatchIds = pastMatches.map((match) => match.id);
+
+  return players.map((player) => {
+    const { appearance, appearanceStreak, attendanceRate } =
+      getPlayerAttendanceStats(player.id, pastMatchIds, attendance);
+
+    const goal = getPlayerGoalCount(player.id, records, pastMatchIds);
+    const assist = getPlayerAssistCount(player.id, records, pastMatchIds);
+    const attackPoint = goal + assist;
+
+    return {
+      ...player,
+      appearance,
+      appearanceStreak,
+      goal,
+      assist,
+      attackPoint,
+      attendanceRate,
+    };
+  });
+}
+
+export function getPlayerRecentMatches(
+  playerId: string | undefined,
+  matches: MatchItem[],
+  attendance: MatchAttendanceByMatchId,
+  records: MatchRecordMap,
+): PlayerRecentMatch[] {
+  if (!playerId) return [];
+
+  return matches
+    .filter(
+      (match) => match.status !== "canceled" && !getIsUpcomingMatch(match.date),
+    )
+    .sort((a, b) => {
+      const aTime = new Date(`${a.date}T${a.startTime}`).getTime();
+      const bTime = new Date(`${b.date}T${b.startTime}`).getTime();
+
+      return bTime - aTime;
+    })
+    .slice(0, 5)
+    .map((match) => {
+      const matchAttendance = attendance[match.id]?.find(
+        (item) => item.playerId === playerId,
+      );
+
+      const matchRecords = records[match.id] ?? [];
+
+      const goal = matchRecords.filter(
+        (event) => event.type === "goal" && event.playerId === playerId,
+      ).length;
+
+      const assist = matchRecords.filter(
+        (event) => event.type === "goal" && event.assistPlayerId === playerId,
+      ).length;
+
+      return {
+        id: match.id,
+        title: match.title,
+        date: match.date,
+        attendanceStatus: matchAttendance?.status ?? "unchecked",
+        goal,
+        assist,
+      };
+    });
+}
 
 export function getPastMatchIds(matches: MatchItem[]) {
   return matches
@@ -10,19 +94,51 @@ export function getPastMatchIds(matches: MatchItem[]) {
     .map((match) => match.id);
 }
 
+export function getIsAppearanceStatus(status: "attend" | "late" | "absent") {
+  return status === "attend" || status === "late";
+}
+
+export function getPlayerAttendanceStats(
+  playerId: string,
+  matchIds: string[],
+  attendance: MatchAttendanceByMatchId,
+) {
+  const attendanceRecords = matchIds
+    .map((matchId) =>
+      attendance[matchId]?.find((item) => item.playerId === playerId),
+    )
+    .filter((item) => item !== undefined);
+
+  const appearance = attendanceRecords.filter((item) =>
+    getIsAppearanceStatus(item.status),
+  ).length;
+
+  let appearanceStreak = 0;
+
+  for (const record of attendanceRecords) {
+    if (!getIsAppearanceStatus(record.status)) break;
+    appearanceStreak += 1;
+  }
+
+  const attendanceRate =
+    attendanceRecords.length > 0
+      ? Math.round((appearance / attendanceRecords.length) * 100)
+      : 0;
+
+  return {
+    appearance,
+    appearanceStreak,
+    attendanceRate,
+  };
+}
+
 export function getPlayerAppearanceCount(
   playerId: string,
   pastMatchIds: string[],
-  votes: MatchVotesByMatchId,
+  attendance: MatchAttendanceByMatchId,
 ) {
-  return pastMatchIds.reduce((count, matchId) => {
-    const matchVotes = votes[matchId] ?? [];
-    const attended = matchVotes.some(
-      (vote) => vote.playerId === playerId && vote.status === "attend",
-    );
-
-    return attended ? count + 1 : count;
-  }, 0);
+  return getPlayerAttendanceStats(playerId, pastMatchIds, attendance)
+    .appearance;
 }
 
 export function getPlayerGoalCount(
@@ -59,17 +175,17 @@ export function getPlayerAssistCount(
 export function getDisplayPlayers(
   players: PlayerType[],
   matches: MatchItem[],
-  votes: MatchVotesByMatchId,
+  attendance: MatchAttendanceByMatchId,
   records: MatchRecordMap,
 ) {
-  const pastMatchIds = getPastMatchIds(matches);
-  const matchIds = matches.map((match) => match.id);
+  const validMatches = matches.filter((match) => match.status !== "canceled");
+  const pastMatchIds = getPastMatchIds(validMatches);
 
   return players.map((player) => ({
     ...player,
-    appearance: getPlayerAppearanceCount(player.id, pastMatchIds, votes),
-    goal: getPlayerGoalCount(player.id, records, matchIds),
-    assist: getPlayerAssistCount(player.id, records, matchIds),
+    appearance: getPlayerAppearanceCount(player.id, pastMatchIds, attendance),
+    goal: getPlayerGoalCount(player.id, records, pastMatchIds),
+    assist: getPlayerAssistCount(player.id, records, pastMatchIds),
   }));
 }
 

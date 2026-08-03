@@ -14,14 +14,14 @@ import {
 } from "@/lib/finance/finance";
 import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import {
-  getPlayerStats,
-  getRecentResults,
-  getTeamSummary,
   getTopAppearances,
   getTopAssisters,
   getTopScorers,
-} from "@/lib/stats/stats";
+} from "@/lib/stats/ranking-stats";
 import { useFinanceEntries } from "../finance/useFinanceEntries";
+import { useMatchAttendance } from "../matches/useMatchAttendance";
+import { getRecentResults, getTeamSummary } from "@/lib/stats/team-stats";
+import { getPlayerStats } from "@/lib/players/player-stats";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();
@@ -29,6 +29,7 @@ export function useDashboardData() {
   const { votes, votesLoaded } = useMatchVotes();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { entries, entriesLoaded } = useFinanceEntries();
+  const { attendance, attendanceLoaded } = useMatchAttendance();
   const { settingsLoaded } = useFinanceSettings();
 
   const { defaultMonth } = useMemo(() => getFinanceDefaults(), []);
@@ -54,14 +55,14 @@ export function useDashboardData() {
   );
 
   const { topAppearance, topScorer, topAssister } = useMemo(() => {
-    const playerStats = getPlayerStats(players, matches, votes, records);
+    const playerStats = getPlayerStats(players, matches, attendance, records);
 
     return {
       topScorer: getTopScorers(playerStats)[0],
       topAssister: getTopAssisters(playerStats)[0],
       topAppearance: getTopAppearances(playerStats)[0],
     };
-  }, [players, matches, votes, records]);
+  }, [players, matches, attendance, records]);
 
   const financeSummary = useMemo(
     () => getFinanceSummary(entries, defaultMonth),
@@ -85,6 +86,7 @@ export function useDashboardData() {
     playersLoaded &&
     matchesLoaded &&
     votesLoaded &&
+    attendanceLoaded &&
     recordsLoaded &&
     entriesLoaded &&
     settingsLoaded;
