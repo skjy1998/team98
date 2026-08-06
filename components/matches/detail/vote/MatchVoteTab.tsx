@@ -54,8 +54,8 @@ export default function MatchVoteTab({
     currentVotes.find((vote) => vote.playerId === myPlayer?.id)?.status ??
     "unvoted";
 
-  const isClosed = isVoteClosed(match.date, match.startTime);
-  const voteDeadlineText = formatVoteDeadline(match.date, match.startTime);
+  const isClosed = isVoteClosed(match.voteDeadline);
+  const voteDeadlineText = formatVoteDeadline(match.voteDeadline);
 
   const handleChangeStatus = async (playerId: string, status: VoteStatus) => {
     const currentStatus =

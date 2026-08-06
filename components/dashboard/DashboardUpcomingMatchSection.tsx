@@ -1,19 +1,23 @@
-import { MatchItem } from "@/types/match";
-import { MatchVotesByMatchId } from "@/types/match-vote";
-
+import type { MatchItem } from "@/types/match";
+import type { MatchVotesByMatchId, VoteStatus } from "@/types/match-vote";
+import type { PlayerType } from "@/types/player";
 import DashboardUpcomingMatchCard from "./DashboardUpcomingMatchCard";
 import Link from "next/link";
 
 interface DashboardUpcomingMatchSectionProps {
   upcomingMatches: MatchItem[];
   votes: MatchVotesByMatchId;
-  totalPlayers: number;
+  players: PlayerType[];
+  myPlayer?: PlayerType;
+  onChangeMyVote: (matchId: string, status: VoteStatus) => Promise<boolean>;
 }
 
 export default function DashboardUpcomingMatchSection({
   upcomingMatches,
   votes,
-  totalPlayers,
+  players,
+  myPlayer,
+  onChangeMyVote,
 }: Readonly<DashboardUpcomingMatchSectionProps>) {
   const nextMatch = upcomingMatches[0];
 
@@ -39,7 +43,9 @@ export default function DashboardUpcomingMatchSection({
         <DashboardUpcomingMatchCard
           match={nextMatch}
           votes={votes[nextMatch.id] ?? []}
-          totalPlayers={totalPlayers}
+          players={players}
+          myPlayer={myPlayer}
+          onChangeMyVote={onChangeMyVote}
         />
       )}
     </section>

@@ -30,6 +30,7 @@ export interface MatchCreateFormValue {
   date: string;
   startTime: string;
   endTime: string;
+  voteDeadline: string;
   opponent?: string;
   location: string;
   uniform: MatchUniform;
@@ -42,6 +43,7 @@ export interface MatchItem {
   date: string;
   startTime: string;
   endTime: string;
+  voteDeadline: string;
   location?: string;
   opponent?: string;
   uniform: MatchUniform;

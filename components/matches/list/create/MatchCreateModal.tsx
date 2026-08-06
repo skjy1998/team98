@@ -28,6 +28,9 @@ export default function MatchCreateModal({
   const [date, setDate] = useState(defaultDate);
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [endTime, setEndTime] = useState(defaultEndTime);
+  const [voteDeadline, setVoteDeadline] = useState(
+    `${defaultDate}T${defaultStartTime}`,
+  );
   const [opponent, setOpponent] = useState("");
   const [location, setLocation] = useState(defaultLocation);
   const [uniform, setUniform] = useState<MatchUniform>("home");
@@ -47,6 +50,19 @@ export default function MatchCreateModal({
   }, [onClose]);
 
   const handleSave = () => {
+    if (!voteDeadline) {
+      globalThis.alert("투표 마감일을 입력해 주세요.");
+      return;
+    }
+
+    const matchStart = new Date(`${date}T${startTime}`);
+    const deadline = new Date(voteDeadline);
+
+    if (deadline > matchStart) {
+      globalThis.alert("투표 마감일은 경기 시작 전이어야 해요.");
+      return;
+    }
+
     const title =
       type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전";
 
@@ -56,6 +72,7 @@ export default function MatchCreateModal({
       date,
       startTime,
       endTime,
+      voteDeadline,
       opponent: type === "정규" ? opponent : "",
       location,
       uniform,
@@ -98,6 +115,8 @@ export default function MatchCreateModal({
             onChangeStartTime={setStartTime}
             endTime={endTime}
             onChangeEndTime={setEndTime}
+            voteDeadline={voteDeadline}
+            onChangeVoteDeadline={setVoteDeadline}
           />
           <MatchCreateOpponentSection
             type={type}

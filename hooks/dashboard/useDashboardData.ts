@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-
 import { useFinanceSettings } from "../finance/useFinanceSettings";
 import { useMatches } from "../matches/useMatches";
 import useMatchRecordsMap from "../matches/useMatchRecordMap";
@@ -12,7 +11,7 @@ import {
   getPaymentStatusRows,
   getPaymentSummary,
 } from "@/lib/finance/finance";
-import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
+import { getDisplayMatches } from "@/lib/matches/match-ui";
 import {
   getTopAppearances,
   getTopAssisters,
@@ -22,15 +21,22 @@ import { useFinanceEntries } from "../finance/useFinanceEntries";
 import { useMatchAttendance } from "../matches/useMatchAttendance";
 import { getRecentResults, getTeamSummary } from "@/lib/stats/team-stats";
 import { getPlayerStats } from "@/lib/players/player-stats";
+import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
+import type { VoteStatus } from "@/types/match-vote";
+import {
+  getDashboardRecentMatch,
+  getDashboardUpcomingMatches,
+} from "@/lib/dashboard/dashboard-data";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();
   const { matches, matchesLoaded } = useMatches();
-  const { votes, votesLoaded } = useMatchVotes();
+  const { votes, votesLoaded, saveVote, deleteVote } = useMatchVotes();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { entries, entriesLoaded } = useFinanceEntries();
   const { attendance, attendanceLoaded } = useMatchAttendance();
   const { settingsLoaded } = useFinanceSettings();
+  const { member, memberLoaded } = useCurrentTeamMember();
 
   const { defaultMonth } = useMemo(() => getFinanceDefaults(), []);
 
@@ -40,7 +46,7 @@ export function useDashboardData() {
   );
 
   const upcomingMatches = useMemo(
-    () => displayMatches.filter((match) => getIsUpcomingMatch(match.date)),
+    () => getDashboardUpcomingMatches(displayMatches),
     [displayMatches],
   );
 
@@ -49,20 +55,38 @@ export function useDashboardData() {
     [matches, records],
   );
 
+  const recentMatch = useMemo(
+    () => getDashboardRecentMatch(displayMatches),
+    [displayMatches],
+  );
+
   const teamSummary = useMemo(
     () => getTeamSummary(matches, records),
     [matches, records],
   );
 
-  const { topAppearance, topScorer, topAssister } = useMemo(() => {
-    const playerStats = getPlayerStats(players, matches, attendance, records);
+  const playerStats = useMemo(
+    () => getPlayerStats(players, matches, attendance, records),
+    [players, matches, attendance, records],
+  );
 
-    return {
-      topScorer: getTopScorers(playerStats)[0],
-      topAssister: getTopAssisters(playerStats)[0],
-      topAppearance: getTopAppearances(playerStats)[0],
-    };
-  }, [players, matches, attendance, records]);
+  const myPlayer = useMemo(
+    () => playerStats.find((player) => player.userId === member?.userId),
+    [playerStats, member?.userId],
+  );
+
+  const { topAppearance, topScorer, topAssister } = useMemo(
+    () => ({
+      topScorer: getTopScorers(playerStats).find((player) => player.goal > 0),
+      topAssister: getTopAssisters(playerStats).find(
+        (player) => player.assist > 0,
+      ),
+      topAppearance: getTopAppearances(playerStats).find(
+        (player) => player.appearance > 0,
+      ),
+    }),
+    [playerStats],
+  );
 
   const financeSummary = useMemo(
     () => getFinanceSummary(entries, defaultMonth),
@@ -82,6 +106,20 @@ export function useDashboardData() {
     return getPaymentSummary(paymentStatusRows);
   }, [entries, players, defaultMonth]);
 
+  const changeMyVote = async (matchId: string, status: VoteStatus) => {
+    if (!myPlayer) return false;
+
+    const currentStatus =
+      votes[matchId]?.find((vote) => vote.playerId === myPlayer.id)?.status ??
+      "unvoted";
+
+    if (currentStatus === status) {
+      return deleteVote(matchId, myPlayer.id);
+    }
+
+    return saveVote(matchId, myPlayer.id, status);
+  };
+
   const isLoaded =
     playersLoaded &&
     matchesLoaded &&
@@ -89,19 +127,29 @@ export function useDashboardData() {
     attendanceLoaded &&
     recordsLoaded &&
     entriesLoaded &&
-    settingsLoaded;
+    settingsLoaded &&
+    memberLoaded;
 
   return {
-    players,
-    votes,
-    upcomingMatches,
-    recentResults,
-    teamSummary,
-    topAppearance,
-    topScorer,
-    topAssister,
-    financeSummary,
-    paymentSummary,
+    matchData: {
+      players,
+      myPlayer,
+      votes,
+      upcomingMatches,
+      recentMatch,
+      onChangeMyVote: changeMyVote,
+    },
+    statsData: {
+      recentResults,
+      teamSummary,
+      topAppearance,
+      topScorer,
+      topAssister,
+    },
+    financeData: {
+      financeSummary,
+      paymentSummary,
+    },
     isLoaded,
   };
 }

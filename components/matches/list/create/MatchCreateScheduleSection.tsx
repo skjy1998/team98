@@ -5,6 +5,8 @@ interface MatchCreateScheduleSectionProps {
   onChangeStartTime: (value: string) => void;
   endTime: string;
   onChangeEndTime: (value: string) => void;
+  voteDeadline: string;
+  onChangeVoteDeadline: (value: string) => void;
 }
 
 export default function MatchCreateScheduleSection({
@@ -14,6 +16,8 @@ export default function MatchCreateScheduleSection({
   onChangeStartTime,
   endTime,
   onChangeEndTime,
+  voteDeadline,
+  onChangeVoteDeadline,
 }: Readonly<MatchCreateScheduleSectionProps>) {
   return (
     <section className="space-y-6">
@@ -79,6 +83,26 @@ export default function MatchCreateScheduleSection({
               type="time"
               value={endTime}
               onChange={(event) => onChangeEndTime(event.target.value)}
+              className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+            />
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="match-vote-deadline"
+                className="text-lg font-semibold text-stone-900"
+              >
+                투표 마감
+              </label>
+              <span className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-500">
+                필수
+              </span>
+            </div>
+            <input
+              id="match-vote-deadline"
+              type="datetime-local"
+              value={voteDeadline}
+              onChange={(event) => onChangeVoteDeadline(event.target.value)}
               className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
             />
           </div>

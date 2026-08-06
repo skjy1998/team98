@@ -51,11 +51,11 @@ export function getVoteSummary(voteMembers: VoteMember[]) {
   };
 }
 
-export function formatVoteDeadline(date: string, time: string) {
-  const parsedDate = new Date(`${date}T${time}`);
+export function formatVoteDeadline(voteDeadline: string) {
+  const parsedDate = new Date(voteDeadline);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return `${date} ${time}`;
+    return voteDeadline;
   }
 
   return parsedDate.toLocaleString("ko-KR", {
@@ -67,12 +67,12 @@ export function formatVoteDeadline(date: string, time: string) {
   });
 }
 
-export function isVoteClosed(date: string, time: string) {
-  const voteDeadline = new Date(`${date}T${time}`);
+export function isVoteClosed(voteDeadline: string) {
+  const parsedDate = new Date(voteDeadline);
 
-  if (Number.isNaN(voteDeadline.getTime())) {
+  if (Number.isNaN(parsedDate.getTime())) {
     return false;
   }
 
-  return voteDeadline.getTime() < Date.now();
+  return parsedDate.getTime() < Date.now();
 }

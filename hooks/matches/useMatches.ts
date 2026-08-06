@@ -17,6 +17,7 @@ type MatchRow = {
   date: string;
   start_time: string;
   end_time: string;
+  vote_deadline: string;
   location: string | null;
   opponent: string | null;
   uniform: MatchUniform;
@@ -33,6 +34,7 @@ function mapMatchRow(match: MatchRow): MatchItem {
     date: match.date,
     startTime: match.start_time,
     endTime: match.end_time,
+    voteDeadline: match.vote_deadline,
     location: match.location ?? undefined,
     opponent: match.opponent ?? undefined,
     uniform: match.uniform,
@@ -64,7 +66,7 @@ export function useMatches() {
     const { data, error } = await supabase
       .from("matches")
       .select(
-        "id, title, type, date, start_time, end_time, location, opponent, uniform, status, our_score, opponent_score",
+        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
       )
       .eq("team_id", teamId)
       .order("date", { ascending: true });
@@ -96,13 +98,14 @@ export function useMatches() {
         date: value.date,
         start_time: value.startTime,
         end_time: value.endTime,
+        vote_deadline: new Date(value.voteDeadline).toISOString(),
         location: value.location,
         opponent: value.opponent ?? null,
         uniform: value.uniform,
         status: "scheduled",
       })
       .select(
-        "id, title, type, date, start_time, end_time, location, opponent, uniform, status, our_score, opponent_score",
+        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
       )
       .single();
 
@@ -125,13 +128,14 @@ export function useMatches() {
         date: value.date,
         start_time: value.startTime,
         end_time: value.endTime,
+        vote_deadline: new Date(value.voteDeadline).toISOString(),
         location: value.location,
         opponent: value.type === "정규" ? (value.opponent ?? null) : null,
         uniform: value.uniform,
       })
       .eq("id", matchId)
       .select(
-        "id, title, type, date, start_time, end_time, location, opponent, uniform, status, our_score, opponent_score",
+        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
       )
       .single();
 

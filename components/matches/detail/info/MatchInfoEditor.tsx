@@ -1,6 +1,7 @@
 import type { MatchCreateFormValue, MatchItem, MatchType } from "@/types/match";
 import { useEffect, useState } from "react";
 import MatchInfoFieldCard from "./MatchInfoFieldCard";
+import { getDateTimeLocalValue } from "@/lib/matches/match-ui";
 
 interface MatchInfoEditorProps {
   match: MatchItem;
@@ -17,6 +18,9 @@ export default function MatchInfoEditor({
   const [date, setDate] = useState(match.date);
   const [startTime, setStartTime] = useState(match.startTime);
   const [endTime, setEndTime] = useState(match.endTime);
+  const [voteDeadline, setVoteDeadline] = useState(
+    getDateTimeLocalValue(match.voteDeadline),
+  );
   const [opponent, setOpponent] = useState(match.opponent ?? "");
   const [location, setLocation] = useState(match.location ?? "");
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,6 +31,7 @@ export default function MatchInfoEditor({
     setDate(match.date);
     setStartTime(match.startTime);
     setEndTime(match.endTime);
+    setVoteDeadline(getDateTimeLocalValue(match.voteDeadline));
     setOpponent(match.opponent ?? "");
     setLocation(match.location ?? "");
     setErrorMessage("");
@@ -61,6 +66,16 @@ export default function MatchInfoEditor({
       return;
     }
 
+    if (!voteDeadline) {
+      setErrorMessage("투표 마감일을 입력해 주세요.");
+      return;
+    }
+
+    if (new Date(voteDeadline) > new Date(`${date}T${startTime}`)) {
+      setErrorMessage("투표 마감일은 경기 시작 전이어야 해요.");
+      return;
+    }
+
     setErrorMessage("");
 
     await onSave({
@@ -69,35 +84,12 @@ export default function MatchInfoEditor({
       date,
       startTime,
       endTime,
+      voteDeadline,
       opponent: type === "정규" ? opponent : "",
       location,
       uniform: match.uniform,
     });
   };
-
-  const dateTimeFields = [
-    {
-      id: "edit-match-date",
-      label: "날짜",
-      type: "date" as const,
-      value: date,
-      onChange: setDate,
-    },
-    {
-      id: "edit-match-start-time",
-      label: "시작 시간",
-      type: "time" as const,
-      value: startTime,
-      onChange: setStartTime,
-    },
-    {
-      id: "edit-match-end-time",
-      label: "종료 시간",
-      type: "time" as const,
-      value: endTime,
-      onChange: setEndTime,
-    },
-  ];
 
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -151,17 +143,57 @@ export default function MatchInfoEditor({
               </button>
             </div>
           </div>
-          {dateTimeFields.map((field) => (
-            <MatchInfoFieldCard key={field.id} label={field.label}>
-              <input
-                id={field.id}
-                type={field.type}
-                value={field.value}
-                onChange={(event) => field.onChange(event.target.value)}
-                className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-              />
-            </MatchInfoFieldCard>
-          ))}
+          <MatchInfoFieldCard label="날짜">
+            <input
+              id="edit-match-date"
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+            />
+          </MatchInfoFieldCard>
+
+          <MatchInfoFieldCard label="경기 시간">
+            <div className="grid items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
+              <div>
+                <label htmlFor="edit-match-start-time" className="sr-only">
+                  시작 시간
+                </label>
+                <input
+                  id="edit-match-start-time"
+                  type="time"
+                  value={startTime}
+                  onChange={(event) => setStartTime(event.target.value)}
+                  className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+                />
+              </div>
+
+              <span className="text-stone-400">-</span>
+
+              <div>
+                <label htmlFor="edit-match-end-time" className="sr-only">
+                  종료 시간
+                </label>
+                <input
+                  id="edit-match-end-time"
+                  type="time"
+                  value={endTime}
+                  onChange={(event) => setEndTime(event.target.value)}
+                  className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+                />
+              </div>
+            </div>
+          </MatchInfoFieldCard>
+
+          <MatchInfoFieldCard label="투표 마감">
+            <input
+              id="edit-match-vote-deadline"
+              type="datetime-local"
+              value={voteDeadline}
+              onChange={(event) => setVoteDeadline(event.target.value)}
+              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
+            />
+          </MatchInfoFieldCard>
         </div>
 
         {type === "정규" && (

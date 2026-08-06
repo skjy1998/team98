@@ -1,9 +1,8 @@
 import { RecentResult } from "@/types/stats";
-
 import DashboardSeasonSummaryCard from "./DashboardSeasonSummaryCard";
-import Link from "next/link";
 
 interface DashboardSeasonSummarySectionProps {
+  total: number;
   win: number;
   draw: number;
   lose: number;
@@ -11,6 +10,7 @@ interface DashboardSeasonSummarySectionProps {
 }
 
 export default function DashboardSeasonSummarySection({
+  total,
   win,
   draw,
   lose,
@@ -20,12 +20,9 @@ export default function DashboardSeasonSummarySection({
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-stone-900">시즌 전적</span>
-        <Link
-          href="/stats"
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
-        >
-          통계 보기
-        </Link>
+        <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-500">
+          총 {total}경기
+        </span>
       </div>
 
       <DashboardSeasonSummaryCard

@@ -1,4 +1,5 @@
 import { formatMatchDate } from "@/lib/matches/match-ui";
+import { formatVoteDeadline } from "@/lib/matches/match-vote";
 import type { MatchItem } from "@/types/match";
 import { Pencil, Trash2 } from "lucide-react";
 
@@ -18,8 +19,8 @@ export default function MatchInfoDisplay({
   const infoItems = [
     { label: "경기 유형", value: match.type },
     { label: "날짜", value: formatMatchDate(match.date) },
-    { label: "시작 시간", value: match.startTime },
-    { label: "종료 시간", value: match.endTime },
+    { label: "경기 시간", value: `${match.startTime} - ${match.endTime}` },
+    { label: "투표 마감", value: formatVoteDeadline(match.voteDeadline) },
   ];
 
   return (
@@ -31,6 +32,7 @@ export default function MatchInfoDisplay({
             <button
               type="button"
               onClick={onEdit}
+              aria-label="경기 정보 수정"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 transition hover:bg-stone-100"
             >
               <Pencil className="h-4 w-4" />

@@ -329,3 +329,13 @@ export function getMatchCreateDefaults() {
     defaultLocation: "",
   };
 }
+
+export function getDateTimeLocalValue(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const timezoneOffset = date.getTimezoneOffset() * 60 * 1000;
+
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
+}
