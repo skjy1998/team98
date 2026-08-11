@@ -1,0 +1,74 @@
+import { useProfileSettings } from "@/hooks/settings/useProfileSettings";
+import AccountProfileForm from "./AccountProfileForm";
+import MyPlayerProfileForm from "./MyPlayerProfileForm";
+import NotificationSettingsSection from "./NotificationSettingsSection";
+
+export default function ProfileSettingsTab() {
+  const {
+    profile,
+    profileLoaded,
+    profileError,
+    updateProfileName,
+    updateProfileEmail,
+    updatePlayerSettings,
+  } = useProfileSettings();
+
+  if (!profileLoaded) {
+    return (
+      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
+        내 설정을 불러오는 중...
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="rounded-xl border border-rose-200 bg-rose-50 p-6">
+        <p className="text-sm font-medium text-rose-600">
+          {profileError || "내 설정을 불러오지 못했어요."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {profileError && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <p className="text-sm font-medium text-amber-700">{profileError}</p>
+        </div>
+      )}
+
+      <AccountProfileForm
+        name={profile.name}
+        email={profile.email}
+        onSaveName={updateProfileName}
+        onChangeEmail={updateProfileEmail}
+      />
+
+      {profile.player ? (
+        <MyPlayerProfileForm
+          player={profile.player}
+          onSave={updatePlayerSettings}
+        />
+      ) : (
+        <section className="rounded-xl border border-stone-200 bg-white p-6">
+          <h2 className="text-lg font-semibold text-stone-900">내 선수 정보</h2>
+          <p className="mt-1 text-sm text-stone-400">
+            등번호와 선호 포지션을 관리할 수 있어요.
+          </p>
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <p className="text-sm font-semibold text-amber-700">
+              내 계정과 연결된 선수 정보가 없어요.
+            </p>
+            <p className="mt-1 text-xs text-amber-600">
+              운영진에게 선수 계정 연결을 요청해 주세요.
+            </p>
+          </div>
+        </section>
+      )}
+
+      <NotificationSettingsSection />
+    </div>
+  );
+}

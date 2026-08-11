@@ -48,6 +48,7 @@ export default function MatchDetailPageClient({
     matches,
     matchesLoaded,
     updateMatch,
+    setMatchRecordCompletion,
     deleteMatch: removeMatch,
   } = useMatches();
 
@@ -145,6 +146,12 @@ export default function MatchDetailPageClient({
     router.push("/matches");
   };
 
+  const handleChangeRecordCompletion = async (completed: boolean) => {
+    if (!match) return false;
+
+    return setMatchRecordCompletion(match.id, completed);
+  };
+
   // 7. early return
   if (
     !teamLoaded ||
@@ -180,7 +187,7 @@ export default function MatchDetailPageClient({
 
   // 8. 최종 파생값
   const resolvedMatch =
-    matchRecordsLoaded && events.length > 0
+    matchRecordsLoaded && (events.length > 0 || match.recordCompletedAt)
       ? {
           ...match,
           ourScore,
@@ -250,10 +257,12 @@ export default function MatchDetailPageClient({
           matchId={match.id}
           events={events}
           recordsLoaded={matchRecordsLoaded}
+          recordCompletedAt={match.recordCompletedAt}
           addEvent={addEvent}
           deleteEvent={deleteEvent}
           updateEvent={updateEvent}
           reorderEvents={reorderEvents}
+          onChangeCompletion={handleChangeRecordCompletion}
           canManage={canManage}
         />
       )}

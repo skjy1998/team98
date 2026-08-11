@@ -13,20 +13,15 @@ export function getMatchScoreFromEvent(
   return { goals, conceded };
 }
 
-function hasRecordEvents(records: MatchRecordMap, matchId: string) {
-  const events = records[matchId] ?? [];
-  return events.length > 0;
-}
-
 function hasSavedScore(match: MatchItem) {
   return match.ourScore !== undefined && match.opponentScore !== undefined;
 }
 
-function isCompletedMatch(match: MatchItem, records: MatchRecordMap) {
+function isCompletedMatch(match: MatchItem) {
   return (
     match.status !== "canceled" &&
     !getIsUpcomingMatch(match.date) &&
-    (hasSavedScore(match) || hasRecordEvents(records, match.id))
+    (Boolean(match.recordCompletedAt) || hasSavedScore(match))
   );
 }
 
@@ -47,7 +42,7 @@ export function getRecentResults(
   records: MatchRecordMap,
 ): RecentResult[] {
   const completedMatches = matches
-    .filter((match) => isCompletedMatch(match, records))
+    .filter((match) => isCompletedMatch(match))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return completedMatches.slice(-5).map((match) => {
@@ -70,9 +65,7 @@ export function getTeamSummary(matches: MatchItem[], records: MatchRecordMap) {
     conceded: 0,
   };
 
-  const completedMatches = matches.filter((match) =>
-    isCompletedMatch(match, records),
-  );
+  const completedMatches = matches.filter((match) => isCompletedMatch(match));
 
   completedMatches.forEach((match) => {
     const { goals, conceded } = getMatchScore(match, records);
@@ -104,7 +97,7 @@ export function getTeamHighlights(
   records: MatchRecordMap,
 ): TeamHighlights {
   const completedMatches = matches
-    .filter((match) => isCompletedMatch(match, records))
+    .filter((match) => isCompletedMatch(match))
     .map((match) => {
       const { goals, conceded } = getMatchScore(match, records);
 

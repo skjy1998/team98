@@ -24,9 +24,16 @@ import { getPlayerStats } from "@/lib/players/player-stats";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import type { VoteStatus } from "@/types/match-vote";
 import {
+  getAttendanceManagementTodos,
   getDashboardRecentMatch,
   getDashboardUpcomingMatches,
+  getRecordManagementTodos,
+  getUnpaidFeeTodos,
+  getUnpaidFineTodos,
+  getUnvotedMatchTodos,
 } from "@/lib/dashboard/dashboard-data";
+import { useNotificationSettings } from "../settings/useNotificationSettings";
+import { useMyUnpaidFineSummary } from "../finance/useMyUnpaidFineSummary";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();
@@ -35,8 +42,12 @@ export function useDashboardData() {
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { entries, entriesLoaded } = useFinanceEntries();
   const { attendance, attendanceLoaded } = useMatchAttendance();
-  const { settingsLoaded } = useFinanceSettings();
-  const { member, memberLoaded } = useCurrentTeamMember();
+  const { settingsLoaded: financeSettingsLoaded } = useFinanceSettings();
+  const {
+    settings: notificationSettings,
+    settingsLoaded: notificationSettingsLoaded,
+  } = useNotificationSettings();
+  const { member, memberLoaded, canManage } = useCurrentTeamMember();
 
   const { defaultMonth } = useMemo(() => getFinanceDefaults(), []);
 
@@ -75,6 +86,12 @@ export function useDashboardData() {
     [playerStats, member?.userId],
   );
 
+  const { summary: unpaidFineSummary, summaryLoaded: unpaidFineSummaryLoaded } =
+    useMyUnpaidFineSummary({
+      playerId: myPlayer?.id,
+      enabled: notificationSettings.financeEnabled,
+    });
+
   const { topAppearance, topScorer, topAssister } = useMemo(
     () => ({
       topScorer: getTopScorers(playerStats).find((player) => player.goal > 0),
@@ -93,17 +110,18 @@ export function useDashboardData() {
     [entries, defaultMonth],
   );
 
-  const paymentSummary = useMemo(() => {
+  const { paymentStatusRows, paymentSummary } = useMemo(() => {
     const monthlyPaymentEntries = getMonthlyPaymentEntries(
       entries,
       defaultMonth,
     );
-    const paymentStatusRows = getPaymentStatusRows(
-      players,
-      monthlyPaymentEntries,
-    );
 
-    return getPaymentSummary(paymentStatusRows);
+    const rows = getPaymentStatusRows(players, monthlyPaymentEntries);
+
+    return {
+      paymentStatusRows: rows,
+      paymentSummary: getPaymentSummary(rows),
+    };
   }, [entries, players, defaultMonth]);
 
   const changeMyVote = async (matchId: string, status: VoteStatus) => {
@@ -120,6 +138,58 @@ export function useDashboardData() {
     return saveVote(matchId, myPlayer.id, status);
   };
 
+  const todoItems = useMemo(() => {
+    const matchTodos = notificationSettings.matchEnabled
+      ? getUnvotedMatchTodos(upcomingMatches, votes, myPlayer?.id)
+      : [];
+
+    const feeTodos = notificationSettings.financeEnabled
+      ? getUnpaidFeeTodos(paymentStatusRows, myPlayer?.id, defaultMonth)
+      : [];
+
+    const fineTodos = notificationSettings.financeEnabled
+      ? getUnpaidFineTodos(
+          unpaidFineSummary.count,
+          unpaidFineSummary.totalAmount,
+        )
+      : [];
+
+    const managementTodos = notificationSettings.managementEnabled
+      ? getAttendanceManagementTodos(
+          displayMatches,
+          votes,
+          attendance,
+          canManage,
+        )
+      : [];
+
+    const recordTodos = notificationSettings.managementEnabled
+      ? getRecordManagementTodos(displayMatches, canManage)
+      : [];
+
+    return [
+      ...matchTodos,
+      ...feeTodos,
+      ...fineTodos,
+      ...managementTodos,
+      ...recordTodos,
+    ].sort((a, b) => a.priority - b.priority);
+  }, [
+    upcomingMatches,
+    votes,
+    myPlayer?.id,
+    paymentStatusRows,
+    defaultMonth,
+    notificationSettings.matchEnabled,
+    notificationSettings.financeEnabled,
+    unpaidFineSummary.count,
+    unpaidFineSummary.totalAmount,
+    displayMatches,
+    attendance,
+    canManage,
+    notificationSettings.managementEnabled,
+  ]);
+
   const isLoaded =
     playersLoaded &&
     matchesLoaded &&
@@ -127,10 +197,15 @@ export function useDashboardData() {
     attendanceLoaded &&
     recordsLoaded &&
     entriesLoaded &&
-    settingsLoaded &&
+    financeSettingsLoaded &&
+    notificationSettingsLoaded &&
+    unpaidFineSummaryLoaded &&
     memberLoaded;
 
   return {
+    todoData: {
+      items: todoItems,
+    },
     matchData: {
       players,
       myPlayer,

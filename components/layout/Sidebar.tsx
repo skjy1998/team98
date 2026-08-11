@@ -6,6 +6,7 @@ import {
   CalendarDays,
   ChevronRight,
   Home,
+  Settings,
   Swords,
   Trophy,
   Users,
@@ -81,6 +82,17 @@ const menuSections: MenuSection[] = [
         description: "거래 내역 및 납부",
         href: "/finance",
         icon: BadgeDollarSign,
+      },
+    ],
+  },
+  {
+    title: "관리",
+    items: [
+      {
+        label: "설정",
+        description: "계정과 팀 환경 관리",
+        href: "/settings",
+        icon: Settings,
       },
     ],
   },

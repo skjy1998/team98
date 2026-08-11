@@ -24,7 +24,25 @@ type MatchRow = {
   status: MatchStatus;
   our_score: number | null;
   opponent_score: number | null;
+  record_completed_at: string | null;
 };
+
+const MATCH_COLUMNS = `
+  id,
+  title,
+  type,
+  date,
+  start_time,
+  end_time,
+  vote_deadline,
+  location,
+  opponent,
+  uniform,
+  status,
+  our_score,
+  opponent_score,
+  record_completed_at
+`;
 
 function mapMatchRow(match: MatchRow): MatchItem {
   return {
@@ -41,6 +59,7 @@ function mapMatchRow(match: MatchRow): MatchItem {
     status: match.status,
     ourScore: match.our_score ?? undefined,
     opponentScore: match.opponent_score ?? undefined,
+    recordCompletedAt: match.record_completed_at ?? undefined,
     isUpcoming: getIsUpcomingMatch(match.date),
   };
 }
@@ -65,9 +84,7 @@ export function useMatches() {
 
     const { data, error } = await supabase
       .from("matches")
-      .select(
-        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
-      )
+      .select(MATCH_COLUMNS)
       .eq("team_id", teamId)
       .order("date", { ascending: true });
 
@@ -104,9 +121,7 @@ export function useMatches() {
         uniform: value.uniform,
         status: "scheduled",
       })
-      .select(
-        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
-      )
+      .select(MATCH_COLUMNS)
       .single();
 
     if (error || !data) {
@@ -134,9 +149,7 @@ export function useMatches() {
         uniform: value.uniform,
       })
       .eq("id", matchId)
-      .select(
-        "id, title, type, date, start_time, end_time, vote_deadline, location, opponent, uniform, status, our_score, opponent_score",
-      )
+      .select(MATCH_COLUMNS)
       .single();
 
     if (error || !data) {
@@ -149,6 +162,30 @@ export function useMatches() {
       ),
     );
 
+    return true;
+  };
+
+  const setMatchRecordCompletion = async (
+    matchId: string,
+    completed: boolean,
+  ) => {
+    const { error } = await supabase.rpc("set_match_record_completion", {
+      p_match_id: matchId,
+      p_completed: completed,
+    });
+
+    if (error) {
+      console.error("set match record completion error", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+
+      return false;
+    }
+
+    await loadMatches();
     return true;
   };
 
@@ -169,6 +206,7 @@ export function useMatches() {
     matches,
     addMatch,
     updateMatch,
+    setMatchRecordCompletion,
     deleteMatch,
     matchesLoaded,
     reloadMatches: loadMatches,

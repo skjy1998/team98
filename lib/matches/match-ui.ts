@@ -158,6 +158,12 @@ export function getDisplayMatches(
       return {
         ...match,
         isUpcoming,
+        ...(match.recordCompletedAt
+          ? {
+              ourScore: 0,
+              opponentScore: 0,
+            }
+          : {}),
       };
     }
     const ourScore = events.filter((event) => event.type === "goal").length;

@@ -50,6 +50,7 @@ export interface MatchItem {
   status: MatchStatus;
   ourScore?: number;
   opponentScore?: number;
+  recordCompletedAt?: string;
   isUpcoming: boolean;
 }
 

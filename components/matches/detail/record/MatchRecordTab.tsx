@@ -20,6 +20,7 @@ interface MatchRecordTabProps {
   matchId: string;
   events: MatchRecordEvent[];
   recordsLoaded: boolean;
+  recordCompletedAt?: string;
   addEvent: (type: MatchRecordEventType) => Promise<boolean>;
   deleteEvent: (eventId: string) => Promise<boolean>;
   updateEvent: (
@@ -27,6 +28,7 @@ interface MatchRecordTabProps {
     updates: Partial<MatchRecordEvent>,
   ) => Promise<boolean>;
   reorderEvents: (activeId: string, overId: string) => Promise<boolean>;
+  onChangeCompletion: (completed: boolean) => Promise<boolean>;
   canManage: boolean;
 }
 
@@ -34,15 +36,22 @@ export default function MatchRecordTab({
   matchId,
   events,
   recordsLoaded,
+  recordCompletedAt,
   addEvent,
   deleteEvent,
   updateEvent,
   reorderEvents,
+  onChangeCompletion,
   canManage,
 }: Readonly<MatchRecordTabProps>) {
   const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded } = useMatchVotes();
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
+
+  const [isCompletionSaving, setIsCompletionSaving] = useState(false);
+
+  const isCompleted = Boolean(recordCompletedAt);
+  const canEdit = canManage && !isCompleted;
 
   const groupedEvents = useMemo(
     () => getGroupedMatchRecordEvents(events),
@@ -61,9 +70,31 @@ export default function MatchRecordTab({
     [players, attendPlayerIds],
   );
 
+  const handleChangeCompletion = async () => {
+    if (!canManage || isCompletionSaving) return;
+
+    const confirmed = globalThis.confirm(
+      isCompleted
+        ? "완료된 경기 기록을 다시 수정할까요?"
+        : "경기 기록을 완료할까요? 0:0 경기라면 기록이 없어도 완료할 수 있어요.",
+    );
+
+    if (!confirmed) return;
+
+    setIsCompletionSaving(true);
+
+    const success = await onChangeCompletion(!isCompleted);
+
+    setIsCompletionSaving(false);
+
+    if (!success) {
+      globalThis.alert("경기 기록 상태 변경에 실패했어요.");
+    }
+  };
+
   // 수정 시작 함수
   const handleStartEdit = (event: MatchRecordEvent) => {
-    if (!canManage) return;
+    if (!canEdit) return;
 
     setEditingEventId(event.id);
   };
@@ -74,7 +105,7 @@ export default function MatchRecordTab({
   };
 
   const handleAddEvent = async (type: MatchRecordEventType) => {
-    if (!canManage) return;
+    if (!canEdit) return;
 
     const success = await addEvent(type);
 
@@ -85,7 +116,7 @@ export default function MatchRecordTab({
 
   // 선수 기록 삭제 함수
   const handleDeleteRecord = async (event: MatchRecordEvent) => {
-    if (!canManage) return;
+    if (!canEdit) return;
 
     const confirmed = globalThis.confirm("이 기록을 삭제할까요?");
     if (!confirmed) return;
@@ -110,7 +141,7 @@ export default function MatchRecordTab({
       minute: string;
     },
   ) => {
-    if (!canManage) return;
+    if (!canEdit) return;
 
     const selectedPlayer = players.find(
       (player) => player.id === updates.playerId,
@@ -137,7 +168,7 @@ export default function MatchRecordTab({
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    if (!canManage) return;
+    if (!canEdit) return;
 
     const { active, over } = event;
 
@@ -160,10 +191,56 @@ export default function MatchRecordTab({
 
   return (
     <div className="space-y-5">
-      {canManage && <MatchRecordScoreActions onAddEvent={handleAddEvent} />}
+      <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-5 py-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span
+              className={[
+                "rounded-full px-2.5 py-1 text-xs font-semibold",
+                isCompleted
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-amber-50 text-amber-700",
+              ].join(" ")}
+            >
+              {isCompleted ? "기록 완료" : "작성 중"}
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-stone-400">
+            {isCompleted
+              ? "완료된 기록은 다시 수정하기 전까지 잠겨요."
+              : "기록 입력이 끝나면 완료 상태로 변경해 주세요."}
+          </p>
+        </div>
+
+        {canManage && (
+          <button
+            type="button"
+            disabled={isCompletionSaving}
+            onClick={handleChangeCompletion}
+            className={[
+              "rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
+              isCompleted
+                ? "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                : "bg-emerald-600 text-white hover:bg-emerald-700",
+            ].join(" ")}
+          >
+            {isCompletionSaving
+              ? "처리 중..."
+              : isCompleted
+                ? "다시 수정"
+                : "기록 완료"}
+          </button>
+        )}
+      </div>
+      {canEdit && <MatchRecordScoreActions onAddEvent={handleAddEvent} />}
       {!canManage && (
         <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
           경기 기록은 운영진만 수정할 수 있어요.
+        </div>
+      )}
+      {canManage && isCompleted && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          완료된 경기 기록이에요. 수정하려면 먼저 다시 수정 버튼을 눌러 주세요.
         </div>
       )}
       <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -188,7 +265,7 @@ export default function MatchRecordTab({
                   quarterEvents={groupedEvents[section.key]}
                   editingEventId={editingEventId}
                   attendPlayers={attendPlayers}
-                  canManage={canManage}
+                  canManage={canEdit}
                   onStartEdit={handleStartEdit}
                   onCancelEdit={handleCancelEdit}
                   onDeleteRecord={handleDeleteRecord}
