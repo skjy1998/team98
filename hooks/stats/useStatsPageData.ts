@@ -23,8 +23,8 @@ import {
   getPlayerStats,
 } from "@/lib/players/player-stats";
 
-export default function useStatsPageData() {
-  const { matches, matchesLoaded } = useMatches();
+export default function useStatsPageData(seasonId?: string) {
+  const { matches, matchesLoaded } = useMatches({ seasonId });
   const { players, playersLoaded } = usePlayers();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { attendance, attendanceLoaded } = useMatchAttendance();

@@ -10,8 +10,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 
+interface UseMatchesOptions {
+  includeAllSeasons?: boolean;
+  seasonId?: string;
+}
+
 type MatchRow = {
   id: string;
+  season_id: string;
   title: string;
   type: MatchType;
   date: string;
@@ -29,6 +35,7 @@ type MatchRow = {
 
 const MATCH_COLUMNS = `
   id,
+  season_id,
   title,
   type,
   date,
@@ -47,6 +54,7 @@ const MATCH_COLUMNS = `
 function mapMatchRow(match: MatchRow): MatchItem {
   return {
     id: match.id,
+    seasonId: match.season_id,
     title: match.title,
     type: match.type,
     date: match.date,
@@ -64,31 +72,73 @@ function mapMatchRow(match: MatchRow): MatchItem {
   };
 }
 
-export function useMatches() {
+export function useMatches({
+  includeAllSeasons = false,
+  seasonId,
+}: UseMatchesOptions = {}) {
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
 
   const [matches, setMatches] = useState<MatchItem[]>([]);
   const [matchesLoaded, setMatchesLoaded] = useState(false);
+  const [activeSeason, setActiveSeason] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const loadMatches = useCallback(async () => {
     if (!teamLoaded) return;
 
     if (!teamId) {
       setMatches([]);
+      setActiveSeason(null);
       setMatchesLoaded(true);
       return;
     }
 
     setMatchesLoaded(false);
 
-    const { data, error } = await supabase
+    let targetSeasonId = seasonId;
+
+    if (includeAllSeasons || seasonId) {
+      setActiveSeason(null);
+    }
+
+    if (!includeAllSeasons && !targetSeasonId) {
+      const { data: activeSeasonData, error: seasonError } = await supabase
+        .from("team_seasons")
+        .select("id, name")
+        .eq("team_id", teamId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (seasonError || !activeSeasonData) {
+        console.error("active season load error", seasonError);
+        setActiveSeason(null);
+        setMatches([]);
+        setMatchesLoaded(true);
+        return;
+      }
+
+      setActiveSeason(activeSeasonData);
+      targetSeasonId = activeSeasonData.id;
+    }
+
+    let query = supabase
       .from("matches")
       .select(MATCH_COLUMNS)
-      .eq("team_id", teamId)
-      .order("date", { ascending: true });
+      .eq("team_id", teamId);
+
+    if (targetSeasonId) {
+      query = query.eq("season_id", targetSeasonId);
+    }
+
+    const { data, error } = await query.order("date", {
+      ascending: true,
+    });
 
     if (error || !data) {
+      console.error("matches load error", error);
       setMatches([]);
       setMatchesLoaded(true);
       return;
@@ -96,7 +146,7 @@ export function useMatches() {
 
     setMatches(data.map((match) => mapMatchRow(match as MatchRow)));
     setMatchesLoaded(true);
-  }, [teamLoaded, teamId]);
+  }, [teamLoaded, teamId, includeAllSeasons, seasonId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -106,10 +156,26 @@ export function useMatches() {
   const addMatch = async (value: MatchCreateFormValue) => {
     if (!teamId) return false;
 
+    const { data: activeSeason, error: seasonError } = await supabase
+      .from("team_seasons")
+      .select("id")
+      .eq("team_id", teamId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (seasonError || !activeSeason) {
+      console.error("active season load error", seasonError);
+      globalThis.alert(
+        "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
+      );
+      return false;
+    }
+
     const { data, error } = await supabase
       .from("matches")
       .insert({
         team_id: teamId,
+        season_id: activeSeason.id,
         title: value.title,
         type: value.type,
         date: value.date,
@@ -204,6 +270,7 @@ export function useMatches() {
 
   return {
     matches,
+    activeSeason,
     addMatch,
     updateMatch,
     setMatchRecordCompletion,

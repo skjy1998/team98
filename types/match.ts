@@ -38,6 +38,7 @@ export interface MatchCreateFormValue {
 
 export interface MatchItem {
   id: string;
+  seasonId: string;
   title: string;
   type: MatchType;
   date: string;

@@ -8,11 +8,28 @@ import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import type { MatchCreateFormValue } from "@/types/match";
 import MatchSection from "./list/MatchSection";
 import MatchCreateModal from "./list/create/MatchCreateModal";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
+import { ChevronDown } from "lucide-react";
 
 export default function MatchesPageClient() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const { records, recordsLoaded } = useMatchRecordsMap();
-  const { matches, matchesLoaded, addMatch } = useMatches();
   const { canManage, memberLoaded } = useCurrentTeamMember();
+
+  const { seasons, activeSeason, seasonsLoaded } = useTeamSeasons();
+
+  const requestedSeasonId = searchParams.get("season");
+
+  const selectedSeason =
+    seasons.find((season) => season.id === requestedSeasonId) ?? activeSeason;
+
+  const { matches, matchesLoaded, addMatch } = useMatches({
+    seasonId: selectedSeason?.id,
+  });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -58,7 +75,16 @@ export default function MatchesPageClient() {
     }
   };
 
-  if (!matchesLoaded || !recordsLoaded || !memberLoaded) {
+  const handleChangeSeason = (seasonId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("season", seasonId);
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  };
+
+  if (!matchesLoaded || !recordsLoaded || !memberLoaded || !seasonsLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -89,9 +115,31 @@ export default function MatchesPageClient() {
           </button>
         )}
       </div>
-      <p className="text-sm font-medium text-stone-500">
-        총 {displayMatches.length}경기
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative">
+          <select
+            value={selectedSeason?.id ?? ""}
+            onChange={(event) => handleChangeSeason(event.target.value)}
+            className="h-10 appearance-none rounded-xl border border-stone-200 bg-white pl-4 pr-10 text-sm font-semibold text-stone-700 outline-none transition focus:border-emerald-400"
+            aria-label="조회할 시즌 선택"
+          >
+            {seasons.map((season) => (
+              <option key={season.id} value={season.id}>
+                {season.name}
+                {season.isActive ? " (활성)" : ""}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            aria-hidden="true"
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+          />
+        </div>
+
+        <span className="text-sm font-medium text-stone-500">
+          총 {displayMatches.length}경기
+        </span>
+      </div>
       {!canManage && (
         <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
           현재 계정은 읽기 전용이에요. 회장 또는 운영진만 경기 일정을 등록하고

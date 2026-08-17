@@ -5,9 +5,9 @@ import type { SettingsTab } from "@/types/settings";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import PageHeader from "../PageHeader";
 import SettingsTabs from "./SettingsTabs";
-import SettingsTabPlaceholder from "./SettingsTabPlaceholder";
 import ProfileSettingsTab from "./profile/ProfileSettingsTab";
 import TeamSettingsTab from "./team/TeamSettingsTab";
+import SeasonSettingsTab from "./season/SeasonSettingsTab";
 
 export default function SettingsPageClient() {
   const router = useRouter();
@@ -36,12 +36,7 @@ export default function SettingsPageClient() {
 
       {activeTab === "team" && <TeamSettingsTab />}
 
-      {activeTab === "season" && (
-        <SettingsTabPlaceholder
-          title="시즌 관리"
-          description="팀의 시즌을 생성하고 관리할 수 있어요."
-        />
-      )}
+      {activeTab === "season" && <SeasonSettingsTab />}
     </div>
   );
 }

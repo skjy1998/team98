@@ -50,7 +50,7 @@ export default function MatchDetailPageClient({
     updateMatch,
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
-  } = useMatches();
+  } = useMatches({ includeAllSeasons: true });
 
   const { records, recordsLoaded: recordsMapLoaded } = useMatchRecordsMap();
   const { votes, votesLoaded } = useMatchVotes();
