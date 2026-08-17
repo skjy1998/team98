@@ -9,9 +9,10 @@ import { useDashboardData } from "@/hooks/dashboard/useDashboardData";
 import DashboardRecentMatchBar from "./DashboardRecentMatchBar";
 import DashboardMyRecordSection from "./DashboardMyRecordSection";
 import DashboardTodoSection from "./DashboardTodoSection";
+import DashboardNoticeSection from "./DashboardNoticeSection";
 
 export default function DashboardPageClient() {
-  const { todoData, matchData, statsData, financeData, isLoaded } =
+  const { todoData, matchData, statsData, financeData, boardData, isLoaded } =
     useDashboardData();
 
   if (!isLoaded) {
@@ -59,6 +60,9 @@ export default function DashboardPageClient() {
         </div>
         <div className="space-y-6">
           <DashboardTodoSection items={todoData.items} />
+
+          <DashboardNoticeSection notices={boardData.recentNotice} />
+
           <DashboardTopRecordSection
             topAppearance={statsData.topAppearance}
             topScorer={statsData.topScorer}

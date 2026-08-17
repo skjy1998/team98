@@ -34,6 +34,7 @@ import {
 } from "@/lib/dashboard/dashboard-data";
 import { useNotificationSettings } from "../settings/useNotificationSettings";
 import { useMyUnpaidFineSummary } from "../finance/useMyUnpaidFineSummary";
+import { useTeamPosts } from "../board/useTeamPosts";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();
@@ -48,6 +49,7 @@ export function useDashboardData() {
     settingsLoaded: notificationSettingsLoaded,
   } = useNotificationSettings();
   const { member, memberLoaded, canManage } = useCurrentTeamMember();
+  const { posts, postsLoaded } = useTeamPosts();
 
   const { defaultMonth } = useMemo(() => getFinanceDefaults(), []);
 
@@ -190,6 +192,11 @@ export function useDashboardData() {
     notificationSettings.managementEnabled,
   ]);
 
+  const recentNotice = useMemo(
+    () => posts.filter((post) => post.type === "notice").slice(0, 3),
+    [posts],
+  );
+
   const isLoaded =
     playersLoaded &&
     matchesLoaded &&
@@ -200,6 +207,7 @@ export function useDashboardData() {
     financeSettingsLoaded &&
     notificationSettingsLoaded &&
     unpaidFineSummaryLoaded &&
+    postsLoaded &&
     memberLoaded;
 
   return {
@@ -224,6 +232,9 @@ export function useDashboardData() {
     financeData: {
       financeSummary,
       paymentSummary,
+    },
+    boardData: {
+      recentNotice,
     },
     isLoaded,
   };
