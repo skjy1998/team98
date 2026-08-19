@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import NotificationBell from "../notifications/NotificationBell";
 
 type MenuItem = {
   label: string;
@@ -181,8 +182,8 @@ export default function Sidebar() {
   return (
     <aside className="hidden self-start lg:block">
       <div className="rounded-xl border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
-        <div className="rounded-2xl border border-stone-200 bg-white/80 p-3">
-          <div className="flex items-center gap-3">
+        <div className="relative rounded-2xl border border-stone-200 bg-white/80 p-3">
+          <div className="flex items-center gap-3 pr-12">
             <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
               <span className="text-base font-extrabold text-stone-500">
                 {userInitial}
@@ -197,6 +198,10 @@ export default function Sidebar() {
                 {user.email || "이메일 없음"}
               </p>
             </div>
+          </div>
+
+          <div className="absolute right-3 top-3">
+            <NotificationBell align="left" />
           </div>
         </div>
         <div className="mt-5 border-t border-stone-200/80 pt-5" />

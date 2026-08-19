@@ -191,6 +191,13 @@ export function useMatches({
       .single();
 
     if (error || !data) {
+      console.error("match create error", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
+
       return false;
     }
 
@@ -219,6 +226,12 @@ export function useMatches({
       .single();
 
     if (error || !data) {
+      console.error("match update error", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
       return false;
     }
 

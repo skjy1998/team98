@@ -22,4 +22,5 @@ export interface NotificationSettings {
   matchEnabled: boolean;
   financeEnabled: boolean;
   managementEnabled: boolean;
+  boardEnabled: boolean;
 }

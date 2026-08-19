@@ -7,12 +7,14 @@ const defaultSettings: NotificationSettings = {
   matchEnabled: true,
   financeEnabled: true,
   managementEnabled: true,
+  boardEnabled: true,
 };
 
 interface NotificationSettingRow {
   match_enabled: boolean;
   finance_enabled: boolean;
   management_enabled: boolean;
+  board_enabled: boolean;
 }
 
 export function useNotificationSettings() {
@@ -50,7 +52,9 @@ export function useNotificationSettings() {
 
     const { data, error } = await supabase
       .from("notification_settings")
-      .select("match_enabled, finance_enabled, management_enabled")
+      .select(
+        "match_enabled, finance_enabled, management_enabled, board_enabled",
+      )
       .eq("user_id", user.id)
       .eq("team_id", teamId)
       .maybeSingle();
@@ -69,6 +73,7 @@ export function useNotificationSettings() {
         matchEnabled: row.match_enabled,
         financeEnabled: row.finance_enabled,
         managementEnabled: row.management_enabled,
+        boardEnabled: row.board_enabled,
       });
     } else {
       setSettings(defaultSettings);
@@ -113,6 +118,7 @@ export function useNotificationSettings() {
         match_enabled: nextSettings.matchEnabled,
         finance_enabled: nextSettings.financeEnabled,
         management_enabled: nextSettings.managementEnabled,
+        board_enabled: nextSettings.boardEnabled,
         updated_at: new Date().toISOString(),
       },
       {

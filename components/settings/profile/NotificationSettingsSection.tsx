@@ -1,6 +1,12 @@
 import { useNotificationSettings } from "@/hooks/settings/useNotificationSettings";
 import type { NotificationSettings } from "@/types/settings";
-import { Bell, CalendarCheck, ShieldCheck, WalletCards } from "lucide-react";
+import {
+  Bell,
+  CalendarCheck,
+  MessageSquare,
+  ShieldCheck,
+  WalletCards,
+} from "lucide-react";
 import type { ComponentType } from "react";
 
 interface NotificationItem {
@@ -14,20 +20,26 @@ const notificationItems: NotificationItem[] = [
   {
     key: "matchEnabled",
     title: "경기 알림",
-    description: "미투표 경기와 투표 마감 일정을 내 할 일에 표시해요.",
+    description: "새 경기 등록과 일정 변경 알림을 받아요.",
     icon: CalendarCheck,
   },
   {
     key: "financeEnabled",
     title: "회비·벌금 알림",
-    description: "미납 회비와 미납 벌금을 내 할 일에 표시해요.",
+    description: "회비 납부일과 벌금 부과 알림을 받아요.",
     icon: WalletCards,
   },
   {
     key: "managementEnabled",
     title: "운영 알림",
-    description: "출석, 경기 기록, 라인업 준비 항목을 운영진에게 표시해요.",
+    description: "출석 확인과 경기 기록 마감 알림을 받아요.",
     icon: ShieldCheck,
+  },
+  {
+    key: "boardEnabled",
+    title: "게시판 알림",
+    description: "새 게시물과 내 글에 달린 댓글 알림을 받아요.",
+    icon: MessageSquare,
   },
 ];
 
@@ -45,7 +57,7 @@ export default function NotificationSettingsSection() {
         <div>
           <h2 className="text-lg font-semibold text-stone-900">알림 설정</h2>
           <p className="mt-1 text-sm text-stone-400">
-            대시보드 내 할 일에 표시할 항목을 선택하세요.
+            알림 센터와 대시보드에 표시할 항목을 선택하세요.
           </p>
         </div>
       </div>
