@@ -5,6 +5,7 @@ import type {
 import type { PlayerType } from "@/types/player";
 import FinanceReadonlyNotice from "@/components/finance/FinanceReadonlyNotice";
 import AttendanceMemberRow from "./AttendanceMemberRow";
+import { useToastStore } from "@/stores/toast-store";
 
 interface MatchAttendanceTabProps {
   matchId: string;
@@ -27,6 +28,8 @@ export default function MatchAttendanceTab({
   saveAttendance,
   deleteAttendance,
 }: Readonly<MatchAttendanceTabProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const handleChangeStatus = async (
     playerId: string,
     status: MatchAttendanceStatus | "unchecked",
@@ -37,7 +40,7 @@ export default function MatchAttendanceTab({
         : await saveAttendance(matchId, playerId, status);
 
     if (!success) {
-      globalThis.alert("출석 저장에 실패했어요.");
+      showToast("출석 저장에 실패했어요.", "error");
     }
   };
 
@@ -54,12 +57,12 @@ export default function MatchAttendanceTab({
       const success = await saveAttendance(matchId, player.id, "attend");
 
       if (!success) {
-        globalThis.alert("전체 출석 처리 중 저장에 실패했어요.");
+        showToast("전체 출석 처리 중 저장에 실패했어요.", "error");
         return;
       }
     }
 
-    globalThis.alert("투표 참석 인원을 모두 출석 처리했어요.");
+    showToast("투표 참석 인원을 모두 출석 처리했어요.", "success");
   };
 
   if (players.length === 0) {

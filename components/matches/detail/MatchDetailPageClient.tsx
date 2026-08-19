@@ -30,6 +30,8 @@ import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { usePlayers } from "@/hooks/players/usePlayers";
 import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
+import ContentState from "@/components/common/ContentState";
+import { useToastStore } from "@/stores/toast-store";
 
 interface MatchDetailPageClientProps {
   matchId: string;
@@ -38,6 +40,8 @@ interface MatchDetailPageClientProps {
 export default function MatchDetailPageClient({
   matchId,
 }: Readonly<MatchDetailPageClientProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   // 1. 라우터 / search params
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -116,9 +120,10 @@ export default function MatchDetailPageClient({
     const success = await updateMatch(match.id, value);
 
     if (!success) {
-      globalThis.alert("경기 정보 수정에 실패했어요.");
+      showToast("경기 정보 수정에 실패했어요.", "error");
       return false;
     }
+    showToast("경기 정보가 수정됐어요.", "success");
 
     return true;
   };
@@ -138,11 +143,13 @@ export default function MatchDetailPageClient({
     const success = await removeMatch(deleteTarget.id);
 
     if (!success) {
-      globalThis.alert("경기 삭제에 실패했어요.");
+      showToast("경기 삭제에 실패했어요.", "error");
       return;
     }
 
     setDeleteTarget(null);
+    showToast("경기를 삭제했어요.", "success");
+
     router.push("/matches");
   };
 
@@ -163,9 +170,11 @@ export default function MatchDetailPageClient({
     !attendanceLoaded
   ) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">경기 정보를 불러오는 중...</p>
-      </div>
+      <ContentState
+        variant="loading"
+        title="경기 정보를 불러오는 중..."
+        description="경기 일정과 상세 기록을 준비하고 있어요."
+      />
     );
   }
 

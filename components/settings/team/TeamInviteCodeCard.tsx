@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import { Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
@@ -12,9 +13,10 @@ export default function TeamInviteCodeCard({
   canRegenerate,
   onRegenerate,
 }: Readonly<TeamInviteCodeCardProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [isCopied, setIsCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
   const handleCopy = async () => {
     if (!inviteCode) return;
@@ -27,7 +29,7 @@ export default function TeamInviteCodeCard({
         setIsCopied(false);
       }, 1500);
     } catch {
-      globalThis.alert("초대 코드 복사에 실패했어요.");
+      showToast("초대 코드 복사에 실패했어요.", "error");
     }
   };
 
@@ -38,16 +40,18 @@ export default function TeamInviteCodeCard({
 
     if (!confirmed) return;
 
-    setSuccessMessage("");
     setIsRegenerating(true);
 
     const success = await onRegenerate();
 
     setIsRegenerating(false);
 
-    if (success) {
-      setSuccessMessage("새 초대 코드가 발급됐어요.");
+    if (!success) {
+      showToast("초대 코드 재발급에 실패했어요.", "error");
+      return;
     }
+
+    showToast("새 초대 코드가 발급됐어요.", "success");
   };
 
   return (
@@ -79,12 +83,6 @@ export default function TeamInviteCodeCard({
           {isCopied ? "복사됨" : "복사"}
         </button>
       </div>
-
-      {successMessage && (
-        <p className="mt-3 text-sm font-medium text-emerald-600">
-          {successMessage}
-        </p>
-      )}
 
       {canRegenerate ? (
         <div className="mt-5 flex justify-end">

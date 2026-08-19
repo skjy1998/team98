@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import type { CurrentTeam, TeamSport } from "@/types/team";
 import { useState } from "react";
 
@@ -29,24 +30,27 @@ export default function TeamProfileForm({
   canManage,
   onSave,
 }: Readonly<TeamProfileFormProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [name, setName] = useState(team.name);
   const [sport, setSport] = useState<TeamSport>(team.sport);
   const [isSaving, setIsSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
   const hasChanges = name.trim() !== team.name || sport !== team.sport;
 
   const handleSave = async () => {
-    setSuccessMessage("");
     setIsSaving(true);
 
     const success = await onSave(name, sport);
 
     setIsSaving(false);
 
-    if (success) {
-      setSuccessMessage("팀 정보가 변경됐어요.");
+    if (!success) {
+      showToast("팀 정보 저장에 실패했어요.", "error");
+      return;
     }
+
+    showToast("팀 정보가 변경됐어요.", "success");
   };
 
   return (
@@ -116,12 +120,6 @@ export default function TeamProfileForm({
         {!canManage && (
           <p className="text-sm text-stone-400">
             회장과 운영진만 팀 정보를 변경할 수 있어요.
-          </p>
-        )}
-
-        {successMessage && (
-          <p className="text-sm font-medium text-emerald-600">
-            {successMessage}
           </p>
         )}
 

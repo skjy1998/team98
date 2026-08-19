@@ -2,6 +2,7 @@ import type { TeamSeason, TeamSeasonFormValue } from "@/types/seasons";
 import { useState } from "react";
 import SeasonForm from "./SeasonForm";
 import { CalendarRange, CheckCircle2, Pencil, Trash2 } from "lucide-react";
+import { useToastStore } from "@/stores/toast-store";
 
 interface SeasonListItemProps {
   season: TeamSeason;
@@ -34,6 +35,8 @@ export default function SeasonListItem({
   onSetActive,
   onDelete,
 }: Readonly<SeasonListItemProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<TeamSeasonFormValue>(() =>
     getFormValue(season),
@@ -56,12 +59,14 @@ export default function SeasonListItem({
     setIsProcessing(false);
 
     if (!success) {
-      globalThis.alert(
+      showToast(
         "시즌 수정에 실패했어요. 같은 이름의 시즌이 있는지 확인해 주세요.",
+        "error",
       );
       return;
     }
 
+    showToast("시즌 정보를 수정했어요.", "success");
     setIsEditing(false);
   };
 
@@ -77,8 +82,11 @@ export default function SeasonListItem({
     setIsProcessing(false);
 
     if (!success) {
-      globalThis.alert("활성 시즌 변경에 실패했어요.");
+      showToast("활성 시즌 변경에 실패했어요.", "error");
+      return;
     }
+
+    showToast(`"${season.name}" 시즌을 활성화했어요.`, "success");
   };
 
   const handleDelete = async () => {
@@ -91,10 +99,14 @@ export default function SeasonListItem({
     setIsProcessing(false);
 
     if (!success) {
-      globalThis.alert(
+      showToast(
         "시즌 삭제에 실패했어요. 활성 시즌이거나 연결된 경기가 있는지 확인해 주세요.",
+        "error",
       );
+      return;
     }
+
+    showToast(`"${season.name}" 시즌을 삭제했어요.`, "success");
   };
 
   return (

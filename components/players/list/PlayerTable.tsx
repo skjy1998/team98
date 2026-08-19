@@ -1,3 +1,4 @@
+import ContentState from "@/components/common/ContentState";
 import {
   getMainPositionFromDetail,
   getPlayerBadges,
@@ -19,14 +20,11 @@ export default function PlayerTable({
 }: Readonly<PlayerTableProps>) {
   if (players.length === 0) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white px-6 py-14 text-center">
-        <p className="text-base font-semibold text-stone-800">
-          조건에 맞는 선수가 없어요.
-        </p>
-        <p className="mt-2 text-sm text-stone-400">
-          검색어나 필터를 다시 확인해보세요.
-        </p>
-      </div>
+      <ContentState
+        variant="empty"
+        title="조건에 맞는 선수가 없어요."
+        description="검색어나 정렬 조건을 다시 확인해 보세요."
+      />
     );
   }
   return (

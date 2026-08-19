@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import type { TeamPostComment, TeamPostLikeSummary } from "@/types/board";
 import {
   Check,
@@ -46,6 +47,8 @@ export default function BoardCommentSection({
   likesLoaded,
   onToggleLike,
 }: Readonly<BoardCommentSectionProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [content, setContent] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
@@ -68,7 +71,7 @@ export default function BoardCommentSection({
       return;
     }
 
-    globalThis.alert("댓글 등록에 실패했어요.");
+    showToast("댓글 등록에 실패했어요.", "error");
   };
 
   const handleStartEdit = (comment: TeamPostComment) => {
@@ -93,7 +96,7 @@ export default function BoardCommentSection({
       return;
     }
 
-    globalThis.alert("댓글 수정에 실패했어요.");
+    showToast("댓글 수정에 실패했어요.", "error");
   };
 
   const handleDelete = async (commentId: string) => {
@@ -104,7 +107,7 @@ export default function BoardCommentSection({
     const success = await onDelete(commentId);
 
     if (!success) {
-      globalThis.alert("댓글 삭제에 실패했어요.");
+      showToast("댓글 삭제에 실패했어요.", "error");
     }
   };
 
@@ -116,7 +119,7 @@ export default function BoardCommentSection({
     setIsLikeSubmitting(false);
 
     if (!success) {
-      globalThis.alert("좋아요 처리에 실패했어요.");
+      showToast("좋아요 처리에 실패했어요.", "error");
     }
   };
 

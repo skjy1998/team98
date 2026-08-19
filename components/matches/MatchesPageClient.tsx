@@ -11,6 +11,7 @@ import MatchCreateModal from "./list/create/MatchCreateModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
 import { ChevronDown } from "lucide-react";
+import ContentState from "../common/ContentState";
 
 export default function MatchesPageClient() {
   const router = useRouter();
@@ -91,9 +92,11 @@ export default function MatchesPageClient() {
           title="경기 일정"
           description="다가오는 경기와 지난 경기를 확인하고 관리하세요."
         />
-        <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center">
-          <p className="text-sm text-stone-500">경기 일정을 불러오는 중...</p>
-        </div>
+        <ContentState
+          variant="loading"
+          title="경기 일정을 불러오는 중..."
+          description="등록된 경기와 투표 정보를 준비하고 있어요."
+        />
       </div>
     );
   }
@@ -148,12 +151,11 @@ export default function MatchesPageClient() {
       )}
 
       {!hasMatches ? (
-        <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 p-10 text-center">
-          <p className="text-lg font-semibold text-stone-900">
-            등록된 경기 일정이 없어요.
-          </p>
-          <p className="mt-2 text-sm text-stone-500">{emptyDescription}</p>
-        </div>
+        <ContentState
+          variant="empty"
+          title="등록된 경기 일정이 없어요."
+          description={emptyDescription}
+        />
       ) : (
         <div className="space-y-8">
           <MatchSection title="다가오는 경기" items={upcomingMatches} />

@@ -10,6 +10,7 @@ import MyStatsTab from "./MyStatsTab";
 import useStatsPageData from "@/hooks/stats/useStatsPageData";
 import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
 import { ChevronDown } from "lucide-react";
+import ContentState from "../common/ContentState";
 
 export default function StatsPageClient() {
   const router = useRouter();
@@ -77,9 +78,11 @@ export default function StatsPageClient() {
       </div>
 
       {!isLoaded || !seasonsLoaded ? (
-        <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-          통계 데이터를 불러오는 중...
-        </div>
+        <ContentState
+          variant="loading"
+          title="통계 데이터를 불러오는 중..."
+          description="팀과 선수의 시즌 기록을 계산하고 있어요."
+        />
       ) : (
         <>
           <StatsTabs activeTab={activeTab} onChangeTab={handleChangeTab} />

@@ -154,7 +154,13 @@ export function useTeamPosts() {
     });
 
     if (error) {
-      console.error("team post create error", error);
+      console.error("team post create error", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+
       return false;
     }
 

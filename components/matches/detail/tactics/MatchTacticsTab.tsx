@@ -18,6 +18,7 @@ import {
 import type { FormationName, MatchQuarter, SetPieceKey } from "@/types/tactics";
 import { useMemo, useState } from "react";
 import MatchQuarterTabs from "../MatchQuarterTabs";
+import ContentState from "@/components/common/ContentState";
 
 interface MatchTacticsTabProps {
   matchId: string;
@@ -155,9 +156,11 @@ export default function MatchTacticsTab({
 
   if (!playersLoaded || !votesLoaded || !tacticsLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">전술 정보를 불러오는 중...</p>
-      </div>
+      <ContentState
+        variant="loading"
+        title="전술 정보를 불러오는 중..."
+        description="경기 포메이션과 선수 배치를 준비하고 있어요."
+      />
     );
   }
 

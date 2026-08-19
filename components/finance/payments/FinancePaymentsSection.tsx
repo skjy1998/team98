@@ -4,6 +4,7 @@ import FinancePaymentStatusGroup from "./FinancePaymentStatusGroup";
 import FinanceReadonlyNotice from "../FinanceReadonlyNotice";
 import type { FinancePaymentsSectionProps } from "@/types/finance-ui";
 import { useMemo, useRef, useState } from "react";
+import { useToastStore } from "@/stores/toast-store";
 
 export default function FinancePaymentsSection({
   canManage,
@@ -14,6 +15,8 @@ export default function FinancePaymentsSection({
   onChangePaymentStatus,
   onBulkMarkPaid,
 }: Readonly<FinancePaymentsSectionProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -55,7 +58,7 @@ export default function FinancePaymentsSection({
     if (isSubmittingRef.current) return;
 
     if (validSelectedPlayerIds.length === 0) {
-      globalThis.alert("납부 처리할 인원을 먼저 선택해주세요.");
+      showToast("납부 처리할 인원을 먼저 선택해 주세요.", "info");
       return;
     }
 
@@ -73,12 +76,12 @@ export default function FinancePaymentsSection({
       const success = await onBulkMarkPaid(selectedPlayers);
 
       if (!success) {
-        globalThis.alert("일괄 납부 처리 중 실패했어요.");
+        showToast("일괄 납부 처리 중 실패했어요.", "error");
         return;
       }
 
       setSelectedPlayerIds([]);
-      globalThis.alert("선택 인원을 납부 처리했어요.");
+      showToast("선택 인원을 납부 처리했어요.", "success");
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);
@@ -96,7 +99,25 @@ export default function FinancePaymentsSection({
     setIsSubmitting(true);
 
     try {
-      return await onChangePaymentStatus(playerId, playerName, nextStatus);
+      const success = await onChangePaymentStatus(
+        playerId,
+        playerName,
+        nextStatus,
+      );
+
+      if (!success) {
+        showToast("납부 상태 변경에 실패했어요.", "error");
+        return false;
+      }
+
+      showToast(
+        nextStatus === "paid"
+          ? `${playerName}님을 납부 완료 처리했어요.`
+          : `${playerName}님을 미납 처리했어요.`,
+        "success",
+      );
+
+      return true;
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);

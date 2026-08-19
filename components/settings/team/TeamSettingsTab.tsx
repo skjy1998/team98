@@ -4,6 +4,7 @@ import TeamInviteCodeCard from "./TeamInviteCodeCard";
 import TeamRoleCard from "./TeamRoleCard";
 import TeamSummaryCard from "./TeamSummaryCard";
 import TeamDangerZone from "./TeamDangerZone";
+import ContentState from "@/components/common/ContentState";
 
 export default function TeamSettingsTab() {
   const {
@@ -21,19 +22,21 @@ export default function TeamSettingsTab() {
 
   if (!teamSettingsLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-        팀 설정을 불러오는 중...
-      </div>
+      <ContentState
+        variant="loading"
+        title="팀 설정을 불러오는 중..."
+        description="팀 정보와 운영 설정을 확인하고 있어요."
+      />
     );
   }
 
   if (!team) {
     return (
-      <div className="rounded-xl border border-rose-200 bg-rose-50 p-6">
-        <p className="text-sm font-medium text-rose-600">
-          팀 정보를 불러오지 못했어요.
-        </p>
-      </div>
+      <ContentState
+        variant="error"
+        title="팀 정보를 불러오지 못했어요."
+        description={teamError || "잠시 후 다시 시도해 주세요."}
+      />
     );
   }
 

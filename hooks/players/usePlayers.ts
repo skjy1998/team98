@@ -167,7 +167,6 @@ export function usePlayers() {
 
     if (error) {
       console.error("players delete error", error);
-      globalThis.alert(error.message);
       return false;
     }
 

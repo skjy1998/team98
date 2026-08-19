@@ -6,6 +6,7 @@ import type {
 import BoardPostItem from "./BoardPostItem";
 import { useRef, useState } from "react";
 import BoardCommentSection from "./BoardCommentSection";
+import ContentState from "../common/ContentState";
 
 interface BoardPostListProps {
   posts: TeamPost[];
@@ -67,18 +68,19 @@ export default function BoardPostList({
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 p-10 text-center">
-        <p className="font-semibold text-stone-700">
-          {hasSearchCondition
+      <ContentState
+        variant="empty"
+        title={
+          hasSearchCondition
             ? "조건에 맞는 게시물이 없어요."
-            : "아직 작성된 게시물이 없어요."}
-        </p>
-        <p className="mt-2 text-sm text-stone-400">
-          {hasSearchCondition
+            : "아직 작성된 게시물이 없어요."
+        }
+        description={
+          hasSearchCondition
             ? "검색어나 필터를 변경해 보세요."
-            : "첫 번째 게시물을 작성해 보세요."}
-        </p>
-      </div>
+            : "첫 번째 게시물을 작성해 보세요."
+        }
+      />
     );
   }
 

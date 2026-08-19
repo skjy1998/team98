@@ -1,5 +1,6 @@
 import { formatFinanceEntryDescription } from "@/lib/finance/finance";
 import { getFineTargetsByMatch } from "@/lib/finance/finance-fine";
+import { useToastStore } from "@/stores/toast-store";
 import type {
   CreateFineChargeInput,
   FineCharge,
@@ -32,6 +33,8 @@ export default function FinanceAutoFineSection({
   fineRules,
   createFineCharges,
 }: Readonly<FinanceAutoFineSectionProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [selectedMatchId, setSelectedMatchId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -83,12 +86,12 @@ export default function FinanceAutoFineSection({
     if (isSubmittingRef.current) return;
 
     if (!selectedMatch) {
-      globalThis.alert("먼저 경기를 선택해주세요.");
+      showToast("먼저 경기를 선택해 주세요.", "info");
       return;
     }
 
     if (fineTargets.length === 0) {
-      globalThis.alert("자동 부과할 벌금 대상이 없어요.");
+      showToast("자동 부과할 벌금 대상이 없어요.", "info");
       return;
     }
 
@@ -109,11 +112,11 @@ export default function FinanceAutoFineSection({
       );
 
       if (!success) {
-        globalThis.alert("벌금 자동 부과 중 저장에 실패했어요.");
+        showToast("벌금 자동 부과 중 저장에 실패했어요.", "error");
         return;
       }
 
-      globalThis.alert("벌금이 미납 상태로 부과되었어요.");
+      showToast("벌금이 미납 상태로 부과됐어요.", "success");
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false);

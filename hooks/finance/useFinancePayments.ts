@@ -108,7 +108,6 @@ export function useFinancePayments({
       });
 
       if (!success) {
-        globalThis.alert("납부 상태 변경에 실패했어요.");
         return false;
       }
 
@@ -119,7 +118,6 @@ export function useFinancePayments({
       const success = await deleteEntry(existingPaymentEntry.id);
 
       if (!success) {
-        globalThis.alert("납부 상태 변경에 실패했어요.");
         return false;
       }
 

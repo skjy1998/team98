@@ -12,6 +12,7 @@ import { useMemo, useRef, useState } from "react";
 import FinanceManualFineForm from "./FinanceManualFineForm";
 import FinanceAutoFineSection from "./FinanceAutoFineSection";
 import FinanceFineChargeList from "./FinanceFineChargeList";
+import { useToastStore } from "@/stores/toast-store";
 
 interface FinanceFineSectionProps {
   fineCharges: FineCharge[];
@@ -41,6 +42,8 @@ export default function FinanceFineSection({
   deleteFineCharge,
   onChangeFineChargeStatus,
 }: Readonly<FinanceFineSectionProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [manualRuleId, setManualRuleId] = useState("");
   const [manualPlayerId, setManualPlayerId] = useState("");
   const [manualMatchId, setManualMatchId] = useState("");
@@ -74,14 +77,14 @@ export default function FinanceFineSection({
     );
 
     if (!selectedRule || !selectedPlayer) {
-      globalThis.alert("기타 벌금 규칙과 선수를 선택해주세요.");
+      showToast("기타 벌금 규칙과 선수를 선택해 주세요.", "info");
       return;
     }
 
     const reason = manualReason.trim();
 
     if (!reason) {
-      globalThis.alert("벌금 부과 사유를 입력해주세요.");
+      showToast("벌금 부과 사유를 입력해 주세요.", "info");
       return;
     }
 
@@ -102,7 +105,7 @@ export default function FinanceFineSection({
       ]);
 
       if (!success) {
-        globalThis.alert("기타 벌금 부과에 실패했어요.");
+        showToast("기타 벌금 부과에 실패했어요.", "error");
         return;
       }
 
@@ -111,7 +114,7 @@ export default function FinanceFineSection({
       setManualMatchId("");
       setManualReason("");
 
-      globalThis.alert("기타 벌금이 미납 상태로 부과되었어요.");
+      showToast("기타 벌금이 미납 상태로 부과됐어요.", "success");
     } finally {
       isManualSubmittingRef.current = false;
       setIsManualSubmitting(false);

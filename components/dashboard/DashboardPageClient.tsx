@@ -10,6 +10,7 @@ import DashboardRecentMatchBar from "./DashboardRecentMatchBar";
 import DashboardMyRecordSection from "./DashboardMyRecordSection";
 import DashboardTodoSection from "./DashboardTodoSection";
 import DashboardNoticeSection from "./DashboardNoticeSection";
+import ContentState from "../common/ContentState";
 
 export default function DashboardPageClient() {
   const { todoData, matchData, statsData, financeData, boardData, isLoaded } =
@@ -22,9 +23,12 @@ export default function DashboardPageClient() {
           title="대시보드"
           description="오늘 팀 상태와 주요 지표를 한눈에 확인하세요."
         />
-        <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-          대시보드 데이터를 불러오는 중 ...
-        </div>
+
+        <ContentState
+          variant="loading"
+          title="대시보드 데이터를 불러오는 중..."
+          description="팀 현황과 최신 기록을 준비하고 있어요."
+        />
       </div>
     );
   }
@@ -35,7 +39,7 @@ export default function DashboardPageClient() {
         title="대시보드"
         description="오늘 팀 상태와 주요 지표를 한눈에 확인하세요."
       />
-
+      <DashboardNoticeSection notices={boardData.recentNotice} />
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.95fr)]">
         <div className="space-y-6">
           <div className="space-y-3">
@@ -57,17 +61,15 @@ export default function DashboardPageClient() {
             lose={statsData.teamSummary.lose}
             recentResults={statsData.recentResults}
           />
-        </div>
-        <div className="space-y-6">
-          <DashboardTodoSection items={todoData.items} />
-
-          <DashboardNoticeSection notices={boardData.recentNotice} />
-
           <DashboardTopRecordSection
             topAppearance={statsData.topAppearance}
             topScorer={statsData.topScorer}
             topAssister={statsData.topAssister}
           />
+        </div>
+        <div className="space-y-6">
+          <DashboardTodoSection items={todoData.items} />
+
           <DashboardMyRecordSection player={matchData.myPlayer} />
           <DashboardFinanceSummarySection
             totalBalance={financeData.financeSummary.totalBalance}

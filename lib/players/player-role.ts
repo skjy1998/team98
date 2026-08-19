@@ -35,15 +35,6 @@ export async function updatePlayerWithRoles(
   });
 
   if (error) {
-    const errorMessage = [
-      error.message,
-      error.details,
-      error.hint,
-      error.code ? `code: ${error.code}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
     console.error("update player with roles error", {
       message: error.message,
       details: error.details,
@@ -51,7 +42,6 @@ export async function updatePlayerWithRoles(
       code: error.code,
     });
 
-    globalThis.alert(errorMessage || "선수 정보 저장에 실패했어요.");
     return false;
   }
 

@@ -5,6 +5,7 @@ import { Bell, CheckCheck, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import NotificationListItem from "./NotificationListItem";
+import { useToastStore } from "@/stores/toast-store";
 
 interface NotificationBellProps {
   align?: "left" | "right";
@@ -16,6 +17,7 @@ export default function NotificationBell({
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
 
   const {
     notifications,
@@ -71,8 +73,11 @@ export default function NotificationBell({
     const success = await deleteNotification(notificationId);
 
     if (!success) {
-      globalThis.alert("알림 삭제에 실패했어요.");
+      showToast("알림 삭제에 실패했어요.", "error");
+      return;
     }
+
+    showToast("알림을 삭제했어요.", "success");
   };
 
   return (

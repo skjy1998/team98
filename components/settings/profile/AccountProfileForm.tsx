@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import { useState } from "react";
 
 interface AccountProfileFormProps {
@@ -13,39 +14,41 @@ export default function AccountProfileForm({
   onSaveName,
   onChangeEmail,
 }: Readonly<AccountProfileFormProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [name, setName] = useState(initialName);
   const [isSaving, setIsSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [email, setEmail] = useState(initialEmail);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("");
 
   const handleSaveName = async () => {
-    setSuccessMessage("");
     setIsSaving(true);
 
     const success = await onSaveName(name);
 
     setIsSaving(false);
 
-    if (success) {
-      setSuccessMessage("이름이 변경됐어요.");
+    if (!success) {
+      showToast("이름 변경에 실패했어요.", "error");
+      return;
     }
+
+    showToast("이름이 변경됐어요.", "success");
   };
 
   const handleChangeEmail = async () => {
-    setEmailMessage("이메일이 변경됐어요.");
     setIsChangingEmail(true);
 
     const success = await onChangeEmail(email);
 
     setIsChangingEmail(false);
 
-    if (success) {
-      setEmailMessage(
-        "이메일 변경 확인 메일을 보냈어요. 메일의 링크를 확인해 주세요.",
-      );
+    if (!success) {
+      showToast("이메일 변경에 실패했어요.", "error");
+      return;
     }
+
+    showToast("이메일이 변경됐어요.", "success");
   };
 
   return (
@@ -107,19 +110,7 @@ export default function AccountProfileForm({
           <p className="mt-2 text-xs text-stone-400">
             테스트 기간에는 이메일이 즉시 변경돼요.
           </p>
-
-          {emailMessage && (
-            <p className="mt-2 text-sm font-medium text-emerald-600">
-              {emailMessage}
-            </p>
-          )}
         </div>
-
-        {successMessage && (
-          <p className="text-sm font-medium text-emerald-600">
-            {successMessage}
-          </p>
-        )}
 
         <div className="flex justify-end">
           <button

@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import type { FinanceEntry, FinanceEntryType } from "@/types/finance";
 import { useState } from "react";
 
@@ -23,6 +24,8 @@ export function useFinanceTransactions({
   updateEntry,
   deleteEntry,
 }: UseFinanceTransactionsParams) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
   const [createEntryType, setCreateEntryType] =
     useState<FinanceEntryType>("income");
@@ -59,6 +62,7 @@ export function useFinanceTransactions({
       !createEntryAmount.trim() ||
       Number(createEntryAmount) <= 0
     ) {
+      showToast("내용과 올바른 금액을 입력해 주세요.", "info");
       return;
     }
 
@@ -71,10 +75,11 @@ export function useFinanceTransactions({
     });
 
     if (!success) {
-      globalThis.alert("거래 내역 저장에 실패했어요.");
+      showToast("거래 내역 저장에 실패했어요.", "error");
       return;
     }
 
+    showToast("거래 내역을 추가했어요.", "success");
     resetCreateForm();
     setIsEntryFormOpen(false);
   };
@@ -90,7 +95,7 @@ export function useFinanceTransactions({
 
   const handleStartEdit = (entry: FinanceEntry) => {
     if (entry.category && entry.category !== "etc") {
-      globalThis.alert("회비와 벌금 내역은 해당 관리 탭에서 변경해주세요.");
+      showToast("회비와 벌금 내역은 해당 관리 탭에서 변경해 주세요.", "info");
 
       return;
     }
@@ -112,6 +117,7 @@ export function useFinanceTransactions({
       !editEntryAmount.trim() ||
       Number(editEntryAmount) <= 0
     ) {
+      showToast("내용과 올바른 금액을 입력해 주세요.", "info");
       return;
     }
 
@@ -124,10 +130,11 @@ export function useFinanceTransactions({
     });
 
     if (!success) {
-      globalThis.alert("거래 내역 수정에 실패했어요.");
+      showToast("거래 내역 수정에 실패했어요.", "error");
       return;
     }
 
+    showToast("거래 내역을 수정했어요.", "success");
     resetEditForm();
   };
 
@@ -141,7 +148,7 @@ export function useFinanceTransactions({
     if (!targetEntry) return;
 
     if (targetEntry.category && targetEntry.category !== "etc") {
-      globalThis.alert("회비와 벌금 내역은 해당 관리 탭에서 변경해주세요.");
+      showToast("회비와 벌금 내역은 해당 관리 탭에서 변경해 주세요.", "info");
       return;
     }
 
@@ -151,8 +158,11 @@ export function useFinanceTransactions({
     const success = await deleteEntry(entryId);
 
     if (!success) {
-      globalThis.alert("거래 내역 삭제에 실패했어요.");
+      showToast("거래 내역 삭제에 실패했어요.", "error");
+      return;
     }
+
+    showToast("거래 내역을 삭제했어요.", "success");
   };
 
   const handleToggleEntryForm = () => {

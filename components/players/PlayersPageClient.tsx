@@ -20,6 +20,7 @@ import { useConnectableTeamMembers } from "@/hooks/players/useConnectableTeamMem
 import { usePlayersPageActions } from "@/hooks/players/usePlayersPageActions";
 import { usePlayers } from "@/hooks/players/usePlayers";
 import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
+import ContentState from "../common/ContentState";
 
 export default function PlayersPageClient() {
   const { players, playersLoaded, addPlayer, deletePlayer, reloadPlayers } =
@@ -90,9 +91,11 @@ export default function PlayersPageClient() {
           title="선수 관리"
           description="등록된 선수 목록을 확인하고 관리하세요."
         />
-        <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-          선수 정보를 불러오는 중...
-        </div>
+        <ContentState
+          variant="loading"
+          title="선수 정보를 불러오는 중..."
+          description="선수 명단과 경기 기록을 준비하고 있어요."
+        />
       </div>
     );
   }

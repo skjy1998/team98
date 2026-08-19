@@ -1,6 +1,7 @@
 import { X, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PlayerType } from "@/types/player";
+import { useToastStore } from "@/stores/toast-store";
 
 interface PlayerCreateModalProps {
   onClose: () => void;
@@ -11,6 +12,8 @@ export default function PlayerCreateModal({
   onClose,
   onSave,
 }: Readonly<PlayerCreateModalProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
 
@@ -31,7 +34,7 @@ export default function PlayerCreateModal({
   const handleSubmit = () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      globalThis.alert("이름을 입력해주세요.");
+      showToast("이름을 입력해 주세요.", "info");
       return;
     }
 

@@ -15,6 +15,8 @@ import {
 } from "@/lib/matches/match-record";
 import type { DragEndEvent } from "@dnd-kit/core";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
+import ContentState from "@/components/common/ContentState";
+import { useToastStore } from "@/stores/toast-store";
 
 interface MatchRecordTabProps {
   matchId: string;
@@ -44,6 +46,8 @@ export default function MatchRecordTab({
   onChangeCompletion,
   canManage,
 }: Readonly<MatchRecordTabProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded } = useMatchVotes();
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
@@ -88,8 +92,16 @@ export default function MatchRecordTab({
     setIsCompletionSaving(false);
 
     if (!success) {
-      globalThis.alert("경기 기록 상태 변경에 실패했어요.");
+      showToast("경기 기록 상태 변경에 실패했어요.", "error");
+      return;
     }
+
+    showToast(
+      isCompleted
+        ? "경기 기록을 다시 수정할 수 있어요."
+        : "경기 기록을 완료 처리했어요.",
+      "success",
+    );
   };
 
   // 수정 시작 함수
@@ -110,7 +122,7 @@ export default function MatchRecordTab({
     const success = await addEvent(type);
 
     if (!success) {
-      globalThis.alert("기록 추가에 실패했어요.");
+      showToast("기록 추가에 실패했어요.", "error");
     }
   };
 
@@ -128,7 +140,7 @@ export default function MatchRecordTab({
     const success = await deleteEvent(event.id);
 
     if (!success) {
-      globalThis.alert("기록 삭제에 실패했어요.");
+      showToast("기록 삭제에 실패했어요.", "error");
     }
   };
   // 수정 완료 함수
@@ -160,7 +172,7 @@ export default function MatchRecordTab({
     });
 
     if (!success) {
-      globalThis.alert("기록 수정에 실패했어요.");
+      showToast("기록 수정에 실패했어요.", "error");
       return;
     }
 
@@ -177,15 +189,17 @@ export default function MatchRecordTab({
     const success = await reorderEvents(String(active.id), String(over.id));
 
     if (!success) {
-      globalThis.alert("기록 순서 변경에 실패했어요.");
+      showToast("기록 순서 변경에 실패했어요.", "error");
     }
   };
 
   if (!playersLoaded || !recordsLoaded || !votesLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">기록 정보를 불러오는 중...</p>
-      </div>
+      <ContentState
+        variant="loading"
+        title="기록 정보를 불러오는 중..."
+        description="경기 기록과 선수 데이터를 준비하고 있어요."
+      />
     );
   }
 

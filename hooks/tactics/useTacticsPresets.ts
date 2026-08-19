@@ -2,6 +2,7 @@ import type { SavedFormation, SaveTacticPreset } from "@/types/tactics";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCurrentTeam } from "../team/useCurrentTeam";
+import { useToastStore } from "@/stores/toast-store";
 
 interface UseTacticsPresetsParams {
   exportTactics: () => SavedFormation;
@@ -14,6 +15,7 @@ export function useTacticsPresets({
   importTactics,
   resetTactics,
 }: UseTacticsPresetsParams) {
+  const showToast = useToastStore((state) => state.showToast);
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
 
@@ -21,7 +23,6 @@ export function useTacticsPresets({
   const [savedPresets, setSavedPresets] = useState<SaveTacticPreset[]>([]);
   const [presetLoaded, setPresetLoaded] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState("");
-  const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
     async function loadPresets() {
@@ -65,24 +66,14 @@ export function useTacticsPresets({
     loadPresets();
   }, [teamLoaded, teamId]);
 
-  useEffect(() => {
-    if (!saveMessage) return;
-
-    const timer = setTimeout(() => {
-      setSaveMessage("");
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [saveMessage]);
-
   const handleSavePreset = async () => {
     if (!presetName.trim()) {
-      globalThis.alert("전술 이름을 입력해주세요.");
+      showToast("전술 이름을 입력해 주세요.", "info");
       return;
     }
 
     if (!teamId) {
-      globalThis.alert("팀 정보를 불러오지 못했어요.");
+      showToast("팀 정보를 불러오지 못했어요.", "error");
       return;
     }
 
@@ -106,7 +97,7 @@ export function useTacticsPresets({
         .eq("team_id", teamId);
 
       if (error) {
-        globalThis.alert("전술 수정 저장에 실패했어요.");
+        showToast("전술 수정 저장에 실패했어요.", "error");
         return;
       }
 
@@ -127,7 +118,7 @@ export function useTacticsPresets({
         ),
       );
 
-      setSaveMessage("전술이 수정 저장되었습니다.");
+      showToast("전술을 수정했어요.", "success");
       return;
     }
 
@@ -149,7 +140,7 @@ export function useTacticsPresets({
       .single();
 
     if (error || !data) {
-      globalThis.alert("전술 저장에 실패했어요.");
+      showToast("전술 저장에 실패했어요.", "error");
       return;
     }
 
@@ -166,7 +157,7 @@ export function useTacticsPresets({
 
     setSavedPresets((prev) => [newPreset, ...prev]);
     setSelectedPresetId(newPreset.id);
-    setSaveMessage("전술이 저장되었습니다.");
+    showToast("전술을 저장했어요.", "success");
   };
 
   const handleLoadPreset = (presetId: string) => {
@@ -188,12 +179,12 @@ export function useTacticsPresets({
 
   const handleDeletePreset = async () => {
     if (!selectedPresetId) {
-      globalThis.alert("삭제할 전술을 먼저 선택해주세요.");
+      showToast("삭제할 전술을 먼저 선택해 주세요.", "info");
       return;
     }
 
     if (!teamId) {
-      globalThis.alert("팀 정보를 불러오지 못했어요.");
+      showToast("팀 정보를 불러오지 못했어요.", "error");
       return;
     }
 
@@ -207,7 +198,7 @@ export function useTacticsPresets({
       .eq("team_id", teamId);
 
     if (error) {
-      globalThis.alert("전술 삭제에 실패했어요.");
+      showToast("전술 삭제에 실패했어요.", "error");
       return;
     }
 
@@ -216,7 +207,7 @@ export function useTacticsPresets({
     );
     setSelectedPresetId("");
     setPresetName("");
-    setSaveMessage("전술이 삭제되었습니다.");
+    showToast("전술을 삭제했어요.", "success");
   };
 
   const handleResetPresetState = () => {
@@ -230,7 +221,6 @@ export function useTacticsPresets({
     setPresetName,
     savedPresets,
     selectedPresetId,
-    saveMessage,
     presetLoaded,
     handleSavePreset,
     handleLoadPreset,

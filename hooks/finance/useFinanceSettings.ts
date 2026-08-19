@@ -2,8 +2,11 @@ import type { FeeType, FineRule } from "@/types/finance";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
+import { useToastStore } from "@/stores/toast-store";
 
 export function useFinanceSettings() {
+  const showToast = useToastStore((state) => state.showToast);
+
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
 
@@ -78,11 +81,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("납부 기준일 저장에 실패했어요.");
+      showToast("납부 기준일 저장에 실패했어요.", "error");
       return false;
     }
 
     setDueDay(value);
+    showToast("납부 기준일을 저장했어요.", "success");
     return true;
   };
 
@@ -96,11 +100,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("회비 유형 저장에 실패했어요.");
+      showToast("회비 유형 저장에 실패했어요.", "error");
       return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    showToast("회비 유형을 추가했어요.", "success");
     return true;
   };
 
@@ -119,11 +124,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("회비 유형 수정에 실패했어요.");
+      showToast("회비 유형 수정에 실패했어요.", "error");
       return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    showToast("회비 유형을 수정했어요.", "success");
     return true;
   };
 
@@ -137,11 +143,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("회비 유형 삭제에 실패했어요.");
+      showToast("회비 유형 삭제에 실패했어요.", "error");
       return false;
     }
 
     setFeeTypes(nextFeeTypes);
+    showToast("회비 유형을 삭제했어요.", "success");
     return true;
   };
 
@@ -155,11 +162,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("벌금 규칙 저장에 실패했어요.");
+      showToast("벌금 규칙 저장에 실패했어요.", "error");
       return false;
     }
 
     setFineRules(nextFineRules);
+    showToast("벌금 규칙을 추가했어요.", "success");
     return true;
   };
 
@@ -175,11 +183,12 @@ export function useFinanceSettings() {
     });
 
     if (!success) {
-      globalThis.alert("벌금 규칙 삭제에 실패했어요.");
+      showToast("벌금 규칙 삭제에 실패했어요.", "error");
       return false;
     }
 
     setFineRules(nextFineRules);
+    showToast("벌금 규칙을 삭제했어요.", "success");
     return true;
   };
 

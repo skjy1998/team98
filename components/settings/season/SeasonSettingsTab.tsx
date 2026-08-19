@@ -2,6 +2,7 @@ import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
 import { CalendarCheck2 } from "lucide-react";
 import SeasonCreateCard from "./SeasonCreateCard";
 import SeasonList from "./SeasonList";
+import ContentState from "@/components/common/ContentState";
 
 function formatSeasonPeriod(startDate: string, endDate?: string) {
   const format = (value: string) =>
@@ -29,17 +30,21 @@ export default function SeasonSettingsTab() {
 
   if (!seasonsLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-        시즌 정보를 불러오는 중...
-      </div>
+      <ContentState
+        variant="loading"
+        title="시즌 정보를 불러오는 중..."
+        description="등록된 시즌과 경기 연결 정보를 확인하고 있어요."
+      />
     );
   }
 
   if (seasonsError) {
     return (
-      <div className="rounded-xl border border-rose-200 bg-rose-50 p-10 text-center">
-        <p className="text-sm font-medium text-rose-600">{seasonsError}</p>
-      </div>
+      <ContentState
+        variant="error"
+        title="시즌 정보를 불러오지 못헀어요."
+        description={seasonsError}
+      />
     );
   }
 

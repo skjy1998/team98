@@ -2,6 +2,7 @@ import type { TeamSeasonFormValue } from "@/types/seasons";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import SeasonForm from "./SeasonForm";
+import { useToastStore } from "@/stores/toast-store";
 
 interface SeasonCreateCardProps {
   canManage: boolean;
@@ -22,6 +23,8 @@ export default function SeasonCreateCard({
   canManage,
   onCreate,
 }: Readonly<SeasonCreateCardProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState<TeamSeasonFormValue>(getInitialValue);
   const [isSaving, setIsSaving] = useState(false);
@@ -39,12 +42,14 @@ export default function SeasonCreateCard({
     setIsSaving(false);
 
     if (!success) {
-      globalThis.alert(
+      showToast(
         "시즌 생성에 실패했어요. 같은 이름의 시즌이 있는지 확인해 주세요.",
+        "error",
       );
       return;
     }
 
+    showToast("새 시즌을 만들었어요.", "success");
     handleClose();
   };
 

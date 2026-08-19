@@ -2,6 +2,7 @@ import { useProfileSettings } from "@/hooks/settings/useProfileSettings";
 import AccountProfileForm from "./AccountProfileForm";
 import MyPlayerProfileForm from "./MyPlayerProfileForm";
 import NotificationSettingsSection from "./NotificationSettingsSection";
+import ContentState from "@/components/common/ContentState";
 
 export default function ProfileSettingsTab() {
   const {
@@ -15,19 +16,21 @@ export default function ProfileSettingsTab() {
 
   if (!profileLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-        내 설정을 불러오는 중...
-      </div>
+      <ContentState
+        variant="loading"
+        title="내 설정을 불러오는 중..."
+        description="계정과 선수 정보를 확인하고 있어요."
+      />
     );
   }
 
   if (!profile) {
     return (
-      <div className="rounded-xl border border-rose-200 bg-rose-50 p-6">
-        <p className="text-sm font-medium text-rose-600">
-          {profileError || "내 설정을 불러오지 못했어요."}
-        </p>
-      </div>
+      <ContentState
+        variant="error"
+        title="내 설정을 불러오지 못했어요."
+        description={profileError || "잠시 후 다시 시도해 주세요."}
+      />
     );
   }
 

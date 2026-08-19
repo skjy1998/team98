@@ -3,6 +3,7 @@ import {
   findCurrentOwner,
   updatePlayerWithRoles,
 } from "@/lib/players/player-role";
+import { useToastStore } from "@/stores/toast-store";
 import type { PlayerType, TeamMemberRole } from "@/types/player";
 
 interface UsePlayersPageActionsParams {
@@ -28,16 +29,19 @@ export function usePlayersPageActions({
   handleCloseEdit,
   handleCloseDelete,
 }: Readonly<UsePlayersPageActionsParams>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   // 생성 수정 삭제 액션
   const handleCreatePlayer = async (player: PlayerType) => {
     const success = await addPlayer(player);
 
     if (success) {
+      showToast("선수를 추가했어요.", "success");
       handleCloseCreate();
       return;
     }
 
-    globalThis.alert("선수 추가에 실패했어요.");
+    showToast("선수 추가에 실패했어요.", "error");
   };
 
   const confirmRoleChanges = (
@@ -70,13 +74,14 @@ export function usePlayersPageActions({
     teamRole: TeamMemberRole,
   ) => {
     if (!teamId) {
-      globalThis.alert("팀 정보를 확인할 수 없어요.");
+      showToast("팀 정보를 확인할 수 없어요.", "error");
       return;
     }
 
     if ((teamRole === "owner" || teamRole === "staff") && !player.userId) {
-      globalThis.alert(
+      showToast(
         "회장 또는 운영진으로 지정하려면 먼저 사용자 계정을 연결해주세요.",
+        "info",
       );
       return;
     }
@@ -95,9 +100,13 @@ export function usePlayersPageActions({
 
     const success = await updatePlayerWithRoles(teamId, player, teamRole);
 
-    if (!success) return;
+    if (!success) {
+      showToast("선수 정보 저장에 실패했어요.", "error");
+      return;
+    }
 
     await reloadPlayers();
+    showToast("선수 정보를 수정했어요.", "success");
     handleCloseEdit();
   };
 
@@ -107,11 +116,12 @@ export function usePlayersPageActions({
     const success = await deletePlayer(deletingPlayer.id);
 
     if (success) {
+      showToast("선수를 삭제했어요.", "success");
       handleCloseDelete();
       return;
     }
 
-    globalThis.alert("선수 삭제에 실패했어요.");
+    showToast("선수 삭제에 실패했어요.", "error");
   };
 
   return {

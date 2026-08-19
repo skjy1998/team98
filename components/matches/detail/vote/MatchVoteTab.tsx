@@ -14,6 +14,8 @@ import MyVoteCard from "./MyVoteCard";
 import type { MatchItem } from "@/types/match";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
+import ContentState from "@/components/common/ContentState";
+import { useToastStore } from "@/stores/toast-store";
 
 interface MatchVoteTabProps {
   matchId: string;
@@ -24,6 +26,8 @@ export default function MatchVoteTab({
   matchId,
   match,
 }: Readonly<MatchVoteTabProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded, saveVote, deleteVote } = useMatchVotes();
   const { member, memberLoaded, canManage } = useCurrentTeamMember();
@@ -68,15 +72,17 @@ export default function MatchVoteTab({
         : await saveVote(matchId, playerId, status);
 
     if (!success) {
-      globalThis.alert("투표 저장에 실패했어요.");
+      showToast("투표 저장에 실패했어요.", "error");
     }
   };
 
   if (!playersLoaded || !votesLoaded || !memberLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">투표 정보를 불러오는 중...</p>
-      </div>
+      <ContentState
+        variant="loading"
+        title="투표 정보를 불러오는 중..."
+        description="참석 여부와 투표 현황을 준비하고 있어요."
+      />
     );
   }
 

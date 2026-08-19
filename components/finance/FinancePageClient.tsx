@@ -26,6 +26,7 @@ import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
 import { useFinanceFineCharges } from "@/hooks/finance/useFinanceFineCharges";
 import { useFinanceEntries } from "@/hooks/finance/useFinanceEntries";
+import ContentState from "../common/ContentState";
 
 export default function FinancePageClient() {
   // 탭 / 라우팅
@@ -188,9 +189,11 @@ export default function FinancePageClient() {
           title="회비 관리"
           description="월별 회비 납부 현황과 기록을 관리하세요."
         />
-        <div className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
-          재정 데이터를 불러오는 중...
-        </div>
+        <ContentState
+          variant="loading"
+          title="재정 데이터를 불러오는 중..."
+          description="회비 납부 현황과 거래 내역을 준비하고 있어요."
+        />
       </div>
     );
   }

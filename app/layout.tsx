@@ -1,3 +1,4 @@
+import ToastViewport from "@/components/common/ToastViewport";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -14,9 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${pretendard.variable}`}>
+    <html lang="ko" className={`${pretendard.variable}`}>
       <body className="bg-background text-foreground antialiased">
         {children}
+        <ToastViewport />
       </body>
     </html>
   );

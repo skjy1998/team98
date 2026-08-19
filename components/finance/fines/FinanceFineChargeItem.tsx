@@ -1,4 +1,5 @@
 import { formatFinanceEntryDescription } from "@/lib/finance/finance";
+import { useToastStore } from "@/stores/toast-store";
 import type { FineCharge } from "@/types/finance";
 import { useState } from "react";
 
@@ -18,6 +19,8 @@ export default function FinanceFineChargeItem({
   onDelete,
   onChangeStatus,
 }: Readonly<FinanceFineChargeItemProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleChangeStatus = async () => {
@@ -30,8 +33,16 @@ export default function FinanceFineChargeItem({
       const success = await onChangeStatus(charge, nextStatus);
 
       if (!success) {
-        globalThis.alert("벌금 납부 상태 변경에 실패했어요.");
+        showToast("벌금 납부 상태 변경에 실패했어요.", "error");
+        return;
       }
+
+      showToast(
+        nextStatus === "paid"
+          ? "벌금을 납부 완료 처리했어요."
+          : "벌금을 미납 상태로 변경했어요.",
+        "success",
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -50,8 +61,11 @@ export default function FinanceFineChargeItem({
       const success = await onDelete(charge.id);
 
       if (!success) {
-        globalThis.alert("벌금 삭제에 실패했어요.");
+        showToast("벌금 삭제에 실패했어요.", "error");
+        return;
       }
+
+      showToast("벌금 부과 내역을 삭제했어요.", "success");
     } finally {
       setIsProcessing(false);
     }

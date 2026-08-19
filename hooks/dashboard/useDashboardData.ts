@@ -193,7 +193,7 @@ export function useDashboardData() {
   ]);
 
   const recentNotice = useMemo(
-    () => posts.filter((post) => post.type === "notice").slice(0, 3),
+    () => posts.filter((post) => post.type === "notice").slice(0, 1),
     [posts],
   );
 

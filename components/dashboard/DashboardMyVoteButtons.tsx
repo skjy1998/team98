@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import type { VoteStatus } from "@/types/match-vote";
 import { CircleHelp, UserRoundCheck, UserRoundX } from "lucide-react";
 import { useState } from "react";
@@ -42,6 +43,7 @@ export default function DashboardMyVoteButtons({
   onChangeStatus,
 }: Readonly<DashboardMyVoteButtonsProps>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
 
   const handleChangeStatus = async (nextStatus: VoteStatus) => {
     if (isSubmitting) return;
@@ -51,7 +53,7 @@ export default function DashboardMyVoteButtons({
     setIsSubmitting(false);
 
     if (!success) {
-      globalThis.alert("투표 저장에 실패했어요.");
+      showToast("투표 저장에 실패했어요.", "error");
     }
   };
 

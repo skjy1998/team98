@@ -1,4 +1,5 @@
 import PlayerPositionSelector from "@/components/players/PlayerPositionSelector";
+import { useToastStore } from "@/stores/toast-store";
 import type { PlayerDetailPosition } from "@/types/player";
 import type { ProfilePlayerSettings } from "@/types/settings";
 import { useState } from "react";
@@ -16,6 +17,7 @@ export default function MyPlayerProfileForm({
   player,
   onSave,
 }: Readonly<MyPlayerProfileFormProps>) {
+  const showToast = useToastStore((state) => state.showToast);
   const [number, setNumber] = useState(
     player.number !== undefined ? String(player.number) : "",
   );
@@ -23,7 +25,6 @@ export default function MyPlayerProfileForm({
     PlayerDetailPosition[]
   >(player.detailPositions);
   const [isSaving, setIsSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
   const handleTogglePosition = (position: PlayerDetailPosition) => {
     setDetailPositions((current) =>
@@ -36,16 +37,18 @@ export default function MyPlayerProfileForm({
   const handleSave = async () => {
     const parsedNumber = number.trim() === "" ? undefined : Number(number);
 
-    setSuccessMessage("");
     setIsSaving(true);
 
     const success = await onSave(player.id, parsedNumber, detailPositions);
 
     setIsSaving(false);
 
-    if (success) {
-      setSuccessMessage("선수 정보가 변경됐어요.");
+    if (!success) {
+      showToast("선수 정보 저장에 실패했어요.", "error");
+      return;
     }
+
+    showToast("선수 정보가 변경됐어요.", "success");
   };
 
   return (
@@ -87,11 +90,6 @@ export default function MyPlayerProfileForm({
             disabled={isSaving}
           />
         </div>
-        {successMessage && (
-          <p className="text-sm font-medium text-emerald-600">
-            {successMessage}
-          </p>
-        )}
 
         <div className="flex justify-end">
           <button

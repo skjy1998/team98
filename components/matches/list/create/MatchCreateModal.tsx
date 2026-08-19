@@ -11,6 +11,7 @@ import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
 import MatchCreateLocationSection from "./MatchCreateLocationSection";
 import MatchCreateUniformSection from "./MatchCreateUniformSection";
+import { useToastStore } from "@/stores/toast-store";
 
 interface MatchCreateModalProps {
   onClose: () => void;
@@ -21,6 +22,8 @@ export default function MatchCreateModal({
   onClose,
   onSave,
 }: Readonly<MatchCreateModalProps>) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const { defaultDate, defaultStartTime, defaultEndTime, defaultLocation } =
     useMemo(() => getMatchCreateDefaults(), []);
 
@@ -51,7 +54,7 @@ export default function MatchCreateModal({
 
   const handleSave = () => {
     if (!voteDeadline) {
-      globalThis.alert("투표 마감일을 입력해 주세요.");
+      showToast("투표 마감일을 입력해 주세요.", "info");
       return;
     }
 
@@ -59,7 +62,7 @@ export default function MatchCreateModal({
     const deadline = new Date(voteDeadline);
 
     if (deadline > matchStart) {
-      globalThis.alert("투표 마감일은 경기 시작 전이어야 해요.");
+      showToast("투표 마감일은 경기 시작 전이어야 해요.", "info");
       return;
     }
 

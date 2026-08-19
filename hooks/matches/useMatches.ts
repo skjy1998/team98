@@ -9,6 +9,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
+import { useToastStore } from "@/stores/toast-store";
 
 interface UseMatchesOptions {
   includeAllSeasons?: boolean;
@@ -76,6 +77,8 @@ export function useMatches({
   includeAllSeasons = false,
   seasonId,
 }: UseMatchesOptions = {}) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
 
@@ -165,8 +168,9 @@ export function useMatches({
 
     if (seasonError || !activeSeason) {
       console.error("active season load error", seasonError);
-      globalThis.alert(
+      showToast(
         "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
+        "info",
       );
       return false;
     }

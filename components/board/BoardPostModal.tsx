@@ -1,3 +1,4 @@
+import { useToastStore } from "@/stores/toast-store";
 import type { PostType, TeamPost, TeamPostFormValue } from "@/types/board";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +21,8 @@ export default function BoardPostModal({
   const [content, setContent] = useState(post?.content ?? "");
   const [isPinned, setIsPinned] = useState(post?.isPinned ?? false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const showToast = useToastStore((state) => state.showToast);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -46,12 +49,12 @@ export default function BoardPostModal({
     const normalizedContent = content.trim();
 
     if (!normalizedTitle) {
-      globalThis.alert("제목을 입력해 주세요.");
+      showToast("제목을 입력해 주세요.", "info");
       return;
     }
 
     if (!normalizedContent) {
-      globalThis.alert("내용을 입력해 주세요.");
+      showToast("내용을 입력해 주세요.", "info");
       return;
     }
 
@@ -67,9 +70,14 @@ export default function BoardPostModal({
     setIsSaving(false);
 
     if (!success) {
-      globalThis.alert("게시물 저장에 실패했어요.");
+      showToast("게시물 저장에 실패했어요.", "error");
       return;
     }
+
+    showToast(
+      post ? "게시물이 수정됐어요." : "게시물이 등록됐어요.",
+      "success",
+    );
 
     onClose();
   };

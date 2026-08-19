@@ -5,8 +5,10 @@ import type { TeamNotification } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PageHeader from "../PageHeader";
-import { Bell, CheckCheck } from "lucide-react";
+import { CheckCheck } from "lucide-react";
 import NotificationListItem from "./NotificationListItem";
+import ContentState from "../common/ContentState";
+import { useToastStore } from "@/stores/toast-store";
 
 type NotificationFilter = "all" | "unread";
 
@@ -21,6 +23,7 @@ const notificationFilters: {
 export default function NotificationsPageClient() {
   const router = useRouter();
   const [filter, setFilter] = useState<NotificationFilter>("all");
+  const showToast = useToastStore((state) => state.showToast);
 
   const {
     notifications,
@@ -49,16 +52,22 @@ export default function NotificationsPageClient() {
     const success = await deleteNotification(notificationId);
 
     if (!success) {
-      globalThis.alert("알림 삭제에 실패했어요.");
+      showToast("알림 삭제에 실패했어요.", "error");
+      return;
     }
+
+    showToast("알림을 삭제했어요.", "success");
   };
 
   const handleMarkAllAsRead = async () => {
     const success = await markAllAsRead();
 
     if (!success) {
-      globalThis.alert("알림 읽음 처리에 실패했어요.");
+      showToast("알림 읽음 처리에 실패했어요.", "error");
+      return;
     }
+
+    showToast("모든 알림을 읽음 처리했어요.", "success");
   };
 
   return (
@@ -109,25 +118,31 @@ export default function NotificationsPageClient() {
         </div>
 
         {!notificationsLoaded ? (
-          <p className="px-5 py-16 text-center text-sm text-stone-400">
-            알림을 불러오는 중...
-          </p>
+          <ContentState
+            variant="loading"
+            title="알림을 불러오는 중..."
+            description="새로운 팀 활동과 알림을 확인하고 있어요."
+          />
         ) : notificationsError ? (
-          <p className="px-5 py-16 text-center text-sm text-rose-500">
-            {notificationsError}
-          </p>
+          <ContentState
+            variant="error"
+            title="알림을 불러오지 못했어요."
+            description={notificationsError}
+          />
         ) : displayedNotifications.length === 0 ? (
-          <div className="px-5 py-16 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
-              <Bell className="h-6 w-6" />
-            </span>
-
-            <p className="mt-4 text-sm font-semibold text-stone-700">
-              {filter === "unread"
+          <ContentState
+            variant="empty"
+            title={
+              filter === "unread"
                 ? "읽지 않은 알림이 없어요."
-                : "새로운 알림이 없어요."}
-            </p>
-          </div>
+                : "새로운 알림이 없어요."
+            }
+            description={
+              filter === "unread"
+                ? "모든 알림을 확인했어요."
+                : "새로운 팀 활동이 생기면 여기에 표시돼요."
+            }
+          />
         ) : (
           <div>
             {displayedNotifications.map((notification) => (

@@ -1,5 +1,6 @@
 import type { TeamSeason, TeamSeasonFormValue } from "@/types/seasons";
 import SeasonListItem from "./SeasonListItem";
+import ContentState from "@/components/common/ContentState";
 
 interface SeasonListProps {
   seasons: TeamSeason[];
@@ -32,16 +33,15 @@ export default function SeasonList({
       </div>
 
       {seasons.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-6 py-12 text-center">
-          <p className="text-sm font-medium text-stone-600">
-            등록된 시즌이 없습니다.
-          </p>
-          {canManage && (
-            <p className="mt-1 text-sm text-stone-400">
-              위에서 첫 번째 시즌을 만들어 보세요.
-            </p>
-          )}
-        </div>
+        <ContentState
+          variant="empty"
+          title="등록된 시즌이 없어요."
+          description={
+            canManage
+              ? "위에서 첫 번째 시즌을 만들어 보세요."
+              : "운영진이 시즌을 등록하면 여기에 표시돼요."
+          }
+        />
       ) : (
         <div className="space-y-3">
           {seasons.map((season) => (

@@ -9,6 +9,7 @@ import { useTacticsPresets } from "@/hooks/tactics/useTacticsPresets";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { sortPlayersByRecommendedPosition } from "@/lib/tactics/tactics-ui";
 import { useMemo } from "react";
+import ContentState from "../common/ContentState";
 
 export default function TacticsPageClient() {
   const { canManage, memberLoaded } = useCurrentTeamMember();
@@ -48,7 +49,6 @@ export default function TacticsPageClient() {
     setPresetName,
     savedPresets,
     selectedPresetId,
-    saveMessage,
     presetLoaded,
     handleSavePreset,
     handleLoadPreset,
@@ -72,9 +72,11 @@ export default function TacticsPageClient() {
 
   if (!memberLoaded || !playersLoaded || !presetLoaded) {
     return (
-      <div className="rounded-xl border border-stone-200 bg-white p-10 text-center">
-        <p className="text-sm text-stone-500">전술 정보를 불러오는 중...</p>
-      </div>
+      <ContentState
+        variant="loading"
+        title="전술 정보를 불러오는 중..."
+        description="포메이션과 선수 배치를 준비하고 있어요."
+      />
     );
   }
 
@@ -88,11 +90,6 @@ export default function TacticsPageClient() {
             : "팀 전술 배치를 확인할 수 있어요."
         }
       />
-      {saveMessage && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-          {saveMessage}
-        </div>
-      )}
 
       {!canManage && (
         <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
