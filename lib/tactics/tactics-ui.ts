@@ -1,28 +1,65 @@
 import { formationTemplate } from "@/data/formationTemplates";
+import { futsalFormationTemplates } from "@/data/futsalFormationTemplate";
+import type { MatchPlayersPerSide } from "@/types/match";
 import type { MatchVote } from "@/types/match-vote";
 import type { PlayerDetailPosition, PlayerType } from "@/types/player";
 import type {
+  FormationName,
   FormationSlot,
   MatchQuarter,
   MatchTacticsByQuarter,
   QuarterTacticsState,
 } from "@/types/tactics";
+import type { TeamSport } from "@/types/team";
 
 export const quarterOptions: MatchQuarter[] = ["1Q", "2Q", "3Q", "4Q"];
 
-export const createDefaultQuarterTactics = (): QuarterTacticsState => ({
-  formation: "4-4-2",
-  slots: formationTemplate["4-4-2"],
-  cornerKickPlayerId: "",
-  freeKickPlayerId: "",
-  penaltyKickPlayerId: "",
-});
+const futsalFormationNames = Object.keys(
+  futsalFormationTemplates,
+) as FormationName[];
 
-export const createDefaultMatchTactics = (): MatchTacticsByQuarter => ({
-  "1Q": createDefaultQuarterTactics(),
-  "2Q": createDefaultQuarterTactics(),
-  "3Q": createDefaultQuarterTactics(),
-  "4Q": createDefaultQuarterTactics(),
+const soccerFormationNames = (
+  Object.keys(formationTemplate) as FormationName[]
+).filter((formation) => !futsalFormationNames.includes(formation));
+
+export function getMatchFormationOptions(
+  sport: TeamSport,
+  playersPerSide: MatchPlayersPerSide,
+) {
+  const formationNames =
+    sport === "futsal" ? futsalFormationNames : soccerFormationNames;
+
+  return formationNames.filter(
+    (formation) => formationTemplate[formation].length === playersPerSide,
+  );
+}
+
+export const createDefaultQuarterTactics = (
+  sport: TeamSport = "soccer",
+  playersPerSide: MatchPlayersPerSide = 11,
+): QuarterTacticsState => {
+  const [defaultFormation = "4-4-2"] = getMatchFormationOptions(
+    sport,
+    playersPerSide,
+  );
+
+  return {
+    formation: defaultFormation,
+    slots: formationTemplate[defaultFormation],
+    cornerKickPlayerId: "",
+    freeKickPlayerId: "",
+    penaltyKickPlayerId: "",
+  };
+};
+
+export const createDefaultMatchTactics = (
+  sport: TeamSport = "soccer",
+  playersPerSide: MatchPlayersPerSide = 11,
+): MatchTacticsByQuarter => ({
+  "1Q": createDefaultQuarterTactics(sport, playersPerSide),
+  "2Q": createDefaultQuarterTactics(sport, playersPerSide),
+  "3Q": createDefaultQuarterTactics(sport, playersPerSide),
+  "4Q": createDefaultQuarterTactics(sport, playersPerSide),
 });
 
 export function normalizeSlotLabel(label?: string): PlayerDetailPosition | "" {

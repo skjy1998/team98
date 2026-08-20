@@ -12,13 +12,17 @@ import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
 import MatchCreateLocationSection from "./MatchCreateLocationSection";
 import MatchCreateUniformSection from "./MatchCreateUniformSection";
 import { useToastStore } from "@/stores/toast-store";
+import { TeamSport } from "@/types/team";
+import MatchCreateSportSection from "./MatchCreateSportSection";
 
 interface MatchCreateModalProps {
+  defaultSport: TeamSport;
   onClose: () => void;
   onSave: (value: MatchCreateFormValue) => void | Promise<void>;
 }
 
 export default function MatchCreateModal({
+  defaultSport,
   onClose,
   onSave,
 }: Readonly<MatchCreateModalProps>) {
@@ -37,6 +41,7 @@ export default function MatchCreateModal({
   const [opponent, setOpponent] = useState("");
   const [location, setLocation] = useState(defaultLocation);
   const [uniform, setUniform] = useState<MatchUniform>("home");
+  const [sport, setSport] = useState<TeamSport>(defaultSport);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,6 +56,10 @@ export default function MatchCreateModal({
       globalThis.window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onClose]);
+
+  const handleChangeSport = (nextSport: TeamSport) => {
+    setSport(nextSport);
+  };
 
   const handleSave = () => {
     if (!voteDeadline) {
@@ -72,6 +81,8 @@ export default function MatchCreateModal({
     onSave({
       title,
       type,
+      sport,
+      playersPerSide: sport === "futsal" ? 5 : 11,
       date,
       startTime,
       endTime,
@@ -111,6 +122,10 @@ export default function MatchCreateModal({
         </div>
         <div className="space-y-7">
           <MatchCreateTypeSection type={type} onChangeType={setType} />
+          <MatchCreateSportSection
+            sport={sport}
+            onChangeSport={handleChangeSport}
+          />
           <MatchCreateScheduleSection
             date={date}
             onChangeDate={setDate}

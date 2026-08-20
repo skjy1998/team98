@@ -12,12 +12,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
 import { ChevronDown } from "lucide-react";
 import ContentState from "../common/ContentState";
+import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
 
 export default function MatchesPageClient() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const { team, teamLoaded } = useCurrentTeam();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { canManage, memberLoaded } = useCurrentTeamMember();
 
@@ -85,7 +87,13 @@ export default function MatchesPageClient() {
     });
   };
 
-  if (!matchesLoaded || !recordsLoaded || !memberLoaded || !seasonsLoaded) {
+  if (
+    !teamLoaded ||
+    !matchesLoaded ||
+    !recordsLoaded ||
+    !memberLoaded ||
+    !seasonsLoaded
+  ) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -164,6 +172,7 @@ export default function MatchesPageClient() {
       )}
       {isCreateOpen && (
         <MatchCreateModal
+          defaultSport={team?.sport ?? "soccer"}
           onClose={handleCloseCreate}
           onSave={handleCreateMatch}
         />

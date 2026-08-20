@@ -1,6 +1,8 @@
 import { FormationName, FormationSlot } from "@/types/tactics";
+import { futsalFormationTemplates } from "./futsalFormationTemplate";
 
 export const formationTemplate: Record<FormationName, FormationSlot[]> = {
+  ...futsalFormationTemplates,
   "4-4-2": [
     { id: "gk", label: "GK", x: 50, y: 88 },
     { id: "lb", label: "LB", x: 18, y: 68 },

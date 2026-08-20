@@ -81,6 +81,8 @@ export default function MatchInfoEditor({
     await onSave({
       title: type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전",
       type,
+      sport: match.sport,
+      playersPerSide: match.playersPerSide,
       date,
       startTime,
       endTime,

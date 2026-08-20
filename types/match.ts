@@ -1,3 +1,5 @@
+import type { TeamSport } from "./team";
+
 export type MatchStatus = "scheduled" | "canceled";
 export type MatchType = "정규" | "자체전";
 export type MatchUniform = "home" | "away";
@@ -12,6 +14,7 @@ export type MatchDetailTab =
   | "record";
 
 export type MatchOpponentRecordResult = "win" | "draw" | "lose";
+export type MatchPlayersPerSide = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
 export interface MatchRecordEvent {
   id: string;
@@ -27,6 +30,8 @@ export interface MatchRecordEvent {
 export interface MatchCreateFormValue {
   title: string;
   type: MatchType;
+  sport: TeamSport;
+  playersPerSide: MatchPlayersPerSide;
   date: string;
   startTime: string;
   endTime: string;
@@ -41,6 +46,8 @@ export interface MatchItem {
   seasonId: string;
   title: string;
   type: MatchType;
+  sport: TeamSport;
+  playersPerSide: MatchPlayersPerSide;
   date: string;
   startTime: string;
   endTime: string;

@@ -17,10 +17,12 @@ export default function MatchInfoDisplay({
   canManage,
 }: Readonly<MatchInfoDisplayProps>) {
   const infoItems = [
+    { label: "경기 종목", value: match.sport === "futsal" ? "풋살" : "축구" },
     { label: "경기 유형", value: match.type },
     { label: "날짜", value: formatMatchDate(match.date) },
     { label: "경기 시간", value: `${match.startTime} - ${match.endTime}` },
     { label: "투표 마감", value: formatVoteDeadline(match.voteDeadline) },
+    { label: "장소", value: match.location || "장소 미정" },
   ];
 
   return (

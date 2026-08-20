@@ -14,7 +14,11 @@ import {
   getMatchDetailDisplay,
   getMatchDetailTab,
 } from "@/lib/matches/match-ui";
-import type { MatchCreateFormValue, MatchDetailTab } from "@/types/match";
+import type {
+  MatchCreateFormValue,
+  MatchDetailTab,
+  MatchPlayersPerSide,
+} from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -48,6 +52,7 @@ export default function MatchDetailPageClient({
     matches,
     matchesLoaded,
     updateMatch,
+    updateMatchPlayersPerSide,
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
   } = useMatches({ includeAllSeasons: true });
@@ -150,6 +155,14 @@ export default function MatchDetailPageClient({
     return setMatchRecordCompletion(match.id, completed);
   };
 
+  const handleChangePlayersPerSide = async (
+    playersPerSide: MatchPlayersPerSide,
+  ) => {
+    if (!match) return false;
+
+    return updateMatchPlayersPerSide(match.id, playersPerSide);
+  };
+
   // 7. early return
   if (
     !teamLoaded ||
@@ -249,7 +262,13 @@ export default function MatchDetailPageClient({
       )}
 
       {activeTab === "tactics" && (
-        <MatchTacticsTab matchId={match.id} canManage={canManage} />
+        <MatchTacticsTab
+          matchId={match.id}
+          sport={match.sport}
+          playersPerSide={match.playersPerSide}
+          onChangePlayersPerSide={handleChangePlayersPerSide}
+          canManage={canManage}
+        />
       )}
 
       {activeTab === "record" && (

@@ -2,6 +2,7 @@ import { getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import {
   MatchCreateFormValue,
   MatchItem,
+  MatchPlayersPerSide,
   MatchStatus,
   MatchType,
   MatchUniform,
@@ -10,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 import { useToastStore } from "@/stores/toast-store";
+import type { TeamSport } from "@/types/team";
 
 interface UseMatchesOptions {
   includeAllSeasons?: boolean;
@@ -21,6 +23,8 @@ type MatchRow = {
   season_id: string;
   title: string;
   type: MatchType;
+  sport: TeamSport;
+  players_per_side: MatchPlayersPerSide;
   date: string;
   start_time: string;
   end_time: string;
@@ -39,6 +43,8 @@ const MATCH_COLUMNS = `
   season_id,
   title,
   type,
+  sport,
+  players_per_side,
   date,
   start_time,
   end_time,
@@ -58,6 +64,8 @@ function mapMatchRow(match: MatchRow): MatchItem {
     seasonId: match.season_id,
     title: match.title,
     type: match.type,
+    sport: match.sport,
+    playersPerSide: match.players_per_side,
     date: match.date,
     startTime: match.start_time,
     endTime: match.end_time,
@@ -182,6 +190,8 @@ export function useMatches({
         season_id: activeSeason.id,
         title: value.title,
         type: value.type,
+        sport: value.sport,
+        players_per_side: value.playersPerSide,
         date: value.date,
         start_time: value.startTime,
         end_time: value.endTime,
@@ -217,6 +227,8 @@ export function useMatches({
       .update({
         title: value.title,
         type: value.type,
+        sport: value.sport,
+        players_per_side: value.playersPerSide,
         date: value.date,
         start_time: value.startTime,
         end_time: value.endTime,
@@ -242,6 +254,42 @@ export function useMatches({
     setMatches((prev) =>
       prev.map((item) =>
         item.id === matchId ? mapMatchRow(data as MatchRow) : item,
+      ),
+    );
+
+    return true;
+  };
+
+  const updateMatchPlayersPerSide = async (
+    matchId: string,
+    playersPerSide: MatchPlayersPerSide,
+  ) => {
+    if (!teamId) return false;
+
+    const { data, error } = await supabase
+      .from("matches")
+      .update({
+        players_per_side: playersPerSide,
+      })
+      .eq("id", matchId)
+      .eq("team_id", teamId)
+      .select(MATCH_COLUMNS)
+      .single();
+
+    if (error || !data) {
+      console.error("match player count update error", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
+
+      return false;
+    }
+
+    setMatches((current) =>
+      current.map((match) =>
+        match.id === matchId ? mapMatchRow(data as MatchRow) : match,
       ),
     );
 
@@ -287,12 +335,13 @@ export function useMatches({
 
   return {
     matches,
+    matchesLoaded,
     activeSeason,
     addMatch,
     updateMatch,
+    updateMatchPlayersPerSide,
     setMatchRecordCompletion,
     deleteMatch,
-    matchesLoaded,
     reloadMatches: loadMatches,
   };
 }

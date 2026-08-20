@@ -6,7 +6,20 @@ export interface FormationSlot {
   playerId?: string;
 }
 
+export type FutsalFormationName =
+  | "1-1" // 3대3
+  | "2-1" // 4대4
+  | "1-2" // 4대4
+  | "2-2" // 5대5
+  | "1-2-1" // 5대5
+  | "2-2-1" // 6대6
+  | "2-1-2" // 6대6
+  | "2-3-1" // 7대7
+  | "3-2-1" // 7대7
+  | "3-1-2"; // 7대7
+
 export type FormationName =
+  | FutsalFormationName
   | "4-4-2"
   | "4-3-3"
   | "4-2-3-1"

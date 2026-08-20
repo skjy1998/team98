@@ -1,12 +1,18 @@
 import { formationTemplate } from "@/data/formationTemplates";
+import { MatchPlayersPerSide } from "@/types/match";
 import type { FormationName } from "@/types/tactics";
 import { ChevronDown, RotateCcw, Save, Trash2 } from "lucide-react";
 
 interface TacticsToolbarProps {
   formation: FormationName;
+  formationOptions?: FormationName[];
   onChangeFormation: (value: FormationName) => void;
   onReset: () => void;
   canManage: boolean;
+  playerCountOptions?: readonly MatchPlayersPerSide[];
+  playersPerSide?: MatchPlayersPerSide;
+  onChangePlayersPerSide?: (value: MatchPlayersPerSide) => void;
+  isPlayerCountSaving?: boolean;
   presetName?: string;
   onChangePresetName?: (value: string) => void;
   savedPresets?: { id: string; name: string }[];
@@ -19,9 +25,14 @@ interface TacticsToolbarProps {
 
 export default function TacticsToolbar({
   formation,
+  formationOptions,
   onChangeFormation,
   onReset,
   canManage,
+  playerCountOptions,
+  playersPerSide,
+  onChangePlayersPerSide,
+  isPlayerCountSaving = false,
   presetName,
   onChangePresetName,
   savedPresets,
@@ -31,10 +42,51 @@ export default function TacticsToolbar({
   onSave,
   onDelete,
 }: Readonly<TacticsToolbarProps>) {
+  const availableFormationOptions =
+    formationOptions ?? (Object.keys(formationTemplate) as FormationName[]);
+
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-4 md:p-5">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          {saveMode === "auto" &&
+            playerCountOptions &&
+            playersPerSide !== undefined && (
+              <div className="min-w-[180px]">
+                <label
+                  htmlFor="player-count-select"
+                  className="mb-2 block text-sm font-medium text-stone-500"
+                >
+                  경기 인원
+                </label>
+
+                <div className="relative">
+                  <select
+                    id="player-count-select"
+                    value={playersPerSide}
+                    onChange={(event) =>
+                      onChangePlayersPerSide?.(
+                        Number(event.target.value) as MatchPlayersPerSide,
+                      )
+                    }
+                    disabled={!canManage || isPlayerCountSaving}
+                    className={`h-14 w-full appearance-none rounded-xl border border-stone-200 px-5 pr-12 text-base font-semibold outline-none transition ${
+                      canManage && !isPlayerCountSaving
+                        ? "bg-stone-50 text-stone-800 focus:border-emerald-300 focus:bg-white"
+                        : "cursor-not-allowed bg-stone-100 text-stone-400"
+                    }`}
+                  >
+                    {playerCountOptions.map((count) => (
+                      <option key={count} value={count}>
+                        {count}대{count}
+                      </option>
+                    ))}
+                  </select>
+
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+                </div>
+              </div>
+            )}
           <div className="min-w-[280px] flex-1">
             <label
               htmlFor="formation-select"
@@ -56,7 +108,7 @@ export default function TacticsToolbar({
                     : "bg-stone-100 text-stone-400"
                 }`}
               >
-                {Object.keys(formationTemplate).map((item) => (
+                {availableFormationOptions.map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
