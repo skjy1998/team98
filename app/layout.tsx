@@ -1,6 +1,7 @@
 import ToastViewport from "@/components/common/ToastViewport";
 import "./globals.css";
 import localFont from "next/font/local";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="ko" className={`${pretendard.variable}`}>
       <body className="bg-background text-foreground antialiased">
         {children}
+        <ConfirmDialog />
         <ToastViewport />
       </body>
     </html>

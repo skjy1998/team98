@@ -3,6 +3,7 @@ import {
   findCurrentOwner,
   updatePlayerWithRoles,
 } from "@/lib/players/player-role";
+import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { PlayerType, TeamMemberRole } from "@/types/player";
 
@@ -12,10 +13,8 @@ interface UsePlayersPageActionsParams {
   addPlayer: (player: PlayerType) => Promise<boolean>;
   deletePlayer: (playerId: string) => Promise<boolean>;
   reloadPlayers: () => Promise<void>;
-  deletingPlayer: PlayerType | null;
   handleCloseCreate: () => void;
   handleCloseEdit: () => void;
-  handleCloseDelete: () => void;
 }
 
 export function usePlayersPageActions({
@@ -24,12 +23,11 @@ export function usePlayersPageActions({
   addPlayer,
   deletePlayer,
   reloadPlayers,
-  deletingPlayer,
   handleCloseCreate,
   handleCloseEdit,
-  handleCloseDelete,
 }: Readonly<UsePlayersPageActionsParams>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   // 생성 수정 삭제 액션
   const handleCreatePlayer = async (player: PlayerType) => {
@@ -44,24 +42,28 @@ export function usePlayersPageActions({
     showToast("선수 추가에 실패했어요.", "error");
   };
 
-  const confirmRoleChanges = (
+  const confirmRoleChanges = async (
     player: PlayerType,
     teamRole: TeamMemberRole,
     currentOwner?: PlayerType,
     currentCaptain?: PlayerType,
   ) => {
     if (teamRole === "owner" && currentOwner) {
-      const confirmed = globalThis.confirm(
-        `${currentOwner.name}님이 현재 회장이에요. 기존 회장을 일반 회원으로 변경하고 ${player.name}님을 새 회장으로 지정할까요?`,
-      );
+      const confirmed = await confirm({
+        title: "회장 변경",
+        description: `${currentOwner.name}님이 현재 회장이에요. 기존 회장을 일반 회원으로 변경하고 ${player.name}님을 새 회장으로 지정할까요?`,
+        confirmLabel: "변경",
+      });
 
       if (!confirmed) return false;
     }
 
     if (player.role === "captain" && currentCaptain) {
-      const confirmed = globalThis.confirm(
-        `${currentCaptain.name}님이 현재 주장이에요. 기존 주장을 일반 회원으로 변경하고 ${player.name}님을 새 주장으로 지정할까요?`,
-      );
+      const confirmed = await confirm({
+        title: "주장 변경",
+        description: `${currentCaptain.name}님이 현재 주장이에요. 기존 주장을 일반 회원으로 변경하고 ${player.name}님을 새 주장으로 지정할까요?`,
+        confirmLabel: "변경",
+      });
 
       if (!confirmed) return false;
     }
@@ -89,7 +91,7 @@ export function usePlayersPageActions({
     const currentOwner = findCurrentOwner(players, player.id);
     const currentCaptain = findCurrentCaptain(players, player.id);
 
-    const confirmed = confirmRoleChanges(
+    const confirmed = await confirmRoleChanges(
       player,
       teamRole,
       currentOwner,
@@ -110,18 +112,24 @@ export function usePlayersPageActions({
     handleCloseEdit();
   };
 
-  const handleDeletePlayer = async () => {
-    if (!deletingPlayer) return;
+  const handleDeletePlayer = async (player: PlayerType) => {
+    const confirmed = await confirm({
+      title: "선수 삭제",
+      description: `${player.name} 선수를 삭제할까요? 삭제 후에는 되돌릴 수 없어요.`,
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
-    const success = await deletePlayer(deletingPlayer.id);
+    if (!confirmed) return;
 
-    if (success) {
-      showToast("선수를 삭제했어요.", "success");
-      handleCloseDelete();
+    const success = await deletePlayer(player.id);
+
+    if (!success) {
+      showToast("선수 삭제에 실패했어요.", "error");
       return;
     }
 
-    showToast("선수 삭제에 실패했어요.", "error");
+    showToast("선수를 삭제했어요.", "success");
   };
 
   return {

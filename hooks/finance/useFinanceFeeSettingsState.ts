@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import type { FeeType } from "@/types/finance";
 import { useRef, useState } from "react";
 
@@ -15,6 +16,8 @@ export function useFinanceFeeSettingsState({
   onUpdateFeeType,
   onDeleteFeeType,
 }: Readonly<UseFinanceFeeSettingsStateParams>) {
+  const confirm = useConfirmStore((state) => state.confirm);
+
   const [isAddingFeeType, setIsAddingFeeType] = useState(false);
   const [feeTypeName, setFeeTypeName] = useState("");
   const [feeTypeDescription, setFeeTypeDescription] = useState("");
@@ -69,7 +72,12 @@ export function useFinanceFeeSettingsState({
   const handleDeleteFeeType = async (feeTypeId: string) => {
     if (isFeeTypeSubmittingRef.current) return;
 
-    const confirmed = globalThis.confirm("이 회비 유형을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "회비 유형 삭제",
+      description: "이 회비 유형을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

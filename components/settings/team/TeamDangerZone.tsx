@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import type { TeamMemberRole } from "@/types/player";
 import { LogOut, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,6 +18,7 @@ export default function TeamDangerZone({
   onDeleteTeam,
 }: Readonly<TeamDangerZoneProps>) {
   const router = useRouter();
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [confirmationName, setConfirmationName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,9 +29,13 @@ export default function TeamDangerZone({
   };
 
   const handleLeave = async () => {
-    const confirmed = globalThis.confirm(
-      "팀에서 나갈까요? 연결된 내 선수 계정도 해제돼요.",
-    );
+    const confirmed = await confirm({
+      title: "팀 나가기",
+      description:
+        "팀에서 나갈까요? 팀에 연결된 내 선수 계정도 함께 해제됩니다.",
+      confirmLabel: "나가기",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 
@@ -43,9 +49,13 @@ export default function TeamDangerZone({
   };
 
   const handleDelete = async () => {
-    const confirmed = globalThis.confirm(
-      "팀을 삭제하면 경기, 선수, 기록, 회비 데이터가 모두 삭제돼요. 계속할까요?",
-    );
+    const confirmed = await confirm({
+      title: "팀 영구 삭제",
+      description:
+        "팀과 연결된 경기, 선수, 기록, 회비 데이터가 모두 삭제됩니다.",
+      confirmLabel: "팀 삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

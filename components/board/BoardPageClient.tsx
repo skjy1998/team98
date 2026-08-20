@@ -16,9 +16,12 @@ import { useTeamPostComments } from "@/hooks/board/useTeamPostComments";
 import { useTeamPostLikes } from "@/hooks/board/useTeamPostLikes";
 import ContentState from "../common/ContentState";
 import { useToastStore } from "@/stores/toast-store";
+import { useConfirmStore } from "@/stores/confirm-store";
 
 export default function BoardPageClient() {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
+
   const {
     posts,
     postsLoaded,
@@ -83,9 +86,12 @@ export default function BoardPageClient() {
   };
 
   const handleDeletePost = async (post: TeamPost) => {
-    const confirmed = globalThis.confirm(
-      `"${post.title}" 게시물을 삭제할까요?`,
-    );
+    const confirmed = await confirm({
+      title: "게시물 삭제",
+      description: `"${post.title}" 게시물을 삭제할까요? 작성된 댓글도 함께 삭제되며 되돌릴 수 없어요.`,
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import type { FineRule } from "@/types/finance";
 import { useRef, useState } from "react";
 
@@ -10,6 +11,8 @@ export function useFinanceFineRuleState({
   onAddFineRule,
   onDeleteFineRule,
 }: Readonly<UseFinanceFineRuleStateParams>) {
+  const confirm = useConfirmStore((state) => state.confirm);
+
   const [isAddingFineRule, setIsAddingFineRule] = useState(false);
   const [fineRuleName, setFineRuleName] = useState("");
   const [fineRuleTrigger, setFineRuleTrigger] =
@@ -62,9 +65,13 @@ export function useFinanceFineRuleState({
   const handleDeleteFineRule = async (ruleId: string) => {
     if (isSubmittingRef.current) return;
 
-    const confirmed = globalThis.confirm(
-      "이 벌금 규칙을 삭제할까요? 이미 부과된 벌금 내역은 유지됩니다.",
-    );
+    const confirmed = await confirm({
+      title: "벌금 규칙 삭제",
+      description:
+        "이 벌금 규칙을 삭제할까요? 이미 부과된 벌금 내역은 유지됩니다.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

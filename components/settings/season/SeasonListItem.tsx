@@ -3,6 +3,7 @@ import { useState } from "react";
 import SeasonForm from "./SeasonForm";
 import { CalendarRange, CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import { useToastStore } from "@/stores/toast-store";
+import { useConfirmStore } from "@/stores/confirm-store";
 
 interface SeasonListItemProps {
   season: TeamSeason;
@@ -36,6 +37,7 @@ export default function SeasonListItem({
   onDelete,
 }: Readonly<SeasonListItemProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<TeamSeasonFormValue>(() =>
@@ -71,9 +73,11 @@ export default function SeasonListItem({
   };
 
   const handleSetActive = async () => {
-    const confirmed = globalThis.confirm(
-      `"${season.name}" 시즌을 활성 시즌으로 변경할까요?`,
-    );
+    const confirmed = await confirm({
+      title: "활성 시즌 변경",
+      description: `"${season.name}" 시즌을 활성 시즌으로 변경할까요?`,
+      confirmLabel: "변경",
+    });
 
     if (!confirmed) return;
 
@@ -90,7 +94,12 @@ export default function SeasonListItem({
   };
 
   const handleDelete = async () => {
-    const confirmed = globalThis.confirm(`"${season.name}" 시즌을 삭제할까요?`);
+    const confirmed = await confirm({
+      title: "시즌 삭제",
+      description: `"${season.name}" 시즌을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.`,
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

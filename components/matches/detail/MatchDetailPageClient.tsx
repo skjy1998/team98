@@ -2,10 +2,8 @@
 import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
 import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
 import { MatchInfoTab } from "@/components/matches/detail/info/MatchInfoTab";
-
 import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
-import MatchDeleteModal from "@/components/matches/detail/MatchDeleteModal";
 import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import { useMatches } from "@/hooks/matches/useMatches";
@@ -16,15 +14,11 @@ import {
   getMatchDetailDisplay,
   getMatchDetailTab,
 } from "@/lib/matches/match-ui";
-import type {
-  MatchCreateFormValue,
-  MatchDetailTab,
-  MatchItem,
-} from "@/types/match";
+import type { MatchCreateFormValue, MatchDetailTab } from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import MatchRecordTab from "./record/MatchRecordTab";
 import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
@@ -32,6 +26,7 @@ import { usePlayers } from "@/hooks/players/usePlayers";
 import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
 import ContentState from "@/components/common/ContentState";
 import { useToastStore } from "@/stores/toast-store";
+import { useConfirmStore } from "@/stores/confirm-store";
 
 interface MatchDetailPageClientProps {
   matchId: string;
@@ -41,6 +36,7 @@ export default function MatchDetailPageClient({
   matchId,
 }: Readonly<MatchDetailPageClientProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   // 1. 라우터 / search params
   const router = useRouter();
@@ -81,9 +77,6 @@ export default function MatchDetailPageClient({
     () => players.filter((player) => attendPlayerIds.has(player.id)),
     [players, attendPlayerIds],
   );
-
-  // 3. UI state
-  const [deleteTarget, setDeleteTarget] = useState<MatchItem | null>(null);
 
   // 4. 첫 번째 파생값들
   const displayMatches = useMemo(
@@ -128,28 +121,26 @@ export default function MatchDetailPageClient({
     return true;
   };
 
-  const handleOpenDelete = () => {
-    if (!match) return;
-    setDeleteTarget(match);
-  };
-
-  const handleCloseDelete = () => {
-    setDeleteTarget(null);
-  };
-
   const handleDeleteMatch = async () => {
-    if (!deleteTarget) return;
+    if (!match) return;
 
-    const success = await removeMatch(deleteTarget.id);
+    const confirmed = await confirm({
+      title: "경기 삭제",
+      description: `${match.title} 경기를 삭제할까요? 연결된 기록과 출석 데이터도 함께 삭제되며 되돌릴 수 없어요.`,
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
+
+    if (!confirmed) return;
+
+    const success = await removeMatch(match.id);
 
     if (!success) {
       showToast("경기 삭제에 실패했어요.", "error");
       return;
     }
 
-    setDeleteTarget(null);
     showToast("경기를 삭제했어요.", "success");
-
     router.push("/matches");
   };
 
@@ -238,7 +229,7 @@ export default function MatchDetailPageClient({
           match={resolvedMatch}
           matches={displayMatches}
           onSave={handleUpdateMatch}
-          onDelete={handleOpenDelete}
+          onDelete={handleDeleteMatch}
           canManage={canManage}
         />
       )}
@@ -273,14 +264,6 @@ export default function MatchDetailPageClient({
           reorderEvents={reorderEvents}
           onChangeCompletion={handleChangeRecordCompletion}
           canManage={canManage}
-        />
-      )}
-
-      {deleteTarget && (
-        <MatchDeleteModal
-          match={deleteTarget}
-          onClose={handleCloseDelete}
-          onDelete={handleDeleteMatch}
         />
       )}
     </div>

@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { FinanceEntry, FinanceEntryType } from "@/types/finance";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export function useFinanceTransactions({
   deleteEntry,
 }: UseFinanceTransactionsParams) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
   const [createEntryType, setCreateEntryType] =
@@ -152,7 +154,13 @@ export function useFinanceTransactions({
       return;
     }
 
-    const confirmed = globalThis.confirm("이 내역을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "거래 내역 삭제",
+      description: "이 거래 내역을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
+
     if (!confirmed) return;
 
     const success = await deleteEntry(entryId);

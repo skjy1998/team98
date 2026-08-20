@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useToastStore } from "@/stores/toast-store";
+import { useConfirmStore } from "@/stores/confirm-store";
 
 interface UseTacticsPresetsParams {
   exportTactics: () => SavedFormation;
@@ -16,6 +17,8 @@ export function useTacticsPresets({
   resetTactics,
 }: UseTacticsPresetsParams) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
+
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
 
@@ -188,7 +191,13 @@ export function useTacticsPresets({
       return;
     }
 
-    const confirmed = globalThis.confirm("선택한 전술을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "저장 전술 삭제",
+      description: "선택한 전술을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
+
     if (!confirmed) return;
 
     const { error } = await supabase

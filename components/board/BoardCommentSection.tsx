@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { TeamPostComment, TeamPostLikeSummary } from "@/types/board";
 import {
@@ -48,6 +49,7 @@ export default function BoardCommentSection({
   onToggleLike,
 }: Readonly<BoardCommentSectionProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [content, setContent] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -100,7 +102,12 @@ export default function BoardCommentSection({
   };
 
   const handleDelete = async (commentId: string) => {
-    const confirmed = globalThis.confirm("댓글을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "댓글 삭제",
+      description: "이 댓글을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 
@@ -108,7 +115,10 @@ export default function BoardCommentSection({
 
     if (!success) {
       showToast("댓글 삭제에 실패했어요.", "error");
+      return;
     }
+
+    showToast("댓글을 삭제했어요.", "success");
   };
 
   const handleToggleLike = async () => {

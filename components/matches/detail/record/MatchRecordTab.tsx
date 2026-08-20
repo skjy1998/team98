@@ -17,6 +17,7 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 import ContentState from "@/components/common/ContentState";
 import { useToastStore } from "@/stores/toast-store";
+import { useConfirmStore } from "@/stores/confirm-store";
 
 interface MatchRecordTabProps {
   matchId: string;
@@ -47,6 +48,7 @@ export default function MatchRecordTab({
   canManage,
 }: Readonly<MatchRecordTabProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded } = useMatchVotes();
@@ -77,11 +79,13 @@ export default function MatchRecordTab({
   const handleChangeCompletion = async () => {
     if (!canManage || isCompletionSaving) return;
 
-    const confirmed = globalThis.confirm(
-      isCompleted
-        ? "완료된 경기 기록을 다시 수정할까요?"
+    const confirmed = await confirm({
+      title: isCompleted ? "경기 기록 다시 열기" : "경기 기록 완료",
+      description: isCompleted
+        ? "완료된 경기 기록을 다시 수정할 수 있는 상태로 변경할까요?"
         : "경기 기록을 완료할까요? 0:0 경기라면 기록이 없어도 완료할 수 있어요.",
-    );
+      confirmLabel: isCompleted ? "다시 열기" : "완료",
+    });
 
     if (!confirmed) return;
 
@@ -130,7 +134,13 @@ export default function MatchRecordTab({
   const handleDeleteRecord = async (event: MatchRecordEvent) => {
     if (!canEdit) return;
 
-    const confirmed = globalThis.confirm("이 기록을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "경기 기록 삭제",
+      description: "이 경기 기록을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
+
     if (!confirmed) return;
 
     if (editingEventId === event.id) {
@@ -141,7 +151,10 @@ export default function MatchRecordTab({
 
     if (!success) {
       showToast("기록 삭제에 실패했어요.", "error");
+      return;
     }
+
+    showToast("경기 기록을 삭제했어요.", "success");
   };
   // 수정 완료 함수
   const handleSubmitEdit = async (

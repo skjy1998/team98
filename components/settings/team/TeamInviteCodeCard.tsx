@@ -1,3 +1,4 @@
+import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import { Copy, KeyRound, RefreshCw } from "lucide-react";
 import { useState } from "react";
@@ -14,6 +15,7 @@ export default function TeamInviteCodeCard({
   onRegenerate,
 }: Readonly<TeamInviteCodeCardProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [isCopied, setIsCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -34,9 +36,13 @@ export default function TeamInviteCodeCard({
   };
 
   const handleRegenerate = async () => {
-    const confirmed = globalThis.confirm(
-      "초대 코드를 새로 발급할까요? 기존 초대 코드는 사용할 수 없게 돼요.",
-    );
+    const confirmed = await confirm({
+      title: "초대 코드 재발급",
+      description:
+        "초대 코드를 새로 발급할까요? 기존 초대 코드는 즉시 사용할 수 없게 됩니다.",
+      confirmLabel: "재발급",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 

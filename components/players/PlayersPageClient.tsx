@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import PlayerCreateModal from "@/components/players/modal/PlayerCreateModal";
-import PlayerDeleteModal from "@/components/players/modal/PlayerDeleteModal";
+
 import PlayerEditModal from "@/components/players/modal/edit/PlayerEditModal";
 import PlayerTable from "@/components/players/list/PlayerTable";
 import PlayerToolbar from "@/components/players/list/PlayerToolbar";
@@ -37,13 +37,10 @@ export default function PlayersPageClient() {
     setSortType,
     isCreateOpen,
     editingPlayer,
-    deletingPlayer,
     handleOpenCreate,
     handleCloseCreate,
     handleEdit,
     handleCloseEdit,
-    handleOpenDelete,
-    handleCloseDelete,
   } = usePlayersPageState();
 
   const { availableMembers, membersLoaded } = useConnectableTeamMembers({
@@ -59,10 +56,8 @@ export default function PlayersPageClient() {
       addPlayer,
       deletePlayer,
       reloadPlayers,
-      deletingPlayer,
       handleCloseCreate,
       handleCloseEdit,
-      handleCloseDelete,
     });
 
   // 원본 선수, 경기, 출석, 기록 데이터 합쳐서 표에 보여줄 선수 목록을 만드는 단계
@@ -129,7 +124,7 @@ export default function PlayersPageClient() {
       <PlayerTable
         players={filteredPlayers}
         onEdit={canManage ? handleEdit : undefined}
-        onDelete={canManage ? handleOpenDelete : undefined}
+        onDelete={canManage ? handleDeletePlayer : undefined}
       />
 
       {canManage && editingPlayer && membersLoaded && (
@@ -139,13 +134,6 @@ export default function PlayersPageClient() {
           connectableMembers={availableMembers}
           onClose={handleCloseEdit}
           onSave={handleEditPlayer}
-        />
-      )}
-      {canManage && deletingPlayer && (
-        <PlayerDeleteModal
-          player={deletingPlayer}
-          onClose={handleCloseDelete}
-          onDelete={handleDeletePlayer}
         />
       )}
     </div>

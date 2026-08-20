@@ -1,4 +1,5 @@
 import { formatFinanceEntryDescription } from "@/lib/finance/finance";
+import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { FineCharge } from "@/types/finance";
 import { useState } from "react";
@@ -20,6 +21,7 @@ export default function FinanceFineChargeItem({
   onChangeStatus,
 }: Readonly<FinanceFineChargeItemProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const confirm = useConfirmStore((state) => state.confirm);
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -51,7 +53,13 @@ export default function FinanceFineChargeItem({
   const handleDelete = async () => {
     if (isProcessing) return;
 
-    const confirmed = globalThis.confirm("이 벌금 부과 내역을 삭제할까요?");
+    const confirmed = await confirm({
+      title: "벌금 내역 삭제",
+      description:
+        "이 벌금 부과 내역을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
+      confirmLabel: "삭제",
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 
