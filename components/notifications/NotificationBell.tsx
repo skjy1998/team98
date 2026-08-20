@@ -105,7 +105,7 @@ export default function NotificationBell({
         <section
           aria-label="알림 목록"
           className={[
-            "absolute top-14 w-[380px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl",
+            "absolute top-14 z-50 w-[380px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl",
             align === "left" ? "left-0" : "right-0",
           ].join(" ")}
         >

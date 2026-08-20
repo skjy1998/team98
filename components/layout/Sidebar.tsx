@@ -5,7 +5,9 @@ import {
   BadgeDollarSign,
   CalendarDays,
   ChevronRight,
+  Copy,
   Home,
+  LogOut,
   MessagesSquare,
   Settings,
   Swords,
@@ -181,59 +183,34 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden self-start lg:block">
-      <div className="rounded-xl border border-stone-200 bg-[#fcfbf8] p-5 shadow-sm">
-        <div className="relative rounded-2xl border border-stone-200 bg-white/80 p-3">
-          <div className="flex items-center gap-3 pr-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
-              <span className="text-base font-extrabold text-stone-500">
-                {userInitial}
-              </span>
-            </div>
+      <div className="sticky top-4 z-40 flex flex-col rounded-2xl border border-stone-200 bg-white shadow-sm">
+        <div className="border-b border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-amber-50 px-5 py-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-600">
+              SquadFlow
+            </p>
 
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-stone-900">
-                {user.name || "사용자"}
-              </p>
-              <p className="truncate text-xs text-stone-400">
-                {user.email || "이메일 없음"}
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute right-3 top-3">
             <NotificationBell align="left" />
           </div>
-        </div>
-        <div className="mt-5 border-t border-stone-200/80 pt-5" />
-        <div className="mb-4 rounded-xl border border-stone-200 bg-white/80 px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-500">
-            SquadFlow
-          </p>
 
-          {team.name ? (
-            <div className="mt-2 flex items-center gap-2">
-              <p className="truncate text-lg font-semibold text-stone-900">
-                {team.name}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-lg font-bold text-stone-900">
+                {team.name || "팀 정보를 불러오는 중..."}
               </p>
-              <span
-                className={[
-                  "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                  team.sport === "futsal"
-                    ? "bg-sky-50 text-sky-600"
-                    : "bg-emerald-50 text-emerald-600",
-                ].join(" ")}
-              >
+              <p className="mt-1 text-xs text-stone-500">
+                선수와 경기 운영을 한곳에서
+              </p>
+            </div>
+            {team.name && (
+              <span className="shrink-0 rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                 {team.sport === "futsal" ? "풋살" : "축구"}
               </span>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-stone-400">
-              팀 정보를 불러오는 중...
-            </p>
-          )}
+            )}
+          </div>
         </div>
-        <div className="mt-5 border-t border-stone-200/80 pt-5" />
-        <nav className="space-y-1">
+
+        <nav className="space-y-1 p-3">
           {menuSections.map((section, index) => (
             <section key={section.title}>
               {index === 0 ? null : (
@@ -254,37 +231,40 @@ export default function Sidebar() {
                       key={item.href}
                       href={item.href}
                       className={[
-                        "flex items-center justify-between rounded-2xl px-3 py-3 transition-colors",
+                        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition",
                         isActive
-                          ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "text-stone-700 hover:bg-white",
+                          ? "bg-emerald-50 text-emerald-800"
+                          : "text-stone-700 hover:bg-stone-50",
                       ].join(" ")}
                     >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div
+                      {isActive && (
+                        <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-emerald-500" />
+                      )}
+                      <div
+                        className={[
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition",
+                          isActive
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "text-stone-400 group-hover:bg-white group-hover:text-stone-700",
+                        ].join(" ")}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold">
+                          {item.label}
+                        </p>
+                        <p
                           className={[
-                            "flex h-10 w-10 items-center justify-center rounded-xl",
-                            isActive
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-stone-100 text-stone-500",
+                            "mt-0.5 truncate text-[11px]",
+                            isActive ? "text-emerald-600" : "text-stone-400",
                           ].join(" ")}
                         >
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold">
-                            {item.label}
-                          </p>
-                          <p
-                            className={[
-                              "truncate text-xs",
-                              isActive ? "text-emerald-700" : "text-stone-400",
-                            ].join(" ")}
-                          >
-                            {item.description}
-                          </p>
-                        </div>
+                          {item.description}
+                        </p>
                       </div>
+
                       <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
                     </Link>
                   );
@@ -293,37 +273,56 @@ export default function Sidebar() {
             </section>
           ))}
         </nav>
-        <div className="mt-6 border-t border-stone-200 pt-4">
-          <div className="rounded-xl border border-stone-200 bg-white/80 p-4">
-            <p className="text-xs font-semibold tracking-[0.18em] text-stone-400">
-              초대코드
-            </p>
-            <p className="mt-2 text-sm font-semibold text-stone-900">
-              {team.inviteCode || "초대코드 없음"}
-            </p>
+        <div className="border-t border-stone-200 bg-stone-50/60 p-3">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+                Team invite
+              </p>
+              <p className="mt-0.5 truncate font-mono text-xs font-semibold tracking-wider text-stone-700">
+                {team.inviteCode || "초대 코드 없음"}
+              </p>
+            </div>
 
             <button
               type="button"
               onClick={handleCopyInviteCode}
               disabled={!team.inviteCode}
-              className={[
-                "mt-3 flex h-10 w-full items-center justify-center rounded-lg border text-sm font-medium transition",
-                team.inviteCode
-                  ? "border-stone-200 text-stone-600 hover:bg-stone-50"
-                  : "cursor-not-allowed border-stone-100 text-stone-300",
-              ].join(" ")}
+              aria-label="초대 코드 복사"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-stone-400 transition hover:bg-emerald-50 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isCopied ? "복사됨!" : "초대코드 복사"}
+              <Copy className="h-4 w-4" />
             </button>
           </div>
+          {isCopied && (
+            <p className="mt-2 px-1 text-xs font-medium text-emerald-600">
+              초대 코드를 복사했어요.
+            </p>
+          )}
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="mt-3 flex h-11 w-full items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
-          >
-            로그아웃
-          </button>
+          <div className="mt-3 flex items-center gap-3 rounded-xl px-2 py-2">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-200 text-sm font-bold text-stone-600">
+              {userInitial}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-stone-900">
+                {user.name || "사용자"}
+              </p>
+              <p className="truncate text-[11px] text-stone-400">
+                {user.email || "이메일 없음"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="로그아웃"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </aside>
