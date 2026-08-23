@@ -1,9 +1,10 @@
-import { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
-import { MatchVotesByMatchId } from "@/types/match-vote";
-import { PlayerType } from "@/types/player";
+import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
+import type { MatchVotesByMatchId } from "@/types/match-vote";
+import type { PlayerType } from "@/types/player";
+import { createQuarterOptions } from "./match-quarter";
 
 export interface MatchRecordQuarterSectionItem {
-  key: "1Q" | "2Q" | "3Q" | "4Q" | "unknown";
+  key: MatchRecordQuarter;
   label: string;
 }
 
@@ -23,24 +24,51 @@ export const defaultEditingRecordForm: EditingRecordForm = {
   minute: "",
 };
 
-export const quarterSections: MatchRecordQuarterSectionItem[] = [
-  { key: "1Q", label: "1Q" },
-  { key: "2Q", label: "2Q" },
-  { key: "3Q", label: "3Q" },
-  { key: "4Q", label: "4Q" },
-  { key: "unknown", label: "쿼터 모름" },
-];
+export function createMatchRecordQuarterSections(
+  quarterCount: number,
+): MatchRecordQuarterSectionItem[] {
+  const quarterSections = createQuarterOptions(quarterCount).map((quarter) => ({
+    key: quarter as MatchRecordQuarter,
+    label: quarter,
+  }));
 
-export function getGroupedMatchRecordEvents(events: MatchRecordEvent[]) {
-  return {
-    "1Q": events.filter((event) => event.quarter === "1Q"),
-    "2Q": events.filter((event) => event.quarter === "2Q"),
-    "3Q": events.filter((event) => event.quarter === "3Q"),
-    "4Q": events.filter((event) => event.quarter === "4Q"),
-    unknown: events.filter(
-      (event) => !event.quarter || event.quarter === "unknown",
-    ),
-  };
+  return [
+    ...quarterSections,
+    {
+      key: "unknown",
+      label: "쿼터 모름",
+    },
+  ];
+}
+
+export function getGroupedMatchRecordEvents(
+  events: MatchRecordEvent[],
+  quarterCount: number,
+) {
+  const sections = createMatchRecordQuarterSections(quarterCount);
+  const validQuarters = new Set<string>(createQuarterOptions(quarterCount));
+
+  const groupedEvents: Record<string, MatchRecordEvent[]> = {};
+
+  sections.forEach((section) => {
+    groupedEvents[section.key] = [];
+  });
+
+  events.forEach((event) => {
+    const eventQuarter = event.quarter;
+
+    const targetQuarter =
+      eventQuarter &&
+      eventQuarter !== "unknown" &&
+      validQuarters.has(eventQuarter)
+        ? eventQuarter
+        : "unknown";
+
+    groupedEvents[targetQuarter] ??= [];
+    groupedEvents[targetQuarter].push(event);
+  });
+
+  return groupedEvents;
 }
 
 export function getAttendPlayerIdsByVotes(

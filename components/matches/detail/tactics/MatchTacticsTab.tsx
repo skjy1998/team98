@@ -12,7 +12,6 @@ import {
   getAvailableTacticsPlayers,
   getMatchFormationOptions,
   getPlayerById,
-  quarterOptions,
   sortPlayersByRecommendedPosition,
 } from "@/lib/tactics/tactics-ui";
 import type { FormationName, MatchQuarter, SetPieceKey } from "@/types/tactics";
@@ -23,11 +22,13 @@ import type { TeamSport } from "@/types/team";
 import type { MatchPlayersPerSide } from "@/types/match";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
+import { createQuarterOptions } from "@/lib/matches/match-quarter";
 
 interface MatchTacticsTabProps {
   matchId: string;
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
+  quarterCount: number;
   onChangePlayersPerSide: (
     playersPerSide: MatchPlayersPerSide,
   ) => Promise<boolean>;
@@ -42,6 +43,7 @@ export default function MatchTacticsTab({
   matchId,
   sport,
   playersPerSide,
+  quarterCount,
   onChangePlayersPerSide,
   canManage,
 }: Readonly<MatchTacticsTabProps>) {
@@ -51,13 +53,18 @@ export default function MatchTacticsTab({
   const { players, playersLoaded } = usePlayers();
   const { votes, votesLoaded } = useMatchVotes();
   const { tacticsByQuarter, saveTacticsByQuarter, tacticsLoaded } =
-    useMatchTactics(matchId, sport, playersPerSide);
+    useMatchTactics(matchId, sport, playersPerSide, quarterCount);
 
   const [selectedQuarter, setSelectedQuarter] = useState<MatchQuarter>("1Q");
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [isPlayerCountSaving, setIsPlayerCountSaving] = useState(false);
 
   const currentTactics = tacticsByQuarter[selectedQuarter];
+
+  const quarterOptions = useMemo(
+    () => createQuarterOptions(quarterCount),
+    [quarterCount],
+  );
 
   const formationOptions = useMemo(
     () => getMatchFormationOptions(sport, playersPerSide),
@@ -133,7 +140,11 @@ export default function MatchTacticsTab({
       return;
     }
 
-    const nextTactics = createDefaultMatchTactics(sport, nextPlayersPerSide);
+    const nextTactics = createDefaultMatchTactics(
+      sport,
+      nextPlayersPerSide,
+      quarterCount,
+    );
     const tacticsSaved = await saveTacticsByQuarter(nextTactics);
 
     if (!tacticsSaved) {

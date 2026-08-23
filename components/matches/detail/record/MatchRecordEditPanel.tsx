@@ -1,17 +1,12 @@
+import { createQuarterOptions } from "@/lib/matches/match-quarter";
 import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
 import type { PlayerType } from "@/types/player";
-import { useState } from "react";
-
-const quarterOptions: MatchRecordQuarter[] = [
-  "unknown",
-  "1Q",
-  "2Q",
-  "3Q",
-  "4Q",
-];
+import { useMemo, useState } from "react";
 
 interface MatchRecordEditPanelProps {
   event: MatchRecordEvent;
+  quarterCount: number;
+  quarterDurationMinutes: number;
   attendPlayers: PlayerType[];
   onCancel: () => void;
   onSubmit: (
@@ -27,20 +22,48 @@ interface MatchRecordEditPanelProps {
 
 export default function MatchRecordEditPanel({
   event,
+  quarterCount,
+  quarterDurationMinutes,
   attendPlayers,
   onCancel,
   onSubmit,
 }: Readonly<MatchRecordEditPanelProps>) {
+  const quarterOptions = useMemo<MatchRecordQuarter[]>(
+    () => ["unknown", ...createQuarterOptions(quarterCount)],
+    [quarterCount],
+  );
+
+  const initialQuarter =
+    event.quarter && quarterOptions.includes(event.quarter)
+      ? event.quarter
+      : "unknown";
+
   const [playerId, setPlayerId] = useState(event.playerId ?? "");
   const [assistPlayerId, setAssistPlayerId] = useState(
     event.assistPlayerId ?? "",
   );
-  const [quarter, setQuarter] = useState<MatchRecordQuarter>(
-    event.quarter ?? "unknown",
-  );
+  const [quarter, setQuarter] = useState<MatchRecordQuarter>(initialQuarter);
   const [minute, setMinute] = useState(event.minute ?? "");
+  const [minuteError, setMinuteError] = useState("");
 
   const handleSubmit = async () => {
+    if (minute) {
+      const minuteValue = Number(minute);
+
+      if (
+        !Number.isInteger(minuteValue) ||
+        minuteValue < 0 ||
+        minuteValue > quarterDurationMinutes
+      ) {
+        setMinuteError(
+          `경기 시간은 0분부터 ${quarterDurationMinutes}분까지 입력해 주세요.`,
+        );
+        return;
+      }
+    }
+
+    setMinuteError("");
+
     await onSubmit(event.id, {
       playerId,
       assistPlayerId,
@@ -160,11 +183,23 @@ export default function MatchRecordEditPanel({
             시간
           </label>
           <input
+            type="number"
+            min={0}
+            max={quarterDurationMinutes}
+            step={1}
             value={minute}
-            onChange={(event) => setMinute(event.target.value)}
-            placeholder="시간 입력"
+            onChange={(event) => {
+              setMinute(event.target.value);
+              setMinuteError("");
+            }}
+            placeholder={`0~${quarterDurationMinutes}분`}
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
+          {minuteError && (
+            <p className="mt-2 text-sm font-medium text-rose-500">
+              {minuteError}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-end gap-2">

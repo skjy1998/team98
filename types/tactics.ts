@@ -45,7 +45,7 @@ export interface SavedFormation {
   penaltyKickPlayerId?: string;
 }
 
-export type MatchQuarter = "1Q" | "2Q" | "3Q" | "4Q";
+export type MatchQuarter = `${number}Q`;
 
 export interface QuarterTacticsState {
   formation: FormationName;
@@ -55,12 +55,7 @@ export interface QuarterTacticsState {
   penaltyKickPlayerId?: string;
 }
 
-export interface MatchTacticsByQuarter {
-  "1Q": QuarterTacticsState;
-  "2Q": QuarterTacticsState;
-  "3Q": QuarterTacticsState;
-  "4Q": QuarterTacticsState;
-}
+export type MatchTacticsByQuarter = Record<MatchQuarter, QuarterTacticsState>;
 
 // 저장해 둔 전술 목록
 export interface SaveTacticPreset {

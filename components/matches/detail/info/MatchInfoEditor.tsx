@@ -1,7 +1,14 @@
-import type { MatchCreateFormValue, MatchItem, MatchType } from "@/types/match";
+import type {
+  MatchCreateFormValue,
+  MatchItem,
+  MatchPlayersPerSide,
+  MatchQuarterCount,
+  MatchType,
+} from "@/types/match";
 import { useEffect, useState } from "react";
 import MatchInfoFieldCard from "./MatchInfoFieldCard";
 import { getDateTimeLocalValue } from "@/lib/matches/match-ui";
+import MatchFormatSection from "../../MatchFormatSection";
 
 interface MatchInfoEditorProps {
   match: MatchItem;
@@ -25,6 +32,16 @@ export default function MatchInfoEditor({
   const [location, setLocation] = useState(match.location ?? "");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [playersPerSide, setPlayersPerSide] = useState<MatchPlayersPerSide>(
+    match.playersPerSide,
+  );
+  const [quarterCount, setQuarterCount] = useState<MatchQuarterCount>(
+    match.quarterCount,
+  );
+  const [quarterDurationMinutes, setQuarterDurationMinutes] = useState(
+    match.quarterDurationMinutes,
+  );
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setType(match.type);
@@ -34,6 +51,9 @@ export default function MatchInfoEditor({
     setVoteDeadline(getDateTimeLocalValue(match.voteDeadline));
     setOpponent(match.opponent ?? "");
     setLocation(match.location ?? "");
+    setPlayersPerSide(match.playersPerSide);
+    setQuarterCount(match.quarterCount);
+    setQuarterDurationMinutes(match.quarterDurationMinutes);
     setErrorMessage("");
   }, [match]);
 
@@ -46,6 +66,20 @@ export default function MatchInfoEditor({
   };
 
   const handleSubmit = async () => {
+    if (!Number.isInteger(quarterCount) || quarterCount < 1) {
+      setErrorMessage("쿼터 수를 1 이상 입력해 주세요.");
+      return;
+    }
+
+    if (
+      !Number.isInteger(quarterDurationMinutes) ||
+      quarterDurationMinutes < 5 ||
+      quarterDurationMinutes > 60
+    ) {
+      setErrorMessage("쿼터 시간은 5분부터 60분까지 입력해 주세요.");
+      return;
+    }
+
     if (!date) {
       setErrorMessage("날짜를 선택해 주세요.");
       return;
@@ -82,7 +116,9 @@ export default function MatchInfoEditor({
       title: type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전",
       type,
       sport: match.sport,
-      playersPerSide: match.playersPerSide,
+      playersPerSide,
+      quarterCount,
+      quarterDurationMinutes,
       date,
       startTime,
       endTime,
@@ -117,6 +153,15 @@ export default function MatchInfoEditor({
       </div>
 
       <div className="mt-6 space-y-4">
+        <MatchFormatSection
+          sport={match.sport}
+          playersPerSide={playersPerSide}
+          onChangePlayersPerSide={setPlayersPerSide}
+          quarterCount={quarterCount}
+          onChangeQuarterCount={setQuarterCount}
+          quarterDurationMinutes={quarterDurationMinutes}
+          onChangeQuarterDurationMinutes={setQuarterDurationMinutes}
+        />
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
             <p className="text-sm text-stone-400">경기 유형</p>

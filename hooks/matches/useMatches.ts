@@ -3,6 +3,7 @@ import {
   MatchCreateFormValue,
   MatchItem,
   MatchPlayersPerSide,
+  MatchQuarterCount,
   MatchStatus,
   MatchType,
   MatchUniform,
@@ -25,6 +26,8 @@ type MatchRow = {
   type: MatchType;
   sport: TeamSport;
   players_per_side: MatchPlayersPerSide;
+  quarter_count: MatchQuarterCount;
+  quarter_duration_minutes: number;
   date: string;
   start_time: string;
   end_time: string;
@@ -45,6 +48,8 @@ const MATCH_COLUMNS = `
   type,
   sport,
   players_per_side,
+  quarter_count,
+  quarter_duration_minutes,
   date,
   start_time,
   end_time,
@@ -66,6 +71,8 @@ function mapMatchRow(match: MatchRow): MatchItem {
     type: match.type,
     sport: match.sport,
     playersPerSide: match.players_per_side,
+    quarterCount: match.quarter_count,
+    quarterDurationMinutes: match.quarter_duration_minutes,
     date: match.date,
     startTime: match.start_time,
     endTime: match.end_time,
@@ -192,6 +199,8 @@ export function useMatches({
         type: value.type,
         sport: value.sport,
         players_per_side: value.playersPerSide,
+        quarter_count: value.quarterCount,
+        quarter_duration_minutes: value.quarterDurationMinutes,
         date: value.date,
         start_time: value.startTime,
         end_time: value.endTime,
@@ -222,39 +231,53 @@ export function useMatches({
   const updateMatch = async (matchId: string, value: MatchCreateFormValue) => {
     if (!teamId) return false;
 
-    const { data, error } = await supabase
-      .from("matches")
-      .update({
-        title: value.title,
-        type: value.type,
-        sport: value.sport,
-        players_per_side: value.playersPerSide,
-        date: value.date,
-        start_time: value.startTime,
-        end_time: value.endTime,
-        vote_deadline: new Date(value.voteDeadline).toISOString(),
-        location: value.location,
-        opponent: value.type === "정규" ? (value.opponent ?? null) : null,
-        uniform: value.uniform,
-      })
-      .eq("id", matchId)
-      .select(MATCH_COLUMNS)
-      .single();
+    const { data, error } = await supabase.rpc(
+      "update_match_with_tactics_reset",
+      {
+        p_match_id: matchId,
+        p_title: value.title,
+        p_type: value.type,
+        p_sport: value.sport,
+        p_players_per_side: value.playersPerSide,
+        p_quarter_count: value.quarterCount,
+        p_quarter_duration_minutes: value.quarterDurationMinutes,
+        p_date: value.date,
+        p_start_time: value.startTime,
+        p_end_time: value.endTime,
+        p_vote_deadline: new Date(value.voteDeadline).toISOString(),
+        p_location: value.location,
+        p_opponent: value.type === "정규" ? (value.opponent ?? "") : "",
+        p_uniform: value.uniform,
+      },
+    );
 
     if (error || !data) {
-      console.error("match update error", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
-      });
+      console.error(
+        "match update error:",
+        JSON.stringify({
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint,
+        }),
+      );
+
       return false;
     }
 
-    setMatches((prev) =>
-      prev.map((item) =>
-        item.id === matchId ? mapMatchRow(data as MatchRow) : item,
-      ),
+    const updatedRow = (Array.isArray(data) ? data[0] : data) as
+      | MatchRow
+      | undefined;
+
+    if (!updatedRow) {
+      console.error("match update error: updated row not returned");
+      return false;
+    }
+
+    const updatedMatch = mapMatchRow(updatedRow);
+
+    setMatches((current) =>
+      current.map((match) => (match.id === matchId ? updatedMatch : match)),
     );
 
     return true;

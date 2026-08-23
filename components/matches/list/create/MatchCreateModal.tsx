@@ -83,6 +83,8 @@ export default function MatchCreateModal({
       type,
       sport,
       playersPerSide: sport === "futsal" ? 5 : 11,
+      quarterCount: 4,
+      quarterDurationMinutes: 20,
       date,
       startTime,
       endTime,

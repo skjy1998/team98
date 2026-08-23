@@ -6,6 +6,7 @@ import {
   MatchRecordMap,
   MatchType,
 } from "@/types/match";
+import { TeamSport } from "@/types/team";
 
 // 1. 타입 / 상수
 export type MatchResultStatus =
@@ -59,6 +60,20 @@ export const statusMap: Record<
 export const typeMap: Record<MatchType, string> = {
   정규: "bg-emerald-50 text-emerald-700",
   자체전: "bg-sky-50 text-sky-600",
+};
+
+export const matchSportMap: Record<
+  TeamSport,
+  { label: string; className: string }
+> = {
+  soccer: {
+    label: "축구",
+    className: "bg-emerald-50 text-emerald-700",
+  },
+  futsal: {
+    label: "풋살",
+    className: "bg-cyan-50 text-cyan-700",
+  },
 };
 
 // 2. 기본 계산 함수

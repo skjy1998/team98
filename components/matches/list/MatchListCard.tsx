@@ -3,6 +3,7 @@ import {
   formatMatchTime,
   getMatchResult,
   getMatchValueText,
+  matchSportMap,
   shouldShowMatchStatusBadge,
   statusMap,
   typeMap,
@@ -19,6 +20,7 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
   const result = getMatchResult(match);
   const status = statusMap[result];
   const valueText = getMatchValueText(match);
+  const sport = matchSportMap[match.sport];
 
   return (
     <Link
@@ -27,12 +29,17 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-stone-900 md:text-base">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="min-w-0 truncate text-sm font-semibold text-stone-900 md:text-base">
               {match.title}
             </h3>
             <span
-              className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${typeMap[match.type]}`}
+              className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${sport.className}`}
+            >
+              {sport.label}
+            </span>
+            <span
+              className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${typeMap[match.type]}`}
             >
               {match.type}
             </span>

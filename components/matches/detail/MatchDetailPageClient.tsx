@@ -115,13 +115,35 @@ export default function MatchDetailPageClient({
   const handleUpdateMatch = async (value: MatchCreateFormValue) => {
     if (!match) return false;
 
+    const shouldResetTactics =
+      match.sport !== value.sport ||
+      match.playersPerSide !== value.playersPerSide ||
+      match.quarterCount !== value.quarterCount;
+
+    if (shouldResetTactics) {
+      const confirmed = await confirm({
+        title: "경기 구성 변경",
+        description:
+          "참가 인원이나 쿼터 수를 변경하면 저장된 모든 쿼터의 포메이션과 선수 배치가 초기화돼요. 변경할까요?",
+        confirmLabel: "변경",
+      });
+
+      if (!confirmed) return false;
+    }
+
     const success = await updateMatch(match.id, value);
 
     if (!success) {
       showToast("경기 정보 수정에 실패했어요.", "error");
       return false;
     }
-    showToast("경기 정보가 수정됐어요.", "success");
+
+    showToast(
+      shouldResetTactics
+        ? "경기 구성을 변경하고 기존 전술을 초기화했어요."
+        : "경기 정보가 수정됐어요.",
+      "success",
+    );
 
     return true;
   };
@@ -266,6 +288,7 @@ export default function MatchDetailPageClient({
           matchId={match.id}
           sport={match.sport}
           playersPerSide={match.playersPerSide}
+          quarterCount={match.quarterCount}
           onChangePlayersPerSide={handleChangePlayersPerSide}
           canManage={canManage}
         />
@@ -274,6 +297,8 @@ export default function MatchDetailPageClient({
       {activeTab === "record" && (
         <MatchRecordTab
           matchId={match.id}
+          quarterCount={match.quarterCount}
+          quarterDurationMinutes={match.quarterDurationMinutes}
           events={events}
           recordsLoaded={matchRecordsLoaded}
           recordCompletedAt={match.recordCompletedAt}

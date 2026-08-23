@@ -13,6 +13,8 @@ import MatchRecordCard from "./MatchRecordCard";
 
 interface MatchRecordQuarterSectionProps {
   section: MatchRecordQuarterSectionItem;
+  quarterCount: number;
+  quarterDurationMinutes: number;
   quarterEvents: MatchRecordEvent[];
   editingEventId: string | null;
   attendPlayers: PlayerType[];
@@ -34,6 +36,8 @@ interface MatchRecordQuarterSectionProps {
 
 export default function MatchRecordQuarterSection({
   section,
+  quarterCount,
+  quarterDurationMinutes,
   quarterEvents,
   editingEventId,
   attendPlayers,
@@ -77,6 +81,8 @@ export default function MatchRecordQuarterSection({
                     {isEditing && (
                       <MatchRecordEditPanel
                         event={event}
+                        quarterCount={quarterCount}
+                        quarterDurationMinutes={quarterDurationMinutes}
                         attendPlayers={attendPlayers}
                         onCancel={onCancelEdit}
                         onSubmit={onSubmitEdit}

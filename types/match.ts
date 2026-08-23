@@ -4,7 +4,7 @@ export type MatchStatus = "scheduled" | "canceled";
 export type MatchType = "정규" | "자체전";
 export type MatchUniform = "home" | "away";
 export type MatchRecordEventType = "goal" | "concede";
-export type MatchRecordQuarter = "1Q" | "2Q" | "3Q" | "4Q" | "unknown";
+export type MatchRecordQuarter = `${number}Q` | "unknown";
 export type MatchRecordMap = Record<string, MatchRecordEvent[]>;
 export type MatchDetailTab =
   | "info"
@@ -15,6 +15,7 @@ export type MatchDetailTab =
 
 export type MatchOpponentRecordResult = "win" | "draw" | "lose";
 export type MatchPlayersPerSide = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type MatchQuarterCount = number;
 
 export interface MatchRecordEvent {
   id: string;
@@ -32,6 +33,8 @@ export interface MatchCreateFormValue {
   type: MatchType;
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
+  quarterCount: MatchQuarterCount;
+  quarterDurationMinutes: number;
   date: string;
   startTime: string;
   endTime: string;
@@ -48,6 +51,8 @@ export interface MatchItem {
   type: MatchType;
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
+  quarterCount: MatchQuarterCount;
+  quarterDurationMinutes: number;
   date: string;
   startTime: string;
   endTime: string;

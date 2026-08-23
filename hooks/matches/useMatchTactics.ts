@@ -13,6 +13,7 @@ import { useCurrentTeam } from "../team/useCurrentTeam";
 import { supabase } from "@/lib/supabase";
 import type { TeamSport } from "@/types/team";
 import type { MatchPlayersPerSide } from "@/types/match";
+import { createQuarterOptions } from "@/lib/matches/match-quarter";
 
 type MatchTacticsRow = {
   match_id: string;
@@ -28,13 +29,20 @@ function mapRowsToTactics(
   rows: MatchTacticsRow[],
   sport: TeamSport,
   playersPerSide: MatchPlayersPerSide,
+  quarterCount: number,
 ): MatchTacticsByQuarter {
-  const defaultTactics = createDefaultMatchTactics(sport, playersPerSide);
+  const defaultTactics = createDefaultMatchTactics(
+    sport,
+    playersPerSide,
+    quarterCount,
+  );
+  const validQuarters = new Set(createQuarterOptions(quarterCount));
   const validFormations = new Set(
     getMatchFormationOptions(sport, playersPerSide),
   );
 
   rows.forEach((row) => {
+    if (!validQuarters.has(row.quarter)) return;
     if (!validFormations.has(row.formation)) return;
 
     defaultTactics[row.quarter] = {
@@ -53,12 +61,13 @@ export function useMatchTactics(
   matchId: string,
   sport: TeamSport,
   playersPerSide: MatchPlayersPerSide,
+  quarterCount: number,
 ) {
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
   const [tacticsByQuarter, setTacticsByQuarter] =
     useState<MatchTacticsByQuarter>(() =>
-      createDefaultMatchTactics(sport, playersPerSide),
+      createDefaultMatchTactics(sport, playersPerSide, quarterCount),
     );
   const [tacticsLoaded, setTacticsLoaded] = useState(false);
 
@@ -88,10 +97,15 @@ export function useMatchTactics(
     }
 
     setTacticsByQuarter(
-      mapRowsToTactics(data as MatchTacticsRow[], sport, playersPerSide),
+      mapRowsToTactics(
+        data as MatchTacticsRow[],
+        sport,
+        playersPerSide,
+        quarterCount,
+      ),
     );
     setTacticsLoaded(true);
-  }, [teamLoaded, teamId, matchId, sport, playersPerSide]);
+  }, [teamLoaded, teamId, matchId, sport, playersPerSide, quarterCount]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

@@ -6,13 +6,11 @@ import type { PlayerDetailPosition, PlayerType } from "@/types/player";
 import type {
   FormationName,
   FormationSlot,
-  MatchQuarter,
   MatchTacticsByQuarter,
   QuarterTacticsState,
 } from "@/types/tactics";
 import type { TeamSport } from "@/types/team";
-
-export const quarterOptions: MatchQuarter[] = ["1Q", "2Q", "3Q", "4Q"];
+import { createQuarterOptions } from "../matches/match-quarter";
 
 const futsalFormationNames = Object.keys(
   futsalFormationTemplates,
@@ -55,12 +53,17 @@ export const createDefaultQuarterTactics = (
 export const createDefaultMatchTactics = (
   sport: TeamSport = "soccer",
   playersPerSide: MatchPlayersPerSide = 11,
-): MatchTacticsByQuarter => ({
-  "1Q": createDefaultQuarterTactics(sport, playersPerSide),
-  "2Q": createDefaultQuarterTactics(sport, playersPerSide),
-  "3Q": createDefaultQuarterTactics(sport, playersPerSide),
-  "4Q": createDefaultQuarterTactics(sport, playersPerSide),
-});
+  quarterCount = 4,
+): MatchTacticsByQuarter => {
+  const quarterOptions = createQuarterOptions(quarterCount);
+
+  return Object.fromEntries(
+    quarterOptions.map((quarter) => [
+      quarter,
+      createDefaultQuarterTactics(sport, playersPerSide),
+    ]),
+  ) as MatchTacticsByQuarter;
+};
 
 export function normalizeSlotLabel(label?: string): PlayerDetailPosition | "" {
   if (!label) return "";

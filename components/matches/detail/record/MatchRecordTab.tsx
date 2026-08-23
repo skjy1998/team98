@@ -8,10 +8,10 @@ import { useMemo, useState } from "react";
 import MatchRecordScoreActions from "./MatchRecordScoreActions";
 import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
 import {
+  createMatchRecordQuarterSections,
   getAttendPlayerIdsByVotes,
   getAttendPlayers,
   getGroupedMatchRecordEvents,
-  quarterSections,
 } from "@/lib/matches/match-record";
 import type { DragEndEvent } from "@dnd-kit/core";
 import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
@@ -21,6 +21,8 @@ import { useConfirmStore } from "@/stores/confirm-store";
 
 interface MatchRecordTabProps {
   matchId: string;
+  quarterCount: number;
+  quarterDurationMinutes: number;
   events: MatchRecordEvent[];
   recordsLoaded: boolean;
   recordCompletedAt?: string;
@@ -37,6 +39,8 @@ interface MatchRecordTabProps {
 
 export default function MatchRecordTab({
   matchId,
+  quarterCount,
+  quarterDurationMinutes,
   events,
   recordsLoaded,
   recordCompletedAt,
@@ -59,9 +63,14 @@ export default function MatchRecordTab({
   const isCompleted = Boolean(recordCompletedAt);
   const canEdit = canManage && !isCompleted;
 
+  const quarterSections = useMemo(
+    () => createMatchRecordQuarterSections(quarterCount),
+    [quarterCount],
+  );
+
   const groupedEvents = useMemo(
-    () => getGroupedMatchRecordEvents(events),
-    [events],
+    () => getGroupedMatchRecordEvents(events, quarterCount),
+    [events, quarterCount],
   );
 
   // 현재 경기 참석자 id 만들기
@@ -289,7 +298,9 @@ export default function MatchRecordTab({
                 <MatchRecordQuarterSection
                   key={section.key}
                   section={section}
-                  quarterEvents={groupedEvents[section.key]}
+                  quarterCount={quarterCount}
+                  quarterDurationMinutes={quarterDurationMinutes}
+                  quarterEvents={groupedEvents[section.key] ?? []}
                   editingEventId={editingEventId}
                   attendPlayers={attendPlayers}
                   canManage={canEdit}
