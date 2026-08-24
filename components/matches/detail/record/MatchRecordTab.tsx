@@ -96,6 +96,27 @@ export default function MatchRecordTab({
     [players, attendPlayerIds],
   );
 
+  const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
+
+  const selfMatchPlayersBySide = useMemo(() => {
+    const teamAPlayerIds = new Set(
+      currentVotes
+        .filter((vote) => vote.status === "attend" && vote.side === "team_a")
+        .map((vote) => vote.playerId),
+    );
+
+    const teamBPlayerIds = new Set(
+      currentVotes
+        .filter((vote) => vote.status === "attend" && vote.side === "team_b")
+        .map((vote) => vote.playerId),
+    );
+
+    return {
+      team_a: attendPlayers.filter((player) => teamAPlayerIds.has(player.id)),
+      team_b: attendPlayers.filter((player) => teamBPlayerIds.has(player.id)),
+    };
+  }, [currentVotes, attendPlayers]);
+
   const handleChangeCompletion = async () => {
     if (!canManage || !hasMatchStarted || isCompletionSaving) return;
 
@@ -348,6 +369,7 @@ export default function MatchRecordTab({
                 <MatchRecordQuarterSection
                   key={section.key}
                   matchType={matchType}
+                  selfMatchPlayersBySide={selfMatchPlayersBySide}
                   section={section}
                   quarterCount={quarterCount}
                   quarterDurationMinutes={quarterDurationMinutes}

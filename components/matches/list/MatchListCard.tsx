@@ -19,8 +19,14 @@ interface MatchListCardProps {
 export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
   const result = getMatchResult(match);
   const status = statusMap[result];
+
   const valueText = getMatchValueText(match);
   const sport = matchSportMap[match.sport];
+
+  const hasRecordedResult =
+    result === "win" || result === "lose" || result === "draw";
+
+  const isSelfMatchResult = match.type === "자체전" && hasRecordedResult;
 
   return (
     <Link
@@ -54,19 +60,50 @@ export default function MatchListCard({ match }: Readonly<MatchListCardProps>) {
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2 text-right">
-          {shouldShowMatchStatusBadge(match) && (
-            <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${status.badgeClassName}`}
-            >
-              {status.label}
-            </span>
-          )}
-          <p
-            className={`text-sm font-semibold md:text-base ${status.scoreClassName}`}
-          >
-            {valueText}
-          </p>
-          <ChevronRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-1" />
+          <div className="flex shrink-0 items-center gap-3 text-right">
+            <div className="flex items-center gap-3">
+              {isSelfMatchResult ? (
+                <div
+                  className="flex items-baseline gap-2"
+                  aria-label={`A팀 ${match.ourScore ?? 0}점, B팀 ${
+                    match.opponentScore ?? 0
+                  }점`}
+                >
+                  <span className="text-sm font-bold text-emerald-700">A</span>
+                  <span className="text-2xl font-bold tracking-tight text-stone-900">
+                    {match.ourScore ?? 0}
+                  </span>
+
+                  <span className="ml-1 text-sm font-bold text-sky-700">B</span>
+                  <span className="text-2xl font-bold tracking-tight text-stone-900">
+                    {match.opponentScore ?? 0}
+                  </span>
+                </div>
+              ) : (
+                <p
+                  className={[
+                    "font-semibold",
+                    hasRecordedResult
+                      ? "text-2xl tracking-tight"
+                      : "text-sm md:text-base",
+                    status.scoreClassName,
+                  ].join(" ")}
+                >
+                  {valueText}
+                </p>
+              )}
+
+              {!isSelfMatchResult && shouldShowMatchStatusBadge(match) && (
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${status.badgeClassName}`}
+                >
+                  {status.label}
+                </span>
+              )}
+            </div>
+
+            <ChevronRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-1" />
+          </div>
         </div>
       </div>
     </Link>

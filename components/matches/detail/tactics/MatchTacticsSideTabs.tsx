@@ -1,12 +1,12 @@
-import { SelfMatchTacticsSide } from "@/types/tactics";
+import type { SelfMatchSide } from "@/types/match";
 
 interface MatchTacticsSideTabsProps {
-  selectedSide: SelfMatchTacticsSide;
-  onChangeSide: (side: SelfMatchTacticsSide) => void;
+  selectedSide: SelfMatchSide;
+  onChangeSide: (side: SelfMatchSide) => void;
 }
 
 const sideOptions: {
-  value: SelfMatchTacticsSide;
+  value: SelfMatchSide;
   label: string;
 }[] = [
   { value: "team_a", label: "A팀" },

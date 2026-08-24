@@ -4,11 +4,25 @@ import type {
 } from "@/types/match-attendance";
 import type { PlayerType } from "@/types/player";
 import FinanceReadonlyNotice from "@/components/finance/FinanceReadonlyNotice";
-import AttendanceMemberRow from "./AttendanceMemberRow";
 import { useToastStore } from "@/stores/toast-store";
+import type { MatchVote } from "@/types/match-vote";
+import type { MatchType, SelfMatchSide } from "@/types/match";
+import SelfMatchTeamAssignmentSection from "./SelfMatchTeamAssignmentSection";
+import MatchAttendanceCheckSection from "./MatchAttendanceCheckSection";
+import MatchAttendanceModeTabs, {
+  MatchAttendanceMode,
+} from "./MatchAttendanceModeTabs";
+import { useState } from "react";
 
 interface MatchAttendanceTabProps {
   matchId: string;
+  matchType: MatchType;
+  votes: MatchVote[];
+  saveVoteSide: (
+    matchId: string,
+    playerId: string,
+    side: SelfMatchSide | null,
+  ) => Promise<boolean>;
   players: PlayerType[];
   attendance: MatchAttendance[];
   canManage: boolean;
@@ -22,6 +36,9 @@ interface MatchAttendanceTabProps {
 
 export default function MatchAttendanceTab({
   matchId,
+  matchType,
+  votes,
+  saveVoteSide,
   players,
   attendance,
   canManage,
@@ -29,6 +46,8 @@ export default function MatchAttendanceTab({
   deleteAttendance,
 }: Readonly<MatchAttendanceTabProps>) {
   const showToast = useToastStore((state) => state.showToast);
+  const [activeMode, setActiveMode] =
+    useState<MatchAttendanceMode>("assignment");
 
   const handleChangeStatus = async (
     playerId: string,
@@ -41,6 +60,17 @@ export default function MatchAttendanceTab({
 
     if (!success) {
       showToast("출석 저장에 실패했어요.", "error");
+    }
+  };
+
+  const handleChangeSide = async (
+    playerId: string,
+    side: SelfMatchSide | null,
+  ) => {
+    const success = await saveVoteSide(matchId, playerId, side);
+
+    if (!success) {
+      showToast("팀 배정 저장에 실패했어요.", "error");
     }
   };
 
@@ -82,49 +112,33 @@ export default function MatchAttendanceTab({
         <FinanceReadonlyNotice message="출석 현황은 조회할 수 있고, 변경은 운영진만 할 수 있어요." />
       )}
 
-      <section className="rounded-xl border border-stone-200 bg-white p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-stone-900">출석 체크</h2>
-            <p className="mt-1 text-sm text-stone-500">
-              투표에서 참석을 선택한 선수만 표시돼요.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {canManage && (
-              <button
-                type="button"
-                onClick={handleMarkAllAttend}
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
-              >
-                전원 출석 처리
-              </button>
-            )}
-            <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-medium text-stone-600">
-              총 {players.length}명
-            </span>
-          </div>
-        </div>
+      {matchType === "자체전" && (
+        <MatchAttendanceModeTabs
+          activeMode={activeMode}
+          onChangeMode={setActiveMode}
+        />
+      )}
 
-        <div className="mt-5 space-y-3">
-          {players.map((player) => {
-            const currentAttendance = attendance.find(
-              (item) => item.playerId === player.id,
-            );
-
-            return (
-              <AttendanceMemberRow
-                key={player.id}
-                id={player.id}
-                name={player.name}
-                status={currentAttendance?.status ?? "unchecked"}
-                canEdit={canManage}
-                onChangeStatus={handleChangeStatus}
-              />
-            );
-          })}
-        </div>
-      </section>
+      {matchType === "자체전" && activeMode === "assignment" ? (
+        <SelfMatchTeamAssignmentSection
+          players={players}
+          votes={votes}
+          canManage={canManage}
+          onChangeSide={(playerId, side) =>
+            void handleChangeSide(playerId, side)
+          }
+        />
+      ) : (
+        <MatchAttendanceCheckSection
+          players={players}
+          attendance={attendance}
+          canManage={canManage}
+          onChangeStatus={(playerId, status) =>
+            void handleChangeStatus(playerId, status)
+          }
+          onMarkAllAttend={() => void handleMarkAllAttend()}
+        />
+      )}
     </div>
   );
 }

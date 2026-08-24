@@ -18,14 +18,17 @@ import type {
   FormationName,
   MatchQuarter,
   MatchTacticsSide,
-  SelfMatchTacticsSide,
   SetPieceKey,
 } from "@/types/tactics";
 import { useMemo, useState } from "react";
 import MatchQuarterTabs from "../MatchQuarterTabs";
 import ContentState from "@/components/common/ContentState";
 import type { TeamSport } from "@/types/team";
-import type { MatchPlayersPerSide, MatchType } from "@/types/match";
+import type {
+  MatchPlayersPerSide,
+  MatchType,
+  SelfMatchSide,
+} from "@/types/match";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import { createQuarterOptions } from "@/lib/matches/match-quarter";
@@ -102,10 +105,18 @@ export default function MatchTacticsTab({
   );
   const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
 
+  const currentSideVotes = useMemo(() => {
+    if (matchType !== "자체전") {
+      return currentVotes;
+    }
+
+    return currentVotes.filter((vote) => vote.side === selectedSide);
+  }, [currentVotes, matchType, selectedSide]);
+
   // 현재 경기 참석자 id 구하기
   const attendPlayerIds = useMemo(
-    () => getAttendPlayerIds(currentVotes),
-    [currentVotes],
+    () => getAttendPlayerIds(currentSideVotes),
+    [currentSideVotes],
   );
 
   const assignedPlayerIds = useMemo(() => {
@@ -298,7 +309,7 @@ export default function MatchTacticsTab({
     setSelectedSlotId(null);
   };
 
-  const handleChangeSide = (side: SelfMatchTacticsSide) => {
+  const handleChangeSide = (side: SelfMatchSide) => {
     setSelectedSide(side);
     setSelectedSlotId(null);
   };
@@ -327,7 +338,7 @@ export default function MatchTacticsTab({
       />
       {matchType === "자체전" && (
         <MatchTacticsSideTabs
-          selectedSide={selectedSide as SelfMatchTacticsSide}
+          selectedSide={selectedSide as SelfMatchSide}
           onChangeSide={handleChangeSide}
         />
       )}
@@ -365,6 +376,7 @@ export default function MatchTacticsTab({
           playersLoaded={playersLoaded}
           players={assignedPlayers}
           availablePlayers={sortedAvailablePlayers}
+          showKickerSection={sport === "soccer"}
           selectedSlot={selectedSlot}
           selectedSlotId={selectedSlotId}
           onAssignPlayer={handleAssignPlayer}
@@ -382,7 +394,11 @@ export default function MatchTacticsTab({
           onChangePenaltyKickPlayerId={(value) =>
             handleChangeSetPiecePlayer("penaltyKickPlayerId", value)
           }
-          playerListEmptyMessage="출석 탭에서 참석 선수를 먼저 체크하세요."
+          playerListEmptyMessage={
+            matchType === "자체전"
+              ? "출석 탭에서 현재 팀에 선수를 먼저 배정하세요."
+              : "출석 탭에서 참석 선수를 먼저 체크하세요."
+          }
           canManage={canManage}
         />
       </div>

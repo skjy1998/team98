@@ -1,3 +1,5 @@
+import type { SelfMatchSide } from "./match";
+
 export interface FormationSlot {
   id: string;
   label: string;
@@ -47,12 +49,7 @@ export interface SavedFormation {
 
 export type MatchQuarter = `${number}Q`;
 
-export type MatchTacticsSide = "our" | "team_a" | "team_b";
-
-export type SelfMatchTacticsSide = Extract<
-  MatchTacticsSide,
-  "team_a" | "team_b"
->;
+export type MatchTacticsSide = "our" | SelfMatchSide;
 
 export interface QuarterTacticsState {
   formation: FormationName;

@@ -20,6 +20,7 @@ interface TacticsSidebarProps {
   onChangeFreeKickPlayerId: (value: string) => void;
   onChangePenaltyKickPlayerId: (value: string) => void;
   playerListEmptyMessage?: string;
+  showKickerSection?: boolean;
   canManage: boolean;
 }
 
@@ -39,6 +40,7 @@ export default function TacticsSidebar({
   onChangeFreeKickPlayerId,
   onChangePenaltyKickPlayerId,
   playerListEmptyMessage,
+  showKickerSection = true,
   canManage,
 }: Readonly<TacticsSidebarProps>) {
   const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
@@ -60,19 +62,21 @@ export default function TacticsSidebar({
         emptyMessage={playerListEmptyMessage}
         canManage={canManage}
       />
-      <TacticsKickerSection
-        players={players}
-        cornerKickPlayerId={cornerKickPlayerId}
-        freeKickPlayerId={freeKickPlayerId}
-        penaltyKickPlayerId={penaltyKickPlayerId}
-        onChangeCornerKickPlayerId={onChangeCornerKickPlayerId}
-        onChangeFreeKickPlayerId={onChangeFreeKickPlayerId}
-        onChangePenaltyKickPlayerId={onChangePenaltyKickPlayerId}
-        cornerKickPlayer={cornerKickPlayer}
-        freeKickPlayer={freeKickPlayer}
-        penaltyKickPlayer={penaltyKickPlayer}
-        canManage={canManage}
-      />
+      {showKickerSection && (
+        <TacticsKickerSection
+          players={players}
+          cornerKickPlayerId={cornerKickPlayerId}
+          freeKickPlayerId={freeKickPlayerId}
+          penaltyKickPlayerId={penaltyKickPlayerId}
+          onChangeCornerKickPlayerId={onChangeCornerKickPlayerId}
+          onChangeFreeKickPlayerId={onChangeFreeKickPlayerId}
+          onChangePenaltyKickPlayerId={onChangePenaltyKickPlayerId}
+          cornerKickPlayer={cornerKickPlayer}
+          freeKickPlayer={freeKickPlayer}
+          penaltyKickPlayer={penaltyKickPlayer}
+          canManage={canManage}
+        />
+      )}
     </aside>
   );
 }

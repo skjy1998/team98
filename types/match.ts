@@ -2,6 +2,7 @@ import type { TeamSport } from "./team";
 
 export type MatchStatus = "scheduled" | "canceled";
 export type MatchType = "정규" | "자체전";
+export type SelfMatchSide = "team_a" | "team_b";
 export type MatchUniform = "home" | "away";
 export type MatchRecordEventType = "goal" | "concede";
 export type MatchRecordQuarter = `${number}Q` | "unknown";

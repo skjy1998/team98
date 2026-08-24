@@ -8,6 +8,7 @@ import type {
   MatchRecordEvent,
   MatchRecordQuarter,
   MatchType,
+  SelfMatchSide,
 } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 
@@ -17,6 +18,7 @@ import MatchRecordCard from "./MatchRecordCard";
 
 interface MatchRecordQuarterSectionProps {
   matchType: MatchType;
+  selfMatchPlayersBySide: Record<SelfMatchSide, PlayerType[]>;
   section: MatchRecordQuarterSectionItem;
   quarterCount: number;
   quarterDurationMinutes: number;
@@ -41,6 +43,7 @@ interface MatchRecordQuarterSectionProps {
 
 export default function MatchRecordQuarterSection({
   matchType,
+  selfMatchPlayersBySide,
   section,
   quarterCount,
   quarterDurationMinutes,
@@ -81,6 +84,12 @@ export default function MatchRecordQuarterSection({
             >
               {quarterEvents.map((event) => {
                 const isEditing = editingEventId === event.id;
+                const editablePlayers =
+                  matchType === "자체전"
+                    ? event.type === "goal"
+                      ? selfMatchPlayersBySide.team_a
+                      : selfMatchPlayersBySide.team_b
+                    : attendPlayers;
 
                 return (
                   <div key={event.id} className="space-y-3">
@@ -90,7 +99,7 @@ export default function MatchRecordQuarterSection({
                         matchType={matchType}
                         quarterCount={quarterCount}
                         quarterDurationMinutes={quarterDurationMinutes}
-                        attendPlayers={attendPlayers}
+                        attendPlayers={editablePlayers}
                         onCancel={onCancelEdit}
                         onSubmit={onSubmitEdit}
                       />

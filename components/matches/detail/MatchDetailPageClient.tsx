@@ -60,7 +60,7 @@ export default function MatchDetailPageClient({
   } = useMatches({ includeAllSeasons: true });
 
   const { records, recordsLoaded: recordsMapLoaded } = useMatchRecordsMap();
-  const { votes, votesLoaded } = useMatchVotes();
+  const { votes, votesLoaded, saveVoteSide } = useMatchVotes();
   const { players, playersLoaded } = usePlayers();
   const { canManage, memberLoaded } = useCurrentTeamMember();
   const { team, teamLoaded } = useCurrentTeam();
@@ -285,10 +285,13 @@ export default function MatchDetailPageClient({
       {activeTab === "attendance" && (
         <MatchAttendanceTab
           matchId={match.id}
+          matchType={match.type}
           players={attendancePlayers}
+          votes={matchVotes}
           attendance={matchAttendance}
           canManage={canManage}
           saveAttendance={saveAttendance}
+          saveVoteSide={saveVoteSide}
           deleteAttendance={deleteAttendance}
         />
       )}

@@ -1,8 +1,11 @@
+import type { SelfMatchSide } from "./match";
+
 export type VoteStatus = "attend" | "pending" | "absent" | "unvoted";
 
 export interface MatchVote {
   playerId: string;
   status: VoteStatus;
+  side?: SelfMatchSide;
 }
 
 export interface VoteMember {
