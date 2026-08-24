@@ -4,6 +4,7 @@ import type { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
 import {
   formatVoteDeadline,
   getFilteredVoteMembers,
+  getPlayerVoteStatus,
   getVoteMembers,
   getVoteSummary,
   isVoteClosed,
@@ -25,7 +26,7 @@ interface MatchVoteTabProps {
     playerId: string,
     status: VoteStatus,
   ) => Promise<boolean>;
-  deleteVote: (matchid: string, playerId: string) => Promise<boolean>;
+  deleteVote: (matchId: string, playerId: string) => Promise<boolean>;
 }
 
 export default function MatchVoteTab({
@@ -60,15 +61,13 @@ export default function MatchVoteTab({
 
   const summary = useMemo(() => getVoteSummary(voteMembers), [voteMembers]);
 
-  const myVoteStatus =
-    votes.find((vote) => vote.playerId === myPlayer?.id)?.status ?? "unvoted";
+  const myVoteStatus = getPlayerVoteStatus(votes, myPlayer?.id);
 
   const isClosed = isVoteClosed(match.voteDeadline);
   const voteDeadlineText = formatVoteDeadline(match.voteDeadline);
 
   const handleChangeStatus = async (playerId: string, status: VoteStatus) => {
-    const currentStatus =
-      votes.find((vote) => vote.playerId === playerId)?.status ?? "unvoted";
+    const currentStatus = getPlayerVoteStatus(votes, playerId);
 
     const success =
       currentStatus === status

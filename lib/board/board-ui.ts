@@ -27,3 +27,7 @@ export function formatPostDate(value: string) {
     day: "2-digit",
   }).format(new Date(value));
 }
+
+export function getRecentNoticePost(posts: TeamPost[], limit = 1): TeamPost[] {
+  return posts.filter((post) => post.type === "notice").slice(0, limit);
+}

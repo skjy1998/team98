@@ -1,28 +1,64 @@
-import type { MatchItem } from "@/types/match";
+import type { MatchItem, MatchRecordMap } from "@/types/match";
 import type { DashboardTodoItem } from "@/types/dashboard";
 import type { MatchVotesByMatchId } from "@/types/match-vote";
 import type { PaymentStatusRow } from "@/types/finance";
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
-import { getIsUpcomingMatch } from "../matches/match-ui";
+import type { NotificationSettings } from "@/types/settings";
+import { getDisplayMatches } from "../matches/match-ui";
+
+interface GetDashboardTodoItemsParams {
+  upcomingMatches: MatchItem[];
+  displayMatches: MatchItem[];
+  votes: MatchVotesByMatchId;
+  attendance: MatchAttendanceByMatchId;
+  paymentStatusRows: PaymentStatusRow[];
+  myPlayerId?: string;
+  currentMonth: string;
+  unpaidFineCount: number;
+  unpaidFineAmount: number;
+  canManage: boolean;
+  notificationSettings: NotificationSettings;
+}
 
 function getMatchTime(match: MatchItem) {
   return new Date(`${match.date}T${match.startTime}`).getTime();
 }
 
+function getMatchEndTime(match: MatchItem) {
+  return new Date(
+    `${match.date}T${match.endTime || match.startTime}`,
+  ).getTime();
+}
+
+export function getDashboardMatchData(
+  matches: MatchItem[],
+  records: MatchRecordMap,
+) {
+  const displayMatches = getDisplayMatches(matches, records);
+
+  return {
+    displayMatches,
+    upcomingMatches: getDashboardUpcomingMatches(displayMatches),
+    recentMatch: getDashboardRecentMatch(displayMatches),
+  };
+}
+
 export function getDashboardUpcomingMatches(matches: MatchItem[]) {
+  const now = Date.now();
+
   return [...matches]
-    .filter(
-      (match) => match.status !== "canceled" && getIsUpcomingMatch(match.date),
-    )
+    .filter((match) => match.status !== "canceled" && getMatchTime(match) > now)
     .sort((a, b) => getMatchTime(a) - getMatchTime(b));
 }
 
 export function getDashboardRecentMatch(matches: MatchItem[]) {
+  const now = Date.now();
+
   return [...matches]
     .filter(
       (match) =>
         match.status !== "canceled" &&
-        !getIsUpcomingMatch(match.date) &&
+        getMatchEndTime(match) <= now &&
         match.ourScore !== undefined &&
         match.opponentScore !== undefined,
     )
@@ -113,11 +149,7 @@ export function getAttendanceManagementTodos(
     .filter((match) => {
       if (match.status === "canceled") return false;
 
-      const matchEndTime = new Date(
-        `${match.date}T${match.endTime || match.startTime}`,
-      ).getTime();
-
-      return matchEndTime < now;
+      return getMatchEndTime(match) <= now;
     })
     .sort((a, b) => getMatchTime(b) - getMatchTime(a))
     .filter((match) => {
@@ -174,4 +206,46 @@ export function getRecordManagementTodos(
       href: `/matches/${match.id}?tab=record`,
       priority: 5,
     }));
+}
+
+export function getDashboardTodoItems({
+  upcomingMatches,
+  displayMatches,
+  votes,
+  attendance,
+  paymentStatusRows,
+  myPlayerId,
+  currentMonth,
+  unpaidFineCount,
+  unpaidFineAmount,
+  canManage,
+  notificationSettings,
+}: GetDashboardTodoItemsParams): DashboardTodoItem[] {
+  const matchTodos = notificationSettings.matchEnabled
+    ? getUnvotedMatchTodos(upcomingMatches, votes, myPlayerId)
+    : [];
+
+  const feeTodos = notificationSettings.financeEnabled
+    ? getUnpaidFeeTodos(paymentStatusRows, myPlayerId, currentMonth)
+    : [];
+
+  const fineTodos = notificationSettings.financeEnabled
+    ? getUnpaidFineTodos(unpaidFineCount, unpaidFineAmount)
+    : [];
+
+  const attendanceTodos = notificationSettings.managementEnabled
+    ? getAttendanceManagementTodos(displayMatches, votes, attendance, canManage)
+    : [];
+
+  const recordTodos = notificationSettings.managementEnabled
+    ? getRecordManagementTodos(displayMatches, canManage)
+    : [];
+
+  return [
+    ...matchTodos,
+    ...feeTodos,
+    ...fineTodos,
+    ...attendanceTodos,
+    ...recordTodos,
+  ].sort((a, b) => a.priority - b.priority);
 }

@@ -1,4 +1,9 @@
-import type { MatchVote, VoteFilter, VoteMember } from "@/types/match-vote";
+import type {
+  MatchVote,
+  VoteFilter,
+  VoteMember,
+  VoteStatus,
+} from "@/types/match-vote";
 import { PlayerType } from "@/types/player";
 
 export function getVoteMembers(
@@ -77,4 +82,13 @@ export function isVoteClosed(voteDeadline: string) {
   }
 
   return parsedDate.getTime() < Date.now();
+}
+
+export function getPlayerVoteStatus(
+  votes: MatchVote[],
+  playerId?: string,
+): VoteStatus {
+  if (!playerId) return "unvoted";
+
+  return votes.find((vote) => vote.playerId === playerId)?.status ?? "unvoted";
 }

@@ -5,6 +5,7 @@ import {
 import { getOpponentName } from "@/lib/matches/match-ui";
 import {
   formatVoteDeadline,
+  getPlayerVoteStatus,
   getVoteMembers,
   getVoteSummary,
   isVoteClosed,
@@ -15,6 +16,7 @@ import type { PlayerType } from "@/types/player";
 import { Clock3, MapPin } from "lucide-react";
 import Link from "next/link";
 import DashboardMyVoteButtons from "./DashboardMyVoteButtons";
+import DashboardVoteSummary from "./DashboardVoteSummary";
 
 interface DashboardUpcomingMatchCardProps {
   match: MatchItem;
@@ -35,21 +37,10 @@ export default function DashboardUpcomingMatchCard({
   const { month, day, dayOfWeek } = getDashboardMatchDateParts(match.date);
   const voteClosed = isVoteClosed(match.voteDeadline);
   const voteDeadlineText = formatVoteDeadline(match.voteDeadline);
-
   const voteMembers = getVoteMembers(players, votes);
-  const { attend, pending, absent, unvoted, total } =
-    getVoteSummary(voteMembers);
+  const voteSummary = getVoteSummary(voteMembers);
 
-  const respondedCount = attend + pending + absent;
-  const attendRate = total > 0 ? Math.round((attend / total) * 100) : 0;
-
-  const attendWidth = total > 0 ? (attend / total) * 100 : 0;
-  const pendingWidth = total > 0 ? (pending / total) * 100 : 0;
-  const absentWidth = total > 0 ? (absent / total) * 100 : 0;
-  const unvotedWidth = total > 0 ? (unvoted / total) * 100 : 0;
-
-  const myVoteStatus =
-    votes.find((vote) => vote.playerId === myPlayer?.id)?.status ?? "unvoted";
+  const myVoteStatus = getPlayerVoteStatus(votes, myPlayer?.id);
 
   return (
     <article className="relative rounded-2xl border border-orange-200 bg-[radial-gradient(circle_at_top_right,_rgba(251,146,60,0.10),_transparent_28%),linear-gradient(180deg,#fffdfb_0%,#ffffff_100%)] p-5 shadow-sm">
@@ -103,62 +94,7 @@ export default function DashboardUpcomingMatchCard({
         </div>
       </div>
 
-      <div className="mt-6">
-        <div className="flex items-end justify-between gap-3">
-          <span className="text-sm font-extrabold text-emerald-500">
-            참석 {attendRate}%
-          </span>
-          <span className="text-sm font-semibold text-stone-500">
-            {respondedCount}/{total}명 응답
-          </span>
-        </div>
-
-        <div className="mt-4 flex h-6 overflow-hidden rounded bg-stone-100">
-          <div
-            className="flex items-center justify-center bg-emerald-400 text-sm font-bold text-white"
-            style={{ width: `${attendWidth}%` }}
-          >
-            {attend > 0 ? attend : ""}
-          </div>
-          <div
-            className="flex items-center justify-center bg-amber-300 text-sm font-bold text-white"
-            style={{ width: `${pendingWidth}%` }}
-          >
-            {pending > 0 ? pending : ""}
-          </div>
-          <div
-            className="flex items-center justify-center bg-rose-400 text-sm font-bold text-white"
-            style={{ width: `${absentWidth}%` }}
-          >
-            {absent > 0 ? absent : ""}
-          </div>
-          <div
-            className="flex items-center justify-center bg-stone-300 text-sm font-bold text-white"
-            style={{ width: `${unvotedWidth}%` }}
-          >
-            {unvoted > 0 ? unvoted : ""}
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-4 text-sm font-medium text-stone-500">
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            참석 {attend}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-            미정 {pending}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-            불참 {absent}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-stone-300" />
-            미투표 {unvoted}
-          </span>
-        </div>
-      </div>
+      <DashboardVoteSummary summary={voteSummary} />
       {voteClosed ? (
         <div className="mt-5 border-t border-dashed border-stone-200 pt-5">
           <p className="text-sm font-semibold text-stone-500">

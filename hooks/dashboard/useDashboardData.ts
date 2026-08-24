@@ -4,37 +4,22 @@ import { useMatches } from "../matches/useMatches";
 import useMatchRecordsMap from "../matches/useMatchRecordMap";
 import { useMatchVotes } from "../matches/useMatchVotes";
 import { usePlayers } from "../players/usePlayers";
-import {
-  getFinanceDefaults,
-  getFinanceSummary,
-  getMonthlyPaymentEntries,
-  getPaymentStatusRows,
-  getPaymentSummary,
-} from "@/lib/finance/finance";
-import { getDisplayMatches } from "@/lib/matches/match-ui";
-import {
-  getTopAppearances,
-  getTopAssisters,
-  getTopScorers,
-} from "@/lib/stats/ranking-stats";
+import { getFinanceDefaults } from "@/lib/finance/finance";
 import { useFinanceEntries } from "../finance/useFinanceEntries";
 import { useMatchAttendance } from "../matches/useMatchAttendance";
-import { getRecentResults, getTeamSummary } from "@/lib/stats/team-stats";
-import { getPlayerStats } from "@/lib/players/player-stats";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import type { VoteStatus } from "@/types/match-vote";
 import {
-  getAttendanceManagementTodos,
-  getDashboardRecentMatch,
-  getDashboardUpcomingMatches,
-  getRecordManagementTodos,
-  getUnpaidFeeTodos,
-  getUnpaidFineTodos,
-  getUnvotedMatchTodos,
+  getDashboardMatchData,
+  getDashboardTodoItems,
 } from "@/lib/dashboard/dashboard-data";
 import { useNotificationSettings } from "../settings/useNotificationSettings";
 import { useMyUnpaidFineSummary } from "../finance/useMyUnpaidFineSummary";
 import { useTeamPosts } from "../board/useTeamPosts";
+import { getDashboardStatsData } from "@/lib/dashboard/dashboard-stats";
+import { getDashboardFinanceData } from "@/lib/dashboard/dashboard-finance";
+import { getRecentNoticePost } from "@/lib/board/board-ui";
+import { getPlayerVoteStatus } from "@/lib/matches/match-vote";
 
 export function useDashboardData() {
   const { players, playersLoaded } = usePlayers();
@@ -53,39 +38,28 @@ export function useDashboardData() {
 
   const { defaultMonth } = useMemo(() => getFinanceDefaults(), []);
 
-  const displayMatches = useMemo(
-    () => getDisplayMatches(matches, records),
+  const { displayMatches, upcomingMatches, recentMatch } = useMemo(
+    () => getDashboardMatchData(matches, records),
     [matches, records],
   );
 
-  const upcomingMatches = useMemo(
-    () => getDashboardUpcomingMatches(displayMatches),
-    [displayMatches],
-  );
-
-  const recentResults = useMemo(
-    () => getRecentResults(matches, records),
-    [matches, records],
-  );
-
-  const recentMatch = useMemo(
-    () => getDashboardRecentMatch(displayMatches),
-    [displayMatches],
-  );
-
-  const teamSummary = useMemo(
-    () => getTeamSummary(matches, records),
-    [matches, records],
-  );
-
-  const playerStats = useMemo(
-    () => getPlayerStats(players, matches, attendance, records),
-    [players, matches, attendance, records],
-  );
-
-  const myPlayer = useMemo(
-    () => playerStats.find((player) => player.userId === member?.userId),
-    [playerStats, member?.userId],
+  const {
+    recentResults,
+    teamSummary,
+    myPlayer,
+    topAppearance,
+    topScorer,
+    topAssister,
+  } = useMemo(
+    () =>
+      getDashboardStatsData({
+        players,
+        matches,
+        attendance,
+        records,
+        currentUserId: member?.userId,
+      }),
+    [players, matches, attendance, records, member?.userId],
   );
 
   const { summary: unpaidFineSummary, summaryLoaded: unpaidFineSummaryLoaded } =
@@ -94,44 +68,23 @@ export function useDashboardData() {
       enabled: notificationSettings.financeEnabled,
     });
 
-  const { topAppearance, topScorer, topAssister } = useMemo(
-    () => ({
-      topScorer: getTopScorers(playerStats).find((player) => player.goal > 0),
-      topAssister: getTopAssisters(playerStats).find(
-        (player) => player.assist > 0,
-      ),
-      topAppearance: getTopAppearances(playerStats).find(
-        (player) => player.appearance > 0,
-      ),
-    }),
-    [playerStats],
+  const { financeSummary, paymentStatusRows, paymentSummary } = useMemo(
+    () =>
+      getDashboardFinanceData({
+        entries,
+        players,
+        currentMonth: defaultMonth,
+      }),
+    [entries, players, defaultMonth],
   );
-
-  const financeSummary = useMemo(
-    () => getFinanceSummary(entries, defaultMonth),
-    [entries, defaultMonth],
-  );
-
-  const { paymentStatusRows, paymentSummary } = useMemo(() => {
-    const monthlyPaymentEntries = getMonthlyPaymentEntries(
-      entries,
-      defaultMonth,
-    );
-
-    const rows = getPaymentStatusRows(players, monthlyPaymentEntries);
-
-    return {
-      paymentStatusRows: rows,
-      paymentSummary: getPaymentSummary(rows),
-    };
-  }, [entries, players, defaultMonth]);
 
   const changeMyVote = async (matchId: string, status: VoteStatus) => {
     if (!myPlayer) return false;
 
-    const currentStatus =
-      votes[matchId]?.find((vote) => vote.playerId === myPlayer.id)?.status ??
-      "unvoted";
+    const currentStatus = getPlayerVoteStatus(
+      votes[matchId] ?? [],
+      myPlayer.id,
+    );
 
     if (currentStatus === status) {
       return deleteVote(matchId, myPlayer.id);
@@ -140,75 +93,57 @@ export function useDashboardData() {
     return saveVote(matchId, myPlayer.id, status);
   };
 
-  const todoItems = useMemo(() => {
-    const matchTodos = notificationSettings.matchEnabled
-      ? getUnvotedMatchTodos(upcomingMatches, votes, myPlayer?.id)
-      : [];
-
-    const feeTodos = notificationSettings.financeEnabled
-      ? getUnpaidFeeTodos(paymentStatusRows, myPlayer?.id, defaultMonth)
-      : [];
-
-    const fineTodos = notificationSettings.financeEnabled
-      ? getUnpaidFineTodos(
-          unpaidFineSummary.count,
-          unpaidFineSummary.totalAmount,
-        )
-      : [];
-
-    const managementTodos = notificationSettings.managementEnabled
-      ? getAttendanceManagementTodos(
-          displayMatches,
-          votes,
-          attendance,
-          canManage,
-        )
-      : [];
-
-    const recordTodos = notificationSettings.managementEnabled
-      ? getRecordManagementTodos(displayMatches, canManage)
-      : [];
-
-    return [
-      ...matchTodos,
-      ...feeTodos,
-      ...fineTodos,
-      ...managementTodos,
-      ...recordTodos,
-    ].sort((a, b) => a.priority - b.priority);
-  }, [
-    upcomingMatches,
-    votes,
-    myPlayer?.id,
-    paymentStatusRows,
-    defaultMonth,
-    notificationSettings.matchEnabled,
-    notificationSettings.financeEnabled,
-    unpaidFineSummary.count,
-    unpaidFineSummary.totalAmount,
-    displayMatches,
-    attendance,
-    canManage,
-    notificationSettings.managementEnabled,
-  ]);
-
-  const recentNotice = useMemo(
-    () => posts.filter((post) => post.type === "notice").slice(0, 1),
-    [posts],
+  const todoItems = useMemo(
+    () =>
+      getDashboardTodoItems({
+        upcomingMatches,
+        displayMatches,
+        votes,
+        attendance,
+        paymentStatusRows,
+        myPlayerId: myPlayer?.id,
+        currentMonth: defaultMonth,
+        unpaidFineCount: unpaidFineSummary.count,
+        unpaidFineAmount: unpaidFineSummary.totalAmount,
+        canManage,
+        notificationSettings,
+      }),
+    [
+      upcomingMatches,
+      displayMatches,
+      votes,
+      attendance,
+      paymentStatusRows,
+      myPlayer?.id,
+      defaultMonth,
+      unpaidFineSummary.count,
+      unpaidFineSummary.totalAmount,
+      canManage,
+      notificationSettings,
+    ],
   );
 
-  const isLoaded =
+  const recentNotice = useMemo(() => getRecentNoticePost(posts), [posts]);
+
+  const matchDataLoaded =
     playersLoaded &&
     matchesLoaded &&
     votesLoaded &&
     attendanceLoaded &&
     recordsLoaded &&
-    entriesLoaded &&
-    financeSettingsLoaded &&
-    notificationSettingsLoaded &&
-    unpaidFineSummaryLoaded &&
-    postsLoaded &&
     memberLoaded;
+
+  const financeDataLoaded =
+    entriesLoaded && financeSettingsLoaded && unpaidFineSummaryLoaded;
+
+  const settingsDataLoaded = notificationSettingsLoaded;
+  const boardDataLoaded = postsLoaded;
+
+  const isLoaded =
+    matchDataLoaded &&
+    financeDataLoaded &&
+    settingsDataLoaded &&
+    boardDataLoaded;
 
   return {
     todoData: {
