@@ -5,15 +5,17 @@ export function getVoteMembers(
   players: PlayerType[],
   currentVotes: MatchVote[],
 ): VoteMember[] {
-  return players.map((player) => {
-    const vote = currentVotes.find((item) => item.playerId === player.id);
+  return players
+    .map((player) => {
+      const vote = currentVotes.find((item) => item.playerId === player.id);
 
-    return {
-      id: player.id,
-      name: player.name,
-      status: vote?.status ?? "unvoted",
-    };
-  });
+      return {
+        id: player.id,
+        name: player.name,
+        status: vote?.status ?? "unvoted",
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
 }
 
 export function getFilteredVoteMembers(

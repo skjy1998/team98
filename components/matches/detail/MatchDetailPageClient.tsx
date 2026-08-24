@@ -60,7 +60,8 @@ export default function MatchDetailPageClient({
   } = useMatches({ includeAllSeasons: true });
 
   const { records, recordsLoaded: recordsMapLoaded } = useMatchRecordsMap();
-  const { votes, votesLoaded, saveVoteSide } = useMatchVotes();
+  const { votes, votesLoaded, saveVote, saveVoteSide, deleteVote } =
+    useMatchVotes();
   const { players, playersLoaded } = usePlayers();
   const { canManage, memberLoaded } = useCurrentTeamMember();
   const { team, teamLoaded } = useCurrentTeam();
@@ -81,7 +82,10 @@ export default function MatchDetailPageClient({
   );
 
   const attendancePlayers = useMemo(
-    () => players.filter((player) => attendPlayerIds.has(player.id)),
+    () =>
+      players
+        .filter((player) => attendPlayerIds.has(player.id))
+        .toSorted((a, b) => a.name.localeCompare(b.name, "ko")),
     [players, attendPlayerIds],
   );
 
@@ -280,7 +284,13 @@ export default function MatchDetailPageClient({
       )}
 
       {activeTab === "vote" && (
-        <MatchVoteTab matchId={match.id} match={resolvedMatch} />
+        <MatchVoteTab
+          matchId={match.id}
+          match={resolvedMatch}
+          votes={matchVotes}
+          saveVote={saveVote}
+          deleteVote={deleteVote}
+        />
       )}
       {activeTab === "attendance" && (
         <MatchAttendanceTab

@@ -1,7 +1,6 @@
 import { usePlayers } from "@/hooks/players/usePlayers";
 import { useMemo, useState } from "react";
-import type { VoteFilter, VoteStatus } from "@/types/match-vote";
-import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
+import type { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
 import {
   formatVoteDeadline,
   getFilteredVoteMembers,
@@ -20,22 +19,29 @@ import { useToastStore } from "@/stores/toast-store";
 interface MatchVoteTabProps {
   matchId: string;
   match: MatchItem;
+  votes: MatchVote[];
+  saveVote: (
+    matchId: string,
+    playerId: string,
+    status: VoteStatus,
+  ) => Promise<boolean>;
+  deleteVote: (matchid: string, playerId: string) => Promise<boolean>;
 }
 
 export default function MatchVoteTab({
   matchId,
   match,
+  votes,
+  saveVote,
+  deleteVote,
 }: Readonly<MatchVoteTabProps>) {
   const showToast = useToastStore((state) => state.showToast);
 
   const { players, playersLoaded } = usePlayers();
-  const { votes, votesLoaded, saveVote, deleteVote } = useMatchVotes();
   const { member, memberLoaded, canManage } = useCurrentTeamMember();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<VoteFilter>("all");
-
-  const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
 
   const myPlayer = useMemo(
     () => players.find((player) => player.userId === member?.userId),
@@ -43,8 +49,8 @@ export default function MatchVoteTab({
   );
 
   const voteMembers = useMemo(
-    () => getVoteMembers(players, currentVotes),
-    [players, currentVotes],
+    () => getVoteMembers(players, votes),
+    [players, votes],
   );
 
   const filteredMembers = useMemo(
@@ -55,16 +61,14 @@ export default function MatchVoteTab({
   const summary = useMemo(() => getVoteSummary(voteMembers), [voteMembers]);
 
   const myVoteStatus =
-    currentVotes.find((vote) => vote.playerId === myPlayer?.id)?.status ??
-    "unvoted";
+    votes.find((vote) => vote.playerId === myPlayer?.id)?.status ?? "unvoted";
 
   const isClosed = isVoteClosed(match.voteDeadline);
   const voteDeadlineText = formatVoteDeadline(match.voteDeadline);
 
   const handleChangeStatus = async (playerId: string, status: VoteStatus) => {
     const currentStatus =
-      currentVotes.find((vote) => vote.playerId === playerId)?.status ??
-      "unvoted";
+      votes.find((vote) => vote.playerId === playerId)?.status ?? "unvoted";
 
     const success =
       currentStatus === status
@@ -76,7 +80,7 @@ export default function MatchVoteTab({
     }
   };
 
-  if (!playersLoaded || !votesLoaded || !memberLoaded) {
+  if (!playersLoaded || !memberLoaded) {
     return (
       <ContentState
         variant="loading"
