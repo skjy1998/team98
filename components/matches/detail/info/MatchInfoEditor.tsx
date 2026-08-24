@@ -2,7 +2,6 @@ import type {
   MatchCreateFormValue,
   MatchItem,
   MatchPlayersPerSide,
-  MatchQuarterCount,
   MatchType,
 } from "@/types/match";
 import { useEffect, useState } from "react";
@@ -35,9 +34,7 @@ export default function MatchInfoEditor({
   const [playersPerSide, setPlayersPerSide] = useState<MatchPlayersPerSide>(
     match.playersPerSide,
   );
-  const [quarterCount, setQuarterCount] = useState<MatchQuarterCount>(
-    match.quarterCount,
-  );
+  const [quarterCount, setQuarterCount] = useState(match.quarterCount);
   const [quarterDurationMinutes, setQuarterDurationMinutes] = useState(
     match.quarterDurationMinutes,
   );

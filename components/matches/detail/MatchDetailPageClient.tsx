@@ -11,6 +11,7 @@ import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useMatchRecords } from "@/hooks/matches/useMatchRecords";
 import {
   getDisplayMatches,
+  getHasMatchStarted,
   getMatchDetailDisplay,
   getMatchDetailTab,
 } from "@/lib/matches/match-ui";
@@ -53,6 +54,7 @@ export default function MatchDetailPageClient({
     matchesLoaded,
     updateMatch,
     updateMatchPlayersPerSide,
+    updateMatchRecordInclusion,
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
   } = useMatches({ includeAllSeasons: true });
@@ -185,6 +187,12 @@ export default function MatchDetailPageClient({
     return updateMatchPlayersPerSide(match.id, playersPerSide);
   };
 
+  const handleChangeRecordInclusion = async (countsTowardRecord: boolean) => {
+    if (!match) return false;
+
+    return updateMatchRecordInclusion(match.id, countsTowardRecord);
+  };
+
   // 7. early return
   if (
     !teamLoaded ||
@@ -229,6 +237,8 @@ export default function MatchDetailPageClient({
           opponentScore,
         }
       : match;
+
+  const hasMatchStarted = getHasMatchStarted(match.date, match.startTime);
 
   const {
     displayScore,
@@ -286,6 +296,7 @@ export default function MatchDetailPageClient({
       {activeTab === "tactics" && (
         <MatchTacticsTab
           matchId={match.id}
+          matchType={match.type}
           sport={match.sport}
           playersPerSide={match.playersPerSide}
           quarterCount={match.quarterCount}
@@ -297,11 +308,15 @@ export default function MatchDetailPageClient({
       {activeTab === "record" && (
         <MatchRecordTab
           matchId={match.id}
+          matchType={match.type}
+          countsTowardRecord={match.countsTowardRecord}
+          onChangeRecordInclusion={handleChangeRecordInclusion}
           quarterCount={match.quarterCount}
           quarterDurationMinutes={match.quarterDurationMinutes}
           events={events}
           recordsLoaded={matchRecordsLoaded}
           recordCompletedAt={match.recordCompletedAt}
+          hasMatchStarted={hasMatchStarted}
           addEvent={addEvent}
           deleteEvent={deleteEvent}
           updateEvent={updateEvent}

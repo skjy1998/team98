@@ -20,10 +20,13 @@ export default function MatchDetailHeader({
   opponentName,
   statusBadgeClassName,
 }: Readonly<MatchDetailHeaderProps>) {
-  const safeTeamName = teamName || "우리 팀";
-  const teamInitial = safeTeamName.slice(0, 1);
-  const safeOpponentName = opponentName || "상대 팀";
-  const opponentInitial = safeOpponentName.slice(0, 1);
+  const isSelfMatch = match.type === "자체전";
+
+  const safeTeamName = isSelfMatch ? "A팀" : teamName || "우리팀";
+  const safeOpponentName = isSelfMatch ? "B팀" : opponentName || "상대 팀";
+
+  const teamInitial = isSelfMatch ? "A" : safeTeamName.slice(0, 1);
+  const opponentInitial = isSelfMatch ? "B" : safeOpponentName.slice(0, 1);
 
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">

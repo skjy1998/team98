@@ -1,4 +1,4 @@
-import { getIsUpcomingMatch } from "@/lib/matches/match-ui";
+import { getHasMatchStarted } from "@/lib/matches/match-ui";
 import type { MatchItem, MatchRecordMap } from "@/types/match";
 import type { RecentResult, TeamHighlights } from "@/types/stats";
 
@@ -19,8 +19,9 @@ function hasSavedScore(match: MatchItem) {
 
 function isCompletedMatch(match: MatchItem) {
   return (
+    match.countsTowardRecord &&
     match.status !== "canceled" &&
-    !getIsUpcomingMatch(match.date) &&
+    getHasMatchStarted(match.date, match.startTime) &&
     (Boolean(match.recordCompletedAt) || hasSavedScore(match))
   );
 }

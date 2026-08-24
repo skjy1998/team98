@@ -1,9 +1,10 @@
-import type { MatchRecordEvent } from "@/types/match";
+import type { MatchRecordEvent, MatchType } from "@/types/match";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 
 interface MatchRecordCardProps {
+  matchType: MatchType;
   event: MatchRecordEvent;
   isEditing: boolean;
   onEdit: () => void;
@@ -12,21 +13,35 @@ interface MatchRecordCardProps {
 }
 
 export default function MatchRecordCard({
+  matchType,
   event,
   isEditing,
   onEdit,
   onDelete,
   canManage,
 }: Readonly<MatchRecordCardProps>) {
-  const title =
-    event.type === "goal" ? event.playerName || "득점자 미지정" : "상대팀 득점";
+  const isSelfMatch = matchType === "자체전";
+  const isTeamAGoal = event.type === "goal";
+  const canDisplayPlayer = isTeamAGoal || isSelfMatch;
+
+  const scoreLabel = isSelfMatch
+    ? isTeamAGoal
+      ? "A팀 득점"
+      : "B팀 득점"
+    : isTeamAGoal
+      ? "득점"
+      : "실점";
+
+  const title = canDisplayPlayer
+    ? event.playerName || `${scoreLabel}자 미지정`
+    : "상대팀 득점";
 
   const meta = [
     event.quarter && event.quarter !== "unknown"
       ? event.quarter
       : "쿼터 미지정",
     event.minute ? `${event.minute}분` : null,
-    event.type === "goal" && event.assistPlayerName
+    canDisplayPlayer && event.assistPlayerName
       ? `A: ${event.assistPlayerName}`
       : null,
   ]
@@ -76,7 +91,7 @@ export default function MatchRecordCard({
                       : "bg-rose-100 text-rose-600"
                   }`}
                 >
-                  {event.type === "goal" ? "득점" : "실점"}
+                  {scoreLabel}
                 </span>
 
                 <p className="truncate text-lg font-semibold text-stone-900">

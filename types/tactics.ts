@@ -47,6 +47,13 @@ export interface SavedFormation {
 
 export type MatchQuarter = `${number}Q`;
 
+export type MatchTacticsSide = "our" | "team_a" | "team_b";
+
+export type SelfMatchTacticsSide = Extract<
+  MatchTacticsSide,
+  "team_a" | "team_b"
+>;
+
 export interface QuarterTacticsState {
   formation: FormationName;
   slots: FormationSlot[];
@@ -56,6 +63,11 @@ export interface QuarterTacticsState {
 }
 
 export type MatchTacticsByQuarter = Record<MatchQuarter, QuarterTacticsState>;
+
+export type MatchTacticsBySide = Record<
+  MatchTacticsSide,
+  MatchTacticsByQuarter
+>;
 
 // 저장해 둔 전술 목록
 export interface SaveTacticPreset {

@@ -15,7 +15,6 @@ export type MatchDetailTab =
 
 export type MatchOpponentRecordResult = "win" | "draw" | "lose";
 export type MatchPlayersPerSide = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
-export type MatchQuarterCount = number;
 
 export interface MatchRecordEvent {
   id: string;
@@ -33,7 +32,7 @@ export interface MatchCreateFormValue {
   type: MatchType;
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
-  quarterCount: MatchQuarterCount;
+  quarterCount: number;
   quarterDurationMinutes: number;
   date: string;
   startTime: string;
@@ -51,7 +50,7 @@ export interface MatchItem {
   type: MatchType;
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
-  quarterCount: MatchQuarterCount;
+  quarterCount: number;
   quarterDurationMinutes: number;
   date: string;
   startTime: string;
@@ -65,6 +64,7 @@ export interface MatchItem {
   opponentScore?: number;
   recordCompletedAt?: string;
   isUpcoming: boolean;
+  countsTowardRecord: boolean;
 }
 
 export interface MatchOpponentRecordItem {

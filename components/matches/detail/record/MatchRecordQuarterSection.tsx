@@ -4,7 +4,11 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
+import type {
+  MatchRecordEvent,
+  MatchRecordQuarter,
+  MatchType,
+} from "@/types/match";
 import type { PlayerType } from "@/types/player";
 
 import MatchRecordEditPanel from "./MatchRecordEditPanel";
@@ -12,6 +16,7 @@ import type { MatchRecordQuarterSectionItem } from "@/lib/matches/match-record";
 import MatchRecordCard from "./MatchRecordCard";
 
 interface MatchRecordQuarterSectionProps {
+  matchType: MatchType;
   section: MatchRecordQuarterSectionItem;
   quarterCount: number;
   quarterDurationMinutes: number;
@@ -35,6 +40,7 @@ interface MatchRecordQuarterSectionProps {
 }
 
 export default function MatchRecordQuarterSection({
+  matchType,
   section,
   quarterCount,
   quarterDurationMinutes,
@@ -81,6 +87,7 @@ export default function MatchRecordQuarterSection({
                     {isEditing && (
                       <MatchRecordEditPanel
                         event={event}
+                        matchType={matchType}
                         quarterCount={quarterCount}
                         quarterDurationMinutes={quarterDurationMinutes}
                         attendPlayers={attendPlayers}
@@ -90,6 +97,7 @@ export default function MatchRecordQuarterSection({
                     )}
 
                     <MatchRecordCard
+                      matchType={matchType}
                       event={event}
                       isEditing={isEditing}
                       canManage={canManage}
@@ -107,6 +115,7 @@ export default function MatchRecordQuarterSection({
           quarterEvents.map((event) => (
             <MatchRecordCard
               key={event.id}
+              matchType={matchType}
               event={event}
               isEditing={false}
               canManage={false}

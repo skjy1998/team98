@@ -1,10 +1,15 @@
 import { createQuarterOptions } from "@/lib/matches/match-quarter";
-import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
+import type {
+  MatchRecordEvent,
+  MatchRecordQuarter,
+  MatchType,
+} from "@/types/match";
 import type { PlayerType } from "@/types/player";
 import { useMemo, useState } from "react";
 
 interface MatchRecordEditPanelProps {
   event: MatchRecordEvent;
+  matchType: MatchType;
   quarterCount: number;
   quarterDurationMinutes: number;
   attendPlayers: PlayerType[];
@@ -22,6 +27,7 @@ interface MatchRecordEditPanelProps {
 
 export default function MatchRecordEditPanel({
   event,
+  matchType,
   quarterCount,
   quarterDurationMinutes,
   attendPlayers,
@@ -45,6 +51,11 @@ export default function MatchRecordEditPanel({
   const [quarter, setQuarter] = useState<MatchRecordQuarter>(initialQuarter);
   const [minute, setMinute] = useState(event.minute ?? "");
   const [minuteError, setMinuteError] = useState("");
+
+  const canEditPlayerRecord = event.type === "goal" || matchType === "자체전";
+
+  const scoringTeamLabel =
+    matchType === "자체전" ? (event.type === "goal" ? "A팀" : "B팀") : "";
 
   const handleSubmit = async () => {
     if (minute) {
@@ -86,11 +97,11 @@ export default function MatchRecordEditPanel({
       </div>
 
       <div className="mt-6 space-y-6">
-        {event.type === "goal" && (
+        {canEditPlayerRecord && (
           <>
             <div>
               <p className="mb-3 text-sm font-semibold text-stone-700">
-                득점자
+                {scoringTeamLabel ? `${scoringTeamLabel} 득점자` : "득점자"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {attendPlayers.map((player) => {
@@ -116,7 +127,7 @@ export default function MatchRecordEditPanel({
 
             <div>
               <p className="mb-3 text-sm font-semibold text-stone-700">
-                어시스트
+                {scoringTeamLabel ? `${scoringTeamLabel} 어시스트` : "어시스트"}
               </p>
               <div className="flex flex-wrap gap-2">
                 <button

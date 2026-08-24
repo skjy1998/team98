@@ -3,7 +3,6 @@ import {
   MatchCreateFormValue,
   MatchItem,
   MatchPlayersPerSide,
-  MatchQuarterCount,
   MatchStatus,
   MatchType,
   MatchUniform,
@@ -26,7 +25,7 @@ type MatchRow = {
   type: MatchType;
   sport: TeamSport;
   players_per_side: MatchPlayersPerSide;
-  quarter_count: MatchQuarterCount;
+  quarter_count: number;
   quarter_duration_minutes: number;
   date: string;
   start_time: string;
@@ -39,6 +38,7 @@ type MatchRow = {
   our_score: number | null;
   opponent_score: number | null;
   record_completed_at: string | null;
+  counts_toward_record: boolean;
 };
 
 const MATCH_COLUMNS = `
@@ -60,7 +60,8 @@ const MATCH_COLUMNS = `
   status,
   our_score,
   opponent_score,
-  record_completed_at
+  record_completed_at,
+  counts_toward_record
 `;
 
 function mapMatchRow(match: MatchRow): MatchItem {
@@ -84,6 +85,7 @@ function mapMatchRow(match: MatchRow): MatchItem {
     ourScore: match.our_score ?? undefined,
     opponentScore: match.opponent_score ?? undefined,
     recordCompletedAt: match.record_completed_at ?? undefined,
+    countsTowardRecord: match.counts_toward_record ?? match.type !== "자체전",
     isUpcoming: getIsUpcomingMatch(match.date),
   };
 }
@@ -209,6 +211,7 @@ export function useMatches({
         opponent: value.opponent ?? null,
         uniform: value.uniform,
         status: "scheduled",
+        counts_toward_record: value.type !== "자체전",
       })
       .select(MATCH_COLUMNS)
       .single();
@@ -319,6 +322,42 @@ export function useMatches({
     return true;
   };
 
+  const updateMatchRecordInclusion = async (
+    matchId: string,
+    countsTowardRecord: boolean,
+  ) => {
+    if (!teamId) return false;
+
+    const { data, error } = await supabase
+      .from("matches")
+      .update({
+        counts_toward_record: countsTowardRecord,
+      })
+      .eq("id", matchId)
+      .eq("team_id", teamId)
+      .select(MATCH_COLUMNS)
+      .single();
+
+    if (error || !data) {
+      console.error("match record inclusion update error", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
+
+      return false;
+    }
+
+    setMatches((current) =>
+      current.map((match) =>
+        match.id === matchId ? mapMatchRow(data as MatchRow) : match,
+      ),
+    );
+
+    return true;
+  };
+
   const setMatchRecordCompletion = async (
     matchId: string,
     completed: boolean,
@@ -363,6 +402,7 @@ export function useMatches({
     addMatch,
     updateMatch,
     updateMatchPlayersPerSide,
+    updateMatchRecordInclusion,
     setMatchRecordCompletion,
     deleteMatch,
     reloadMatches: loadMatches,

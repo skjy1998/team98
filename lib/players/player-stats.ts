@@ -1,9 +1,20 @@
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
-import { getIsUpcomingMatch } from "../matches/match-ui";
-import { MatchItem, MatchRecordMap } from "@/types/match";
-import { PlayerSortType, PlayerType } from "@/types/player";
+import type {
+  MatchItem,
+  MatchRecordEvent,
+  MatchRecordMap,
+} from "@/types/match";
+import type { PlayerSortType, PlayerType } from "@/types/player";
+import type { PlayerRecentMatch } from "@/types/stats";
+import { getHasMatchStarted } from "../matches/match-ui";
 import { getMainPositionFromDetail } from "./player-ui";
-import { PlayerRecentMatch } from "@/types/stats";
+
+function isPlayerScoringEvent(event: MatchRecordEvent, match: MatchItem) {
+  return (
+    event.type === "goal" ||
+    (match.type === "자체전" && event.type === "concede")
+  );
+}
 
 export function getPlayerStats(
   players: PlayerType[],
@@ -11,9 +22,11 @@ export function getPlayerStats(
   attendance: MatchAttendanceByMatchId,
   records: MatchRecordMap,
 ) {
-  const validMatches = matches.filter((match) => match.status !== "canceled");
+  const validMatches = matches.filter(
+    (match) => match.status !== "canceled" && match.countsTowardRecord,
+  );
   const pastMatches = validMatches
-    .filter((match) => !getIsUpcomingMatch(match.date))
+    .filter((match) => getHasMatchStarted(match.date, match.startTime))
     .sort((a, b) => {
       const aTime = new Date(`${a.date}T${a.startTime}`).getTime();
       const bTime = new Date(`${b.date}T${b.startTime}`).getTime();
@@ -27,8 +40,8 @@ export function getPlayerStats(
     const { appearance, appearanceStreak, attendanceRate } =
       getPlayerAttendanceStats(player.id, pastMatchIds, attendance);
 
-    const goal = getPlayerGoalCount(player.id, records, pastMatchIds);
-    const assist = getPlayerAssistCount(player.id, records, pastMatchIds);
+    const goal = getPlayerGoalCount(player.id, records, pastMatches);
+    const assist = getPlayerAssistCount(player.id, records, pastMatches);
     const attackPoint = goal + assist;
 
     return {
@@ -53,7 +66,10 @@ export function getPlayerRecentMatches(
 
   return matches
     .filter(
-      (match) => match.status !== "canceled" && !getIsUpcomingMatch(match.date),
+      (match) =>
+        match.status !== "canceled" &&
+        match.countsTowardRecord &&
+        getHasMatchStarted(match.date, match.startTime),
     )
     .sort((a, b) => {
       const aTime = new Date(`${a.date}T${a.startTime}`).getTime();
@@ -70,11 +86,14 @@ export function getPlayerRecentMatches(
       const matchRecords = records[match.id] ?? [];
 
       const goal = matchRecords.filter(
-        (event) => event.type === "goal" && event.playerId === playerId,
+        (event) =>
+          isPlayerScoringEvent(event, match) && event.playerId === playerId,
       ).length;
 
       const assist = matchRecords.filter(
-        (event) => event.type === "goal" && event.assistPlayerId === playerId,
+        (event) =>
+          isPlayerScoringEvent(event, match) &&
+          event.assistPlayerId === playerId,
       ).length;
 
       return {
@@ -90,7 +109,7 @@ export function getPlayerRecentMatches(
 
 export function getPastMatchIds(matches: MatchItem[]) {
   return matches
-    .filter((match) => !getIsUpcomingMatch(match.date))
+    .filter((match) => getHasMatchStarted(match.date, match.startTime))
     .map((match) => match.id);
 }
 
@@ -144,30 +163,37 @@ export function getPlayerAppearanceCount(
 export function getPlayerGoalCount(
   playerId: string,
   records: MatchRecordMap,
-  validMatchIds: string[],
+  validMatches: MatchItem[],
 ) {
-  return validMatchIds.reduce((count, matchId) => {
-    const events = records[matchId] ?? [];
-    const goalCount = events.filter(
-      (event) => event.type === "goal" && event.playerId === playerId,
-    ).length;
+  return validMatches.reduce((count, match) => {
+    const events = records[match.id] ?? [];
 
-    return count + goalCount;
+    return (
+      count +
+      events.filter(
+        (event) =>
+          isPlayerScoringEvent(event, match) && event.playerId === playerId,
+      ).length
+    );
   }, 0);
 }
 
 export function getPlayerAssistCount(
   playerId: string,
   records: MatchRecordMap,
-  validMatchIds: string[],
+  validMatches: MatchItem[],
 ) {
-  return validMatchIds.reduce((count, matchId) => {
-    const events = records[matchId] ?? [];
-    const assistCount = events.filter(
-      (event) => event.type === "goal" && event.assistPlayerId === playerId,
-    ).length;
+  return validMatches.reduce((count, match) => {
+    const events = records[match.id] ?? [];
 
-    return count + assistCount;
+    return (
+      count +
+      events.filter(
+        (event) =>
+          isPlayerScoringEvent(event, match) &&
+          event.assistPlayerId === playerId,
+      ).length
+    );
   }, 0);
 }
 
@@ -178,14 +204,20 @@ export function getDisplayPlayers(
   attendance: MatchAttendanceByMatchId,
   records: MatchRecordMap,
 ) {
-  const validMatches = matches.filter((match) => match.status !== "canceled");
-  const pastMatchIds = getPastMatchIds(validMatches);
+  const validMatches = matches.filter(
+    (match) => match.status !== "canceled" && match.countsTowardRecord,
+  );
+  const pastMatches = validMatches.filter((match) =>
+    getHasMatchStarted(match.date, match.startTime),
+  );
+
+  const pastMatchIds = pastMatches.map((match) => match.id);
 
   return players.map((player) => ({
     ...player,
     appearance: getPlayerAppearanceCount(player.id, pastMatchIds, attendance),
-    goal: getPlayerGoalCount(player.id, records, pastMatchIds),
-    assist: getPlayerAssistCount(player.id, records, pastMatchIds),
+    goal: getPlayerGoalCount(player.id, records, pastMatches),
+    assist: getPlayerAssistCount(player.id, records, pastMatches),
   }));
 }
 

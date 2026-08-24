@@ -201,15 +201,17 @@ export function getMatchDetailStatusLabel(match: MatchItem) {
   if (result === "scheduled") {
     return match.isUpcoming ? "예정" : "기록 전";
   }
-  if (result === "canceled") {
-    return "취소";
+
+  if (match.type === "자체전") {
+    if (result === "win") return "A팀 승";
+    if (result === "lose") return "B팀 승";
+
+    return "무승부";
   }
-  if (result === "win") {
-    return "승";
-  }
-  if (result === "lose") {
-    return "패";
-  }
+
+  if (result === "win") return "승";
+  if (result === "lose") return "패";
+
   return "무";
 }
 
@@ -266,6 +268,7 @@ export function getOpponentRecordSummary(
     .filter(
       (match) =>
         match.id !== currentMatchId &&
+        match.countsTowardRecord &&
         match.type === "정규" &&
         match.opponent === opponent &&
         match.ourScore !== undefined &&
@@ -359,4 +362,13 @@ export function getDateTimeLocalValue(value: string) {
   const timezoneOffset = date.getTimezoneOffset() * 60 * 1000;
 
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
+}
+
+export function getHasMatchStarted(date: string, startTime: string) {
+  if (!date || !startTime) return false;
+
+  const matchStartAt = new Date(`${date}T${startTime}`);
+  if (Number.isNaN(matchStartAt.getTime())) return false;
+
+  return matchStartAt.getTime() <= Date.now();
 }

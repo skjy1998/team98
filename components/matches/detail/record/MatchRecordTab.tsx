@@ -3,6 +3,7 @@ import type {
   MatchRecordEvent,
   MatchRecordEventType,
   MatchRecordQuarter,
+  MatchType,
 } from "@/types/match";
 import { useMemo, useState } from "react";
 import MatchRecordScoreActions from "./MatchRecordScoreActions";
@@ -18,14 +19,19 @@ import MatchRecordQuarterSection from "./MatchRecordQuarterSection";
 import ContentState from "@/components/common/ContentState";
 import { useToastStore } from "@/stores/toast-store";
 import { useConfirmStore } from "@/stores/confirm-store";
+import MatchRecordInclusionToggle from "./MatchRecordInclusionToggle";
 
 interface MatchRecordTabProps {
   matchId: string;
+  matchType: MatchType;
+  countsTowardRecord: boolean;
+  onChangeRecordInclusion: (countsTowardRecord: boolean) => Promise<boolean>;
   quarterCount: number;
   quarterDurationMinutes: number;
   events: MatchRecordEvent[];
   recordsLoaded: boolean;
   recordCompletedAt?: string;
+  hasMatchStarted: boolean;
   addEvent: (type: MatchRecordEventType) => Promise<boolean>;
   deleteEvent: (eventId: string) => Promise<boolean>;
   updateEvent: (
@@ -39,11 +45,15 @@ interface MatchRecordTabProps {
 
 export default function MatchRecordTab({
   matchId,
+  matchType,
+  countsTowardRecord,
+  onChangeRecordInclusion,
   quarterCount,
   quarterDurationMinutes,
   events,
   recordsLoaded,
   recordCompletedAt,
+  hasMatchStarted,
   addEvent,
   deleteEvent,
   updateEvent,
@@ -59,9 +69,10 @@ export default function MatchRecordTab({
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
   const [isCompletionSaving, setIsCompletionSaving] = useState(false);
+  const [isInclusionSaving, setIsInclusionSaving] = useState(false);
 
   const isCompleted = Boolean(recordCompletedAt);
-  const canEdit = canManage && !isCompleted;
+  const canEdit = canManage && hasMatchStarted && !isCompleted;
 
   const quarterSections = useMemo(
     () => createMatchRecordQuarterSections(quarterCount),
@@ -86,7 +97,7 @@ export default function MatchRecordTab({
   );
 
   const handleChangeCompletion = async () => {
-    if (!canManage || isCompletionSaving) return;
+    if (!canManage || !hasMatchStarted || isCompletionSaving) return;
 
     const confirmed = await confirm({
       title: isCompleted ? "경기 기록 다시 열기" : "경기 기록 완료",
@@ -113,6 +124,28 @@ export default function MatchRecordTab({
       isCompleted
         ? "경기 기록을 다시 수정할 수 있어요."
         : "경기 기록을 완료 처리했어요.",
+      "success",
+    );
+  };
+
+  const handleChangeRecordInclusion = async () => {
+    if (!canManage || isInclusionSaving) return;
+
+    setIsInclusionSaving(true);
+
+    const success = await onChangeRecordInclusion(!countsTowardRecord);
+
+    setIsInclusionSaving(false);
+
+    if (!success) {
+      showToast("전적 반영 설정 변경에 실패했어요.", "error");
+      return;
+    }
+
+    showToast(
+      countsTowardRecord
+        ? "이 경기를 팀 전적에서 제외했어요."
+        : "이 경기를 팀 전적에 반영했어요.",
       "success",
     );
   };
@@ -227,6 +260,11 @@ export default function MatchRecordTab({
 
   return (
     <div className="space-y-5">
+      <MatchRecordInclusionToggle
+        enabled={countsTowardRecord}
+        disabled={!canManage || isInclusionSaving}
+        onChange={() => void handleChangeRecordInclusion()}
+      />
       <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-5 py-4">
         <div>
           <div className="flex items-center gap-2">
@@ -248,7 +286,7 @@ export default function MatchRecordTab({
           </p>
         </div>
 
-        {canManage && (
+        {canManage && hasMatchStarted && (
           <button
             type="button"
             disabled={isCompletionSaving}
@@ -268,7 +306,18 @@ export default function MatchRecordTab({
           </button>
         )}
       </div>
-      {canEdit && <MatchRecordScoreActions onAddEvent={handleAddEvent} />}
+      {canManage && !hasMatchStarted && (
+        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700">
+          경기 시작 전에는 기록을 입력할 수 없어요.
+        </div>
+      )}
+
+      {canEdit && (
+        <MatchRecordScoreActions
+          matchType={matchType}
+          onAddEvent={handleAddEvent}
+        />
+      )}
       {!canManage && (
         <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
           경기 기록은 운영진만 수정할 수 있어요.
@@ -279,6 +328,7 @@ export default function MatchRecordTab({
           완료된 경기 기록이에요. 수정하려면 먼저 다시 수정 버튼을 눌러 주세요.
         </div>
       )}
+
       <section className="rounded-xl border border-stone-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-stone-900">경기 기록</h2>
@@ -297,6 +347,7 @@ export default function MatchRecordTab({
               {quarterSections.map((section) => (
                 <MatchRecordQuarterSection
                   key={section.key}
+                  matchType={matchType}
                   section={section}
                   quarterCount={quarterCount}
                   quarterDurationMinutes={quarterDurationMinutes}

@@ -7,6 +7,7 @@ import type {
   FormationName,
   FormationSlot,
   MatchTacticsByQuarter,
+  MatchTacticsBySide,
   QuarterTacticsState,
 } from "@/types/tactics";
 import type { TeamSport } from "@/types/team";
@@ -49,6 +50,16 @@ export const createDefaultQuarterTactics = (
     penaltyKickPlayerId: "",
   };
 };
+
+export const createDefaultMatchTacticsBySide = (
+  sport: TeamSport = "soccer",
+  playersPerSide: MatchPlayersPerSide = 11,
+  quarterCount = 4,
+): MatchTacticsBySide => ({
+  our: createDefaultMatchTactics(sport, playersPerSide, quarterCount),
+  team_a: createDefaultMatchTactics(sport, playersPerSide, quarterCount),
+  team_b: createDefaultMatchTactics(sport, playersPerSide, quarterCount),
+});
 
 export const createDefaultMatchTactics = (
   sport: TeamSport = "soccer",
