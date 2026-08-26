@@ -1,4 +1,5 @@
 import {
+  MatchCreateFormValue,
   MatchDetailTab,
   MatchItem,
   MatchOpponentRecordItem,
@@ -104,14 +105,8 @@ export function getOpponentName(match: MatchItem) {
   return match.opponent || match.title.replace("vs ", "");
 }
 
-export function getIsUpcomingMatch(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const matchDate = new Date(date);
-  matchDate.setHours(0, 0, 0, 0);
-
-  return matchDate >= today;
+export function getIsUpcomingMatch(date: string, startTime: string) {
+  return !getHasMatchStarted(date, startTime);
 }
 
 // 3. 포맷 함수
@@ -167,7 +162,7 @@ export function getDisplayMatches(
 ) {
   return matches.map((match) => {
     const events = records[match.id] ?? [];
-    const isUpcoming = getIsUpcomingMatch(match.date);
+    const isUpcoming = getIsUpcomingMatch(match.date, match.startTime);
 
     if (events.length === 0) {
       return {
@@ -194,6 +189,40 @@ export function getDisplayMatches(
     };
   });
 }
+
+function getMatchDateTime(match: MatchItem) {
+  return new Date(`${match.date}T${match.startTime}`).getTime();
+}
+
+export function getMatchListData(
+  matches: MatchItem[],
+  records: MatchRecordMap,
+) {
+  const displayMatches = getDisplayMatches(matches, records);
+
+  const upcomingMatches = displayMatches
+    .filter(
+      (match) =>
+        match.status !== "canceled" &&
+        !getHasMatchStarted(match.date, match.startTime),
+    )
+    .toSorted((a, b) => getMatchDateTime(a) - getMatchDateTime(b));
+
+  const pastMatches = displayMatches
+    .filter(
+      (match) =>
+        match.status === "canceled" ||
+        getHasMatchStarted(match.date, match.startTime),
+    )
+    .toSorted((a, b) => getMatchDateTime(b) - getMatchDateTime(a));
+
+  return {
+    displayMatches,
+    upcomingMatches,
+    pastMatches,
+  };
+}
+
 // 5. 상세 페이지용 함수
 export function getMatchDetailStatusLabel(match: MatchItem) {
   const result = getMatchResult(match);
@@ -346,10 +375,19 @@ export function getMatchCreateDefaults() {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
 
+  const defaultDate = `${year}-${month}-${day}`;
+  const defaultStartTime = "20:00";
+  const defaultEndTime = "22:00";
+
+  const defaultStartAt = new Date(`${defaultDate}T${defaultStartTime}`);
+
+  defaultStartAt.setHours(defaultStartAt.getHours() - 1);
+
   return {
-    defaultDate: `${year}-${month}-${day}`,
-    defaultStartTime: "20:00",
-    defaultEndTime: "22:00",
+    defaultDate,
+    defaultStartTime,
+    defaultEndTime,
+    defaultVoteDeadline: getDateTimeLocalValue(defaultStartAt.toISOString()),
     defaultLocation: "",
   };
 }
@@ -371,4 +409,42 @@ export function getHasMatchStarted(date: string, startTime: string) {
   if (Number.isNaN(matchStartAt.getTime())) return false;
 
   return matchStartAt.getTime() <= Date.now();
+}
+
+type MatchScheduleValue = Pick<
+  MatchCreateFormValue,
+  "date" | "startTime" | "endTime" | "voteDeadline"
+>;
+
+export function getMatchScheduleValidationMessage({
+  date,
+  startTime,
+  endTime,
+  voteDeadline,
+}: MatchScheduleValue) {
+  if (!date || !startTime || !endTime || !voteDeadline) {
+    return "날짜와 경기 시간, 투표 마감일을 모두 입력해 주세요.";
+  }
+
+  const matchStart = new Date(`${date}T${startTime}`);
+  const matchEnd = new Date(`${date}T${endTime}`);
+  const deadline = new Date(voteDeadline);
+
+  if (
+    Number.isNaN(matchStart.getTime()) ||
+    Number.isNaN(matchEnd.getTime()) ||
+    Number.isNaN(deadline.getTime())
+  ) {
+    return "날짜와 시간 형식을 확인해 주세요.";
+  }
+
+  if (matchEnd <= matchStart) {
+    return "종료 시간은 시작 시간보다 늦어야 해요.";
+  }
+
+  if (deadline >= matchStart) {
+    return "투표 마감일은 경기 시작 전이어야 해요.";
+  }
+
+  return null;
 }

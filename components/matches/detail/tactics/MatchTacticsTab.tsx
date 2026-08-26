@@ -3,24 +3,13 @@ import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
 import { formationTemplate } from "@/data/formationTemplates";
 import { useMatchTactics } from "@/hooks/matches/useMatchTactics";
-import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
-import { usePlayers } from "@/hooks/players/usePlayers";
-import {
-  createDefaultMatchTactics,
-  getAssignedPlayerIds,
-  getAttendPlayerIds,
-  getAvailableTacticsPlayers,
-  getMatchFormationOptions,
-  getPlayerById,
-  sortPlayersByRecommendedPosition,
-} from "@/lib/tactics/tactics-ui";
 import type {
   FormationName,
   MatchQuarter,
   MatchTacticsSide,
   SetPieceKey,
 } from "@/types/tactics";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import MatchQuarterTabs from "../MatchQuarterTabs";
 import ContentState from "@/components/common/ContentState";
 import type { TeamSport } from "@/types/team";
@@ -29,14 +18,18 @@ import type {
   MatchType,
   SelfMatchSide,
 } from "@/types/match";
-import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
-import { createQuarterOptions } from "@/lib/matches/match-quarter";
 import MatchTacticsSideTabs from "./MatchTacticsSideTabs";
+import type { PlayerType } from "@/types/player";
+import type { MatchVote } from "@/types/match-vote";
+import { useMatchTacticsViewData } from "@/hooks/matches/useMatchTacticsViewData";
+import { useMatchPlayerCountAction } from "@/hooks/matches/useMatchPlayerCountAction";
 
 interface MatchTacticsTabProps {
   matchId: string;
   matchType: MatchType;
+  players: PlayerType[];
+  votes: MatchVote[];
   sport: TeamSport;
   playersPerSide: MatchPlayersPerSide;
   quarterCount: number;
@@ -53,43 +46,64 @@ const futsalPlayerCountOptions: readonly MatchPlayersPerSide[] = [
 export default function MatchTacticsTab({
   matchId,
   matchType,
+  players,
+  votes,
   sport,
   playersPerSide,
   quarterCount,
   onChangePlayersPerSide,
   canManage,
 }: Readonly<MatchTacticsTabProps>) {
-  const confirm = useConfirmStore((state) => state.confirm);
   const showToast = useToastStore((state) => state.showToast);
 
-  const { players, playersLoaded } = usePlayers();
-  const { votes, votesLoaded } = useMatchVotes();
-  const { tacticsBySide, saveTacticsBySide, tacticsLoaded } = useMatchTactics(
-    matchId,
-    sport,
-    playersPerSide,
-    quarterCount,
-  );
+  const {
+    tacticsBySide,
+    saveTacticsBySide,
+    tacticsLoaded,
+    tacticsError,
+    reloadMatchTactics,
+  } = useMatchTactics(matchId, sport, playersPerSide, quarterCount);
 
   const [selectedQuarter, setSelectedQuarter] = useState<MatchQuarter>("1Q");
   const [selectedSide, setSelectedSide] = useState<MatchTacticsSide>(
     matchType === "자체전" ? "team_a" : "our",
   );
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  const [isPlayerCountSaving, setIsPlayerCountSaving] = useState(false);
 
-  const tacticsByQuarter = tacticsBySide[selectedSide];
-  const currentTactics = tacticsByQuarter[selectedQuarter];
+  const { isPlayerCountSaving, handleChangePlayersPerSide } =
+    useMatchPlayerCountAction({
+      matchType,
+      sport,
+      playersPerSide,
+      quarterCount,
+      canManage,
+      onChangePlayersPerSide,
+      saveTacticsBySide,
+      onResetSelection: () => setSelectedSlotId(null),
+    });
 
-  const quarterOptions = useMemo(
-    () => createQuarterOptions(quarterCount),
-    [quarterCount],
-  );
-
-  const formationOptions = useMemo(
-    () => getMatchFormationOptions(sport, playersPerSide),
-    [sport, playersPerSide],
-  );
+  const {
+    tacticsByQuarter,
+    currentTactics,
+    quarterOptions,
+    formationOptions,
+    selectedSlot,
+    assignedPlayerIds,
+    sortedAvailablePlayers,
+    assignedPlayers,
+    findPlayerById,
+  } = useMatchTacticsViewData({
+    matchType,
+    sport,
+    playersPerSide,
+    quarterCount,
+    players,
+    votes,
+    tacticsBySide,
+    selectedQuarter,
+    selectedSide,
+    selectedSlotId,
+  });
 
   const {
     formation,
@@ -98,56 +112,6 @@ export default function MatchTacticsTab({
     freeKickPlayerId = "",
     penaltyKickPlayerId = "",
   } = currentTactics;
-
-  const selectedSlot = useMemo(
-    () => slots.find((slot) => slot.id === selectedSlotId),
-    [slots, selectedSlotId],
-  );
-  const currentVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
-
-  const currentSideVotes = useMemo(() => {
-    if (matchType !== "자체전") {
-      return currentVotes;
-    }
-
-    return currentVotes.filter((vote) => vote.side === selectedSide);
-  }, [currentVotes, matchType, selectedSide]);
-
-  // 현재 경기 참석자 id 구하기
-  const attendPlayerIds = useMemo(
-    () => getAttendPlayerIds(currentSideVotes),
-    [currentSideVotes],
-  );
-
-  const assignedPlayerIds = useMemo(() => {
-    if (matchType !== "자체전") {
-      return getAssignedPlayerIds(slots);
-    }
-
-    const teamASlots = tacticsBySide.team_a[selectedQuarter].slots;
-    const teamBSlots = tacticsBySide.team_b[selectedQuarter].slots;
-
-    return getAssignedPlayerIds([...teamASlots, ...teamBSlots]);
-  }, [matchType, slots, tacticsBySide, selectedQuarter]);
-
-  const availablePlayers = useMemo(
-    () =>
-      getAvailableTacticsPlayers(players, attendPlayerIds, assignedPlayerIds),
-    [players, attendPlayerIds, assignedPlayerIds],
-  );
-
-  const sortedAvailablePlayers = useMemo(
-    () => sortPlayersByRecommendedPosition(availablePlayers, selectedSlot),
-    [availablePlayers, selectedSlot],
-  );
-
-  const assignedPlayers = useMemo(() => {
-    const currentSidePlayerIds = new Set(
-      slots.flatMap((slot) => (slot.playerId ? [slot.playerId] : [])),
-    );
-
-    return players.filter((player) => currentSidePlayerIds.has(player.id));
-  }, [players, slots]);
 
   const updateCurrentQuarterTactics = (
     updater: (
@@ -158,60 +122,6 @@ export default function MatchTacticsTab({
       ...prev,
       [selectedQuarter]: updater(prev[selectedQuarter]),
     }));
-  };
-
-  const handleChangePlayersPerSide = async (
-    nextPlayersPerSide: MatchPlayersPerSide,
-  ) => {
-    if (!canManage || isPlayerCountSaving) return;
-    if (nextPlayersPerSide === playersPerSide) return;
-
-    const confirmed = await confirm({
-      title: "경기 인원 변경",
-      description:
-        "경기 인원을 변경하면 모든 쿼터의 포메이션과 선수 배치가 초기화돼요. 변경할까요?",
-      confirmLabel: "변경",
-    });
-
-    if (!confirmed) return;
-
-    setIsPlayerCountSaving(true);
-
-    const countUpdated = await onChangePlayersPerSide(nextPlayersPerSide);
-
-    if (!countUpdated) {
-      showToast("경기 인원 변경에 실패했어요.", "error");
-      setIsPlayerCountSaving(false);
-      return;
-    }
-
-    const sidesToReset: MatchTacticsSide[] =
-      matchType === "자체전" ? ["team_a", "team_b"] : ["our"];
-
-    const resetResults = await Promise.all(
-      sidesToReset.map((side) =>
-        saveTacticsBySide(
-          side,
-          createDefaultMatchTactics(sport, nextPlayersPerSide, quarterCount),
-        ),
-      ),
-    );
-
-    const tacticsSaved = resetResults.every(Boolean);
-
-    if (!tacticsSaved) {
-      await onChangePlayersPerSide(playersPerSide);
-      showToast("전술 초기화에 실패했어요.", "error");
-      setIsPlayerCountSaving(false);
-      return;
-    }
-
-    setSelectedSlotId(null);
-    showToast(
-      `${nextPlayersPerSide}대${nextPlayersPerSide}로 변경했어요.`,
-      "success",
-    );
-    setIsPlayerCountSaving(false);
   };
 
   const handleFormationChange = (value: FormationName) => {
@@ -301,9 +211,6 @@ export default function MatchTacticsTab({
     }));
   };
 
-  const findPlayerById = (playerId?: string) =>
-    getPlayerById(players, playerId);
-
   const handleChangeQuarter = (quarter: MatchQuarter) => {
     setSelectedQuarter(quarter);
     setSelectedSlotId(null);
@@ -319,12 +226,31 @@ export default function MatchTacticsTab({
     setSelectedSlotId(slotId);
   };
 
-  if (!playersLoaded || !votesLoaded || !tacticsLoaded) {
+  if (!tacticsLoaded) {
     return (
       <ContentState
         variant="loading"
         title="전술 정보를 불러오는 중..."
         description="경기 포메이션과 선수 배치를 준비하고 있어요."
+      />
+    );
+  }
+
+  if (tacticsError) {
+    return (
+      <ContentState
+        variant="error"
+        title="전술 정보를 불러오지 못했어요."
+        description={tacticsError}
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadMatchTactics()}
+            className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }
@@ -373,7 +299,7 @@ export default function MatchTacticsTab({
         />
 
         <TacticsSidebar
-          playersLoaded={playersLoaded}
+          playersLoaded
           players={assignedPlayers}
           availablePlayers={sortedAvailablePlayers}
           showKickerSection={sport === "soccer"}

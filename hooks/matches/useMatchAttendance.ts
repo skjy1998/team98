@@ -4,31 +4,11 @@ import type {
 } from "@/types/match-attendance";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-type MatchAttendanceRow = {
-  id: string;
-  match_id: string;
-  player_id: string;
-  status: MatchAttendanceStatus;
-};
-
-function groupAttendanceByMatch(
-  rows: MatchAttendanceRow[],
-): MatchAttendanceByMatchId {
-  return rows.reduce<MatchAttendanceByMatchId>((acc, row) => {
-    if (!acc[row.match_id]) {
-      acc[row.match_id] = [];
-    }
-
-    acc[row.match_id].push({
-      playerId: row.player_id,
-      status: row.status,
-    });
-
-    return acc;
-  }, {});
-}
+import {
+  getTeamMatchAttendance,
+  removeMatchAttendance,
+  upsertMatchAttendance,
+} from "@/lib/matches/match-attendance-repository";
 
 export function useMatchAttendance() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -36,6 +16,7 @@ export function useMatchAttendance() {
 
   const [attendance, setAttendance] = useState<MatchAttendanceByMatchId>({});
   const [attendanceLoaded, setAttendanceLoaded] = useState(false);
+  const [attendanceError, setAttendanceError] = useState("");
 
   const loadAttendance = useCallback(async () => {
     if (!teamLoaded) return;
@@ -43,24 +24,23 @@ export function useMatchAttendance() {
     if (!teamId) {
       setAttendance({});
       setAttendanceLoaded(true);
+      setAttendanceError("");
       return;
     }
 
     setAttendanceLoaded(false);
+    setAttendanceError("");
 
-    const { data, error } = await supabase
-      .from("match_attendance")
-      .select("id, match_id, player_id, status")
-      .eq("team_id", teamId);
-
-    if (error || !data) {
+    try {
+      const nextAttendance = await getTeamMatchAttendance(teamId);
+      setAttendance(nextAttendance);
+    } catch (error) {
+      console.error("match attendance load error", error);
       setAttendance({});
+      setAttendanceError("출석 정보를 불러오지 못했어요.");
+    } finally {
       setAttendanceLoaded(true);
-      return;
     }
-
-    setAttendance(groupAttendanceByMatch(data as MatchAttendanceRow[]));
-    setAttendanceLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -75,60 +55,56 @@ export function useMatchAttendance() {
   ) => {
     if (!teamId) return false;
 
-    const { error } = await supabase.from("match_attendance").upsert(
-      {
-        team_id: teamId,
-        match_id: matchId,
-        player_id: playerId,
-        status,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "match_id,player_id",
-      },
-    );
+    try {
+      await upsertMatchAttendance(teamId, matchId, playerId, status);
 
-    if (error) return false;
+      setAttendance((previousAttendance) => {
+        const currentAttendance = previousAttendance[matchId] ?? [];
+        const remainingAttendance = currentAttendance.filter(
+          (item) => item.playerId !== playerId,
+        );
 
-    setAttendance((prev) => {
-      const current = prev[matchId] ?? [];
-      const filtered = current.filter((item) => item.playerId !== playerId);
+        return {
+          ...previousAttendance,
+          [matchId]: [...remainingAttendance, { playerId, status }],
+        };
+      });
 
-      return {
-        ...prev,
-        [matchId]: [...filtered, { playerId, status }],
-      };
-    });
-
-    return true;
+      return true;
+    } catch (error) {
+      console.error("match attendance save error", error);
+      return false;
+    }
   };
 
   const deleteAttendance = async (matchId: string, playerId: string) => {
     if (!teamId) return false;
 
-    const { error } = await supabase
-      .from("match_attendance")
-      .delete()
-      .eq("team_id", teamId)
-      .eq("match_id", matchId)
-      .eq("player_id", playerId);
+    try {
+      await removeMatchAttendance(teamId, matchId, playerId);
 
-    if (error) return false;
+      setAttendance((previousAttendance) => {
+        const currentAttendance = previousAttendance[matchId] ?? [];
 
-    setAttendance((prev) => {
-      const current = prev[matchId] ?? [];
-      return {
-        ...prev,
-        [matchId]: current.filter((item) => item.playerId !== playerId),
-      };
-    });
+        return {
+          ...previousAttendance,
+          [matchId]: currentAttendance.filter(
+            (item) => item.playerId !== playerId,
+          ),
+        };
+      });
 
-    return true;
+      return true;
+    } catch (error) {
+      console.error("match attendance delete error", error);
+      return false;
+    }
   };
 
   return {
     attendance,
     attendanceLoaded,
+    attendanceError,
     saveAttendance,
     deleteAttendance,
     reloadAttendance: loadAttendance,

@@ -5,7 +5,10 @@ import type {
 } from "@/types/match";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getMatchCreateDefaults } from "@/lib/matches/match-ui";
+import {
+  getMatchCreateDefaults,
+  getMatchScheduleValidationMessage,
+} from "@/lib/matches/match-ui";
 import MatchCreateTypeSection from "./MatchCreateTypeSection";
 import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
@@ -18,7 +21,7 @@ import MatchCreateSportSection from "./MatchCreateSportSection";
 interface MatchCreateModalProps {
   defaultSport: TeamSport;
   onClose: () => void;
-  onSave: (value: MatchCreateFormValue) => void | Promise<void>;
+  onSave: (value: MatchCreateFormValue) => Promise<boolean>;
 }
 
 export default function MatchCreateModal({
@@ -28,20 +31,24 @@ export default function MatchCreateModal({
 }: Readonly<MatchCreateModalProps>) {
   const showToast = useToastStore((state) => state.showToast);
 
-  const { defaultDate, defaultStartTime, defaultEndTime, defaultLocation } =
-    useMemo(() => getMatchCreateDefaults(), []);
+  const {
+    defaultDate,
+    defaultStartTime,
+    defaultEndTime,
+    defaultVoteDeadline,
+    defaultLocation,
+  } = useMemo(() => getMatchCreateDefaults(), []);
 
   const [type, setType] = useState<MatchType>("정규");
   const [date, setDate] = useState(defaultDate);
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [endTime, setEndTime] = useState(defaultEndTime);
-  const [voteDeadline, setVoteDeadline] = useState(
-    `${defaultDate}T${defaultStartTime}`,
-  );
+  const [voteDeadline, setVoteDeadline] = useState(defaultVoteDeadline);
   const [opponent, setOpponent] = useState("");
   const [location, setLocation] = useState(defaultLocation);
   const [uniform, setUniform] = useState<MatchUniform>("home");
   const [sport, setSport] = useState<TeamSport>(defaultSport);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -61,38 +68,52 @@ export default function MatchCreateModal({
     setSport(nextSport);
   };
 
-  const handleSave = () => {
-    if (!voteDeadline) {
-      showToast("투표 마감일을 입력해 주세요.", "info");
-      return;
-    }
+  const handleSave = async () => {
+    if (isSubmitting) return;
 
-    const matchStart = new Date(`${date}T${startTime}`);
-    const deadline = new Date(voteDeadline);
+    const validationMessage = getMatchScheduleValidationMessage({
+      date,
+      startTime,
+      endTime,
+      voteDeadline,
+    });
 
-    if (deadline > matchStart) {
-      showToast("투표 마감일은 경기 시작 전이어야 해요.", "info");
+    if (validationMessage) {
+      showToast(validationMessage, "info");
       return;
     }
 
     const title =
       type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전";
 
-    onSave({
-      title,
-      type,
-      sport,
-      playersPerSide: sport === "futsal" ? 5 : 11,
-      quarterCount: 4,
-      quarterDurationMinutes: 20,
-      date,
-      startTime,
-      endTime,
-      voteDeadline,
-      opponent: type === "정규" ? opponent : "",
-      location,
-      uniform,
-    });
+    setIsSubmitting(true);
+
+    try {
+      const success = await onSave({
+        title,
+        type,
+        sport,
+        playersPerSide: sport === "futsal" ? 5 : 11,
+        quarterCount: 4,
+        quarterDurationMinutes: 20,
+        date,
+        startTime,
+        endTime,
+        voteDeadline,
+        opponent: type === "정규" ? opponent : "",
+        location,
+        uniform,
+      });
+
+      if (!success) {
+        showToast("경기 일정 등록에 실패했어요.", "error");
+      }
+    } catch (error) {
+      console.error("match create submit error", error);
+      showToast("경기 일정 등록 중 오류가 발생했어요.", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -163,10 +184,11 @@ export default function MatchCreateModal({
           </button>
           <button
             type="button"
-            onClick={handleSave}
+            disabled={isSubmitting}
+            onClick={() => void handleSave()}
             className="h-12 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
-            저장하기
+            {isSubmitting ? "저장 중..." : "저장하기"}
           </button>
         </div>
       </div>

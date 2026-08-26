@@ -1,38 +1,15 @@
 "use client";
 
-import {
-  MatchRecordEvent,
-  MatchRecordEventType,
-  MatchRecordQuarter,
-} from "@/types/match";
+import type { MatchRecordEvent, MatchRecordEventType } from "@/types/match";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
-
-type MatchRecordRow = {
-  id: string;
-  type: MatchRecordEventType;
-  player_id: string | null;
-  player_name: string | null;
-  assist_player_id: string | null;
-  assist_player_name: string | null;
-  minute: string | null;
-  quarter: MatchRecordQuarter;
-  sort_order: number;
-};
-
-function mapMatchRecordRow(row: MatchRecordRow): MatchRecordEvent {
-  return {
-    id: row.id,
-    type: row.type,
-    playerId: row.player_id ?? "",
-    playerName: row.player_name ?? "",
-    assistPlayerId: row.assist_player_id ?? "",
-    assistPlayerName: row.assist_player_name ?? "",
-    minute: row.minute ?? "",
-    quarter: row.quarter ?? "unknown",
-  };
-}
+import {
+  createMatchRecordEvent,
+  getMatchRecordEvents,
+  removeMatchRecordEvent,
+  updateMatchRecordEvent,
+  updateMatchRecordOrder,
+} from "@/lib/matches/match-record-repository";
 
 export function useMatchRecords(matchId: string) {
   const { team, teamLoaded } = useCurrentTeam();
@@ -40,6 +17,7 @@ export function useMatchRecords(matchId: string) {
 
   const [events, setEvents] = useState<MatchRecordEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [recordsError, setRecordsError] = useState("");
 
   const loadRecords = useCallback(async () => {
     if (!teamLoaded) return;
@@ -47,29 +25,23 @@ export function useMatchRecords(matchId: string) {
     if (!teamId || !matchId) {
       setEvents([]);
       setLoaded(true);
+      setRecordsError("");
       return;
     }
 
     setLoaded(false);
+    setRecordsError("");
 
-    const { data, error } = await supabase
-      .from("match_records")
-      .select(
-        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
-      )
-      .eq("team_id", teamId)
-      .eq("match_id", matchId)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error || !data) {
+    try {
+      const nextEvents = await getMatchRecordEvents(teamId, matchId);
+      setEvents(nextEvents);
+    } catch (error) {
+      console.error("match records load error", error);
       setEvents([]);
+      setRecordsError("경기 기록을 불러오지 못했어요.");
+    } finally {
       setLoaded(true);
-      return;
     }
-
-    setEvents(data.map((row) => mapMatchRecordRow(row as MatchRecordRow)));
-    setLoaded(true);
   }, [teamLoaded, teamId, matchId]);
 
   useEffect(() => {
@@ -88,49 +60,37 @@ export function useMatchRecords(matchId: string) {
   const addEvent = async (type: MatchRecordEventType) => {
     if (!teamId || !matchId) return false;
 
-    const nextSortOrder = events.length;
-
-    const { data, error } = await supabase
-      .from("match_records")
-      .insert({
-        team_id: teamId,
-        match_id: matchId,
+    try {
+      const createdEvent = await createMatchRecordEvent(
+        teamId,
+        matchId,
         type,
-        player_id: null,
-        player_name: "",
-        assist_player_id: null,
-        assist_player_name: "",
-        minute: "",
-        quarter: "unknown",
-        sort_order: nextSortOrder,
-      })
-      .select(
-        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
-      )
-      .single();
+        events.length,
+      );
 
-    if (error || !data) {
+      setEvents((currentEvents) => [...currentEvents, createdEvent]);
+      return true;
+    } catch (error) {
+      console.error("match record create error", error);
       return false;
     }
-
-    setEvents((prev) => [...prev, mapMatchRecordRow(data as MatchRecordRow)]);
-    return true;
   };
 
   const deleteEvent = async (eventId: string) => {
     if (!teamId || !matchId) return false;
 
-    const { error } = await supabase
-      .from("match_records")
-      .delete()
-      .eq("id", eventId)
-      .eq("team_id", teamId)
-      .eq("match_id", matchId);
+    try {
+      await removeMatchRecordEvent(teamId, matchId, eventId);
 
-    if (error) return false;
+      setEvents((currentsEvents) =>
+        currentsEvents.filter((event) => event.id !== eventId),
+      );
 
-    setEvents((prev) => prev.filter((event) => event.id !== eventId));
-    return true;
+      return true;
+    } catch (error) {
+      console.error("match record delete error", error);
+      return false;
+    }
   };
 
   const updateEvent = async (
@@ -139,36 +99,25 @@ export function useMatchRecords(matchId: string) {
   ) => {
     if (!teamId || !matchId) return false;
 
-    const { data, error } = await supabase
-      .from("match_records")
-      .update({
-        player_id: updates.playerId || null,
-        player_name: updates.playerName ?? "",
-        assist_player_id: updates.assistPlayerId || null,
-        assist_player_name: updates.assistPlayerName ?? "",
-        minute: updates.minute ?? "",
-        quarter: updates.quarter ?? "unknown",
-      })
-      .eq("id", eventId)
-      .eq("team_id", teamId)
-      .eq("match_id", matchId)
-      .select(
-        "id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
-      )
-      .single();
+    try {
+      const updatedEvent = await updateMatchRecordEvent(
+        teamId,
+        matchId,
+        eventId,
+        updates,
+      );
 
-    if (error || !data) {
+      setEvents((currentEvents) =>
+        currentEvents.map((event) =>
+          event.id === eventId ? updatedEvent : event,
+        ),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("match record update error", error);
       return false;
     }
-
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId
-          ? mapMatchRecordRow(data as MatchRecordRow)
-          : event,
-      ),
-    );
-    return true;
   };
 
   const reorderEvents = async (activeId: string, overId: string) => {
@@ -187,27 +136,19 @@ export function useMatchRecords(matchId: string) {
 
     setEvents(nextEvents);
 
-    const results = await Promise.all(
-      nextEvents.map((event, index) =>
-        supabase
-          .from("match_records")
-          .update({ sort_order: index })
-          .eq("id", event.id)
-          .eq("team_id", teamId)
-          .eq("match_id", matchId),
-      ),
-    );
-
-    if (results.some((result) => result.error)) {
+    try {
+      await updateMatchRecordOrder(teamId, matchId, nextEvents);
+      return true;
+    } catch (error) {
+      console.error("match record reorder error", error);
       await loadRecords();
       return false;
     }
-
-    return true;
   };
 
   return {
     loaded,
+    recordsError,
     events,
     ourScore,
     opponentScore,

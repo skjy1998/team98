@@ -21,6 +21,7 @@ export default function MatchCreateUniformSection({
       <div className="grid grid-cols-2 rounded-2xl border border-stone-200 bg-white p-1">
         <button
           type="button"
+          aria-pressed={uniform === "home"}
           onClick={() => onChangeUniform("home")}
           className={`rounded-[18px] px-5 py-4 text-lg font-semibold transition ${
             uniform === "home"
@@ -33,6 +34,7 @@ export default function MatchCreateUniformSection({
 
         <button
           type="button"
+          aria-pressed={uniform === "away"}
           onClick={() => onChangeUniform("away")}
           className={`rounded-[18px] px-5 py-4 text-lg font-semibold transition ${
             uniform === "away"

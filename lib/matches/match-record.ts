@@ -1,5 +1,5 @@
 import type { MatchRecordEvent, MatchRecordQuarter } from "@/types/match";
-import type { MatchVotesByMatchId } from "@/types/match-vote";
+import type { MatchVote } from "@/types/match-vote";
 import type { PlayerType } from "@/types/player";
 import { createQuarterOptions } from "./match-quarter";
 
@@ -71,24 +71,26 @@ export function getGroupedMatchRecordEvents(
   return groupedEvents;
 }
 
-export function getAttendPlayerIdsByVotes(
-  votes: MatchVotesByMatchId,
-  matchId: string,
+export function getSelfMatchPlayersBySide(
+  attendPlayers: PlayerType[],
+  votes: MatchVote[],
 ) {
-  const currentVotes = votes[matchId] ?? [];
-
-  return new Set(
-    currentVotes
-      .filter((vote) => vote.status === "attend")
+  const teamAPlayerIds = new Set(
+    votes
+      .filter((vote) => vote.status === "attend" && vote.side === "team_a")
       .map((vote) => vote.playerId),
   );
-}
 
-export function getAttendPlayers(
-  players: PlayerType[],
-  attendPlayerIds: Set<string>,
-) {
-  return players.filter((player) => attendPlayerIds.has(player.id));
+  const teamBPlayerIds = new Set(
+    votes
+      .filter((vote) => vote.status === "attend" && vote.side === "team_b")
+      .map((vote) => vote.playerId),
+  );
+
+  return {
+    team_a: attendPlayers.filter((player) => teamAPlayerIds.has(player.id)),
+    team_b: attendPlayers.filter((player) => teamBPlayerIds.has(player.id)),
+  };
 }
 
 export function getPlayersAfterRecordEdit(

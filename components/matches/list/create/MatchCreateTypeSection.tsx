@@ -20,6 +20,7 @@ export default function MatchCreateTypeSection({
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
+          aria-pressed={type === "정규"}
           onClick={() => onChangeType("정규")}
           className={`rounded-xl border px-6 py-5 text-center transition ${
             type === "정규"
@@ -38,6 +39,7 @@ export default function MatchCreateTypeSection({
         </button>
         <button
           type="button"
+          aria-pressed={type === "자체전"}
           onClick={() => onChangeType("자체전")}
           className={`rounded-xl border px-6 py-5 text-center transition ${
             type === "자체전"

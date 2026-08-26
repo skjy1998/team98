@@ -1,0 +1,185 @@
+import { useMemo } from "react";
+import { usePlayers } from "../players/usePlayers";
+import { useCurrentTeam } from "../team/useCurrentTeam";
+import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
+import { useMatchAttendance } from "./useMatchAttendance";
+import { useMatches } from "./useMatches";
+import useMatchRecordsMap from "./useMatchRecordMap";
+import { useMatchRecords } from "./useMatchRecords";
+import { useMatchVotes } from "./useMatchVotes";
+import {
+  getDisplayMatches,
+  getHasMatchStarted,
+  getMatchDetailDisplay,
+} from "@/lib/matches/match-ui";
+
+export type MatchDetailPageData = ReturnType<typeof useMatchDetailPageData>;
+
+export function useMatchDetailPageData(matchId: string) {
+  const {
+    matches,
+    matchesLoaded,
+    matchesError,
+    updateMatch,
+    updateMatchPlayersPerSide,
+    updateMatchRecordInclusion,
+    setMatchRecordCompletion,
+    deleteMatch,
+    reloadMatches,
+  } = useMatches({ includeAllSeasons: true });
+
+  const {
+    records,
+    recordsLoaded: recordsMapLoaded,
+    recordsError: recordsMapError,
+    reloadRecords: reloadRecordsMap,
+  } = useMatchRecordsMap();
+
+  const {
+    votes,
+    votesLoaded,
+    votesError,
+    saveVote,
+    saveVoteSide,
+    deleteVote,
+    reloadVotes,
+  } = useMatchVotes();
+
+  const {
+    attendance,
+    attendanceLoaded,
+    attendanceError,
+    saveAttendance,
+    deleteAttendance,
+    reloadAttendance,
+  } = useMatchAttendance();
+
+  const { players, playersLoaded } = usePlayers();
+  const { team, teamLoaded } = useCurrentTeam();
+  const { canManage, memberLoaded } = useCurrentTeamMember();
+
+  const match = matches.find((item) => item.id === matchId);
+  const targetMatchId = match?.id ?? "";
+
+  const {
+    loaded: matchRecordsLoaded,
+    recordsError,
+    events,
+    ourScore,
+    opponentScore,
+    addEvent,
+    deleteEvent,
+    updateEvent,
+    reorderEvents,
+    reloadRecords: reloadMatchRecords,
+  } = useMatchRecords(targetMatchId);
+
+  const matchVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
+
+  const matchAttendance = useMemo(
+    () => attendance[matchId] ?? [],
+    [attendance, matchId],
+  );
+
+  const attendancePlayers = useMemo(() => {
+    const attendPlayerIds = new Set(
+      matchVotes
+        .filter((vote) => vote.status === "attend")
+        .map((vote) => vote.playerId),
+    );
+
+    return players
+      .filter((player) => attendPlayerIds.has(player.id))
+      .toSorted((a, b) => a.name.localeCompare(b.name, "ko"));
+  }, [players, matchVotes]);
+
+  const displayMatches = useMemo(
+    () => getDisplayMatches(matches, records),
+    [matches, records],
+  );
+
+  const resolvedMatch =
+    matchRecordsLoaded &&
+    match &&
+    (events.length > 0 || match.recordCompletedAt)
+      ? {
+          ...match,
+          ourScore,
+          opponentScore,
+        }
+      : match;
+
+  const matchDisplay = resolvedMatch
+    ? getMatchDetailDisplay(resolvedMatch)
+    : null;
+
+  const hasMatchStarted = match
+    ? getHasMatchStarted(match.date, match.startTime)
+    : false;
+
+  const isLoaded =
+    teamLoaded &&
+    matchesLoaded &&
+    recordsMapLoaded &&
+    memberLoaded &&
+    votesLoaded &&
+    playersLoaded &&
+    attendanceLoaded;
+
+  const pageError =
+    matchesError ||
+    recordsMapError ||
+    votesError ||
+    attendanceError ||
+    recordsError;
+
+  const reloadPageData = async () => {
+    await Promise.all([
+      reloadMatches(),
+      reloadRecordsMap(),
+      reloadVotes(),
+      reloadAttendance(),
+      reloadMatchRecords(),
+    ]);
+  };
+
+  return {
+    team,
+    canManage,
+    isLoaded,
+    pageError,
+
+    match,
+    resolvedMatch,
+    matchDisplay,
+    displayMatches,
+    hasMatchStarted,
+
+    matchVotes,
+    matchAttendance,
+    attendancePlayers,
+
+    matchRecordsLoaded,
+    events,
+
+    updateMatch,
+    updateMatchPlayersPerSide,
+    updateMatchRecordInclusion,
+    setMatchRecordCompletion,
+    deleteMatch,
+
+    saveVote,
+    saveVoteSide,
+    deleteVote,
+
+    saveAttendance,
+    deleteAttendance,
+
+    addEvent,
+    deleteEvent,
+    updateEvent,
+    reorderEvents,
+
+    reloadPageData,
+  };
+}

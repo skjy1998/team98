@@ -86,27 +86,27 @@ export default function MatchCreateScheduleSection({
               className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
             />
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor="match-vote-deadline"
-                className="text-lg font-semibold text-stone-900"
-              >
-                투표 마감
-              </label>
-              <span className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-500">
-                필수
-              </span>
-            </div>
-            <input
-              id="match-vote-deadline"
-              type="datetime-local"
-              value={voteDeadline}
-              onChange={(event) => onChangeVoteDeadline(event.target.value)}
-              className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
-            />
-          </div>
         </div>
+      </div>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="match-vote-deadline"
+            className="text-lg font-semibold text-stone-900"
+          >
+            투표 마감
+          </label>
+          <span className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-500">
+            필수
+          </span>
+        </div>
+        <input
+          id="match-vote-deadline"
+          type="datetime-local"
+          value={voteDeadline}
+          onChange={(event) => onChangeVoteDeadline(event.target.value)}
+          className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+        />
       </div>
     </section>
   );

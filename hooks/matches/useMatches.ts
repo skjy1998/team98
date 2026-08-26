@@ -1,93 +1,25 @@
-import { getIsUpcomingMatch } from "@/lib/matches/match-ui";
 import {
   MatchCreateFormValue,
   MatchItem,
   MatchPlayersPerSide,
-  MatchStatus,
-  MatchType,
-  MatchUniform,
 } from "@/types/match";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
 import { useToastStore } from "@/stores/toast-store";
-import type { TeamSport } from "@/types/team";
+import {
+  getActiveSeasonId,
+  getTeamMatches,
+  createTeamMatch,
+  updateTeamMatch,
+  updateTeamMatchPlayersPerSide,
+  updateTeamMatchRecordInclusion,
+  updateTeamMatchRecordCompletion,
+  deleteTeamMatch,
+} from "@/lib/matches/match-repository";
 
 interface UseMatchesOptions {
   includeAllSeasons?: boolean;
   seasonId?: string;
-}
-
-type MatchRow = {
-  id: string;
-  season_id: string;
-  title: string;
-  type: MatchType;
-  sport: TeamSport;
-  players_per_side: MatchPlayersPerSide;
-  quarter_count: number;
-  quarter_duration_minutes: number;
-  date: string;
-  start_time: string;
-  end_time: string;
-  vote_deadline: string;
-  location: string | null;
-  opponent: string | null;
-  uniform: MatchUniform;
-  status: MatchStatus;
-  our_score: number | null;
-  opponent_score: number | null;
-  record_completed_at: string | null;
-  counts_toward_record: boolean;
-};
-
-const MATCH_COLUMNS = `
-  id,
-  season_id,
-  title,
-  type,
-  sport,
-  players_per_side,
-  quarter_count,
-  quarter_duration_minutes,
-  date,
-  start_time,
-  end_time,
-  vote_deadline,
-  location,
-  opponent,
-  uniform,
-  status,
-  our_score,
-  opponent_score,
-  record_completed_at,
-  counts_toward_record
-`;
-
-function mapMatchRow(match: MatchRow): MatchItem {
-  return {
-    id: match.id,
-    seasonId: match.season_id,
-    title: match.title,
-    type: match.type,
-    sport: match.sport,
-    playersPerSide: match.players_per_side,
-    quarterCount: match.quarter_count,
-    quarterDurationMinutes: match.quarter_duration_minutes,
-    date: match.date,
-    startTime: match.start_time,
-    endTime: match.end_time,
-    voteDeadline: match.vote_deadline,
-    location: match.location ?? undefined,
-    opponent: match.opponent ?? undefined,
-    uniform: match.uniform,
-    status: match.status,
-    ourScore: match.our_score ?? undefined,
-    opponentScore: match.opponent_score ?? undefined,
-    recordCompletedAt: match.record_completed_at ?? undefined,
-    countsTowardRecord: match.counts_toward_record ?? match.type !== "자체전",
-    isUpcoming: getIsUpcomingMatch(match.date),
-  };
 }
 
 export function useMatches({
@@ -101,71 +33,46 @@ export function useMatches({
 
   const [matches, setMatches] = useState<MatchItem[]>([]);
   const [matchesLoaded, setMatchesLoaded] = useState(false);
-  const [activeSeason, setActiveSeason] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [matchesError, setMatchesError] = useState("");
 
   const loadMatches = useCallback(async () => {
     if (!teamLoaded) return;
 
     if (!teamId) {
       setMatches([]);
-      setActiveSeason(null);
       setMatchesLoaded(true);
+      setMatchesError("");
       return;
     }
 
     setMatchesLoaded(false);
+    setMatchesError("");
 
-    let targetSeasonId = seasonId;
+    try {
+      let targetSeasonId = seasonId;
 
-    if (includeAllSeasons || seasonId) {
-      setActiveSeason(null);
-    }
+      if (!includeAllSeasons && !targetSeasonId) {
+        targetSeasonId = await getActiveSeasonId(teamId);
 
-    if (!includeAllSeasons && !targetSeasonId) {
-      const { data: activeSeasonData, error: seasonError } = await supabase
-        .from("team_seasons")
-        .select("id, name")
-        .eq("team_id", teamId)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (seasonError || !activeSeasonData) {
-        console.error("active season load error", seasonError);
-        setActiveSeason(null);
-        setMatches([]);
-        setMatchesLoaded(true);
-        return;
+        if (!targetSeasonId) {
+          setMatches([]);
+          setMatchesError(
+            "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
+          );
+          return;
+        }
       }
 
-      setActiveSeason(activeSeasonData);
-      targetSeasonId = activeSeasonData.id;
-    }
+      const nextMatches = await getTeamMatches(teamId, targetSeasonId);
 
-    let query = supabase
-      .from("matches")
-      .select(MATCH_COLUMNS)
-      .eq("team_id", teamId);
-
-    if (targetSeasonId) {
-      query = query.eq("season_id", targetSeasonId);
-    }
-
-    const { data, error } = await query.order("date", {
-      ascending: true,
-    });
-
-    if (error || !data) {
-      console.error("matches load error", error);
+      setMatches(nextMatches);
+    } catch (error) {
+      console.error("match load error", error);
       setMatches([]);
+      setMatchesError("경기 일정을 불러오지 못했어요.");
+    } finally {
       setMatchesLoaded(true);
-      return;
     }
-
-    setMatches(data.map((match) => mapMatchRow(match as MatchRow)));
-    setMatchesLoaded(true);
   }, [teamLoaded, teamId, includeAllSeasons, seasonId]);
 
   useEffect(() => {
@@ -176,114 +83,42 @@ export function useMatches({
   const addMatch = async (value: MatchCreateFormValue) => {
     if (!teamId) return false;
 
-    const { data: activeSeason, error: seasonError } = await supabase
-      .from("team_seasons")
-      .select("id")
-      .eq("team_id", teamId)
-      .eq("is_active", true)
-      .maybeSingle();
+    try {
+      const createdMatch = await createTeamMatch(teamId, value);
 
-    if (seasonError || !activeSeason) {
-      console.error("active season load error", seasonError);
-      showToast(
-        "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
-        "info",
-      );
+      if (!createdMatch) {
+        showToast(
+          "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
+          "info",
+        );
+
+        return false;
+      }
+
+      setMatches((current) => [createdMatch, ...current]);
+
+      return true;
+    } catch (error) {
+      console.error("match create error", error);
       return false;
     }
-
-    const { data, error } = await supabase
-      .from("matches")
-      .insert({
-        team_id: teamId,
-        season_id: activeSeason.id,
-        title: value.title,
-        type: value.type,
-        sport: value.sport,
-        players_per_side: value.playersPerSide,
-        quarter_count: value.quarterCount,
-        quarter_duration_minutes: value.quarterDurationMinutes,
-        date: value.date,
-        start_time: value.startTime,
-        end_time: value.endTime,
-        vote_deadline: new Date(value.voteDeadline).toISOString(),
-        location: value.location,
-        opponent: value.opponent ?? null,
-        uniform: value.uniform,
-        status: "scheduled",
-        counts_toward_record: value.type !== "자체전",
-      })
-      .select(MATCH_COLUMNS)
-      .single();
-
-    if (error || !data) {
-      console.error("match create error", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
-      });
-
-      return false;
-    }
-
-    setMatches((prev) => [mapMatchRow(data as MatchRow), ...prev]);
-    return true;
   };
 
   const updateMatch = async (matchId: string, value: MatchCreateFormValue) => {
     if (!teamId) return false;
 
-    const { data, error } = await supabase.rpc(
-      "update_match_with_tactics_reset",
-      {
-        p_match_id: matchId,
-        p_title: value.title,
-        p_type: value.type,
-        p_sport: value.sport,
-        p_players_per_side: value.playersPerSide,
-        p_quarter_count: value.quarterCount,
-        p_quarter_duration_minutes: value.quarterDurationMinutes,
-        p_date: value.date,
-        p_start_time: value.startTime,
-        p_end_time: value.endTime,
-        p_vote_deadline: new Date(value.voteDeadline).toISOString(),
-        p_location: value.location,
-        p_opponent: value.type === "정규" ? (value.opponent ?? "") : "",
-        p_uniform: value.uniform,
-      },
-    );
+    try {
+      const updatedMatch = await updateTeamMatch(matchId, value);
 
-    if (error || !data) {
-      console.error(
-        "match update error:",
-        JSON.stringify({
-          message: error?.message,
-          code: error?.code,
-          details: error?.details,
-          hint: error?.hint,
-        }),
+      setMatches((current) =>
+        current.map((match) => (match.id === matchId ? updatedMatch : match)),
       );
 
+      return true;
+    } catch (error) {
+      console.error("match update error", error);
       return false;
     }
-
-    const updatedRow = (Array.isArray(data) ? data[0] : data) as
-      | MatchRow
-      | undefined;
-
-    if (!updatedRow) {
-      console.error("match update error: updated row not returned");
-      return false;
-    }
-
-    const updatedMatch = mapMatchRow(updatedRow);
-
-    setMatches((current) =>
-      current.map((match) => (match.id === matchId ? updatedMatch : match)),
-    );
-
-    return true;
   };
 
   const updateMatchPlayersPerSide = async (
@@ -292,34 +127,23 @@ export function useMatches({
   ) => {
     if (!teamId) return false;
 
-    const { data, error } = await supabase
-      .from("matches")
-      .update({
-        players_per_side: playersPerSide,
-      })
-      .eq("id", matchId)
-      .eq("team_id", teamId)
-      .select(MATCH_COLUMNS)
-      .single();
+    try {
+      const updatedMatch = await updateTeamMatchPlayersPerSide(
+        teamId,
+        matchId,
+        playersPerSide,
+      );
 
-    if (error || !data) {
-      console.error("match player count update error", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
-      });
+      setMatches((current) =>
+        current.map((match) => (match.id === matchId ? updatedMatch : match)),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("match player count update error", error);
 
       return false;
     }
-
-    setMatches((current) =>
-      current.map((match) =>
-        match.id === matchId ? mapMatchRow(data as MatchRow) : match,
-      ),
-    );
-
-    return true;
   };
 
   const updateMatchRecordInclusion = async (
@@ -328,77 +152,60 @@ export function useMatches({
   ) => {
     if (!teamId) return false;
 
-    const { data, error } = await supabase
-      .from("matches")
-      .update({
-        counts_toward_record: countsTowardRecord,
-      })
-      .eq("id", matchId)
-      .eq("team_id", teamId)
-      .select(MATCH_COLUMNS)
-      .single();
+    try {
+      const updatedMatch = await updateTeamMatchRecordInclusion(
+        teamId,
+        matchId,
+        countsTowardRecord,
+      );
 
-    if (error || !data) {
-      console.error("match record inclusion update error", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
-      });
+      setMatches((current) =>
+        current.map((match) => (match.id === matchId ? updatedMatch : match)),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("match record inclusion update error", error);
 
       return false;
     }
-
-    setMatches((current) =>
-      current.map((match) =>
-        match.id === matchId ? mapMatchRow(data as MatchRow) : match,
-      ),
-    );
-
-    return true;
   };
 
   const setMatchRecordCompletion = async (
     matchId: string,
     completed: boolean,
   ) => {
-    const { error } = await supabase.rpc("set_match_record_completion", {
-      p_match_id: matchId,
-      p_completed: completed,
-    });
+    try {
+      await updateTeamMatchRecordCompletion(matchId, completed);
 
-    if (error) {
-      console.error("set match record completion error", {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-      });
-
-      return false;
+      await loadMatches();
+      return true;
+    } catch (error) {
+      console.error("set match record completion error", error);
     }
 
-    await loadMatches();
-    return true;
+    return false;
   };
 
   const deleteMatch = async (matchId: string) => {
     if (!teamId) return false;
 
-    const { error } = await supabase.from("matches").delete().eq("id", matchId);
+    try {
+      await deleteTeamMatch(teamId, matchId);
 
-    if (error) {
+      setMatches((current) => current.filter((match) => match.id !== matchId));
+
+      return true;
+    } catch (error) {
+      console.error("match delete error", error);
       return false;
     }
-
-    setMatches((prev) => prev.filter((item) => item.id !== matchId));
-    return true;
   };
 
   return {
     matches,
     matchesLoaded,
-    activeSeason,
+    matchesError,
     addMatch,
     updateMatch,
     updateMatchPlayersPerSide,

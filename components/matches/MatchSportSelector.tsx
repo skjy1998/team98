@@ -15,6 +15,7 @@ export default function MatchSportSelector({
     <div className="grid grid-cols-2 gap-3">
       <button
         type="button"
+        aria-pressed={value === "soccer"}
         disabled={disabled}
         onClick={() => onChange("soccer")}
         className={[
@@ -36,6 +37,7 @@ export default function MatchSportSelector({
       </button>
       <button
         type="button"
+        aria-pressed={value === "futsal"}
         disabled={disabled}
         onClick={() => onChange("futsal")}
         className={[

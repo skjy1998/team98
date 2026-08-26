@@ -2,7 +2,7 @@
 import PageHeader from "@/components/PageHeader";
 import { useMemo, useState } from "react";
 import { useMatches } from "@/hooks/matches/useMatches";
-import { getDisplayMatches, getIsUpcomingMatch } from "@/lib/matches/match-ui";
+import { getMatchListData } from "@/lib/matches/match-ui";
 import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import type { MatchCreateFormValue } from "@/types/match";
@@ -10,9 +10,10 @@ import MatchSection from "./list/MatchSection";
 import MatchCreateModal from "./list/create/MatchCreateModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTeamSeasons } from "@/hooks/settings/useTeamSeasons";
-import { ChevronDown } from "lucide-react";
 import ContentState from "../common/ContentState";
 import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
+import { getSelectedSeason } from "@/lib/settings/settings-ui";
+import SeasonSelect from "../common/SeasonSelect";
 
 export default function MatchesPageClient() {
   const router = useRouter();
@@ -23,37 +24,23 @@ export default function MatchesPageClient() {
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { canManage, memberLoaded } = useCurrentTeamMember();
 
-  const { seasons, activeSeason, seasonsLoaded } = useTeamSeasons();
+  const { seasons, seasonsLoaded, seasonsError, reloadSeasons } =
+    useTeamSeasons();
 
   const requestedSeasonId = searchParams.get("season");
 
-  const selectedSeason =
-    seasons.find((season) => season.id === requestedSeasonId) ?? activeSeason;
+  const selectedSeason = getSelectedSeason(seasons, requestedSeasonId);
 
-  const { matches, matchesLoaded, addMatch } = useMatches({
-    seasonId: selectedSeason?.id,
-  });
+  const { matches, matchesLoaded, matchesError, addMatch, reloadMatches } =
+    useMatches({
+      seasonId: selectedSeason?.id,
+    });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const displayMatches = useMemo(
-    () => getDisplayMatches(matches, records),
+  const { displayMatches, upcomingMatches, pastMatches } = useMemo(
+    () => getMatchListData(matches, records),
     [matches, records],
-  );
-
-  const upcomingMatches = useMemo(
-    () =>
-      displayMatches
-        .filter((match) => getIsUpcomingMatch(match.date))
-        .sort((a, b) => a.date.localeCompare(b.date)),
-    [displayMatches],
-  );
-  const pastMatches = useMemo(
-    () =>
-      displayMatches
-        .filter((match) => !getIsUpcomingMatch(match.date))
-        .sort((a, b) => b.date.localeCompare(a.date)),
-    [displayMatches],
   );
 
   const totalMatchesCount = displayMatches.length;
@@ -76,6 +63,8 @@ export default function MatchesPageClient() {
     if (success) {
       setIsCreateOpen(false);
     }
+
+    return success;
   };
 
   const handleChangeSeason = (seasonId: string) => {
@@ -85,6 +74,12 @@ export default function MatchesPageClient() {
     router.replace(`${pathname}?${params.toString()}`, {
       scroll: false,
     });
+  };
+
+  const pageError = seasonsError || matchesError;
+
+  const handleRetry = async () => {
+    await Promise.all([reloadSeasons(), reloadMatches()]);
   };
 
   if (
@@ -109,6 +104,32 @@ export default function MatchesPageClient() {
     );
   }
 
+  if (pageError) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="경기 일정"
+          description="다가오는 경기와 지난 경기를 확인하고 관리하세요."
+        />
+
+        <ContentState
+          variant="error"
+          title="경기 일정을 불러오지 못했어요."
+          description={pageError}
+          action={
+            <button
+              type="button"
+              onClick={() => void handleRetry()}
+              className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
+            >
+              다시 시도
+            </button>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -127,25 +148,12 @@ export default function MatchesPageClient() {
         )}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative">
-          <select
-            value={selectedSeason?.id ?? ""}
-            onChange={(event) => handleChangeSeason(event.target.value)}
-            className="h-10 appearance-none rounded-xl border border-stone-200 bg-white pl-4 pr-10 text-sm font-semibold text-stone-700 outline-none transition focus:border-emerald-400"
-            aria-label="조회할 시즌 선택"
-          >
-            {seasons.map((season) => (
-              <option key={season.id} value={season.id}>
-                {season.name}
-                {season.isActive ? " (활성)" : ""}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
-          />
-        </div>
+        <SeasonSelect
+          seasons={seasons}
+          selectedSeasonId={selectedSeason?.id}
+          ariaLabel="조회할 시즌 선택"
+          onChange={handleChangeSeason}
+        />
 
         <span className="text-sm font-medium text-stone-500">
           총 {displayMatches.length}경기

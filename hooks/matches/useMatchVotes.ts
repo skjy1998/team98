@@ -1,32 +1,13 @@
 import type { MatchVotesByMatchId, VoteStatus } from "@/types/match-vote";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
 import type { SelfMatchSide } from "@/types/match";
-
-type MatchVoteRow = {
-  id: string;
-  match_id: string;
-  player_id: string;
-  status: VoteStatus;
-  side: SelfMatchSide | null;
-};
-
-function groupVotesByMatch(rows: MatchVoteRow[]): MatchVotesByMatchId {
-  return rows.reduce<MatchVotesByMatchId>((acc, row) => {
-    if (!acc[row.match_id]) {
-      acc[row.match_id] = [];
-    }
-
-    acc[row.match_id].push({
-      playerId: row.player_id,
-      status: row.status,
-      side: row.side ?? undefined,
-    });
-
-    return acc;
-  }, {});
-}
+import {
+  getTeamMatchVotes,
+  removeTeamMatchVote,
+  updateSelfMatchPlayerSide,
+  upsertTeamMatchVote,
+} from "@/lib/matches/match-vote-repository";
 
 export function useMatchVotes() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -34,6 +15,7 @@ export function useMatchVotes() {
 
   const [votes, setVotes] = useState<MatchVotesByMatchId>({});
   const [votesLoaded, setVotesLoaded] = useState(false);
+  const [votesError, setVotesError] = useState("");
 
   const loadVotes = useCallback(async () => {
     if (!teamLoaded) return;
@@ -41,30 +23,66 @@ export function useMatchVotes() {
     if (!teamId) {
       setVotes({});
       setVotesLoaded(true);
+      setVotesError("");
       return;
     }
 
     setVotesLoaded(false);
+    setVotesError("");
 
-    const { data, error } = await supabase
-      .from("match_votes")
-      .select("id, match_id, player_id, status, side")
-      .eq("team_id", teamId);
-
-    if (error || !data) {
+    try {
+      const nextVotes = await getTeamMatchVotes(teamId);
+      setVotes(nextVotes);
+    } catch (error) {
+      console.error("match votes load error", error);
       setVotes({});
+      setVotesError("투표 정보를 불러오지 못했어요.");
+    } finally {
       setVotesLoaded(true);
-      return;
     }
-
-    setVotes(groupVotesByMatch(data as MatchVoteRow[]));
-    setVotesLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadVotes();
   }, [loadVotes]);
+
+  const saveVoteSide = async (
+    matchId: string,
+    playerId: string,
+    side: SelfMatchSide | null,
+  ) => {
+    if (!teamId) return false;
+
+    const currentVote = votes[matchId]?.find(
+      (vote) => vote.playerId === playerId,
+    );
+
+    if (currentVote?.status !== "attend") {
+      return false;
+    }
+
+    try {
+      await updateSelfMatchPlayerSide(matchId, playerId, side);
+
+      setVotes((currentVotes) => ({
+        ...currentVotes,
+        [matchId]: (currentVotes[matchId] ?? []).map((vote) =>
+          vote.playerId === playerId
+            ? {
+                ...vote,
+                side: side ?? undefined,
+              }
+            : vote,
+        ),
+      }));
+
+      return true;
+    } catch (error) {
+      console.error("self match side update error", error);
+      return false;
+    }
+  };
 
   const saveVote = async (
     matchId: string,
@@ -87,86 +105,33 @@ export function useMatchVotes() {
 
     const nextSide = status === "attend" ? (currentVote?.side ?? null) : null;
 
-    const { error } = await supabase.from("match_votes").upsert(
-      {
-        team_id: teamId,
-        match_id: matchId,
-        player_id: playerId,
-        status,
-        side: nextSide,
-      },
-      {
-        onConflict: "match_id,player_id",
-      },
-    );
+    try {
+      await upsertTeamMatchVote(teamId, matchId, playerId, status, nextSide);
 
-    if (error) {
-      return false;
-    }
+      setVotes((previousVotes) => {
+        const currentVotes = previousVotes[matchId] ?? [];
+        const remainingVotes = currentVotes.filter(
+          (vote) => vote.playerId !== playerId,
+        );
 
-    setVotes((prev) => {
-      const currentVotes = prev[matchId] ?? [];
-      const filtered = currentVotes.filter(
-        (vote) => vote.playerId !== playerId,
-      );
-
-      return {
-        ...prev,
-        [matchId]: [
-          ...filtered,
-          { playerId, status, side: nextSide ?? undefined },
-        ],
-      };
-    });
-
-    return true;
-  };
-
-  const saveVoteSide = async (
-    matchId: string,
-    playerId: string,
-    side: SelfMatchSide | null,
-  ) => {
-    if (!teamId) return false;
-
-    const currentVote = votes[matchId]?.find(
-      (vote) => vote.playerId === playerId,
-    );
-
-    if (currentVote?.status !== "attend") {
-      return false;
-    }
-
-    const { data, error } = await supabase.rpc("set_self_match_player_side", {
-      p_match_id: matchId,
-      p_player_id: playerId,
-      p_side: side,
-    });
-
-    if (error || data !== true) {
-      console.error("self match side update error", {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
+        return {
+          ...previousVotes,
+          [matchId]: [
+            ...remainingVotes,
+            {
+              playerId,
+              status,
+              side: nextSide ?? undefined,
+            },
+          ],
+        };
       });
 
+      return true;
+    } catch (error) {
+      console.error("match vote save error", error);
       return false;
     }
-
-    setVotes((current) => ({
-      ...current,
-      [matchId]: (current[matchId] ?? []).map((vote) =>
-        vote.playerId === playerId
-          ? {
-              ...vote,
-              side: side ?? undefined,
-            }
-          : vote,
-      ),
-    }));
-
-    return true;
   };
 
   const deleteVote = async (matchId: string, playerId: string) => {
@@ -184,30 +149,27 @@ export function useMatchVotes() {
       }
     }
 
-    const { error } = await supabase
-      .from("match_votes")
-      .delete()
-      .eq("team_id", teamId)
-      .eq("match_id", matchId)
-      .eq("player_id", playerId);
+    try {
+      await removeTeamMatchVote(teamId, matchId, playerId);
 
-    if (error) {
+      setVotes((currentVotes) => ({
+        ...currentVotes,
+        [matchId]: (currentVotes[matchId] ?? []).filter(
+          (vote) => vote.playerId !== playerId,
+        ),
+      }));
+
+      return true;
+    } catch (error) {
+      console.error("match vote delete error", error);
       return false;
     }
-
-    setVotes((current) => ({
-      ...current,
-      [matchId]: (current[matchId] ?? []).filter(
-        (vote) => vote.playerId !== playerId,
-      ),
-    }));
-
-    return true;
   };
 
   return {
     votes,
     votesLoaded,
+    votesError,
     saveVote,
     saveVoteSide,
     deleteVote,

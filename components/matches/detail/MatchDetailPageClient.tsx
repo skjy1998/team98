@@ -4,34 +4,13 @@ import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
 import { MatchInfoTab } from "@/components/matches/detail/info/MatchInfoTab";
 import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
 import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
-import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
-import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
-import { useMatches } from "@/hooks/matches/useMatches";
-import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
-import { useMatchRecords } from "@/hooks/matches/useMatchRecords";
-import {
-  getDisplayMatches,
-  getHasMatchStarted,
-  getMatchDetailDisplay,
-  getMatchDetailTab,
-} from "@/lib/matches/match-ui";
-import type {
-  MatchCreateFormValue,
-  MatchDetailTab,
-  MatchPlayersPerSide,
-} from "@/types/match";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
 import MatchRecordTab from "./record/MatchRecordTab";
-import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
-import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
-import { usePlayers } from "@/hooks/players/usePlayers";
 import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
 import ContentState from "@/components/common/ContentState";
-import { useToastStore } from "@/stores/toast-store";
-import { useConfirmStore } from "@/stores/confirm-store";
+import { useMatchDetailPageData } from "@/hooks/matches/useMatchDetailPageData";
+import { useMatchDetailActions } from "@/hooks/matches/useMatchDetailActions";
 
 interface MatchDetailPageClientProps {
   matchId: string;
@@ -40,178 +19,80 @@ interface MatchDetailPageClientProps {
 export default function MatchDetailPageClient({
   matchId,
 }: Readonly<MatchDetailPageClientProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-  const confirm = useConfirmStore((state) => state.confirm);
-
-  // 1. 라우터 / search params
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeTab = getMatchDetailTab(searchParams.get("tab"));
-
-  // 2. 기본 데이터 hooks
   const {
-    matches,
-    matchesLoaded,
+    team,
+    canManage,
+    isLoaded,
+    pageError,
+    reloadPageData,
+    match,
+    resolvedMatch,
+    matchDisplay,
+    displayMatches,
+    hasMatchStarted,
+    matchVotes,
+    matchAttendance,
+    attendancePlayers,
+    matchRecordsLoaded,
+    events,
     updateMatch,
     updateMatchPlayersPerSide,
     updateMatchRecordInclusion,
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
-  } = useMatches({ includeAllSeasons: true });
-
-  const { records, recordsLoaded: recordsMapLoaded } = useMatchRecordsMap();
-  const { votes, votesLoaded, saveVote, saveVoteSide, deleteVote } =
-    useMatchVotes();
-  const { players, playersLoaded } = usePlayers();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
-  const { team, teamLoaded } = useCurrentTeam();
-  const { attendance, attendanceLoaded, saveAttendance, deleteAttendance } =
-    useMatchAttendance();
-
-  const matchVotes = useMemo(() => votes[matchId] ?? [], [votes, matchId]);
-  const matchAttendance = attendance[matchId] ?? [];
-
-  const attendPlayerIds = useMemo(
-    () =>
-      new Set(
-        matchVotes
-          .filter((vote) => vote.status === "attend")
-          .map((vote) => vote.playerId),
-      ),
-    [matchVotes],
-  );
-
-  const attendancePlayers = useMemo(
-    () =>
-      players
-        .filter((player) => attendPlayerIds.has(player.id))
-        .toSorted((a, b) => a.name.localeCompare(b.name, "ko")),
-    [players, attendPlayerIds],
-  );
-
-  // 4. 첫 번째 파생값들
-  const displayMatches = useMemo(
-    () => getDisplayMatches(matches, records),
-    [matches, records],
-  );
-  const match = matches.find((item) => item.id === matchId);
-  const targetMatchId = match?.id ?? "";
-
-  // 5. records hook
-  const {
-    loaded: matchRecordsLoaded,
-    events,
-    ourScore,
-    opponentScore,
+    saveVote,
+    saveVoteSide,
+    deleteVote,
+    saveAttendance,
+    deleteAttendance,
     addEvent,
     deleteEvent,
     updateEvent,
     reorderEvents,
-  } = useMatchRecords(targetMatchId);
+  } = useMatchDetailPageData(matchId);
 
-  // 6. handler 함수들
-  const handleChangeTab = (tab: MatchDetailTab) => {
-    if (!targetMatchId) return;
+  const {
+    activeTab,
+    handleChangeTab,
+    handleUpdateMatch,
+    handleDeleteMatch,
+    handleChangeRecordCompletion,
+    handleChangePlayersPerSide,
+    handleChangeRecordInclusion,
+  } = useMatchDetailActions({
+    match,
+    updateMatch,
+    updateMatchPlayersPerSide,
+    updateMatchRecordInclusion,
+    setMatchRecordCompletion,
+    deleteMatch: removeMatch,
+  });
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    router.replace(`/matches/${targetMatchId}?${params.toString()}`);
-  };
-
-  const handleUpdateMatch = async (value: MatchCreateFormValue) => {
-    if (!match) return false;
-
-    const shouldResetTactics =
-      match.sport !== value.sport ||
-      match.playersPerSide !== value.playersPerSide ||
-      match.quarterCount !== value.quarterCount;
-
-    if (shouldResetTactics) {
-      const confirmed = await confirm({
-        title: "경기 구성 변경",
-        description:
-          "참가 인원이나 쿼터 수를 변경하면 저장된 모든 쿼터의 포메이션과 선수 배치가 초기화돼요. 변경할까요?",
-        confirmLabel: "변경",
-      });
-
-      if (!confirmed) return false;
-    }
-
-    const success = await updateMatch(match.id, value);
-
-    if (!success) {
-      showToast("경기 정보 수정에 실패했어요.", "error");
-      return false;
-    }
-
-    showToast(
-      shouldResetTactics
-        ? "경기 구성을 변경하고 기존 전술을 초기화했어요."
-        : "경기 정보가 수정됐어요.",
-      "success",
-    );
-
-    return true;
-  };
-
-  const handleDeleteMatch = async () => {
-    if (!match) return;
-
-    const confirmed = await confirm({
-      title: "경기 삭제",
-      description: `${match.title} 경기를 삭제할까요? 연결된 기록과 출석 데이터도 함께 삭제되며 되돌릴 수 없어요.`,
-      confirmLabel: "삭제",
-      variant: "danger",
-    });
-
-    if (!confirmed) return;
-
-    const success = await removeMatch(match.id);
-
-    if (!success) {
-      showToast("경기 삭제에 실패했어요.", "error");
-      return;
-    }
-
-    showToast("경기를 삭제했어요.", "success");
-    router.push("/matches");
-  };
-
-  const handleChangeRecordCompletion = async (completed: boolean) => {
-    if (!match) return false;
-
-    return setMatchRecordCompletion(match.id, completed);
-  };
-
-  const handleChangePlayersPerSide = async (
-    playersPerSide: MatchPlayersPerSide,
-  ) => {
-    if (!match) return false;
-
-    return updateMatchPlayersPerSide(match.id, playersPerSide);
-  };
-
-  const handleChangeRecordInclusion = async (countsTowardRecord: boolean) => {
-    if (!match) return false;
-
-    return updateMatchRecordInclusion(match.id, countsTowardRecord);
-  };
-
-  // 7. early return
-  if (
-    !teamLoaded ||
-    !matchesLoaded ||
-    !recordsMapLoaded ||
-    !memberLoaded ||
-    !votesLoaded ||
-    !playersLoaded ||
-    !attendanceLoaded
-  ) {
+  if (!isLoaded) {
     return (
       <ContentState
         variant="loading"
         title="경기 정보를 불러오는 중..."
         description="경기 일정과 상세 기록을 준비하고 있어요."
+      />
+    );
+  }
+
+  if (pageError) {
+    return (
+      <ContentState
+        variant="error"
+        title="경기 정보를 불러오지 못했어요."
+        description={pageError}
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadPageData()}
+            className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }
@@ -232,17 +113,9 @@ export default function MatchDetailPageClient({
     );
   }
 
-  // 8. 최종 파생값
-  const resolvedMatch =
-    matchRecordsLoaded && (events.length > 0 || match.recordCompletedAt)
-      ? {
-          ...match,
-          ourScore,
-          opponentScore,
-        }
-      : match;
-
-  const hasMatchStarted = getHasMatchStarted(match.date, match.startTime);
+  if (!resolvedMatch || !matchDisplay) {
+    return null;
+  }
 
   const {
     displayScore,
@@ -250,7 +123,7 @@ export default function MatchDetailPageClient({
     matchSubText,
     opponentName,
     statusBadgeClassName,
-  } = getMatchDetailDisplay(resolvedMatch);
+  } = matchDisplay;
 
   return (
     <div className="space-y-6">
@@ -310,6 +183,8 @@ export default function MatchDetailPageClient({
         <MatchTacticsTab
           matchId={match.id}
           matchType={match.type}
+          players={attendancePlayers}
+          votes={matchVotes}
           sport={match.sport}
           playersPerSide={match.playersPerSide}
           quarterCount={match.quarterCount}
@@ -320,7 +195,8 @@ export default function MatchDetailPageClient({
 
       {activeTab === "record" && (
         <MatchRecordTab
-          matchId={match.id}
+          votes={matchVotes}
+          attendPlayers={attendancePlayers}
           matchType={match.type}
           countsTowardRecord={match.countsTowardRecord}
           onChangeRecordInclusion={handleChangeRecordInclusion}

@@ -1,64 +1,17 @@
-import {
-  createDefaultMatchTacticsBySide,
-  getMatchFormationOptions,
-} from "@/lib/tactics/tactics-ui";
+import { createDefaultMatchTacticsBySide } from "@/lib/tactics/tactics-ui";
 import type {
-  FormationName,
-  FormationSlot,
-  MatchQuarter,
   MatchTacticsByQuarter,
   MatchTacticsBySide,
   MatchTacticsSide,
 } from "@/types/tactics";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
 import type { TeamSport } from "@/types/team";
 import type { MatchPlayersPerSide } from "@/types/match";
-import { createQuarterOptions } from "@/lib/matches/match-quarter";
-
-type MatchTacticsRow = {
-  match_id: string;
-  quarter: MatchQuarter;
-  side: MatchTacticsSide;
-  formation: FormationName;
-  slots: FormationSlot[];
-  corner_kick_player_id: string | null;
-  free_kick_player_id: string | null;
-  penalty_kick_player_id: string | null;
-};
-
-function mapRowsToTacticsBySide(
-  rows: MatchTacticsRow[],
-  sport: TeamSport,
-  playersPerSide: MatchPlayersPerSide,
-  quarterCount: number,
-): MatchTacticsBySide {
-  const defaultTactics = createDefaultMatchTacticsBySide(
-    sport,
-    playersPerSide,
-    quarterCount,
-  );
-  const validQuarters = new Set(createQuarterOptions(quarterCount));
-  const validFormations = new Set(
-    getMatchFormationOptions(sport, playersPerSide),
-  );
-
-  rows.forEach((row) => {
-    if (!validQuarters.has(row.quarter)) return;
-    if (!validFormations.has(row.formation)) return;
-
-    defaultTactics[row.side][row.quarter] = {
-      formation: row.formation,
-      slots: row.slots,
-      cornerKickPlayerId: row.corner_kick_player_id ?? "",
-      freeKickPlayerId: row.free_kick_player_id ?? "",
-      penaltyKickPlayerId: row.penalty_kick_player_id ?? "",
-    };
-  });
-
-  return defaultTactics;
-}
+import {
+  getMatchTacticsBySide,
+  upsertMatchTacticsBySide,
+} from "@/lib/matches/match-tactics-repository";
 
 export function useMatchTactics(
   matchId: string,
@@ -72,45 +25,44 @@ export function useMatchTactics(
     createDefaultMatchTacticsBySide(sport, playersPerSide, quarterCount),
   );
   const [tacticsLoaded, setTacticsLoaded] = useState(false);
+  const [tacticsError, setTacticsError] = useState("");
 
   const loadMatchTactics = useCallback(async () => {
     if (!teamLoaded) return;
 
+    const defaultTactics = createDefaultMatchTacticsBySide(
+      sport,
+      playersPerSide,
+      quarterCount,
+    );
+
     if (!teamId || !matchId) {
-      setTacticsBySide(
-        createDefaultMatchTacticsBySide(sport, playersPerSide, quarterCount),
-      );
+      setTacticsBySide(defaultTactics);
       setTacticsLoaded(true);
+      setTacticsError("");
       return;
     }
 
     setTacticsLoaded(false);
+    setTacticsError("");
 
-    const { data, error } = await supabase
-      .from("match_tactics")
-      .select(
-        "match_id, quarter, side, formation, slots, corner_kick_player_id, free_kick_player_id, penalty_kick_player_id",
-      )
-      .eq("team_id", teamId)
-      .eq("match_id", matchId);
-
-    if (error || !data) {
-      setTacticsBySide(
-        createDefaultMatchTacticsBySide(sport, playersPerSide, quarterCount),
-      );
-      setTacticsLoaded(true);
-      return;
-    }
-
-    setTacticsBySide(
-      mapRowsToTacticsBySide(
-        data as MatchTacticsRow[],
+    try {
+      const nextTactics = await getMatchTacticsBySide(
+        teamId,
+        matchId,
         sport,
         playersPerSide,
         quarterCount,
-      ),
-    );
-    setTacticsLoaded(true);
+      );
+
+      setTacticsBySide(nextTactics);
+    } catch (error) {
+      console.error("match tactics load error", error);
+      setTacticsBySide(defaultTactics);
+      setTacticsError("경기 전술을 불러오지 못했어요.");
+    } finally {
+      setTacticsLoaded(true);
+    }
   }, [teamLoaded, teamId, matchId, sport, playersPerSide, quarterCount]);
 
   useEffect(() => {
@@ -135,48 +87,22 @@ export function useMatchTactics(
       [side]: nextTactics,
     }));
 
-    const rows = (
-      Object.entries(nextTactics) as [
-        MatchQuarter,
-        MatchTacticsByQuarter[MatchQuarter],
-      ][]
-    ).map(([quarter, tactics]) => ({
-      team_id: teamId,
-      match_id: matchId,
-      side,
-      quarter,
-      formation: tactics.formation,
-      slots: tactics.slots,
-      corner_kick_player_id: tactics.cornerKickPlayerId || null,
-      free_kick_player_id: tactics.freeKickPlayerId || null,
-      penalty_kick_player_id: tactics.penaltyKickPlayerId || null,
-    }));
+    try {
+      await upsertMatchTacticsBySide(teamId, matchId, side, nextTactics);
 
-    const { error } = await supabase
-      .from("match_tactics")
-      .upsert(rows, { onConflict: "match_id,quarter,side" });
-
-    if (error) {
-      console.error(
-        "match tactics save error:",
-        JSON.stringify({
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-        }),
-      );
+      return true;
+    } catch (error) {
+      console.error("match tactics save error", error);
       await loadMatchTactics();
       return false;
     }
-
-    return true;
   };
 
   return {
     tacticsBySide,
     saveTacticsBySide,
     tacticsLoaded,
+    tacticsError,
     reloadMatchTactics: loadMatchTactics,
   };
 }

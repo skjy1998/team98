@@ -1,48 +1,7 @@
-import type {
-  MatchRecordEvent,
-  MatchRecordEventType,
-  MatchRecordMap,
-  MatchRecordQuarter,
-} from "@/types/match";
+import type { MatchRecordMap } from "@/types/match";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
-
-type MatchRecordRow = {
-  id: string;
-  match_id: string;
-  type: MatchRecordEventType;
-  player_id: string | null;
-  player_name: string | null;
-  assist_player_id: string | null;
-  assist_player_name: string | null;
-  minute: string | null;
-  quarter: MatchRecordQuarter;
-  sort_order: number;
-};
-
-function mapRowToEvent(row: MatchRecordRow): MatchRecordEvent {
-  return {
-    id: row.id,
-    type: row.type,
-    playerId: row.player_id ?? "",
-    playerName: row.player_name ?? "",
-    assistPlayerId: row.assist_player_id ?? "",
-    assistPlayerName: row.assist_player_name ?? "",
-    minute: row.minute ?? "",
-    quarter: row.quarter ?? "unknown",
-  };
-}
-
-function groupRecords(rows: MatchRecordRow[]): MatchRecordMap {
-  return rows.reduce<MatchRecordMap>((acc, row) => {
-    const matchId = row.match_id;
-    const prev = acc[matchId] ?? [];
-
-    acc[matchId] = [...prev, mapRowToEvent(row)];
-    return acc;
-  }, {});
-}
+import { getTeamMatchRecordMap } from "@/lib/matches/match-record-repository";
 
 export default function useMatchRecordsMap() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -50,6 +9,7 @@ export default function useMatchRecordsMap() {
 
   const [records, setRecords] = useState<MatchRecordMap>({});
   const [recordsLoaded, setRecordsLoaded] = useState(false);
+  const [recordsError, setRecordsError] = useState("");
 
   const loadRecords = useCallback(async () => {
     if (!teamLoaded) return;
@@ -57,29 +17,23 @@ export default function useMatchRecordsMap() {
     if (!teamId) {
       setRecords({});
       setRecordsLoaded(true);
+      setRecordsError("");
       return;
     }
 
     setRecordsLoaded(false);
+    setRecordsError("");
 
-    const { data, error } = await supabase
-      .from("match_records")
-      .select(
-        "id, match_id, type, player_id, player_name, assist_player_id, assist_player_name, minute, quarter, sort_order",
-      )
-      .eq("team_id", teamId)
-      .order("match_id", { ascending: true })
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error || !data) {
+    try {
+      const nextRecords = await getTeamMatchRecordMap(teamId);
+      setRecords(nextRecords);
+    } catch (error) {
+      console.error("match record map load error", error);
       setRecords({});
+      setRecordsError("경기 기록을 불러오지 못했어요.");
+    } finally {
       setRecordsLoaded(true);
-      return;
     }
-
-    setRecords(groupRecords(data as MatchRecordRow[]));
-    setRecordsLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -87,5 +41,5 @@ export default function useMatchRecordsMap() {
     loadRecords();
   }, [loadRecords]);
 
-  return { records, recordsLoaded, reloadRecords: loadRecords };
+  return { records, recordsLoaded, recordsError, reloadRecords: loadRecords };
 }
