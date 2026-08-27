@@ -1,13 +1,14 @@
+// 출전, 득점, 도움, 연속 출전 등 통계 계산
+
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import type {
   MatchItem,
   MatchRecordEvent,
   MatchRecordMap,
 } from "@/types/match";
-import type { PlayerSortType, PlayerType } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 import type { PlayerRecentMatch } from "@/types/stats";
 import { getHasMatchStarted } from "../matches/match-ui";
-import { getMainPositionFromDetail } from "./player-ui";
 
 function isPlayerScoringEvent(event: MatchRecordEvent, match: MatchItem) {
   return (
@@ -195,84 +196,4 @@ export function getPlayerAssistCount(
       ).length
     );
   }, 0);
-}
-
-// 선수 원본에 계산 스탯을 붙이는 역할
-export function getDisplayPlayers(
-  players: PlayerType[],
-  matches: MatchItem[],
-  attendance: MatchAttendanceByMatchId,
-  records: MatchRecordMap,
-) {
-  const validMatches = matches.filter(
-    (match) => match.status !== "canceled" && match.countsTowardRecord,
-  );
-  const pastMatches = validMatches.filter((match) =>
-    getHasMatchStarted(match.date, match.startTime),
-  );
-
-  const pastMatchIds = pastMatches.map((match) => match.id);
-
-  return players.map((player) => ({
-    ...player,
-    appearance: getPlayerAppearanceCount(player.id, pastMatchIds, attendance),
-    goal: getPlayerGoalCount(player.id, records, pastMatches),
-    assist: getPlayerAssistCount(player.id, records, pastMatches),
-  }));
-}
-
-// 검색 / 정렬 규칙을 공통 함수로 만드는 역할
-export function getFilteredPlayers(
-  players: PlayerType[],
-  search: string,
-  sortType: PlayerSortType,
-) {
-  const searchedPlayers = players.filter((player) =>
-    player.name.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  if (sortType === "name") {
-    return [...searchedPlayers].sort((a, b) =>
-      a.name.localeCompare(b.name, "ko"),
-    );
-  }
-
-  if (sortType === "number") {
-    return [...searchedPlayers].sort((a, b) => {
-      const aNumber = a.number ?? Number.MAX_SAFE_INTEGER;
-      const bNumber = b.number ?? Number.MAX_SAFE_INTEGER;
-      return aNumber - bNumber;
-    });
-  }
-
-  if (sortType === "position") {
-    const positionOrder = {
-      GK: 0,
-      DF: 1,
-      MF: 2,
-      FW: 3,
-    } as const;
-
-    return [...searchedPlayers].sort((a, b) => {
-      const aPosition =
-        getMainPositionFromDetail(a.detailPositions) || a.position || "ZZZ";
-      const bPosition =
-        getMainPositionFromDetail(b.detailPositions) || b.position || "ZZZ";
-
-      const aRank =
-        aPosition in positionOrder
-          ? positionOrder[aPosition as keyof typeof positionOrder]
-          : 99;
-      const bRank =
-        bPosition in positionOrder
-          ? positionOrder[bPosition as keyof typeof positionOrder]
-          : 99;
-
-      if (aRank !== bRank) {
-        return aRank - bRank;
-      }
-      return a.name.localeCompare(b.name, "ko");
-    });
-  }
-  return [...searchedPlayers].reverse();
 }

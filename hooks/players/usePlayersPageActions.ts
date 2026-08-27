@@ -1,7 +1,7 @@
+import { updateTeamPlayerWithRoles } from "@/lib/players/player-repository";
 import {
   findCurrentCaptain,
   findCurrentOwner,
-  updatePlayerWithRoles,
 } from "@/lib/players/player-role";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
@@ -100,16 +100,16 @@ export function usePlayersPageActions({
 
     if (!confirmed) return;
 
-    const success = await updatePlayerWithRoles(teamId, player, teamRole);
+    try {
+      await updateTeamPlayerWithRoles(teamId, player, teamRole);
+      await reloadPlayers();
 
-    if (!success) {
+      showToast("선수 정보를 수정했어요.", "success");
+      handleCloseEdit();
+    } catch (error) {
+      console.error("player update error", error);
       showToast("선수 정보 저장에 실패했어요.", "error");
-      return;
     }
-
-    await reloadPlayers();
-    showToast("선수 정보를 수정했어요.", "success");
-    handleCloseEdit();
   };
 
   const handleDeletePlayer = async (player: PlayerType) => {

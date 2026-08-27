@@ -23,7 +23,7 @@ export interface PlayerBase {
   id: string;
   userId?: string;
   name: string;
-  position?: string;
+  position?: PlayerPosition;
   detailPositions?: PlayerDetailPosition[];
   number?: number;
   birth?: string;

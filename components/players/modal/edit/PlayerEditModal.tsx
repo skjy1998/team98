@@ -1,13 +1,9 @@
 import type {
   ConnectableTeamMember,
-  PlayerDetailPosition,
-  PlayerPreferredFoot,
-  PlayerRole,
   PlayerType,
   TeamMemberRole,
 } from "@/types/player";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
 import PlayerEditSummaryCard from "./PlayerEditSummaryCard";
 import PlayerEditNumberSection from "./PlayerEditNumberSection";
 import PlayerEditPositionSection from "./PlayerEditPositionSection";
@@ -15,25 +11,17 @@ import PlayerEditExtraInfoSection from "./PlayerEditExtraInfoSection";
 import PlayerEditRoleSection from "./PlayerEditRoleSection";
 import PlayerEditPermissionSection from "./PlayerEditPermissionSection";
 import PlayerEditAccountSection from "./PlayerEditAccountSection";
+import { usePlayerEditForm } from "@/hooks/players/usePlayerEditForm";
+import { useEscapeKey } from "@/hooks/common/useEscapeKey";
 
 interface PlayerEditModalProps {
   player: PlayerType;
   connectableMembers: ConnectableTeamMember[];
   onClose: () => void;
-  onSave: (player: PlayerType, teamRole: TeamMemberRole) => void;
-}
-
-function getInitialEditState(player: PlayerType) {
-  return {
-    number: player.number ? String(player.number) : "",
-    detailPositions: player.detailPositions ?? [],
-    birth: player.birth ?? "",
-    role: player.role ?? "member",
-    preferredFoot: player.preferredFoot ?? "right",
-    note: player.note ?? "",
-    teamRole: player.teamMemberRole ?? "member",
-    linkedUserId: player.userId ?? "",
-  };
+  onSave: (
+    player: PlayerType,
+    teamRole: TeamMemberRole,
+  ) => void | Promise<void>;
 }
 
 export default function PlayerEditModal({
@@ -42,59 +30,31 @@ export default function PlayerEditModal({
   onClose,
   onSave,
 }: Readonly<PlayerEditModalProps>) {
-  const initialState = getInitialEditState(player);
+  const {
+    number,
+    setNumber,
+    detailPositions,
+    birth,
+    setBirth,
+    role,
+    setRole,
+    preferredFoot,
+    setPreferredFoot,
+    note,
+    setNote,
+    teamRole,
+    setTeamRole,
+    linkedUserId,
+    setLinkedUserId,
+    isSubmitting,
+    handleToggleDetailPosition,
+    handleSubmit,
+  } = usePlayerEditForm({
+    player,
+    onSave,
+  });
 
-  const [number, setNumber] = useState(initialState.number);
-  const [detailPositions, setDetailPositions] = useState<
-    PlayerDetailPosition[]
-  >(initialState.detailPositions);
-  const [birth, setBirth] = useState(initialState.birth);
-  const [role, setRole] = useState<PlayerRole>(initialState.role);
-  const [preferredFoot, setPreferredFoot] = useState<PlayerPreferredFoot>(
-    initialState.preferredFoot,
-  );
-  const [note, setNote] = useState(initialState.note);
-  const [teamRole, setTeamRole] = useState<TeamMemberRole>(
-    initialState.teamRole,
-  );
-  const [linkedUserId, setLinkedUserId] = useState(initialState.linkedUserId);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    globalThis.window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      globalThis.window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
-
-  const handleToggleDetailPosition = (detail: PlayerDetailPosition) => {
-    setDetailPositions((prev) =>
-      prev.includes(detail)
-        ? prev.filter((item) => item !== detail)
-        : [...prev, detail],
-    );
-  };
-
-  const handleSubmit = () => {
-    const nextPlayer: PlayerType = {
-      ...player,
-      userId: linkedUserId || undefined,
-      number: number ? Number(number) : undefined,
-      detailPositions: detailPositions.length > 0 ? detailPositions : undefined,
-      birth: birth || undefined,
-      role,
-      preferredFoot: preferredFoot,
-      note: note.trim() || undefined,
-    };
-
-    onSave(nextPlayer, teamRole);
-  };
+  useEscapeKey(onClose);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
@@ -104,7 +64,11 @@ export default function PlayerEditModal({
         aria-label="모달 닫기"
         className="absolute inset-0 bg-black/35"
       />
-      <div className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8">
+      <dialog
+        open
+        aria-label={`${player.name} 선수 정보 수정`}
+        className="relative z-10 m-0 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border-0 bg-white p-6 shadow-2xl md:p-8"
+      >
         <button
           type="button"
           onClick={onClose}
@@ -160,14 +124,15 @@ export default function PlayerEditModal({
             </button>
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={handleSubmit}
-              className="h-12 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              className="h-12 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300"
             >
-              저장하기
+              {isSubmitting ? "저장 중..." : "저장하기"}
             </button>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   );
 }

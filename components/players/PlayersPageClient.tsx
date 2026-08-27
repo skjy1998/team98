@@ -1,35 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import PlayerCreateModal from "@/components/players/modal/PlayerCreateModal";
-
 import PlayerEditModal from "@/components/players/modal/edit/PlayerEditModal";
 import PlayerTable from "@/components/players/list/PlayerTable";
 import PlayerToolbar from "@/components/players/list/PlayerToolbar";
-import { useMatches } from "@/hooks/matches/useMatches";
-import {
-  getDisplayPlayers,
-  getFilteredPlayers,
-} from "@/lib/players/player-stats";
-import useMatchRecordsMap from "@/hooks/matches/useMatchRecordMap";
 import { usePlayersPageState } from "@/hooks/players/usePlayersPageState";
-import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
-import { useCurrentTeam } from "@/hooks/team/useCurrentTeam";
-import { useConnectableTeamMembers } from "@/hooks/players/useConnectableTeamMembers";
 import { usePlayersPageActions } from "@/hooks/players/usePlayersPageActions";
-import { usePlayers } from "@/hooks/players/usePlayers";
-import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
 import ContentState from "../common/ContentState";
+import { usePlayersPageData } from "@/hooks/players/usePlayersPageData";
 
 export default function PlayersPageClient() {
-  const { players, playersLoaded, addPlayer, deletePlayer, reloadPlayers } =
-    usePlayers();
-  const { matches, matchesLoaded } = useMatches();
-  const { attendance, attendanceLoaded } = useMatchAttendance();
-  const { records, recordsLoaded } = useMatchRecordsMap();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
-  const { team } = useCurrentTeam();
   const {
     search,
     setSearch,
@@ -43,15 +24,27 @@ export default function PlayersPageClient() {
     handleCloseEdit,
   } = usePlayersPageState();
 
-  const { availableMembers, membersLoaded } = useConnectableTeamMembers({
-    teamId: team?.id,
+  const {
+    teamId,
     players,
+    filteredPlayers,
+    availableMembers,
+    canManage,
+    isLoaded,
+    pageError,
+    addPlayer,
+    deletePlayer,
+    reloadPlayers,
+    reloadPageData,
+  } = usePlayersPageData({
+    search,
+    sortType,
     editingPlayer,
   });
 
   const { handleCreatePlayer, handleEditPlayer, handleDeletePlayer } =
     usePlayersPageActions({
-      teamId: team?.id,
+      teamId,
       players,
       addPlayer,
       deletePlayer,
@@ -59,25 +52,6 @@ export default function PlayersPageClient() {
       handleCloseCreate,
       handleCloseEdit,
     });
-
-  // 원본 선수, 경기, 출석, 기록 데이터 합쳐서 표에 보여줄 선수 목록을 만드는 단계
-  const displayPlayers = useMemo(
-    () => getDisplayPlayers(players, matches, attendance, records),
-    [players, matches, attendance, records],
-  );
-
-  // displayPlayers에 검색과 정렬을 적용한 최종 리스트를 만들기 위해
-  const filteredPlayers = useMemo(
-    () => getFilteredPlayers(displayPlayers, search, sortType),
-    [displayPlayers, search, sortType],
-  );
-
-  const isLoaded =
-    playersLoaded &&
-    matchesLoaded &&
-    attendanceLoaded &&
-    recordsLoaded &&
-    memberLoaded;
 
   if (!isLoaded) {
     return (
@@ -90,6 +64,31 @@ export default function PlayersPageClient() {
           variant="loading"
           title="선수 정보를 불러오는 중..."
           description="선수 명단과 경기 기록을 준비하고 있어요."
+        />
+      </div>
+    );
+  }
+
+  if (pageError) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="선수 관리"
+          description="등록된 선수 목록을 확인하고 관리하세요."
+        />
+        <ContentState
+          variant="error"
+          title="선수 정보를 불러오지 못했어요."
+          description={pageError}
+          action={
+            <button
+              type="button"
+              onClick={reloadPageData}
+              className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+            >
+              다시 시도
+            </button>
+          }
         />
       </div>
     );
@@ -127,7 +126,7 @@ export default function PlayersPageClient() {
         onDelete={canManage ? handleDeletePlayer : undefined}
       />
 
-      {canManage && editingPlayer && membersLoaded && (
+      {canManage && editingPlayer && (
         <PlayerEditModal
           key={editingPlayer.id}
           player={editingPlayer}

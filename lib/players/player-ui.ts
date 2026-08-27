@@ -1,3 +1,5 @@
+// 배지와 포지션 표시 스타일
+
 import { PlayerDetailPosition, PlayerType } from "@/types/player";
 
 export function getMainPositionFromDetail(

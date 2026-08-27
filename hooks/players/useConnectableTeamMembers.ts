@@ -1,22 +1,12 @@
-import { supabase } from "@/lib/supabase";
-import type {
-  ConnectableTeamMember,
-  PlayerType,
-  TeamMemberRole,
-} from "@/types/player";
-import { useEffect, useMemo, useState } from "react";
+import { getConnectableTeamMembers } from "@/lib/players/player-repository";
+import { getAvailableConnectableTeamMembers } from "@/lib/players/player-role";
+import type { ConnectableTeamMember, PlayerType } from "@/types/player";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface UseConnectableTeamMembersParams {
   teamId?: string;
   players: PlayerType[];
   editingPlayer: PlayerType | null;
-}
-
-function getConnectableMemberLabel(member: {
-  display_name: string | null;
-  user_id: string;
-}) {
-  return member.display_name || member.user_id;
 }
 
 export function useConnectableTeamMembers({
@@ -28,58 +18,50 @@ export function useConnectableTeamMembers({
     ConnectableTeamMember[]
   >([]);
   const [membersLoaded, setMembersLoaded] = useState(false);
+  const [membersError, setMembersError] = useState("");
 
-  useEffect(() => {
-    async function loadConnectableMembers() {
-      if (!teamId) {
-        setConnectableMembers([]);
-        setMembersLoaded(true);
-        return;
-      }
+  const loadConnectableMembers = useCallback(async () => {
+    if (!teamId) {
+      setConnectableMembers([]);
+      setMembersLoaded(true);
+      setMembersError("");
+      return;
+    }
 
-      setMembersLoaded(false);
+    setMembersLoaded(false);
+    setMembersError("");
 
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("user_id, role, display_name")
-        .eq("team_id", teamId);
-
-      if (error || !data) {
-        setConnectableMembers([]);
-        setMembersLoaded(true);
-        return;
-      }
-
-      const members = data.map((member) => ({
-        userId: member.user_id,
-        role: member.role as TeamMemberRole,
-        label: getConnectableMemberLabel(member),
-      }));
-
+    try {
+      const members = await getConnectableTeamMembers(teamId);
       setConnectableMembers(members);
+    } catch (error) {
+      console.error("connectable team members load error", error);
+      setConnectableMembers([]);
+      setMembersError("연결 가능한 팀원을 불러오지 못했어요.");
+    } finally {
       setMembersLoaded(true);
     }
-
-    loadConnectableMembers();
   }, [teamId]);
 
-  const availableMembers = useMemo(() => {
-    if (!editingPlayer) {
-      return connectableMembers;
-    }
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadConnectableMembers();
+  }, [loadConnectableMembers]);
 
-    const usedUserIds = new Set(
-      players
-        .filter((player) => player.userId && player.id !== editingPlayer.id)
-        .map((player) => player.userId as string),
-    );
+  const availableMembers = useMemo(
+    () =>
+      getAvailableConnectableTeamMembers(
+        connectableMembers,
+        players,
+        editingPlayer,
+      ),
+    [connectableMembers, players, editingPlayer],
+  );
 
-    return connectableMembers.filter(
-      (member) =>
-        !usedUserIds.has(member.userId) ||
-        member.userId === editingPlayer.userId,
-    );
-  }, [connectableMembers, editingPlayer, players]);
-
-  return { availableMembers, membersLoaded };
+  return {
+    availableMembers,
+    membersLoaded,
+    membersError,
+    reloadMembers: loadConnectableMembers,
+  };
 }

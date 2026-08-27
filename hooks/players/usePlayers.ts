@@ -1,73 +1,13 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
-import { getMainPositionFromDetail } from "@/lib/players/player-ui";
-import type {
-  PlayerDetailPosition,
-  PlayerPosition,
-  PlayerPreferredFoot,
-  PlayerRole,
-  PlayerType,
-  TeamMemberRole,
-} from "@/types/player";
+import type { PlayerType } from "@/types/player";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-
-type PlayerRow = {
-  id: string;
-  user_id: string | null;
-  name: string;
-  position: PlayerPosition | null;
-  detail_positions: PlayerDetailPosition[] | null;
-  number: number | null;
-  birth: string | null;
-  role: PlayerRole | null;
-  preferred_foot: PlayerPreferredFoot | null;
-  note: string | null;
-};
-
-type TeamMemberRoleRow = {
-  user_id: string;
-  role: TeamMemberRole;
-};
-
-function mapPlayerRow(
-  player: PlayerRow,
-  teamMemberRole?: TeamMemberRole,
-): PlayerType {
-  return {
-    id: player.id,
-    userId: player.user_id ?? undefined,
-    teamMemberRole,
-    name: player.name,
-    position: player.position ?? undefined,
-    detailPositions: player.detail_positions ?? undefined,
-    number: player.number ?? undefined,
-    birth: player.birth ?? undefined,
-    role: player.role ?? "member",
-    preferredFoot: player.preferred_foot ?? "right",
-    note: player.note ?? undefined,
-    appearance: 0,
-    goal: 0,
-    assist: 0,
-  };
-}
-
-function mergePlayersWithTeamMemberRoles(
-  players: PlayerRow[],
-  teamMembers: TeamMemberRoleRow[],
-) {
-  const teamMemberRoleMap = new Map(
-    teamMembers.map((member) => [member.user_id, member.role]),
-  );
-
-  return players.map((player) =>
-    mapPlayerRow(
-      player,
-      player.user_id ? teamMemberRoleMap.get(player.user_id) : undefined,
-    ),
-  );
-}
+import {
+  createTeamPlayer,
+  deleteTeamPlayer,
+  getTeamPlayers,
+} from "@/lib/players/player-repository";
 
 export function usePlayers() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -75,6 +15,7 @@ export function usePlayers() {
 
   const [players, setPlayers] = useState<PlayerType[]>([]);
   const [playersLoaded, setPlayersLoaded] = useState(false);
+  const [playersError, setPlayersError] = useState("");
 
   const loadPlayers = useCallback(async () => {
     if (!teamLoaded) return;
@@ -82,43 +23,23 @@ export function usePlayers() {
     if (!teamId) {
       setPlayers([]);
       setPlayersLoaded(true);
+      setPlayersError("");
       return;
     }
 
     setPlayersLoaded(false);
+    setPlayersError("");
 
-    const { data: playerRows, error: playersError } = await supabase
-      .from("players")
-      .select(
-        "id, user_id, name, position, detail_positions, number, birth, role, preferred_foot, note",
-      )
-      .eq("team_id", teamId)
-      .order("created_at", { ascending: true });
-
-    if (playersError || !playerRows) {
+    try {
+      const nextPlayers = await getTeamPlayers(teamId);
+      setPlayers(nextPlayers);
+    } catch (error) {
+      console.error("players load error", error);
       setPlayers([]);
+      setPlayersError("선수 정보를 불러오지 못했어요.");
+    } finally {
       setPlayersLoaded(true);
-      return;
     }
-
-    const { data: teamMemberRows, error: teamMembersError } = await supabase
-      .from("team_members")
-      .select("user_id, role")
-      .eq("team_id", teamId);
-
-    if (teamMembersError || !teamMemberRows) {
-      setPlayers(playerRows.map((player) => mapPlayerRow(player)));
-      setPlayersLoaded(true);
-      return;
-    }
-
-    setPlayers(
-      mergePlayersWithTeamMemberRoles(
-        playerRows,
-        teamMemberRows as TeamMemberRoleRow[],
-      ),
-    );
-    setPlayersLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -129,54 +50,38 @@ export function usePlayers() {
   const addPlayer = async (player: PlayerType) => {
     if (!teamId) return false;
 
-    const { data, error } = await supabase
-      .from("players")
-      .insert({
-        team_id: teamId,
-        user_id: player.userId ?? null,
-        name: player.name,
-        position: getMainPositionFromDetail(player.detailPositions) ?? null,
-        detail_positions: player.detailPositions ?? null,
-        number: player.number ?? null,
-        birth: player.birth ?? null,
-        role: player.role ?? "member",
-        preferred_foot: player.preferredFoot ?? "right",
-        note: player.note ?? null,
-      })
-      .select(
-        "id, user_id, name, position, detail_positions, number, birth, role, preferred_foot, note",
-      )
-      .single();
+    try {
+      const createdPlayer = await createTeamPlayer(teamId, player);
 
-    if (error || !data) {
+      setPlayers((current) => [...current, createdPlayer]);
+      return true;
+    } catch (error) {
+      console.error("player create error", error);
       return false;
     }
-
-    setPlayers((prev) => [...prev, mapPlayerRow(data, player.teamMemberRole)]);
-    return true;
   };
 
   const deletePlayer = async (playerId: string) => {
     if (!teamId) return false;
 
-    const { error } = await supabase
-      .from("players")
-      .delete()
-      .eq("id", playerId)
-      .eq("team_id", teamId);
+    try {
+      await deleteTeamPlayer(teamId, playerId);
 
-    if (error) {
-      console.error("players delete error", error);
+      setPlayers((current) =>
+        current.filter((player) => player.id !== playerId),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("player delete error", error);
       return false;
     }
-
-    setPlayers((prev) => prev.filter((player) => player.id !== playerId));
-    return true;
   };
 
   return {
     players,
     playersLoaded,
+    playersError,
     addPlayer,
     deletePlayer,
     reloadPlayers: loadPlayers,
