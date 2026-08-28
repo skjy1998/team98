@@ -1,8 +1,11 @@
 import type { FeeType, FineRule } from "@/types/finance";
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
 import { useToastStore } from "@/stores/toast-store";
+import {
+  getTeamFinanceSettings,
+  saveTeamFinanceSettings,
+} from "@/lib/finance/finance-settings-repository";
 
 export function useFinanceSettings() {
   const showToast = useToastStore((state) => state.showToast);
@@ -14,6 +17,7 @@ export function useFinanceSettings() {
   const [fineRules, setFineRules] = useState<FineRule[]>([]);
   const [dueDay, setDueDay] = useState("1");
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [settingsError, setSettingsError] = useState("");
 
   const loadSettings = useCallback(async () => {
     if (!teamLoaded) return;
@@ -23,29 +27,28 @@ export function useFinanceSettings() {
       setFineRules([]);
       setDueDay("1");
       setSettingsLoaded(true);
+      setSettingsError("");
       return;
     }
 
     setSettingsLoaded(false);
+    setSettingsError("");
 
-    const { data, error } = await supabase
-      .from("finance_settings")
-      .select("due_day, fee_types, fine_rules")
-      .eq("team_id", teamId)
-      .maybeSingle();
+    try {
+      const nextSettings = await getTeamFinanceSettings(teamId);
 
-    if (error || !data) {
+      setFeeTypes(nextSettings.feeTypes);
+      setFineRules(nextSettings.fineRules);
+      setDueDay(nextSettings.dueDay);
+    } catch (error) {
+      console.error("finance settings load error", error);
       setFeeTypes([]);
       setFineRules([]);
       setDueDay("1");
+      setSettingsError("회비 설정을 불러오지 못했어요.");
+    } finally {
       setSettingsLoaded(true);
-      return;
     }
-
-    setFeeTypes((data.fee_types as FeeType[] | null) ?? []);
-    setFineRules((data.fine_rules as FineRule[] | null) ?? []);
-    setDueDay(data.due_day ?? "1");
-    setSettingsLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -60,17 +63,13 @@ export function useFinanceSettings() {
   }) => {
     if (!teamId) return false;
 
-    const { error } = await supabase.from("finance_settings").upsert(
-      {
-        team_id: teamId,
-        due_day: next.dueDay,
-        fee_types: next.feeTypes,
-        fine_rules: next.fineRules,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "team_id" },
-    );
-    return !error;
+    try {
+      await saveTeamFinanceSettings(teamId, next);
+      return true;
+    } catch (error) {
+      console.error("finance settings save error", error);
+      return false;
+    }
   };
 
   const handleChangeDueDay = async (value: string) => {
@@ -197,6 +196,7 @@ export function useFinanceSettings() {
     fineRules,
     dueDay,
     settingsLoaded,
+    settingsError,
     handleChangeDueDay,
     handleAddFeeType,
     handleUpdateFeeType,

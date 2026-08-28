@@ -1,11 +1,11 @@
 import type { FinanceEntry } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
+import { getFinanceSummary } from "../finance/finance";
 import {
-  getFinanceSummary,
   getMonthlyPaymentEntries,
   getPaymentStatusRows,
   getPaymentSummary,
-} from "../finance/finance";
+} from "../finance/finance-payment";
 
 interface GetDashboardFinanceDataParams {
   entries: FinanceEntry[];

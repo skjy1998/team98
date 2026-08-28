@@ -1,9 +1,12 @@
 import {
+  createMonthlyFeeEntry,
+  getAdjacentFinanceMonth,
   getCurrentMonthLabel,
   getMonthlyPaymentEntries,
+  getPaymentRowsByStatus,
   getPaymentStatusRows,
   getPaymentSummary,
-} from "@/lib/finance/finance";
+} from "@/lib/finance/finance-payment";
 import type { FinanceEntry, PaymentStatusRow } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
 import { useMemo, useState } from "react";
@@ -54,26 +57,17 @@ export function useFinancePayments({
   );
 
   const unpaidPaymentRows = useMemo(
-    () => paymentStatusRows.filter((row) => row.status === "unpaid"),
+    () => getPaymentRowsByStatus(paymentStatusRows, "unpaid"),
     [paymentStatusRows],
   );
 
   const paidPaymentRows = useMemo(
-    () => paymentStatusRows.filter((row) => row.status === "paid"),
+    () => getPaymentRowsByStatus(paymentStatusRows, "paid"),
     [paymentStatusRows],
   );
 
   const handleMoveMonth = (direction: "prev" | "next") => {
-    const [year, month] = currentMonth.split("-").map(Number);
-
-    const nextDate =
-      direction === "prev"
-        ? new Date(year, month - 2, 1)
-        : new Date(year, month, 1);
-    const nextYear = nextDate.getFullYear();
-    const nextMonth = String(nextDate.getMonth() + 1).padStart(2, "0");
-
-    setCurrentMonth(`${nextYear}-${nextMonth}`);
+    setCurrentMonth((month) => getAdjacentFinanceMonth(month, direction));
   };
 
   const handleToggleUnpaid = () => {
@@ -94,18 +88,14 @@ export function useFinancePayments({
     );
 
     if (nextStatus === "paid" && !existingPaymentEntry) {
-      const now = new Date();
-      const currentTime = now.toTimeString().slice(0, 5);
-
-      const success = await addEntry({
-        type: "income",
-        amount: primaryFeeAmount,
-        description: `${currentMonth} 회비 (${playerName})`,
-        date: `${currentMonth}-01`,
-        time: currentTime,
-        category: "fee",
-        playerId,
-      });
+      const success = await addEntry(
+        createMonthlyFeeEntry(
+          currentMonth,
+          playerId,
+          playerName,
+          primaryFeeAmount,
+        ),
+      );
 
       if (!success) {
         return false;

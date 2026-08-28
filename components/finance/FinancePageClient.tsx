@@ -6,27 +6,13 @@ import FinanceSummaryCard from "@/components/finance/FinanceSummaryCard";
 import FinanceTabs from "@/components/finance/FinanceTabs";
 import FinanceTransactionSection from "@/components/finance/transactions/FinanceTransactionSection";
 import PageHeader from "@/components/PageHeader";
-import { useFinancePayments } from "@/hooks/finance/useFinancePayments";
-import { useFinanceSettings } from "@/hooks/finance/useFinanceSettings";
-import { useFinanceTransactions } from "@/hooks/finance/useFinanceTransactions";
-import { usePlayers } from "@/hooks/players/usePlayers";
-import {
-  getFinanceDefaults,
-  getFinanceSummary,
-  getFinanceTab,
-  getPrimaryFeeAmount,
-} from "@/lib/finance/finance";
+import { getFinanceTab } from "@/lib/finance/finance";
 import type { FinanceTab } from "@/types/finance";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
-import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import FinanceFineSection from "./fines/FinanceFineSection";
-import { useMatches } from "@/hooks/matches/useMatches";
-import { useMatchVotes } from "@/hooks/matches/useMatchVotes";
-import { useMatchAttendance } from "@/hooks/matches/useMatchAttendance";
-import { useFinanceFineCharges } from "@/hooks/finance/useFinanceFineCharges";
-import { useFinanceEntries } from "@/hooks/finance/useFinanceEntries";
 import ContentState from "../common/ContentState";
+import { useFinancePageData } from "@/hooks/finance/useFinancePageData";
+import { useFinanceSectionStates } from "@/hooks/finance/useFinanceSectionStates";
 
 export default function FinancePageClient() {
   // 탭 / 라우팅
@@ -35,64 +21,38 @@ export default function FinancePageClient() {
   const searchParams = useSearchParams();
   const activeTab = getFinanceTab(searchParams.get("tab"));
 
-  // 원본 데이터
   const {
-    entries,
-    entriesLoaded,
-    addEntry,
-    addEntryWithResult,
-    updateEntry,
-    deleteEntry,
-  } = useFinanceEntries();
-  const { defaultMonth, defaultDate, defaultTime } = useMemo(
-    () => getFinanceDefaults(),
-    [],
-  );
-
-  const { players, playersLoaded } = usePlayers();
-  const settings = useFinanceSettings();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
-  const { matches, matchesLoaded } = useMatches();
-  const { votes, votesLoaded } = useMatchVotes();
-  const { attendance, attendanceLoaded } = useMatchAttendance();
-  const {
+    canManage,
+    financeSummary,
+    primaryFeeAmount,
+    players,
+    settings,
+    matches,
+    votes,
+    attendance,
     fineCharges,
-    fineChargesLoaded,
     createFineCharges,
     deleteFineCharge,
     handleChangeFineChargeStatus,
-  } = useFinanceFineCharges({
-    addEntryWithResult,
-    deleteEntry,
-  });
+    payments,
+    transactions,
+    isLoaded,
+    pageError,
+    reloadPageData,
+  } = useFinancePageData();
 
-  // 파생값
-  const primaryFeeAmount = useMemo(
-    () => getPrimaryFeeAmount(settings.feeTypes),
-    [settings.feeTypes],
-  );
-  const financeSummary = useMemo(
-    () => getFinanceSummary(entries, defaultMonth),
-    [entries, defaultMonth],
-  );
-
-  // 기능 훅
-  const payments = useFinancePayments({
-    entries,
-    players,
-    defaultMonth,
-    primaryFeeAmount,
-    addEntry,
-    deleteEntry,
-  });
-  const transactions = useFinanceTransactions({
-    entries,
-    currentMonth: payments.currentMonth,
-    defaultDate,
-    defaultTime,
-    addEntry,
-    updateEntry,
-    deleteEntry,
+  const {
+    transactionToolbarState,
+    transactionCreateState,
+    transactionEditState,
+    transactionListState,
+    paymentsHeaderState,
+    unpaidPaymentGroupState,
+    paidPaymentGroupState,
+  } = useFinanceSectionStates({
+    canManage,
+    payments,
+    transactions,
   });
 
   // 핸들러
@@ -102,87 +62,7 @@ export default function FinancePageClient() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const transactionToolbarState = {
-    canManage,
-    search: transactions.search,
-    onChangeSearch: transactions.setSearch,
-    entryFilter: transactions.entryFilter,
-    onChangeEntryFilter: transactions.setEntryFilter,
-    currentMonthLabel: payments.currentMonthLabel,
-    onMoveMonth: payments.handleMoveMonth,
-    isEntryFormOpen: transactions.isEntryFormOpen,
-    onToggleEntryForm: transactions.handleToggleEntryForm,
-  };
-
-  const transactionCreateState = {
-    createEntryType: transactions.createEntryType,
-    onChangeCreateEntryType: transactions.setCreateEntryType,
-    createEntryAmount: transactions.createEntryAmount,
-    onChangeCreateEntryAmount: transactions.setCreateEntryAmount,
-    createEntryDescription: transactions.createEntryDescription,
-    onChangeCreateEntryDescription: transactions.setCreateEntryDescription,
-    createEntryDate: transactions.createEntryDate,
-    onChangeCreateEntryDate: transactions.setCreateEntryDate,
-    createEntryTime: transactions.createEntryTime,
-    onChangeCreateEntryTime: transactions.setCreateEntryTime,
-    onSubmitCreateEntry: transactions.handleSubmitCreateEntry,
-  };
-
-  const transactionEditState = {
-    editingEntryId: transactions.editingEntryId,
-    editEntryType: transactions.editEntryType,
-    onChangeEditEntryType: transactions.setEditEntryType,
-    editEntryAmount: transactions.editEntryAmount,
-    onChangeEditEntryAmount: transactions.setEditEntryAmount,
-    editEntryDescription: transactions.editEntryDescription,
-    onChangeEditEntryDescription: transactions.setEditEntryDescription,
-    editEntryDate: transactions.editEntryDate,
-    onChangeEditEntryDate: transactions.setEditEntryDate,
-    editEntryTime: transactions.editEntryTime,
-    onChangeEditEntryTime: transactions.setEditEntryTime,
-    onSubmitEditEntry: transactions.handleSubmitEditEntry,
-    onCancelEdit: transactions.handleCancelEdit,
-  };
-
-  const transactionListState = {
-    entries: transactions.filteredEntries,
-    onStartEdit: transactions.handleStartEdit,
-    onDeleteEntry: transactions.handleDeleteEntry,
-  };
-
-  const paymentsHeaderState = {
-    currentMonthLabel: payments.currentMonthLabel,
-    onMoveMonth: payments.handleMoveMonth,
-  };
-
-  const unpaidPaymentGroupState = {
-    title: "미납",
-    count: payments.paymentSummary.unpaidCount,
-    tone: "unpaid" as const,
-    isOpen: payments.isUnpaidOpen,
-    onToggle: payments.handleToggleUnpaid,
-    rows: payments.unpaidPaymentRows,
-  };
-
-  const paidPaymentGroupState = {
-    title: "납부 완료",
-    count: payments.paymentSummary.paidCount,
-    tone: "paid" as const,
-    isOpen: payments.isPaidOpen,
-    onToggle: payments.handleTogglePaid,
-    rows: payments.paidPaymentRows,
-  };
-
-  if (
-    !entriesLoaded ||
-    !playersLoaded ||
-    !settings.settingsLoaded ||
-    !memberLoaded ||
-    !matchesLoaded ||
-    !votesLoaded ||
-    !attendanceLoaded ||
-    !fineChargesLoaded
-  ) {
+  if (!isLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -193,6 +73,31 @@ export default function FinancePageClient() {
           variant="loading"
           title="재정 데이터를 불러오는 중..."
           description="회비 납부 현황과 거래 내역을 준비하고 있어요."
+        />
+      </div>
+    );
+  }
+
+  if (pageError) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="회비 관리"
+          description="월별 회비 납부 현황과 기록을 관리하세요."
+        />
+        <ContentState
+          variant="error"
+          title="재정 데이터를 불러오지 못했어요."
+          description={pageError}
+          action={
+            <button
+              type="button"
+              onClick={reloadPageData}
+              className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+            >
+              다시 시도
+            </button>
+          }
         />
       </div>
     );

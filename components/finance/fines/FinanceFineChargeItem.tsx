@@ -1,4 +1,4 @@
-import { formatFinanceEntryDescription } from "@/lib/finance/finance";
+import { formatFinanceEntryDescription } from "@/lib/finance/finance-fine";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { FineCharge } from "@/types/finance";

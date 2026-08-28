@@ -14,6 +14,16 @@ export interface FineTarget {
   description: string;
 }
 
+export function getSelectableFineMatches(matches: MatchItem[]) {
+  return matches
+    .filter((match) => match.status !== "canceled" && !match.isUpcoming)
+    .toSorted((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getManualFineRules(fineRules: FineRule[]) {
+  return fineRules.filter((rule) => rule.trigger === "etc");
+}
+
 function getFineRuleMap(fineRules: FineRule[]) {
   return {
     late: fineRules.find((rule) => rule.trigger === "late"),
@@ -121,4 +131,12 @@ export function getFineTargetsByMatch({
   }
 
   return targets;
+}
+
+export function formatFinanceEntryDescription(description: string) {
+  return description
+    .replace("[late] ", "")
+    .replace("[absence] ", "")
+    .replace("[noshow] ", "")
+    .replace("[etc] ", "");
 }

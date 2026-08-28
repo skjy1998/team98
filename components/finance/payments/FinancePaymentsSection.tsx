@@ -3,8 +3,7 @@ import FinancePaymentHeader from "./FinancePaymentHeader";
 import FinancePaymentStatusGroup from "./FinancePaymentStatusGroup";
 import FinanceReadonlyNotice from "../FinanceReadonlyNotice";
 import type { FinancePaymentsSectionProps } from "@/types/finance-ui";
-import { useMemo, useRef, useState } from "react";
-import { useToastStore } from "@/stores/toast-store";
+import { useFinancePaymentSelection } from "@/hooks/finance/useFinancePaymentSelection";
 
 export default function FinancePaymentsSection({
   canManage,
@@ -15,121 +14,22 @@ export default function FinancePaymentsSection({
   onChangePaymentStatus,
   onBulkMarkPaid,
 }: Readonly<FinancePaymentsSectionProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const isSubmittingRef = useRef(false);
-
-  const handleTogglePlayer = (playerId: string) => {
-    if (isSubmittingRef.current) return;
-
-    setSelectedPlayerIds((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId],
-    );
-  };
-
-  const selectablePlayerIds = useMemo(
-    () => unpaidGroupState.rows.map((row) => row.playerId),
-    [unpaidGroupState.rows],
-  );
-
-  const validSelectedPlayerIds = useMemo(
-    () =>
-      selectedPlayerIds.filter((playerId) =>
-        selectablePlayerIds.includes(playerId),
-      ),
-    [selectedPlayerIds, selectablePlayerIds],
-  );
-
-  const handleToggleSelectAll = () => {
-    if (isSubmittingRef.current) return;
-
-    setSelectedPlayerIds(
-      validSelectedPlayerIds.length === selectablePlayerIds.length
-        ? []
-        : selectablePlayerIds,
-    );
-  };
-
-  const handleBulkSubmit = async () => {
-    if (isSubmittingRef.current) return;
-
-    if (validSelectedPlayerIds.length === 0) {
-      showToast("납부 처리할 인원을 먼저 선택해 주세요.", "info");
-      return;
-    }
-
-    const selectedPlayers = unpaidGroupState.rows
-      .filter((row) => validSelectedPlayerIds.includes(row.playerId))
-      .map((row) => ({
-        playerId: row.playerId,
-        playerName: row.playerName,
-      }));
-
-    isSubmittingRef.current = true;
-    setIsSubmitting(true);
-
-    try {
-      const success = await onBulkMarkPaid(selectedPlayers);
-
-      if (!success) {
-        showToast("일괄 납부 처리 중 실패했어요.", "error");
-        return;
-      }
-
-      setSelectedPlayerIds([]);
-      showToast("선택 인원을 납부 처리했어요.", "success");
-    } finally {
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChangePaymentStatus = async (
-    playerId: string,
-    playerName: string,
-    nextStatus: "paid" | "unpaid",
-  ) => {
-    if (isSubmittingRef.current) return false;
-
-    isSubmittingRef.current = true;
-    setIsSubmitting(true);
-
-    try {
-      const success = await onChangePaymentStatus(
-        playerId,
-        playerName,
-        nextStatus,
-      );
-
-      if (!success) {
-        showToast("납부 상태 변경에 실패했어요.", "error");
-        return false;
-      }
-
-      showToast(
-        nextStatus === "paid"
-          ? `${playerName}님을 납부 완료 처리했어요.`
-          : `${playerName}님을 미납 처리했어요.`,
-        "success",
-      );
-
-      return true;
-    } finally {
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleMoveMonth = (direction: "prev" | "next") => {
-    if (isSubmittingRef.current) return;
-
-    setSelectedPlayerIds([]);
-    headerState.onMoveMonth(direction);
-  };
+  const {
+    selectedPlayerIds,
+    selectedCount,
+    isAllSelected,
+    isSubmitting,
+    handleTogglePlayer,
+    handleToggleSelectAll,
+    handleBulkSubmit,
+    handleChangePaymentStatus,
+    handleMoveMonth,
+  } = useFinancePaymentSelection({
+    unpaidRows: unpaidGroupState.rows,
+    onChangePaymentStatus,
+    onBulkMarkPaid,
+    onMoveMonth: headerState.onMoveMonth,
+  });
 
   return (
     <div className="space-y-6">
@@ -147,20 +47,18 @@ export default function FinancePaymentsSection({
                 onClick={handleToggleSelectAll}
                 className="rounded-lg border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
               >
-                {validSelectedPlayerIds.length === selectablePlayerIds.length
-                  ? "전체 해제"
-                  : "전체 선택"}
+                {isAllSelected ? "전체 해제" : "전체 선택"}
               </button>
 
               <span className="text-sm text-stone-500">
-                선택 {validSelectedPlayerIds.length}명
+                선택 {selectedCount}명
               </span>
             </div>
 
             <button
               type="button"
               onClick={handleBulkSubmit}
-              disabled={validSelectedPlayerIds.length === 0 || isSubmitting}
+              disabled={selectedCount === 0 || isSubmitting}
               className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
             >
               {isSubmitting ? "처리중..." : "선택 인원 납부 처리"}
@@ -173,7 +71,7 @@ export default function FinancePaymentsSection({
         groupState={unpaidGroupState}
         onChangePaymentStatus={handleChangePaymentStatus}
         selectable={canManage}
-        selectedPlayerIds={validSelectedPlayerIds}
+        selectedPlayerIds={selectedPlayerIds}
         onTogglePlayer={handleTogglePlayer}
       />
 

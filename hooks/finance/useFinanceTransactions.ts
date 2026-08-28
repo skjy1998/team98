@@ -1,7 +1,15 @@
+import {
+  getFilteredFinanceEntries,
+  getFinanceEntryFromForm,
+} from "@/lib/finance/finance-transaction";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
-import type { FinanceEntry, FinanceEntryType } from "@/types/finance";
-import { useState } from "react";
+import type {
+  FinanceEntry,
+  FinanceEntryFilter,
+  FinanceEntryType,
+} from "@/types/finance";
+import { useMemo, useState } from "react";
 
 interface UseFinanceTransactionsParams {
   entries: FinanceEntry[];
@@ -46,9 +54,7 @@ export function useFinanceTransactions({
 
   const [search, setSearch] = useState("");
 
-  const [entryFilter, setEntryFilter] = useState<"all" | FinanceEntryType>(
-    "all",
-  );
+  const [entryFilter, setEntryFilter] = useState<FinanceEntryFilter>("all");
 
   const resetCreateForm = () => {
     setCreateEntryType("income");
@@ -59,22 +65,20 @@ export function useFinanceTransactions({
   };
 
   const handleSubmitCreateEntry = async () => {
-    if (
-      !createEntryDescription.trim() ||
-      !createEntryAmount.trim() ||
-      Number(createEntryAmount) <= 0
-    ) {
-      showToast("내용과 올바른 금액을 입력해 주세요.", "info");
-      return;
-    }
-
-    const success = await addEntry({
+    const entry = getFinanceEntryFromForm({
       type: createEntryType,
-      amount: Number(createEntryAmount),
-      description: createEntryDescription.trim(),
+      amount: createEntryAmount,
+      description: createEntryDescription,
       date: createEntryDate,
       time: createEntryTime,
     });
+
+    if (!entry) {
+      showToast("내용과 올바른 금액을 입력해 주세요", "info");
+      return;
+    }
+
+    const success = await addEntry(entry);
 
     if (!success) {
       showToast("거래 내역 저장에 실패했어요.", "error");
@@ -114,22 +118,20 @@ export function useFinanceTransactions({
   const handleSubmitEditEntry = async () => {
     if (!editingEntryId) return;
 
-    if (
-      !editEntryDescription.trim() ||
-      !editEntryAmount.trim() ||
-      Number(editEntryAmount) <= 0
-    ) {
+    const updates = getFinanceEntryFromForm({
+      type: editEntryType,
+      amount: editEntryAmount,
+      description: editEntryDescription,
+      date: editEntryDate,
+      time: editEntryTime,
+    });
+
+    if (!updates) {
       showToast("내용과 올바른 금액을 입력해 주세요.", "info");
       return;
     }
 
-    const success = await updateEntry(editingEntryId, {
-      type: editEntryType,
-      amount: Number(editEntryAmount),
-      description: editEntryDescription.trim(),
-      date: editEntryDate,
-      time: editEntryTime,
-    });
+    const success = await updateEntry(editingEntryId, updates);
 
     if (!success) {
       showToast("거래 내역 수정에 실패했어요.", "error");
@@ -178,16 +180,10 @@ export function useFinanceTransactions({
     setIsEntryFormOpen((prev) => !prev);
   };
 
-  const filteredEntries = entries.filter((entry) => {
-    const matchesMonth = entry.date.startsWith(currentMonth);
-    const matchesSearch = entry.description
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesFilter = entryFilter === "all" || entry.type === entryFilter;
-
-    return matchesMonth && matchesSearch && matchesFilter;
-  });
+  const filteredEntries = useMemo(
+    () => getFilteredFinanceEntries(entries, currentMonth, search, entryFilter),
+    [entries, currentMonth, search, entryFilter],
+  );
 
   return {
     isEntryFormOpen,

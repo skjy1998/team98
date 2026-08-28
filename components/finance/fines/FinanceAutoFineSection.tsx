@@ -1,6 +1,6 @@
-import { formatFinanceEntryDescription } from "@/lib/finance/finance";
-import { getFineTargetsByMatch } from "@/lib/finance/finance-fine";
-import { useToastStore } from "@/stores/toast-store";
+import { useFinanceAutoFine } from "@/hooks/finance/useFinanceAutoFine";
+import { formatFinanceEntryDescription } from "@/lib/finance/finance-fine";
+
 import type {
   CreateFineChargeInput,
   FineCharge,
@@ -10,7 +10,6 @@ import type { MatchItem } from "@/types/match";
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import type { MatchVotesByMatchId } from "@/types/match-vote";
 import type { PlayerType } from "@/types/player";
-import { useMemo, useRef, useState } from "react";
 
 interface FinanceAutoFineSectionProps {
   canManage: boolean;
@@ -33,95 +32,22 @@ export default function FinanceAutoFineSection({
   fineRules,
   createFineCharges,
 }: Readonly<FinanceAutoFineSectionProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-
-  const [selectedMatchId, setSelectedMatchId] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const isSubmittingRef = useRef(false);
-
-  const selectableMatches = useMemo(
-    () =>
-      matches
-        .filter((match) => match.status !== "canceled" && !match.isUpcoming)
-        .sort((a, b) => b.date.localeCompare(a.date)),
-    [matches],
-  );
-
-  const selectedMatch = useMemo(
-    () => selectableMatches.find((match) => match.id === selectedMatchId),
-    [selectableMatches, selectedMatchId],
-  );
-
-  const selectedVotes = useMemo(
-    () => (selectedMatchId ? (votes[selectedMatchId] ?? []) : []),
-    [votes, selectedMatchId],
-  );
-
-  const selectedAttendance = useMemo(
-    () => (selectedMatchId ? (attendance[selectedMatchId] ?? []) : []),
-    [attendance, selectedMatchId],
-  );
-
-  const fineTargets = useMemo(() => {
-    if (!selectedMatch) return [];
-
-    return getFineTargetsByMatch({
-      match: selectedMatch,
-      players,
-      attendance: selectedAttendance,
-      votes: selectedVotes,
-      fineRules,
-      fineCharges,
-    });
-  }, [
-    selectedMatch,
-    players,
-    selectedAttendance,
-    selectedVotes,
-    fineRules,
+  const {
+    selectedMatchId,
+    onChangeSelectedMatchId,
+    selectableMatches,
+    fineTargets,
+    isSubmitting,
+    handleAutoCharge,
+  } = useFinanceAutoFine({
     fineCharges,
-  ]);
-
-  const handleAutoCharge = async () => {
-    if (isSubmittingRef.current) return;
-
-    if (!selectedMatch) {
-      showToast("먼저 경기를 선택해 주세요.", "info");
-      return;
-    }
-
-    if (fineTargets.length === 0) {
-      showToast("자동 부과할 벌금 대상이 없어요.", "info");
-      return;
-    }
-
-    isSubmittingRef.current = true;
-    setIsSubmitting(true);
-
-    try {
-      const success = await createFineCharges(
-        fineTargets.map((target) => ({
-          matchId: selectedMatch.id,
-          playerId: target.playerId,
-          ruleId: target.ruleId,
-          ruleName: target.ruleName,
-          trigger: target.trigger,
-          amount: target.amount,
-          description: target.description,
-        })),
-      );
-
-      if (!success) {
-        showToast("벌금 자동 부과 중 저장에 실패했어요.", "error");
-        return;
-      }
-
-      showToast("벌금이 미납 상태로 부과됐어요.", "success");
-    } finally {
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
-    }
-  };
+    matches,
+    players,
+    votes,
+    attendance,
+    fineRules,
+    createFineCharges,
+  });
 
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -149,7 +75,7 @@ export default function FinanceAutoFineSection({
           <select
             id="fine-match"
             value={selectedMatchId}
-            onChange={(event) => setSelectedMatchId(event.target.value)}
+            onChange={(event) => onChangeSelectedMatchId(event.target.value)}
             disabled={isSubmitting}
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           >

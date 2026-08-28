@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-import { supabase } from "@/lib/supabase";
+import { getPlayerUnpaidFineSummary } from "@/lib/finance/finance-fine-charge-repository";
 
 interface MyUnpaidFineSummary {
   count: number;
@@ -26,6 +26,7 @@ export function useMyUnpaidFineSummary({
 
   const [summary, setSummary] = useState<MyUnpaidFineSummary>(emptySummary);
   const [summaryLoaded, setSummaryLoaded] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
 
   const loadSummary = useCallback(async () => {
     if (!teamLoaded) return;
@@ -33,36 +34,24 @@ export function useMyUnpaidFineSummary({
     if (!enabled || !teamId || !playerId) {
       setSummary(emptySummary);
       setSummaryLoaded(true);
+      setSummaryError("");
       return;
     }
 
     setSummaryLoaded(false);
+    setSummaryError("");
 
-    const { data, error } = await supabase
-      .from("finance_fine_charges")
-      .select("amount")
-      .eq("team_id", teamId)
-      .eq("player_id", playerId)
-      .eq("status", "unpaid");
+    try {
+      const nextSummary = await getPlayerUnpaidFineSummary(teamId, playerId);
 
-    if (error) {
-      console.error("my unpaid fine summary load error", {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-      });
-
+      setSummary(nextSummary);
+    } catch (error) {
+      console.error("my unpaid fine summary load error", error);
       setSummary(emptySummary);
+      setSummaryError("미납 벌금 정보를 불러오지 못했어요.");
+    } finally {
       setSummaryLoaded(true);
-      return;
     }
-
-    setSummary({
-      count: data.length,
-      totalAmount: data.reduce((total, charge) => total + charge.amount, 0),
-    });
-    setSummaryLoaded(true);
   }, [teamLoaded, teamId, playerId, enabled]);
 
   useEffect(() => {
@@ -73,6 +62,7 @@ export function useMyUnpaidFineSummary({
   return {
     summary,
     summaryLoaded,
+    summaryError,
     reloadSummary: loadSummary,
   };
 }

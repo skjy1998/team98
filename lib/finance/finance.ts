@@ -1,11 +1,4 @@
-import type {
-  FeeType,
-  FinanceEntry,
-  FinanceTab,
-  PaymentStatusRow,
-  PaymentSummary,
-} from "@/types/finance";
-import type { PlayerType } from "@/types/player";
+import type { FeeType, FinanceEntry, FinanceTab } from "@/types/finance";
 
 export function getFinanceDefaults(date = new Date()) {
   const defaultMonth = `${date.getFullYear()}-${String(
@@ -26,11 +19,6 @@ export function getFinanceDefaults(date = new Date()) {
     defaultDate,
     defaultTime,
   };
-}
-
-export function getCurrentMonthLabel(currentMonth: string) {
-  const [year, month] = currentMonth.split("-");
-  return `${year}년 ${Number(month)}월`;
 }
 
 export function getFinanceSummary(entries: FinanceEntry[], thisMonth: string) {
@@ -54,58 +42,6 @@ export function getFinanceSummary(entries: FinanceEntry[], thisMonth: string) {
     totalIncome,
     totalExpense,
     totalBalance,
-  };
-}
-
-export function getMonthlyPaymentEntries(
-  entries: FinanceEntry[],
-  currentMonth: string,
-) {
-  return entries.filter(
-    (entry) =>
-      entry.date.startsWith(currentMonth) &&
-      entry.type === "income" &&
-      entry.category === "fee",
-  );
-}
-
-export function getPaymentStatusRows(
-  players: PlayerType[],
-  monthlyPaymentEntries: FinanceEntry[],
-): PaymentStatusRow[] {
-  return players.map((player) => {
-    const paymentEntry = monthlyPaymentEntries.find(
-      (entry) => entry.category === "fee" && entry.playerId === player.id,
-    );
-
-    return {
-      playerId: player.id,
-      playerName: player.name,
-      status: paymentEntry ? "paid" : "unpaid",
-      paidAt: paymentEntry ? `${paymentEntry.date} · ${paymentEntry.time}` : "",
-    };
-  });
-}
-
-export function getPaymentSummary(
-  paymentStatusRow: PaymentStatusRow[],
-): PaymentSummary {
-  const paidCount = paymentStatusRow.filter(
-    (row) => row.status === "paid",
-  ).length;
-
-  const unpaidCount = paymentStatusRow.filter(
-    (row) => row.status === "unpaid",
-  ).length;
-
-  const paidRate =
-    paymentStatusRow.length > 0
-      ? Math.round((paidCount / paymentStatusRow.length) * 100)
-      : 0;
-  return {
-    paidCount,
-    unpaidCount,
-    paidRate,
   };
 }
 
@@ -135,12 +71,4 @@ export function getFinanceTab(tab: string | null): FinanceTab {
   }
 
   return "transactions";
-}
-
-export function formatFinanceEntryDescription(description: string) {
-  return description
-    .replace("[late] ", "")
-    .replace("[absence] ", "")
-    .replace("[noshow] ", "")
-    .replace("[etc] ", "");
 }

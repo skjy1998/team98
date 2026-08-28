@@ -3,27 +3,22 @@ import type {
   FinanceEntry,
   FineCharge,
   FineChargeStatus,
-  FineRuleTrigger,
 } from "@/types/finance";
-
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useCurrentTeam } from "../team/useCurrentTeam";
-
-interface FineChargeRow {
-  id: string;
-  match_id: string | null;
-  player_id: string;
-  rule_id: string;
-  rule_name: string;
-  trigger: FineRuleTrigger;
-  amount: number;
-  description: string;
-  status: FineCharge["status"];
-  paid_entry_id: string | null;
-  charged_at: string;
-  paid_at: string | null;
-}
+import {
+  createTeamFineCharges,
+  deleteUnpaidTeamFineCharge,
+  getTeamFineCharges,
+  markTeamFineChargePaid,
+  markTeamFineChargeUnpaid,
+  restoreTeamFineChargePaid,
+} from "@/lib/finance/finance-fine-charge-repository";
+import {
+  createFinePaymentEntry,
+  markFineChargePaidInList,
+  markFineChargeUnpaidInList,
+} from "@/lib/finance/finance-fine-charge";
 
 interface UseFinanceFineChargesParams {
   addEntryWithResult: (
@@ -31,38 +26,6 @@ interface UseFinanceFineChargesParams {
   ) => Promise<FinanceEntry | null>;
   deleteEntry: (entryId: string) => Promise<boolean>;
 }
-
-function mapFineCharge(row: FineChargeRow): FineCharge {
-  return {
-    id: row.id,
-    matchId: row.match_id ?? undefined,
-    playerId: row.player_id,
-    ruleId: row.rule_id,
-    ruleName: row.rule_name,
-    trigger: row.trigger,
-    amount: row.amount,
-    description: row.description,
-    status: row.status,
-    paidEntryId: row.paid_entry_id ?? undefined,
-    chargedAt: row.charged_at,
-    paidAt: row.paid_at ?? undefined,
-  };
-}
-
-const FINE_CHARGE_COLUMNS = `
-  id,
-  match_id,
-  player_id,
-  rule_id,
-  rule_name,
-  trigger,
-  amount,
-  description,
-  status,
-  paid_entry_id,
-  charged_at,
-  paid_at
-`;
 
 export function useFinanceFineCharges({
   addEntryWithResult,
@@ -73,6 +36,7 @@ export function useFinanceFineCharges({
 
   const [fineCharges, setFineCharges] = useState<FineCharge[]>([]);
   const [fineChargesLoaded, setFineChargesLoaded] = useState(false);
+  const [fineChargesError, setFineChargesError] = useState("");
 
   const loadFineCharges = useCallback(async () => {
     if (!teamLoaded) return;
@@ -80,26 +44,23 @@ export function useFinanceFineCharges({
     if (!teamId) {
       setFineCharges([]);
       setFineChargesLoaded(true);
+      setFineChargesError("");
       return;
     }
 
     setFineChargesLoaded(false);
+    setFineChargesError("");
 
-    const { data, error } = await supabase
-      .from("finance_fine_charges")
-      .select(FINE_CHARGE_COLUMNS)
-      .eq("team_id", teamId)
-      .order("charged_at", { ascending: false });
-
-    if (error || !data) {
-      console.error("loadFineCharges error", error);
+    try {
+      const nextFineCharges = await getTeamFineCharges(teamId);
+      setFineCharges(nextFineCharges);
+    } catch (error) {
+      console.error("finance fine charges load error", error);
       setFineCharges([]);
+      setFineChargesError("벌금 부과 내역을 불러오지 못했어요.");
+    } finally {
       setFineChargesLoaded(true);
-      return;
     }
-
-    setFineCharges((data as FineChargeRow[]).map(mapFineCharge));
-    setFineChargesLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -110,112 +71,66 @@ export function useFinanceFineCharges({
   const createFineCharges = async (inputs: CreateFineChargeInput[]) => {
     if (!teamId || inputs.length === 0) return false;
 
-    const rows = inputs.map((input) => ({
-      team_id: teamId,
-      match_id: input.matchId ?? null,
-      player_id: input.playerId,
-      rule_id: input.ruleId,
-      rule_name: input.ruleName,
-      trigger: input.trigger,
-      amount: input.amount,
-      description: input.description,
-      status: "unpaid",
-    }));
+    try {
+      const createdCharges = await createTeamFineCharges(teamId, inputs);
 
-    const { data, error } = await supabase
-      .from("finance_fine_charges")
-      .upsert(rows, {
-        onConflict: "team_id,match_id,player_id,rule_id",
-        ignoreDuplicates: true,
-      })
-      .select(FINE_CHARGE_COLUMNS);
-
-    if (error) {
-      console.log("createFineCharges error", error);
+      setFineCharges((current) => [...createdCharges, ...current]);
+      return true;
+    } catch (error) {
+      console.error("finance fine charges create error", error);
       return false;
     }
-
-    const createdCharges = (data as FineChargeRow[]).map(mapFineCharge);
-
-    setFineCharges((prev) => [...createdCharges, ...prev]);
-    return true;
   };
 
   const deleteFineCharge = async (fineChargeId: string) => {
     if (!teamId) return false;
 
-    const { error } = await supabase
-      .from("finance_fine_charges")
-      .delete()
-      .eq("id", fineChargeId)
-      .eq("team_id", teamId)
-      .eq("status", "unpaid");
+    try {
+      await deleteUnpaidTeamFineCharge(teamId, fineChargeId);
 
-    if (error) {
-      console.log("deleteFineCharge error", error);
+      setFineCharges((current) =>
+        current.filter((charge) => charge.id !== fineChargeId),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("finance fine charge delete error", error);
       return false;
     }
-
-    setFineCharges((prev) =>
-      prev.filter((charge) => charge.id !== fineChargeId),
-    );
-
-    return true;
   };
 
   const markFineChargePaid = async (charge: FineCharge) => {
     if (!teamId || charge.status === "paid") return true;
 
     const now = new Date();
+    const paidAt = now.toISOString();
 
-    const createdEntry = await addEntryWithResult({
-      type: "income",
-      amount: charge.amount,
-      description: charge.description,
-      date: now.toISOString().slice(0, 10),
-      time: now.toTimeString().slice(0, 5),
-      category: "fine",
-      playerId: charge.playerId,
-      matchId: charge.matchId,
-    });
+    const createdEntry = await addEntryWithResult(
+      createFinePaymentEntry(charge, now),
+    );
 
     if (!createdEntry) return false;
 
-    const { data: updatedCharge, error } = await supabase
-      .from("finance_fine_charges")
-      .update({
-        status: "paid",
-        paid_entry_id: createdEntry.id,
-        paid_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      })
-      .eq("id", charge.id)
-      .eq("team_id", teamId)
-      .eq("status", "unpaid")
-      .select("id")
-      .maybeSingle();
+    try {
+      const updated = await markTeamFineChargePaid(
+        teamId,
+        charge.id,
+        createdEntry.id,
+        paidAt,
+      );
 
-    if (error || !updatedCharge) {
-      await deleteEntry(createdEntry.id);
-
-      if (error) {
-        console.log("markFineChargePaid error", error);
+      if (!updated) {
+        await deleteEntry(createdEntry.id);
+        return false;
       }
-
+    } catch (error) {
+      console.error("mark fine charge paid error", error);
+      await deleteEntry(createdEntry.id);
       return false;
     }
 
-    setFineCharges((prev) =>
-      prev.map((current) =>
-        current.id === charge.id
-          ? {
-              ...current,
-              status: "paid",
-              paidEntryId: createdEntry.id,
-              paidAt: now.toISOString(),
-            }
-          : current,
-      ),
+    setFineCharges((current) =>
+      markFineChargePaidInList(current, charge.id, createdEntry.id, paidAt),
     );
 
     return true;
@@ -227,20 +142,10 @@ export function useFinanceFineCharges({
     const previousPaidEntryId = charge.paidEntryId;
     const previousPaidAt = charge.paidAt;
 
-    const { error } = await supabase
-      .from("finance_fine_charges")
-      .update({
-        status: "unpaid",
-        paid_entry_id: null,
-        paid_at: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", charge.id)
-      .eq("team_id", teamId)
-      .eq("status", "paid");
-
-    if (error) {
-      console.error("markFineChargeUnpaid error", error);
+    try {
+      await markTeamFineChargeUnpaid(teamId, charge.id);
+    } catch (error) {
+      console.error("mark fine charge unpaid error", error);
       return false;
     }
 
@@ -248,33 +153,22 @@ export function useFinanceFineCharges({
       const deleted = await deleteEntry(previousPaidEntryId);
 
       if (!deleted) {
-        await supabase
-          .from("finance_fine_charges")
-          .update({
-            status: "paid",
-            paid_entry_id: previousPaidEntryId,
-            paid_at: previousPaidAt ?? null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", charge.id)
-          .eq("team_id", teamId);
+        try {
+          await restoreTeamFineChargePaid(
+            teamId,
+            charge.id,
+            previousPaidEntryId,
+            previousPaidAt,
+          );
+        } catch (error) {
+          console.error("restore fine charge paid error", error);
+        }
 
         return false;
       }
     }
 
-    setFineCharges((prev) =>
-      prev.map((current) =>
-        current.id === charge.id
-          ? {
-              ...current,
-              status: "unpaid",
-              paidEntryId: undefined,
-              paidAt: undefined,
-            }
-          : current,
-      ),
-    );
+    setFineCharges((current) => markFineChargeUnpaidInList(current, charge.id));
 
     return true;
   };
@@ -291,6 +185,7 @@ export function useFinanceFineCharges({
   return {
     fineCharges,
     fineChargesLoaded,
+    fineChargesError,
     createFineCharges,
     deleteFineCharge,
     handleChangeFineChargeStatus,

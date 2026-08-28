@@ -1,4 +1,4 @@
-import { formatFinanceEntryDescription } from "@/lib/finance/finance";
+import { formatFinanceEntryDescription } from "@/lib/finance/finance-fine";
 import type { FinanceEntry } from "@/types/finance";
 import { Pencil, Trash2 } from "lucide-react";
 
