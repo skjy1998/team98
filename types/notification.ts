@@ -8,6 +8,8 @@ export const notificationTypes = [
 
 export type NotificationType = (typeof notificationTypes)[number];
 
+export type NotificationFilter = "all" | "unread";
+
 export interface TeamNotification {
   id: string;
   teamId: string;

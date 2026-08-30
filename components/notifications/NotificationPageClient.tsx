@@ -1,30 +1,14 @@
 "use client";
 
 import { useNotifications } from "@/hooks/notifications/useNotifications";
-import type { TeamNotification } from "@/types/notification";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import PageHeader from "../PageHeader";
 import { CheckCheck } from "lucide-react";
 import NotificationListItem from "./NotificationListItem";
 import ContentState from "../common/ContentState";
-import { useToastStore } from "@/stores/toast-store";
-
-type NotificationFilter = "all" | "unread";
-
-const notificationFilters: {
-  value: NotificationFilter;
-  label: string;
-}[] = [
-  { value: "all", label: "전체" },
-  { value: "unread", label: "읽지 않음" },
-];
+import { useNotificationPageState } from "@/hooks/notifications/useNotificationPageState";
+import { notificationFilters } from "@/lib/notifications/notification-ui";
 
 export default function NotificationsPageClient() {
-  const router = useRouter();
-  const [filter, setFilter] = useState<NotificationFilter>("all");
-  const showToast = useToastStore((state) => state.showToast);
-
   const {
     notifications,
     unreadCount,
@@ -33,42 +17,22 @@ export default function NotificationsPageClient() {
     markAsRead,
     markAllAsRead,
     deleteNotification,
+    reloadNotifications,
   } = useNotifications();
 
-  const displayedNotifications =
-    filter === "unread"
-      ? notifications.filter((notification) => !notification.readAt)
-      : notifications;
-
-  const handleOpenNotification = async (notification: TeamNotification) => {
-    if (!notification.readAt) {
-      await markAsRead(notification.id);
-    }
-
-    router.push(notification.href);
-  };
-
-  const handleDeleteNotification = async (notificationId: string) => {
-    const success = await deleteNotification(notificationId);
-
-    if (!success) {
-      showToast("알림 삭제에 실패했어요.", "error");
-      return;
-    }
-
-    showToast("알림을 삭제했어요.", "success");
-  };
-
-  const handleMarkAllAsRead = async () => {
-    const success = await markAllAsRead();
-
-    if (!success) {
-      showToast("알림 읽음 처리에 실패했어요.", "error");
-      return;
-    }
-
-    showToast("모든 알림을 읽음 처리했어요.", "success");
-  };
+  const {
+    filter,
+    onChangeFilter,
+    displayedNotifications,
+    handleOpenNotification,
+    handleDeleteNotification,
+    handleMarkAllAsRead,
+  } = useNotificationPageState({
+    notifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  });
 
   return (
     <div className="space-y-6">
@@ -87,7 +51,7 @@ export default function NotificationsPageClient() {
                 <button
                   key={item.value}
                   type="button"
-                  onClick={() => setFilter(item.value)}
+                  onClick={() => onChangeFilter(item.value)}
                   aria-pressed={isActive}
                   className={[
                     "rounded-lg px-3 py-2 text-sm font-semibold transition",
@@ -128,6 +92,15 @@ export default function NotificationsPageClient() {
             variant="error"
             title="알림을 불러오지 못했어요."
             description={notificationsError}
+            action={
+              <button
+                type="button"
+                onClick={() => void reloadNotifications()}
+                className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
+              >
+                다시 시도
+              </button>
+            }
           />
         ) : displayedNotifications.length === 0 ? (
           <ContentState

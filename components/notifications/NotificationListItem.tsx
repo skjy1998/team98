@@ -1,3 +1,4 @@
+import { formatNotificationDate } from "@/lib/notifications/notification-ui";
 import type { NotificationType, TeamNotification } from "@/types/notification";
 import {
   BadgeDollarSign,
@@ -32,15 +33,6 @@ const notificationIconClassName: Record<NotificationType, string> = {
   board: "bg-orange-50 text-orange-600",
   system: "bg-stone-100 text-stone-600",
 };
-
-function formatNotificationDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
 
 export default function NotificationListItem({
   notification,
