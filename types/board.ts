@@ -40,6 +40,11 @@ export interface TeamPostComment {
   updatedAt: string;
 }
 
+export interface TeamPostLike {
+  postId: string;
+  userId: string;
+}
+
 export interface TeamPostLikeSummary {
   count: number;
   isLiked: boolean;

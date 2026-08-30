@@ -2,31 +2,12 @@ import type { TeamPostLikesByPostId } from "@/types/board";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-interface TeamPostLikeRow {
-  post_id: string;
-  user_id: string;
-}
-
-function getLikesByPostId(
-  rows: TeamPostLikeRow[],
-  currentUserId?: string,
-): TeamPostLikesByPostId {
-  return rows.reduce<TeamPostLikesByPostId>((result, row) => {
-    const current = result[row.post_id] ?? {
-      count: 0,
-      isLiked: false,
-    };
-
-    result[row.post_id] = {
-      count: current.count + 1,
-      isLiked: current.isLiked || row.user_id === currentUserId,
-    };
-
-    return result;
-  }, {});
-}
+import {
+  createTeamPostLike,
+  deleteTeamPostLike,
+  getTeamPostLikes,
+} from "@/lib/board/board-like-repository";
+import { getLikesByPostId, toggleLikeSummary } from "@/lib/board/board-ui";
 
 export function useTeamPostLikes() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -51,23 +32,17 @@ export function useTeamPostLikes() {
     setLikesLoaded(false);
     setLikesError("");
 
-    const { data, error } = await supabase
-      .from("team_post_likes")
-      .select("post_id, user_id")
-      .eq("team_id", teamId);
+    try {
+      const likes = await getTeamPostLikes(teamId);
 
-    if (error || !data) {
+      setLikesByPostId(getLikesByPostId(likes, currentUserId));
+    } catch (error) {
       console.error("team post likes load error", error);
       setLikesByPostId({});
       setLikesError("좋아요 정보를 불러오지 못했어요.");
+    } finally {
       setLikesLoaded(true);
-      return;
     }
-
-    setLikesByPostId(
-      getLikesByPostId(data as TeamPostLikeRow[], currentUserId),
-    );
-    setLikesLoaded(true);
   }, [teamLoaded, memberLoaded, teamId, currentUserId]);
 
   useEffect(() => {
@@ -83,37 +58,20 @@ export function useTeamPostLikes() {
       isLiked: false,
     };
 
-    const query = current.isLiked
-      ? supabase
-          .from("team_post_likes")
-          .delete()
-          .eq("team_id", teamId)
-          .eq("post_id", postId)
-          .eq("user_id", currentUserId)
-      : supabase.from("team_post_likes").insert({
-          team_id: teamId,
-          post_id: postId,
-          user_id: currentUserId,
-        });
+    try {
+      if (current.isLiked) {
+        await deleteTeamPostLike(teamId, postId, currentUserId);
+      } else {
+        await createTeamPostLike(teamId, postId, currentUserId);
+      }
 
-    const { error } = await query;
+      setLikesByPostId((previous) => toggleLikeSummary(previous, postId));
 
-    if (error) {
+      return true;
+    } catch (error) {
       console.error("team post like toggle error", error);
       return false;
     }
-
-    setLikesByPostId((previous) => ({
-      ...previous,
-      [postId]: {
-        count: current.isLiked
-          ? Math.max(0, current.count - 1)
-          : current.count + 1,
-        isLiked: !current.isLiked,
-      },
-    }));
-
-    return true;
   };
 
   return {

@@ -1,116 +1,85 @@
 "use client";
-
-import { useTeamPosts } from "@/hooks/board/useTeamPosts";
-import { getFilteredPosts } from "@/lib/board/board-ui";
-import type {
-  BoardPostFilter,
-  TeamPost,
-  TeamPostFormValue,
-} from "@/types/board";
-import { useMemo, useState } from "react";
 import PageHeader from "../PageHeader";
 import BoardToolbar from "./BoardToolbar";
 import BoardPostList from "./BoardPostList";
 import BoardPostModal from "./BoardPostModal";
-import { useTeamPostComments } from "@/hooks/board/useTeamPostComments";
-import { useTeamPostLikes } from "@/hooks/board/useTeamPostLikes";
 import ContentState from "../common/ContentState";
-import { useToastStore } from "@/stores/toast-store";
-import { useConfirmStore } from "@/stores/confirm-store";
+import { useBoardPageData } from "@/hooks/board/useBoardPageData";
+import { useBoardPageState } from "@/hooks/board/useBoardPageState";
 
 export default function BoardPageClient() {
-  const showToast = useToastStore((state) => state.showToast);
-  const confirm = useConfirmStore((state) => state.confirm);
-
   const {
     posts,
-    postsLoaded,
-    postsError,
+    boardLoaded,
+    boardError,
     currentUserId,
     canManage,
     createPost,
     updatePost,
     deletePost,
     incrementPostViewCount,
-  } = useTeamPosts();
-
-  const {
     commentsByPostId,
     commentsLoaded,
     commentsError,
     createComment,
     updateComment,
     deleteComment,
-  } = useTeamPostComments();
+    likesByPostId,
+    likesLoaded,
+    likesError,
+    togglePostLike,
+    reloadBoardData,
+  } = useBoardPageData();
 
-  const { likesByPostId, likesLoaded, likesError, togglePostLike } =
-    useTeamPostLikes();
+  const {
+    search,
+    onChangeSearch,
+    filter,
+    onChangeFilter,
+    filteredPosts,
+    hasSearchCondition,
+    editingPost,
+    onStartEdit,
+    onCloseEdit,
+    isCreateOpen,
+    onOpenCreate,
+    onCloseCreate,
+    handleTogglePin,
+    handleSaveEdit,
+    handleDeletePost,
+  } = useBoardPageState({
+    posts,
+    updatePost,
+    deletePost,
+  });
 
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<BoardPostFilter>("all");
-  const [editingPost, setEditingPost] = useState<TeamPost | null>(null);
-
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const handleTogglePin = async (post: TeamPost) => {
-    const success = await updatePost(post.id, {
-      type: post.type,
-      title: post.title,
-      content: post.content,
-      isPinned: !post.isPinned,
-    });
-
-    if (!success) {
-      showToast(
-        post.isPinned
-          ? "게시물 고정 해제에 실패했어요."
-          : "게시물 고정에 실패했어요.",
-        "error",
-      );
-
-      return;
-    }
-
-    showToast(
-      post.isPinned
-        ? "게시물 고정을 해제했어요."
-        : "게시물을 상단에 고정했어요.",
-      "success",
-    );
+  const commentState = {
+    commentsByPostId,
+    commentsLoaded,
+    commentsError,
+    onCreateComment: createComment,
+    onUpdateComment: updateComment,
+    onDeleteComment: deleteComment,
   };
 
-  const handleSaveEdit = async (value: TeamPostFormValue) => {
-    if (!editingPost) return false;
-
-    return updatePost(editingPost.id, value);
+  const likeState = {
+    likesByPostId,
+    likesLoaded,
+    onToggleLike: togglePostLike,
   };
 
-  const handleDeletePost = async (post: TeamPost) => {
-    const confirmed = await confirm({
-      title: "게시물 삭제",
-      description: `"${post.title}" 게시물을 삭제할까요? 작성된 댓글도 함께 삭제되며 되돌릴 수 없어요.`,
-      confirmLabel: "삭제",
-      variant: "danger",
-    });
-
-    if (!confirmed) return;
-
-    const success = await deletePost(post.id);
-
-    if (!success) {
-      showToast("게시물 삭제에 실패했어요.", "error");
-      return;
-    }
-
-    showToast("게시물을 삭제했어요.", "success");
+  const postActions = {
+    currentUserId,
+    canManage,
+    onEdit: onStartEdit,
+    onTogglePin: handleTogglePin,
+    onDelete: handleDeletePost,
+    onViewPost: incrementPostViewCount,
   };
 
-  const filteredPosts = useMemo(
-    () => getFilteredPosts(posts, filter, search),
-    [posts, filter, search],
-  );
+  const secondaryError = [commentsError, likesError].filter(Boolean).join(" ");
 
-  if (!postsLoaded) {
+  if (!boardLoaded) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -126,7 +95,7 @@ export default function BoardPageClient() {
     );
   }
 
-  if (postsError) {
+  if (boardError) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -137,7 +106,16 @@ export default function BoardPageClient() {
         <ContentState
           variant="error"
           title="게시물을 불러오지 못했어요."
-          description={postsError}
+          description={boardError}
+          action={
+            <button
+              type="button"
+              onClick={() => void reloadBoardData()}
+              className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+            >
+              다시 시도
+            </button>
+          }
         />
       </div>
     );
@@ -155,42 +133,38 @@ export default function BoardPageClient() {
         </p>
       </div>
 
-      {likesError && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-600">
-          {likesError}
+      {secondaryError && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4">
+          <p className="text-sm font-medium text-rose-600">{secondaryError}</p>
+
+          <button
+            type="button"
+            onClick={() => void reloadBoardData()}
+            className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+          >
+            다시 불러오기
+          </button>
         </div>
       )}
 
       <BoardToolbar
         search={search}
         filter={filter}
-        onChangeSearch={setSearch}
-        onChangeFilter={setFilter}
-        onOpenCreate={() => setIsCreateOpen(true)}
+        onChangeSearch={onChangeSearch}
+        onChangeFilter={onChangeFilter}
+        onOpenCreate={onOpenCreate}
       />
       <BoardPostList
         posts={filteredPosts}
-        hasSearchCondition={Boolean(search.trim()) || filter !== "all"}
-        currentUserId={currentUserId}
-        canManage={canManage}
-        commentsByPostId={commentsByPostId}
-        commentsLoaded={commentsLoaded}
-        commentsError={commentsError}
-        onCreateComment={createComment}
-        onUpdateComment={updateComment}
-        onDeleteComment={deleteComment}
-        onEdit={setEditingPost}
-        onTogglePin={handleTogglePin}
-        onDelete={handleDeletePost}
-        onViewPost={incrementPostViewCount}
-        likesByPostId={likesByPostId}
-        likesLoaded={likesLoaded}
-        onToggleLike={togglePostLike}
+        hasSearchCondition={hasSearchCondition}
+        commentState={commentState}
+        likeState={likeState}
+        postActions={postActions}
       />
       {isCreateOpen && (
         <BoardPostModal
           canManage={canManage}
-          onClose={() => setIsCreateOpen(false)}
+          onClose={onCloseCreate}
           onSave={createPost}
         />
       )}
@@ -198,7 +172,7 @@ export default function BoardPageClient() {
         <BoardPostModal
           post={editingPost}
           canManage={canManage}
-          onClose={() => setEditingPost(null)}
+          onClose={onCloseEdit}
           onSave={handleSaveEdit}
         />
       )}

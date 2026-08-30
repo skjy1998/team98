@@ -1,16 +1,7 @@
-import { useConfirmStore } from "@/stores/confirm-store";
-import { useToastStore } from "@/stores/toast-store";
+import { useBoardCommentSectionState } from "@/hooks/board/useBoardCommentSectionState";
 import type { TeamPostComment, TeamPostLikeSummary } from "@/types/board";
-import {
-  Check,
-  ChevronDown,
-  Heart,
-  MessageCircle,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react";
-import { type SubmitEvent, useId, useState } from "react";
+import { ChevronDown, Heart, MessageCircle } from "lucide-react";
+import BoardCommentItem from "./BoardCommentItem";
 
 interface BoardCommentSectionProps {
   comments: TeamPostComment[];
@@ -26,15 +17,6 @@ interface BoardCommentSectionProps {
   onToggleLike: () => Promise<boolean>;
 }
 
-function formatCommentDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
 export default function BoardCommentSection({
   comments,
   commentsLoaded,
@@ -48,90 +30,30 @@ export default function BoardCommentSection({
   likesLoaded,
   onToggleLike,
 }: Readonly<BoardCommentSectionProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-  const confirm = useConfirmStore((state) => state.confirm);
-
-  const [content, setContent] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [editingContent, setEditingContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLikeSubmitting, setIsLikeSubmitting] = useState(false);
-  const [isCommentsOpen, setIsCommentsOpen] = useState(true);
-  const commentsContentId = useId();
-
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!content.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    const success = await onCreate(content);
-    setIsSubmitting(false);
-
-    if (success) {
-      setContent("");
-      return;
-    }
-
-    showToast("댓글 등록에 실패했어요.", "error");
-  };
-
-  const handleStartEdit = (comment: TeamPostComment) => {
-    setEditingCommentId(comment.id);
-    setEditingContent(comment.content);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCommentId(null);
-    setEditingContent("");
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingCommentId || !editingContent.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    const success = await onUpdate(editingCommentId, editingContent);
-    setIsSubmitting(false);
-
-    if (success) {
-      handleCancelEdit();
-      return;
-    }
-
-    showToast("댓글 수정에 실패했어요.", "error");
-  };
-
-  const handleDelete = async (commentId: string) => {
-    const confirmed = await confirm({
-      title: "댓글 삭제",
-      description: "이 댓글을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.",
-      confirmLabel: "삭제",
-      variant: "danger",
-    });
-
-    if (!confirmed) return;
-
-    const success = await onDelete(commentId);
-
-    if (!success) {
-      showToast("댓글 삭제에 실패했어요.", "error");
-      return;
-    }
-
-    showToast("댓글을 삭제했어요.", "success");
-  };
-
-  const handleToggleLike = async () => {
-    if (!likesLoaded || isLikeSubmitting) return;
-
-    setIsLikeSubmitting(true);
-    const success = await onToggleLike();
-    setIsLikeSubmitting(false);
-
-    if (!success) {
-      showToast("좋아요 처리에 실패했어요.", "error");
-    }
-  };
+  const {
+    content,
+    onChangeContent,
+    editingCommentId,
+    editingContent,
+    onChangeEditingContent,
+    isSubmitting,
+    isLikeSubmitting,
+    isCommentsOpen,
+    commentsContentId,
+    handleToggleComments,
+    handleSubmit,
+    handleStartEdit,
+    handleCancelEdit,
+    handleSaveEdit,
+    handleDelete,
+    handleToggleLike,
+  } = useBoardCommentSectionState({
+    likesLoaded,
+    onCreate,
+    onUpdate,
+    onDelete,
+    onToggleLike,
+  });
 
   return (
     <section className="mt-6 border-t border-stone-100 pt-5">
@@ -160,7 +82,7 @@ export default function BoardCommentSection({
 
         <button
           type="button"
-          onClick={() => setIsCommentsOpen((current) => !current)}
+          onClick={handleToggleComments}
           aria-expanded={isCommentsOpen}
           aria-controls={commentsContentId}
           className={[
@@ -194,94 +116,22 @@ export default function BoardCommentSection({
             <div className="space-y-3">
               {comments.map((comment) => {
                 const isAuthor = comment.authorId === currentUserId;
-                const isEditing = editingCommentId === comment.id;
 
                 return (
-                  <div
+                  <BoardCommentItem
                     key={comment.id}
-                    className="rounded-xl border border-stone-100 bg-stone-50/70 px-4 py-3"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="font-semibold text-stone-700">
-                            {comment.authorName}
-                          </span>
-                          <time
-                            dateTime={comment.createdAt}
-                            className="text-stone-400"
-                          >
-                            {formatCommentDate(comment.createdAt)}
-                          </time>
-                        </div>
-
-                        {isEditing ? (
-                          <textarea
-                            value={editingContent}
-                            onChange={(event) =>
-                              setEditingContent(event.target.value)
-                            }
-                            maxLength={1000}
-                            rows={3}
-                            disabled={isSubmitting}
-                            className="mt-3 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-emerald-400 disabled:cursor-not-allowed disabled:bg-stone-100"
-                          />
-                        ) : (
-                          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-stone-600">
-                            {comment.content}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-1">
-                        {isEditing ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={handleSaveEdit}
-                              disabled={isSubmitting || !editingContent.trim()}
-                              aria-label="댓글 수정 저장"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"
-                            >
-                              <Check className="h-4 w-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleCancelEdit}
-                              disabled={isSubmitting}
-                              aria-label="댓글 수정 취소"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-200"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            {isAuthor && (
-                              <button
-                                type="button"
-                                onClick={() => handleStartEdit(comment)}
-                                aria-label="댓글 수정"
-                                className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-white hover:text-stone-700"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                            {(isAuthor || canManage) && (
-                              <button
-                                type="button"
-                                onClick={() => handleDelete(comment.id)}
-                                aria-label="댓글 삭제"
-                                className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                    comment={comment}
+                    isAuthor={isAuthor}
+                    canManage={canManage}
+                    isEditing={editingCommentId === comment.id}
+                    editingContent={editingContent}
+                    isSubmitting={isSubmitting}
+                    onChangeEditingContent={onChangeEditingContent}
+                    onStartEdit={() => handleStartEdit(comment)}
+                    onSaveEdit={() => void handleSaveEdit()}
+                    onCancelEdit={handleCancelEdit}
+                    onDelete={() => void handleDelete(comment.id)}
+                  />
                 );
               })}
             </div>
@@ -290,7 +140,7 @@ export default function BoardCommentSection({
           <form onSubmit={handleSubmit} className="mt-4 flex items-end gap-2">
             <textarea
               value={content}
-              onChange={(event) => setContent(event.target.value)}
+              onChange={(event) => onChangeContent(event.target.value)}
               placeholder="댓글을 입력하세요."
               maxLength={1000}
               rows={2}

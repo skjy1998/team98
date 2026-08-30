@@ -1,52 +1,49 @@
-import type {
-  TeamPost,
-  TeamPostCommentsByPostId,
-  TeamPostLikesByPostId,
-} from "@/types/board";
+import type { TeamPost } from "@/types/board";
 import BoardPostItem from "./BoardPostItem";
 import { useRef, useState } from "react";
 import BoardCommentSection from "./BoardCommentSection";
 import ContentState from "../common/ContentState";
+import type {
+  BoardCommentState,
+  BoardLikeState,
+  BoardPostActions,
+} from "@/types/board-ui";
 
 interface BoardPostListProps {
   posts: TeamPost[];
   hasSearchCondition: boolean;
-  currentUserId?: string;
-  canManage: boolean;
-  commentsByPostId: TeamPostCommentsByPostId;
-  commentsLoaded: boolean;
-  commentsError: string;
-  onCreateComment: (postId: string, content: string) => Promise<boolean>;
-  onUpdateComment: (commentId: string, content: string) => Promise<boolean>;
-  onDeleteComment: (commentId: string) => Promise<boolean>;
-  onEdit: (post: TeamPost) => void;
-  onTogglePin: (post: TeamPost) => Promise<void>;
-  onDelete: (post: TeamPost) => Promise<void>;
-  onViewPost: (postId: string) => Promise<boolean>;
-  likesByPostId: TeamPostLikesByPostId;
-  likesLoaded: boolean;
-  onToggleLike: (postId: string) => Promise<boolean>;
+  commentState: BoardCommentState;
+  likeState: BoardLikeState;
+  postActions: BoardPostActions;
 }
 
 export default function BoardPostList({
   posts,
   hasSearchCondition,
-  currentUserId,
-  canManage,
-  commentsByPostId,
-  commentsLoaded,
-  commentsError,
-  onCreateComment,
-  onUpdateComment,
-  onDeleteComment,
-  onEdit,
-  onTogglePin,
-  onDelete,
-  onViewPost,
-  likesByPostId,
-  likesLoaded,
-  onToggleLike,
+  commentState,
+  likeState,
+  postActions,
 }: Readonly<BoardPostListProps>) {
+  const {
+    commentsByPostId,
+    commentsLoaded,
+    commentsError,
+    onCreateComment,
+    onUpdateComment,
+    onDeleteComment,
+  } = commentState;
+
+  const { likesByPostId, likesLoaded, onToggleLike } = likeState;
+
+  const {
+    currentUserId,
+    canManage,
+    onEdit,
+    onTogglePin,
+    onDelete,
+    onViewPost,
+  } = postActions;
+
   const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
   const viewedPostIds = useRef(new Set<string>());
 

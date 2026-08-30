@@ -1,7 +1,7 @@
-import { useToastStore } from "@/stores/toast-store";
-import type { PostType, TeamPost, TeamPostFormValue } from "@/types/board";
+import { useBoardPostForm } from "@/hooks/board/useBoardPostForm";
+import type { TeamPost, TeamPostFormValue } from "@/types/board";
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface BoardPostModalProps {
   post?: TeamPost;
@@ -16,13 +16,23 @@ export default function BoardPostModal({
   onClose,
   onSave,
 }: Readonly<BoardPostModalProps>) {
-  const [type, setType] = useState<PostType>(post?.type ?? "general");
-  const [title, setTitle] = useState(post?.title ?? "");
-  const [content, setContent] = useState(post?.content ?? "");
-  const [isPinned, setIsPinned] = useState(post?.isPinned ?? false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const showToast = useToastStore((state) => state.showToast);
+  const {
+    type,
+    onChangeType,
+    title,
+    onChangeTitle,
+    content,
+    onChangeContent,
+    isPinned,
+    onChangeIsPinned,
+    isSaving,
+    handleSave,
+  } = useBoardPostForm({
+    post,
+    canManage,
+    onSave,
+    onClose,
+  });
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -39,48 +49,6 @@ export default function BoardPostModal({
       }
     };
   }, []);
-
-  const handleChangeType = (nextType: PostType) => {
-    setType(nextType);
-  };
-
-  const handleSave = async () => {
-    const normalizedTitle = title.trim();
-    const normalizedContent = content.trim();
-
-    if (!normalizedTitle) {
-      showToast("제목을 입력해 주세요.", "info");
-      return;
-    }
-
-    if (!normalizedContent) {
-      showToast("내용을 입력해 주세요.", "info");
-      return;
-    }
-
-    setIsSaving(true);
-
-    const success = await onSave({
-      type: canManage ? type : "general",
-      title: normalizedTitle,
-      content: normalizedContent,
-      isPinned: canManage && isPinned,
-    });
-
-    setIsSaving(false);
-
-    if (!success) {
-      showToast("게시물 저장에 실패했어요.", "error");
-      return;
-    }
-
-    showToast(
-      post ? "게시물이 수정됐어요." : "게시물이 등록됐어요.",
-      "success",
-    );
-
-    onClose();
-  };
 
   return (
     <dialog
@@ -142,7 +110,7 @@ export default function BoardPostModal({
                   <button
                     type="button"
                     disabled={isSaving}
-                    onClick={() => handleChangeType("general")}
+                    onClick={() => onChangeType("general")}
                     className={[
                       "h-11 rounded-xl border text-sm font-semibold transition",
                       type === "general"
@@ -156,7 +124,7 @@ export default function BoardPostModal({
                   <button
                     type="button"
                     disabled={isSaving}
-                    onClick={() => handleChangeType("notice")}
+                    onClick={() => onChangeType("notice")}
                     className={[
                       "h-11 rounded-xl border text-sm font-semibold transition",
                       type === "notice"
@@ -183,7 +151,7 @@ export default function BoardPostModal({
                 value={title}
                 maxLength={100}
                 disabled={isSaving}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(event) => onChangeTitle(event.target.value)}
                 placeholder="게시물 제목을 입력하세요."
                 className="h-12 w-full rounded-xl border border-stone-200 px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100"
               />
@@ -204,7 +172,7 @@ export default function BoardPostModal({
                 value={content}
                 maxLength={5000}
                 disabled={isSaving}
-                onChange={(event) => setContent(event.target.value)}
+                onChange={(event) => onChangeContent(event.target.value)}
                 placeholder="팀원들과 공유할 내용을 입력하세요."
                 className="min-h-60 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm leading-7 text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100"
               />
@@ -228,7 +196,7 @@ export default function BoardPostModal({
                   type="checkbox"
                   checked={isPinned}
                   disabled={isSaving}
-                  onChange={(event) => setIsPinned(event.target.checked)}
+                  onChange={(event) => onChangeIsPinned(event.target.checked)}
                   className="h-5 w-5 accent-amber-500"
                 />
               </label>
@@ -248,7 +216,7 @@ export default function BoardPostModal({
             <button
               type="button"
               disabled={isSaving || !title.trim() || !content.trim()}
-              onClick={handleSave}
+              onClick={() => void handleSave()}
               className="h-12 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300"
             >
               {isSaving ? "저장 중..." : post ? "수정 완료" : "게시하기"}
