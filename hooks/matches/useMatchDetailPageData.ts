@@ -7,7 +7,6 @@ import { useMatches } from "./useMatches";
 import useMatchRecordsMap from "./useMatchRecordMap";
 import { useMatchRecords } from "./useMatchRecords";
 import { useMatchVotes } from "./useMatchVotes";
-
 import { getHasMatchStarted } from "@/lib/matches/match-time";
 import { getDisplayMatches } from "@/lib/matches/match-list-ui";
 import { getMatchDetailDisplay } from "@/lib/matches/match-detail-ui";
@@ -53,9 +52,10 @@ export function useMatchDetailPageData(matchId: string) {
     reloadAttendance,
   } = useMatchAttendance();
 
-  const { players, playersLoaded } = usePlayers();
-  const { team, teamLoaded } = useCurrentTeam();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
+  const { players, playersLoaded, playersError, reloadPlayers } = usePlayers();
+  const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
+  const { member, canManage, memberLoaded, memberError, reloadMember } =
+    useCurrentTeamMember();
 
   const match = matches.find((item) => item.id === matchId);
   const targetMatchId = match?.id ?? "";
@@ -120,24 +120,31 @@ export function useMatchDetailPageData(matchId: string) {
     teamLoaded &&
     matchesLoaded &&
     recordsMapLoaded &&
+    matchRecordsLoaded &&
     memberLoaded &&
     votesLoaded &&
     playersLoaded &&
     attendanceLoaded;
 
   const pageError =
+    teamError ||
     matchesError ||
     recordsMapError ||
     votesError ||
     attendanceError ||
+    playersError ||
+    memberError ||
     recordsError;
 
   const reloadPageData = async () => {
     await Promise.all([
+      reloadTeam(),
       reloadMatches(),
       reloadRecordsMap(),
       reloadVotes(),
       reloadAttendance(),
+      reloadPlayers(),
+      reloadMember(),
       reloadMatchRecords(),
     ]);
   };
@@ -145,6 +152,9 @@ export function useMatchDetailPageData(matchId: string) {
   return {
     team,
     canManage,
+    players,
+    currentUserId: member?.userId,
+
     isLoaded,
     pageError,
 

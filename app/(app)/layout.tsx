@@ -1,6 +1,7 @@
 "use client";
 
 import AppShell from "@/components/layout/AppShell";
+import { CurrentTeamProvider } from "@/components/providers/CurrentTeamProvider";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -56,5 +57,9 @@ export default function AppLayout({
       </div>
     );
   }
-  return <AppShell>{children}</AppShell>;
+  return (
+    <CurrentTeamProvider>
+      <AppShell>{children}</AppShell>
+    </CurrentTeamProvider>
+  );
 }

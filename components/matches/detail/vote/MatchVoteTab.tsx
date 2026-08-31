@@ -1,6 +1,8 @@
-import { usePlayers } from "@/hooks/players/usePlayers";
-import { useMemo, useState } from "react";
 import type { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
+import type { MatchItem } from "@/types/match";
+import type { PlayerType } from "@/types/player";
+import { useMemo, useState } from "react";
+import { useToastStore } from "@/stores/toast-store";
 import {
   formatVoteDeadline,
   getFilteredVoteMembers,
@@ -9,17 +11,16 @@ import {
   getVoteSummary,
   isVoteClosed,
 } from "@/lib/matches/match-vote";
-import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
 import MyVoteCard from "./MyVoteCard";
-import type { MatchItem } from "@/types/match";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
-import ContentState from "@/components/common/ContentState";
-import { useToastStore } from "@/stores/toast-store";
 
 interface MatchVoteTabProps {
   matchId: string;
   match: MatchItem;
+  players: PlayerType[];
+  currentUserId?: string;
+  canManage: boolean;
   votes: MatchVote[];
   saveVote: (
     matchId: string,
@@ -32,21 +33,21 @@ interface MatchVoteTabProps {
 export default function MatchVoteTab({
   matchId,
   match,
+  players,
+  currentUserId,
+  canManage,
   votes,
   saveVote,
   deleteVote,
 }: Readonly<MatchVoteTabProps>) {
   const showToast = useToastStore((state) => state.showToast);
 
-  const { players, playersLoaded } = usePlayers();
-  const { member, memberLoaded, canManage } = useCurrentTeamMember();
-
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<VoteFilter>("all");
 
   const myPlayer = useMemo(
-    () => players.find((player) => player.userId === member?.userId),
-    [players, member?.userId],
+    () => players.find((player) => player.userId === currentUserId),
+    [players, currentUserId],
   );
 
   const voteMembers = useMemo(
@@ -78,16 +79,6 @@ export default function MatchVoteTab({
       showToast("투표 저장에 실패했어요.", "error");
     }
   };
-
-  if (!playersLoaded || !memberLoaded) {
-    return (
-      <ContentState
-        variant="loading"
-        title="투표 정보를 불러오는 중..."
-        description="참석 여부와 투표 현황을 준비하고 있어요."
-      />
-    );
-  }
 
   return (
     <div className="space-y-5">

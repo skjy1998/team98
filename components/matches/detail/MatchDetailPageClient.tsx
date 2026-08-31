@@ -22,6 +22,8 @@ export default function MatchDetailPageClient({
   const {
     team,
     canManage,
+    players,
+    currentUserId,
     isLoaded,
     pageError,
     reloadPageData,
@@ -160,6 +162,9 @@ export default function MatchDetailPageClient({
         <MatchVoteTab
           matchId={match.id}
           match={resolvedMatch}
+          players={players}
+          currentUserId={currentUserId}
+          canManage={canManage}
           votes={matchVotes}
           saveVote={saveVote}
           deleteVote={deleteVote}
