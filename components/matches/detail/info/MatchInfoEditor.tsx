@@ -6,8 +6,9 @@ import type {
 } from "@/types/match";
 import { useEffect, useState } from "react";
 import MatchInfoFieldCard from "./MatchInfoFieldCard";
-import { getDateTimeLocalValue } from "@/lib/matches/match-ui";
+
 import MatchFormatSection from "../../MatchFormatSection";
+import { getDateTimeLocalValue } from "@/lib/matches/match-time";
 
 interface MatchInfoEditorProps {
   match: MatchItem;

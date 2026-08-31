@@ -8,7 +8,7 @@ import type {
 } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 import type { PlayerRecentMatch } from "@/types/stats";
-import { getHasMatchStarted } from "../matches/match-ui";
+import { getHasMatchStarted } from "../matches/match-time";
 
 function isPlayerScoringEvent(event: MatchRecordEvent, match: MatchItem) {
   return (

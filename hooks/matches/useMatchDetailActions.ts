@@ -2,12 +2,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { MatchDetailPageData } from "./useMatchDetailPageData";
 import { useToastStore } from "@/stores/toast-store";
 import { useConfirmStore } from "@/stores/confirm-store";
-import { getMatchDetailTab } from "@/lib/matches/match-ui";
 import {
   MatchCreateFormValue,
   MatchDetailTab,
   MatchPlayersPerSide,
 } from "@/types/match";
+import { getMatchDetailTab } from "@/lib/matches/match-detail-ui";
 
 type MatchDetailActionsParams = Pick<
   MatchDetailPageData,

@@ -1,6 +1,6 @@
-import { getHasMatchStarted } from "@/lib/matches/match-ui";
 import type { MatchItem, MatchRecordMap } from "@/types/match";
 import type { RecentResult, TeamHighlights } from "@/types/stats";
+import { getHasMatchStarted } from "../matches/match-time";
 
 export function getMatchScoreFromEvent(
   records: MatchRecordMap,

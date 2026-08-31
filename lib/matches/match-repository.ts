@@ -7,8 +7,8 @@ import type {
   MatchUniform,
 } from "@/types/match";
 import type { TeamSport } from "@/types/team";
-import { getIsUpcomingMatch } from "./match-ui";
 import { supabase } from "../supabase";
+import { getIsUpcomingMatch } from "./match-time";
 
 interface MatchRow {
   id: string;

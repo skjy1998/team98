@@ -3,13 +3,14 @@
 import type { MatchItem, MatchRecordMap } from "@/types/match";
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import type { PlayerSortType, PlayerType } from "@/types/player";
-import { getHasMatchStarted } from "../matches/match-ui";
+
 import {
   getPlayerAppearanceCount,
   getPlayerAssistCount,
   getPlayerGoalCount,
 } from "./player-stats";
 import { getMainPositionFromDetail } from "./player-ui";
+import { getHasMatchStarted } from "../matches/match-time";
 
 export function getDisplayPlayers(
   players: PlayerType[],

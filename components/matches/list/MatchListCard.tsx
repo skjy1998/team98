@@ -1,16 +1,17 @@
+import { formatMatchDate, formatMatchTime } from "@/lib/matches/match-time";
 import {
-  formatMatchDate,
-  formatMatchTime,
   getMatchResult,
-  getMatchValueText,
   matchSportMap,
-  shouldShowMatchStatusBadge,
   statusMap,
   typeMap,
-} from "@/lib/matches/match-ui";
+} from "@/lib/matches/match-display";
 import type { MatchItem } from "@/types/match";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import {
+  getMatchValueText,
+  shouldShowMatchStatusBadge,
+} from "@/lib/matches/match-list-ui";
 
 interface MatchListCardProps {
   match: MatchItem;

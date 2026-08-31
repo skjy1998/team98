@@ -1,22 +1,13 @@
-import type {
-  MatchCreateFormValue,
-  MatchType,
-  MatchUniform,
-} from "@/types/match";
+import type { MatchCreateFormValue } from "@/types/match";
+import type { TeamSport } from "@/types/team";
 import { X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import {
-  getMatchCreateDefaults,
-  getMatchScheduleValidationMessage,
-} from "@/lib/matches/match-ui";
 import MatchCreateTypeSection from "./MatchCreateTypeSection";
 import MatchCreateScheduleSection from "./MatchCreateScheduleSection";
 import MatchCreateOpponentSection from "./MatchCreateOpponentSection";
 import MatchCreateLocationSection from "./MatchCreateLocationSection";
 import MatchCreateUniformSection from "./MatchCreateUniformSection";
-import { useToastStore } from "@/stores/toast-store";
-import { TeamSport } from "@/types/team";
 import MatchCreateSportSection from "./MatchCreateSportSection";
+import { useMatchCreateForm } from "@/hooks/matches/useMatchCreateForm";
 
 interface MatchCreateModalProps {
   defaultSport: TeamSport;
@@ -29,92 +20,20 @@ export default function MatchCreateModal({
   onClose,
   onSave,
 }: Readonly<MatchCreateModalProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-
   const {
-    defaultDate,
-    defaultStartTime,
-    defaultEndTime,
-    defaultVoteDeadline,
-    defaultLocation,
-  } = useMemo(() => getMatchCreateDefaults(), []);
-
-  const [type, setType] = useState<MatchType>("정규");
-  const [date, setDate] = useState(defaultDate);
-  const [startTime, setStartTime] = useState(defaultStartTime);
-  const [endTime, setEndTime] = useState(defaultEndTime);
-  const [voteDeadline, setVoteDeadline] = useState(defaultVoteDeadline);
-  const [opponent, setOpponent] = useState("");
-  const [location, setLocation] = useState(defaultLocation);
-  const [uniform, setUniform] = useState<MatchUniform>("home");
-  const [sport, setSport] = useState<TeamSport>(defaultSport);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    globalThis.window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      globalThis.window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
-
-  const handleChangeSport = (nextSport: TeamSport) => {
-    setSport(nextSport);
-  };
-
-  const handleSave = async () => {
-    if (isSubmitting) return;
-
-    const validationMessage = getMatchScheduleValidationMessage({
-      date,
-      startTime,
-      endTime,
-      voteDeadline,
-    });
-
-    if (validationMessage) {
-      showToast(validationMessage, "info");
-      return;
-    }
-
-    const title =
-      type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전";
-
-    setIsSubmitting(true);
-
-    try {
-      const success = await onSave({
-        title,
-        type,
-        sport,
-        playersPerSide: sport === "futsal" ? 5 : 11,
-        quarterCount: 4,
-        quarterDurationMinutes: 20,
-        date,
-        startTime,
-        endTime,
-        voteDeadline,
-        opponent: type === "정규" ? opponent : "",
-        location,
-        uniform,
-      });
-
-      if (!success) {
-        showToast("경기 일정 등록에 실패했어요.", "error");
-      }
-    } catch (error) {
-      console.error("match create submit error", error);
-      showToast("경기 일정 등록 중 오류가 발생했어요.", "error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    typeState,
+    sportState,
+    scheduleState,
+    opponentState,
+    locationState,
+    uniformState,
+    isSubmitting,
+    onSubmit,
+  } = useMatchCreateForm({
+    defaultSport,
+    onClose,
+    onSave,
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
@@ -144,34 +63,12 @@ export default function MatchCreateModal({
           </p>
         </div>
         <div className="space-y-7">
-          <MatchCreateTypeSection type={type} onChangeType={setType} />
-          <MatchCreateSportSection
-            sport={sport}
-            onChangeSport={handleChangeSport}
-          />
-          <MatchCreateScheduleSection
-            date={date}
-            onChangeDate={setDate}
-            startTime={startTime}
-            onChangeStartTime={setStartTime}
-            endTime={endTime}
-            onChangeEndTime={setEndTime}
-            voteDeadline={voteDeadline}
-            onChangeVoteDeadline={setVoteDeadline}
-          />
-          <MatchCreateOpponentSection
-            type={type}
-            opponent={opponent}
-            onChangeOpponent={setOpponent}
-          />
-          <MatchCreateLocationSection
-            location={location}
-            onChangeLocation={setLocation}
-          />
-          <MatchCreateUniformSection
-            uniform={uniform}
-            onChangeUniform={setUniform}
-          />
+          <MatchCreateTypeSection {...typeState} />
+          <MatchCreateSportSection {...sportState} />
+          <MatchCreateScheduleSection {...scheduleState} />
+          <MatchCreateOpponentSection {...opponentState} />
+          <MatchCreateLocationSection {...locationState} />
+          <MatchCreateUniformSection {...uniformState} />
         </div>
 
         <div className="mt-8 flex justify-end gap-2">
@@ -185,7 +82,7 @@ export default function MatchCreateModal({
           <button
             type="button"
             disabled={isSubmitting}
-            onClick={() => void handleSave()}
+            onClick={() => void onSubmit()}
             className="h-12 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
             {isSubmitting ? "저장 중..." : "저장하기"}

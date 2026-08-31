@@ -1,4 +1,4 @@
-import { formatMatchDate } from "@/lib/matches/match-ui";
+import { formatMatchDate } from "@/lib/matches/match-time";
 import type { MatchItem } from "@/types/match";
 
 interface MatchDetailHeaderProps {

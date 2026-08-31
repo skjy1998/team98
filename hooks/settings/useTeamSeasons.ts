@@ -2,42 +2,13 @@ import type { TeamSeason, TeamSeasonFormValue } from "@/types/seasons";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-interface TeamSeasonRow {
-  id: string;
-  team_id: string;
-  name: string;
-  start_date: string;
-  end_date: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-const SEASON_COLUMNS = `
-  id,
-  team_id,
-  name,
-  start_date,
-  end_date,
-  is_active,
-  created_at,
-  updated_at
-`;
-
-function mapSeason(row: TeamSeasonRow): TeamSeason {
-  return {
-    id: row.id,
-    teamId: row.team_id,
-    name: row.name,
-    startDate: row.start_date,
-    endDate: row.end_date ?? undefined,
-    isActive: row.is_active,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
+import {
+  activateTeamSeason,
+  createTeamSeason,
+  deleteTeamSeason,
+  getTeamSeasons,
+  updateTeamSeason,
+} from "@/lib/settings/team-season-repository";
 
 export function useTeamSeasons() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -56,29 +27,23 @@ export function useTeamSeasons() {
     if (!teamId) {
       setSeasons([]);
       setSeasonsLoaded(true);
+      setSeasonsError("");
       return;
     }
 
     setSeasonsLoaded(false);
     setSeasonsError("");
 
-    const { data, error } = await supabase
-      .from("team_seasons")
-      .select(SEASON_COLUMNS)
-      .eq("team_id", teamId)
-      .order("is_active", { ascending: false })
-      .order("start_date", { ascending: false });
-
-    if (error || !data) {
+    try {
+      const nextSeasons = await getTeamSeasons(teamId);
+      setSeasons(nextSeasons);
+    } catch (error) {
       console.error("team seasons load error", error);
       setSeasons([]);
-      setSeasonsError("시즌 정보를 불러오지 못헀어요.");
+      setSeasonsError("시즌 정보를 불러오지 못했어요.");
+    } finally {
       setSeasonsLoaded(true);
-      return;
     }
-
-    setSeasons((data as TeamSeasonRow[]).map((row) => mapSeason(row)));
-    setSeasonsLoaded(true);
   }, [teamLoaded, memberLoaded, teamId]);
 
   useEffect(() => {
@@ -89,62 +54,40 @@ export function useTeamSeasons() {
   const createSeason = async (value: TeamSeasonFormValue) => {
     if (!teamId || !currentUserId || !canManage) return false;
 
-    const { error } = await supabase.from("team_seasons").insert({
-      team_id: teamId,
-      name: value.name.trim(),
-      start_date: value.startDate,
-      end_date: value.endDate || null,
-      is_active: false,
-      created_by: currentUserId,
-    });
-
-    if (error) {
+    try {
+      await createTeamSeason(teamId, currentUserId, value);
+      await loadSeasons();
+      return true;
+    } catch (error) {
       console.error("team season create error", error);
       return false;
     }
-
-    await loadSeasons();
-    return true;
   };
 
   const updateSeason = async (seasonId: string, value: TeamSeasonFormValue) => {
     if (!teamId || !canManage) return false;
 
-    const { error } = await supabase
-      .from("team_seasons")
-      .update({
-        name: value.name.trim(),
-        start_date: value.startDate,
-        end_date: value.endDate || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", seasonId)
-      .eq("team_id", teamId);
-
-    if (error) {
+    try {
+      await updateTeamSeason(teamId, seasonId, value);
+      await loadSeasons();
+      return true;
+    } catch (error) {
       console.error("team season update error", error);
       return false;
     }
-
-    await loadSeasons();
-    return true;
   };
 
   const setActiveSeason = async (seasonId: string) => {
     if (!teamId || !canManage) return false;
 
-    const { error } = await supabase.rpc("set_active_team_season", {
-      target_team_id: teamId,
-      target_season_id: seasonId,
-    });
-
-    if (error) {
+    try {
+      await activateTeamSeason(teamId, seasonId);
+      await loadSeasons();
+      return true;
+    } catch (error) {
       console.error("active team season update error", error);
       return false;
     }
-
-    await loadSeasons();
-    return true;
   };
 
   const deleteSeason = async (seasonId: string) => {
@@ -154,20 +97,16 @@ export function useTeamSeasons() {
 
     if (!season || season.isActive) return false;
 
-    const { error } = await supabase
-      .from("team_seasons")
-      .delete()
-      .eq("id", seasonId)
-      .eq("team_id", teamId);
+    try {
+      await deleteTeamSeason(teamId, seasonId);
 
-    if (error) {
+      setSeasons((current) => current.filter((item) => item.id !== seasonId));
+
+      return true;
+    } catch (error) {
       console.error("team season delete error", error);
       return false;
     }
-
-    setSeasons((current) => current.filter((item) => item.id !== seasonId));
-
-    return true;
   };
 
   return {

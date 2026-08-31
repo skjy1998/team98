@@ -1,8 +1,6 @@
-import {
-  formatMatchDate,
-  matchSportMap,
-  typeMap,
-} from "@/lib/matches/match-ui";
+import { matchSportMap, typeMap } from "@/lib/matches/match-display";
+import { formatMatchDate } from "@/lib/matches/match-time";
+
 import { formatVoteDeadline } from "@/lib/matches/match-vote";
 import type { MatchItem } from "@/types/match";
 import {

@@ -4,7 +4,7 @@ import type { MatchVotesByMatchId } from "@/types/match-vote";
 import type { PaymentStatusRow } from "@/types/finance";
 import type { MatchAttendanceByMatchId } from "@/types/match-attendance";
 import type { NotificationSettings } from "@/types/settings";
-import { getDisplayMatches } from "../matches/match-ui";
+import { getDisplayMatches } from "../matches/match-list-ui";
 
 interface GetDashboardTodoItemsParams {
   upcomingMatches: MatchItem[];

@@ -7,11 +7,10 @@ import { useMatches } from "./useMatches";
 import useMatchRecordsMap from "./useMatchRecordMap";
 import { useMatchRecords } from "./useMatchRecords";
 import { useMatchVotes } from "./useMatchVotes";
-import {
-  getDisplayMatches,
-  getHasMatchStarted,
-  getMatchDetailDisplay,
-} from "@/lib/matches/match-ui";
+
+import { getHasMatchStarted } from "@/lib/matches/match-time";
+import { getDisplayMatches } from "@/lib/matches/match-list-ui";
+import { getMatchDetailDisplay } from "@/lib/matches/match-detail-ui";
 
 export type MatchDetailPageData = ReturnType<typeof useMatchDetailPageData>;
 

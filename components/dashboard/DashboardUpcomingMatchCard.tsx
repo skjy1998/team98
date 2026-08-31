@@ -2,7 +2,6 @@ import {
   getDashboardMatchDateParts,
   getDashboardMatchDDay,
 } from "@/lib/dashboard/dashboard-ui";
-import { getOpponentName } from "@/lib/matches/match-ui";
 import {
   formatVoteDeadline,
   getPlayerVoteStatus,
@@ -17,6 +16,7 @@ import { Clock3, MapPin } from "lucide-react";
 import Link from "next/link";
 import DashboardMyVoteButtons from "./DashboardMyVoteButtons";
 import DashboardVoteSummary from "./DashboardVoteSummary";
+import { getOpponentName } from "@/lib/matches/match-display";
 
 interface DashboardUpcomingMatchCardProps {
   match: MatchItem;

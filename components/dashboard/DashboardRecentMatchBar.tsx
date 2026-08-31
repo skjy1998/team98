@@ -1,4 +1,4 @@
-import { getMatchResult, getOpponentName } from "@/lib/matches/match-ui";
+import { getMatchResult, getOpponentName } from "@/lib/matches/match-display";
 import type { MatchItem } from "@/types/match";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
