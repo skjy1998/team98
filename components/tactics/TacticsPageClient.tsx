@@ -4,16 +4,21 @@ import PageHeader from "@/components/PageHeader";
 import TacticsField from "@/components/tactics/board/TacticsField";
 import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
-import { useTacticsBoard } from "@/hooks/tactics/useTacticsBoard";
-import { useTacticsPresets } from "@/hooks/tactics/useTacticsPresets";
-import { useCurrentTeamMember } from "@/hooks/team/useCurrentTeamMember";
-import { sortPlayersByRecommendedPosition } from "@/lib/tactics/tactics-ui";
-import { useMemo } from "react";
 import ContentState from "../common/ContentState";
+import { useTacticsPageData } from "@/hooks/tactics/useTacticsPageData";
 
 export default function TacticsPageClient() {
-  const { canManage, memberLoaded } = useCurrentTeamMember();
-  const tactics = useTacticsBoard();
+  const {
+    canManage,
+    isLoaded,
+    pageError,
+    reloadPageData,
+    tactics,
+    presets,
+    sortedAvailablePlayers,
+    presetOptions,
+  } = useTacticsPageData();
+
   const {
     playersLoaded,
     players,
@@ -21,7 +26,6 @@ export default function TacticsPageClient() {
     slots,
     selectedSlotId,
     selectedSlot,
-    availablePlayers,
     cornerKickPlayerId,
     freeKickPlayerId,
     penaltyKickPlayerId,
@@ -31,51 +35,45 @@ export default function TacticsPageClient() {
     setFreeKickPlayerId,
     setPenaltyKickPlayerId,
     handleFormationChange,
-    handleResetTactics,
     handleAssignPlayer,
     handleClearSlot,
-    exportTactics,
-    importTactics,
   } = tactics;
-
-  const presets = useTacticsPresets({
-    exportTactics,
-    importTactics,
-    resetTactics: handleResetTactics,
-  });
 
   const {
     presetName,
     setPresetName,
-    savedPresets,
     selectedPresetId,
-    presetLoaded,
     handleSavePreset,
     handleLoadPreset,
     handleDeletePreset,
     handleResetPresetState,
   } = presets;
 
-  const sortedAvailablePlayers = useMemo(
-    () => sortPlayersByRecommendedPosition(availablePlayers, selectedSlot),
-    [availablePlayers, selectedSlot],
-  );
-
-  const presetOptions = useMemo(
-    () =>
-      savedPresets.map((preset) => ({
-        id: preset.id,
-        name: preset.name,
-      })),
-    [savedPresets],
-  );
-
-  if (!memberLoaded || !playersLoaded || !presetLoaded) {
+  if (!isLoaded) {
     return (
       <ContentState
         variant="loading"
         title="전술 정보를 불러오는 중..."
         description="포메이션과 선수 배치를 준비하고 있어요."
+      />
+    );
+  }
+
+  if (pageError) {
+    return (
+      <ContentState
+        variant="error"
+        title="전술 정보를 불러오지 못했어요."
+        description={pageError}
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadPageData()}
+            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }

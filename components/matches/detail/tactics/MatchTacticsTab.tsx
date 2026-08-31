@@ -280,12 +280,16 @@ export default function MatchTacticsTab({
         onReset={handleResetFormation}
         saveMode="auto"
         canManage={canManage}
-        playerCountOptions={
-          sport === "futsal" ? futsalPlayerCountOptions : undefined
+        playerCountState={
+          sport === "futsal"
+            ? {
+                options: futsalPlayerCountOptions,
+                value: playersPerSide,
+                onChange: handleChangePlayersPerSide,
+                isSaving: isPlayerCountSaving,
+              }
+            : undefined
         }
-        playersPerSide={sport === "futsal" ? playersPerSide : undefined}
-        onChangePlayersPerSide={handleChangePlayersPerSide}
-        isPlayerCountSaving={isPlayerCountSaving}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">

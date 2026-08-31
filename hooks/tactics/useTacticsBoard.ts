@@ -7,9 +7,13 @@ import type {
 } from "@/types/tactics";
 import { formationTemplate } from "@/data/formationTemplates";
 import { usePlayers } from "../players/usePlayers";
+import {
+  getAssignedPlayerIds,
+  getPlayerById as findPlayerById,
+} from "@/lib/tactics/tactics-ui";
 
 export function useTacticsBoard() {
-  const { players, playersLoaded } = usePlayers();
+  const { players, playersLoaded, playersError, reloadPlayers } = usePlayers();
   // 포메이션 상태
   const [formation, setFormation] = useState<FormationName>("4-4-2");
   // 클릭해서 선택한 포지션 슬롯 id
@@ -29,23 +33,15 @@ export function useTacticsBoard() {
   );
   // 슬롯에 배치된 선수 찾기
   const getPlayerById = (playerId?: string) =>
-    players.find((player) => player.id === playerId);
+    findPlayerById(players, playerId);
 
   // 이미 배치된 선수 id들 모으기
-  const assignedPlayerIds = useMemo(
-    () =>
-      new Set(slots.flatMap((slot) => (slot.playerId ? [slot.playerId] : []))),
-    [slots],
-  );
+  const assignedPlayerIds = useMemo(() => getAssignedPlayerIds(slots), [slots]);
   // 아직 배치 안 된 선수들만 골라내기
   const availablePlayers = useMemo(
     () => players.filter((player) => !assignedPlayerIds.has(player.id)),
     [players, assignedPlayerIds],
   );
-
-  const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
-  const freeKickPlayer = getPlayerById(freeKickPlayerId);
-  const penaltyKickPlayer = getPlayerById(penaltyKickPlayerId);
 
   // 포메이션 바꾸기
   const handleFormationChange = (value: FormationName) => {
@@ -106,8 +102,10 @@ export function useTacticsBoard() {
   };
 
   return {
-    playersLoaded,
     players,
+    playersLoaded,
+    playersError,
+    reloadPlayers,
 
     formation,
     slots,
@@ -119,10 +117,6 @@ export function useTacticsBoard() {
     cornerKickPlayerId,
     freeKickPlayerId,
     penaltyKickPlayerId,
-
-    cornerKickPlayer,
-    freeKickPlayer,
-    penaltyKickPlayer,
 
     getPlayerById,
     setSelectedSlotId,
