@@ -44,8 +44,14 @@ const notificationItems: NotificationItem[] = [
 ];
 
 export default function NotificationSettingsSection() {
-  const { settings, settingsLoaded, settingsError, isSaving, updateSetting } =
-    useNotificationSettings();
+  const {
+    settings,
+    settingsLoaded,
+    settingsError,
+    isSaving,
+    updateSetting,
+    reloadSettings,
+  } = useNotificationSettings();
 
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -63,9 +69,17 @@ export default function NotificationSettingsSection() {
       </div>
 
       {settingsError && (
-        <p className="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
-          {settingsError}
-        </p>
+        <div className="mt-4 flex items-center justify-between gap-4 rounded-lg bg-rose-50 px-4 py-3">
+          <p className="text-sm font-medium text-rose-600">{settingsError}</p>
+
+          <button
+            type="button"
+            onClick={() => void reloadSettings()}
+            className="shrink-0 text-sm font-semibold text-rose-600 underline underline-offset-4"
+          >
+            다시 불러오기
+          </button>
+        </div>
       )}
 
       {!settingsLoaded ? (
@@ -102,7 +116,7 @@ export default function NotificationSettingsSection() {
                   aria-checked={enabled}
                   aria-label={`${item.title} ${enabled ? "끄기" : "켜기"}`}
                   disabled={isSaving}
-                  onClick={() => updateSetting(item.key, !enabled)}
+                  onClick={() => void updateSetting(item.key, !enabled)}
                   className={[
                     "relative h-7 w-12 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-50",
                     enabled ? "bg-emerald-500" : "bg-stone-200",

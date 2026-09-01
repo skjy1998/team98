@@ -12,6 +12,7 @@ export default function ProfileSettingsTab() {
     updateProfileName,
     updateProfileEmail,
     updatePlayerSettings,
+    reloadProfile,
   } = useProfileSettings();
 
   if (!profileLoaded) {
@@ -30,6 +31,15 @@ export default function ProfileSettingsTab() {
         variant="error"
         title="내 설정을 불러오지 못했어요."
         description={profileError || "잠시 후 다시 시도해 주세요."}
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadProfile()}
+            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }

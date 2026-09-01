@@ -12,7 +12,10 @@ export default function TeamSettingsTab() {
     teamRole,
     teamSummary,
     teamSettingsLoaded,
-    teamError,
+    teamSummaryError,
+    teamActionError,
+    reloadTeam,
+    reloadTeamSummary,
     canManage,
     updateTeamProfile,
     regenerateInviteCode,
@@ -35,16 +38,43 @@ export default function TeamSettingsTab() {
       <ContentState
         variant="error"
         title="팀 정보를 불러오지 못했어요."
-        description={teamError || "잠시 후 다시 시도해 주세요."}
+        description="잠시 후 다시 시도해 주세요."
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadTeam()}
+            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      {teamError && (
+      {teamSummaryError && (
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <p className="text-sm font-medium text-amber-700">
+            {teamSummaryError}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => void reloadTeamSummary()}
+            className="shrink-0 text-sm font-semibold text-amber-700 underline underline-offset-4"
+          >
+            다시 시도
+          </button>
+        </div>
+      )}
+
+      {teamActionError && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <p className="text-sm font-medium text-amber-700">{teamError}</p>
+          <p className="text-sm font-medium text-amber-700">
+            {teamActionError}
+          </p>
         </div>
       )}
 

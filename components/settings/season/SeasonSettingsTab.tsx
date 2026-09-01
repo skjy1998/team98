@@ -3,17 +3,7 @@ import { CalendarCheck2 } from "lucide-react";
 import SeasonCreateCard from "./SeasonCreateCard";
 import SeasonList from "./SeasonList";
 import ContentState from "@/components/common/ContentState";
-
-function formatSeasonPeriod(startDate: string, endDate?: string) {
-  const format = (value: string) =>
-    new Intl.DateTimeFormat("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date(`${value}T00:00:00`));
-
-  return `${format(startDate)} - ${endDate ? format(endDate) : "종로일 미정"}`;
-}
+import { formatSeasonPeriod } from "@/lib/settings/settings-ui";
 
 export default function SeasonSettingsTab() {
   const {
@@ -26,6 +16,7 @@ export default function SeasonSettingsTab() {
     updateSeason,
     setActiveSeason,
     deleteSeason,
+    reloadSeasons,
   } = useTeamSeasons();
 
   if (!seasonsLoaded) {
@@ -42,8 +33,17 @@ export default function SeasonSettingsTab() {
     return (
       <ContentState
         variant="error"
-        title="시즌 정보를 불러오지 못헀어요."
+        title="시즌 정보를 불러오지 못했어요."
         description={seasonsError}
+        action={
+          <button
+            type="button"
+            onClick={() => void reloadSeasons()}
+            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+          >
+            다시 시도
+          </button>
+        }
       />
     );
   }

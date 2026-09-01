@@ -2,15 +2,12 @@ import type { PlayerDetailPosition } from "@/types/player";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCallback, useEffect, useState } from "react";
 import type { ProfileSettingsData } from "@/types/settings";
-import { supabase } from "@/lib/supabase";
-import { getMainPositionFromDetail } from "@/lib/players/player-ui";
-
-interface ProfilePlayerRow {
-  id: string;
-  name: string;
-  number: number | null;
-  detail_positions: PlayerDetailPosition[] | null;
-}
+import {
+  getProfileSettings,
+  updateCurrentPlayerSettings,
+  updateCurrentProfileEmail,
+  updateCurrentProfileName,
+} from "@/lib/settings/profile-settings-repository";
 
 export function useProfileSettings() {
   const { team, teamLoaded } = useCurrentTeam();
@@ -26,57 +23,16 @@ export function useProfileSettings() {
     setProfileLoaded(false);
     setProfileError("");
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
+    try {
+      const nextProfile = await getProfileSettings(teamId);
+      setProfile(nextProfile);
+    } catch (error) {
+      console.error("profile load error", error);
       setProfile(null);
-      setProfileError("로그인 정보를 확인할 수 없어요.");
+      setProfileError("프로필 정보를 불러오지 못했어요.");
+    } finally {
       setProfileLoaded(true);
-      return;
     }
-
-    let player: ProfileSettingsData["player"] = null;
-
-    if (teamId) {
-      const { data: playerRow, error: playerError } = await supabase
-        .from("players")
-        .select("id, name, number, detail_positions")
-        .eq("team_id", teamId)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (playerError) {
-        setProfileError("연결된 선수 정보를 불러오지 못했어요.");
-      }
-
-      if (playerRow) {
-        const row = playerRow as ProfilePlayerRow;
-
-        player = {
-          id: row.id,
-          name: row.name,
-          number: row.number ?? undefined,
-          detailPositions: row.detail_positions ?? [],
-        };
-      }
-    }
-
-    const metadataName =
-      typeof user.user_metadata?.name === "string"
-        ? user.user_metadata.name.trim()
-        : "";
-    setProfile({
-      userId: user.id,
-      name:
-        metadataName || player?.name || user.email?.split("@")[0] || "사용자",
-      email: user.email ?? "",
-      player,
-    });
-
-    setProfileLoaded(true);
   }, [teamLoaded, teamId]);
 
   useEffect(() => {
@@ -94,18 +50,15 @@ export function useProfileSettings() {
 
     setProfileError("");
 
-    const { error } = await supabase.rpc("update_my_profile_name", {
-      p_name: normalizedName,
-    });
-
-    if (error) {
+    try {
+      await updateCurrentProfileName(normalizedName);
+      await loadProfile();
+      return true;
+    } catch (error) {
       console.error("profile name update error", error);
       setProfileError("이름 저장에 실패했어요.");
       return false;
     }
-
-    await loadProfile();
-    return true;
   };
 
   const updateProfileEmail = async (email: string) => {
@@ -123,18 +76,15 @@ export function useProfileSettings() {
 
     setProfileError("");
 
-    const { error } = await supabase.auth.updateUser({
-      email: normalizedEmail,
-    });
-
-    if (error) {
+    try {
+      await updateCurrentProfileEmail(normalizedEmail);
+      await loadProfile();
+      return true;
+    } catch (error) {
       console.error("profile email update error", error);
-      setProfileError(error.message || "이메일 변경 요청에 실패했어요.");
+      setProfileError("이메일 변경 요청에 실패했어요.");
       return false;
     }
-
-    await loadProfile();
-    return true;
   };
 
   const updatePlayerSettings = async (
@@ -154,22 +104,20 @@ export function useProfileSettings() {
 
     setProfileError("");
 
-    const { error } = await supabase.rpc("update_my_player_settings", {
-      p_team_id: teamId,
-      p_player_id: playerId,
-      p_number: number ?? null,
-      p_position: getMainPositionFromDetail(detailPositions) ?? null,
-      p_detail_positions: detailPositions.length > 0 ? detailPositions : null,
-    });
-
-    if (error) {
+    try {
+      await updateCurrentPlayerSettings(
+        teamId,
+        playerId,
+        number,
+        detailPositions,
+      );
+      await loadProfile();
+      return true;
+    } catch (error) {
       console.error("player settings update error", error);
       setProfileError("선수 정보 저장에 실패했어요.");
       return false;
     }
-
-    await loadProfile();
-    return true;
   };
 
   return {

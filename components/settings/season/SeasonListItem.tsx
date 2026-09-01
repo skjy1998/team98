@@ -1,9 +1,10 @@
 import type { TeamSeason, TeamSeasonFormValue } from "@/types/seasons";
 import { useState } from "react";
 import SeasonForm from "./SeasonForm";
-import { CalendarRange, CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import { useToastStore } from "@/stores/toast-store";
 import { useConfirmStore } from "@/stores/confirm-store";
+import { getSeasonFormValue } from "@/lib/settings/settings-ui";
+import SeasonListItemDisplay from "./SeasonListItemDisplay";
 
 interface SeasonListItemProps {
   season: TeamSeason;
@@ -11,22 +12,6 @@ interface SeasonListItemProps {
   onUpdate: (seasonId: string, value: TeamSeasonFormValue) => Promise<boolean>;
   onSetActive: (seasonId: string) => Promise<boolean>;
   onDelete: (seasonId: string) => Promise<boolean>;
-}
-
-function formatSeasonDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
-function getFormValue(season: TeamSeason): TeamSeasonFormValue {
-  return {
-    name: season.name,
-    startDate: season.startDate,
-    endDate: season.endDate,
-  };
 }
 
 export default function SeasonListItem({
@@ -41,24 +26,32 @@ export default function SeasonListItem({
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<TeamSeasonFormValue>(() =>
-    getFormValue(season),
+    getSeasonFormValue(season),
   );
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const runAction = async (action: () => Promise<boolean>) => {
+    setIsProcessing(true);
+
+    try {
+      return await action();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleOpenEdit = () => {
-    setValue(getFormValue(season));
+    setValue(getSeasonFormValue(season));
     setIsEditing(true);
   };
 
   const handleCancelEdit = () => {
-    setValue(getFormValue(season));
+    setValue(getSeasonFormValue(season));
     setIsEditing(false);
   };
 
   const handleUpdate = async () => {
-    setIsProcessing(true);
-    const success = await onUpdate(season.id, value);
-    setIsProcessing(false);
+    const success = await runAction(() => onUpdate(season.id, value));
 
     if (!success) {
       showToast(
@@ -81,9 +74,7 @@ export default function SeasonListItem({
 
     if (!confirmed) return;
 
-    setIsProcessing(true);
-    const success = await onSetActive(season.id);
-    setIsProcessing(false);
+    const success = await runAction(() => onSetActive(season.id));
 
     if (!success) {
       showToast("활성 시즌 변경에 실패했어요.", "error");
@@ -103,9 +94,7 @@ export default function SeasonListItem({
 
     if (!confirmed) return;
 
-    setIsProcessing(true);
-    const success = await onDelete(season.id);
-    setIsProcessing(false);
+    const success = await runAction(() => onDelete(season.id));
 
     if (!success) {
       showToast(
@@ -144,75 +133,14 @@ export default function SeasonListItem({
           />
         </>
       ) : (
-        <div className="flex items-start gap-4">
-          <div
-            className={[
-              "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-              season.isActive
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-stone-100 text-stone-500",
-            ].join(" ")}
-          >
-            <CalendarRange className="h-5 w-5" />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="font-semibold text-stone-900">{season.name}</h3>
-
-              {season.isActive && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  활성 시즌
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-sm text-stone-500">
-              {formatSeasonDate(season.startDate)}
-              <span className="mx-2 text-stone-300">-</span>
-              {season.endDate
-                ? formatSeasonDate(season.endDate)
-                : "종료일 미정"}
-            </p>
-          </div>
-
-          {canManage && (
-            <div className="flex shrink-0 items-center gap-2">
-              {!season.isActive && (
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleSetActive}
-                  className="h-9 rounded-lg border border-emerald-200 px-3 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  활성화
-                </button>
-              )}
-
-              <button
-                type="button"
-                disabled={isProcessing}
-                onClick={handleOpenEdit}
-                aria-label={`${season.name} 수정`}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 disabled:opacity-50"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
-
-              {!season.isActive && (
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleDelete}
-                  aria-label={`${season.name} 삭제`}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+        <SeasonListItemDisplay
+          season={season}
+          canManage={canManage}
+          isProcessing={isProcessing}
+          onOpenEdit={handleOpenEdit}
+          onSetActive={handleSetActive}
+          onDelete={handleDelete}
+        />
       )}
     </article>
   );
