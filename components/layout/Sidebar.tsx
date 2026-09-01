@@ -1,6 +1,4 @@
 "use client";
-
-import { supabase } from "@/lib/supabase";
 import {
   BadgeDollarSign,
   CalendarDays,
@@ -16,8 +14,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NotificationBell from "../notifications/NotificationBell";
+import { useSidebarData } from "@/hooks/layout/useSidebarData";
+import { useToastStore } from "@/stores/toast-store";
 
 type MenuItem = {
   label: string;
@@ -29,17 +29,6 @@ type MenuItem = {
 type MenuSection = {
   title: string;
   items: MenuItem[];
-};
-
-type SidebarUser = {
-  name: string;
-  email: string;
-};
-
-type SidebarTeam = {
-  name: string;
-  sport: "soccer" | "futsal" | "";
-  inviteCode: string;
 };
 
 const menuSections: MenuSection[] = [
@@ -113,73 +102,40 @@ export default function Sidebar() {
   const router = useRouter();
   const [isCopied, setIsCopied] = useState(false);
 
-  const [user, setUser] = useState<SidebarUser>({
-    name: "",
-    email: "",
-  });
-
-  const [team, setTeam] = useState<SidebarTeam>({
-    name: "",
-    sport: "",
-    inviteCode: "",
-  });
-
-  useEffect(() => {
-    async function loadSidebarData() {
-      const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser();
-
-      if (!currentUser) return;
-
-      setUser({
-        name:
-          typeof currentUser.user_metadata?.name === "string" &&
-          currentUser.user_metadata.name.trim()
-            ? currentUser.user_metadata.name
-            : (currentUser.email?.split("@")[0] ?? "사용자"),
-        email: currentUser.email ?? "",
-      });
-
-      const { data: membership } = await supabase
-        .from("team_members")
-        .select("teams(name, sport, invite_code)")
-        .eq("user_id", currentUser.id)
-        .limit(1)
-        .maybeSingle();
-
-      const teamData = Array.isArray(membership?.teams)
-        ? membership.teams[0]
-        : membership?.teams;
-
-      if (!teamData) return;
-
-      setTeam({
-        name: teamData.name ?? "",
-        sport: teamData.sport ?? "",
-        inviteCode: teamData.invite_code ?? "",
-      });
-    }
-    loadSidebarData();
-  }, []);
+  const { user, team, sidebarLoaded, sidebarError, logout, reloadSidebarData } =
+    useSidebarData();
+  const showToast = useToastStore((state) => state.showToast);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    const success = await logout();
+
+    if (!success) {
+      showToast("로그아웃에 실패했어요.", "error");
+      return;
+    }
+
+    router.replace("/login");
   };
 
   const handleCopyInviteCode = async () => {
-    if (!team.inviteCode) return;
+    const inviteCode = team?.inviteCode;
 
-    await navigator.clipboard.writeText(team.inviteCode);
-    setIsCopied(true);
+    if (!inviteCode) return;
 
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 1500);
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setIsCopied(true);
+
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 1500);
+    } catch (error) {
+      console.error("invite code copy error", error);
+      showToast("초대 코드 복사에 실패했어요.", "error");
+    }
   };
 
-  const userInitial = user.name ? user.name.slice(0, 1) : "?";
+  const userInitial = user?.name.slice(0, 1) || "?";
 
   return (
     <aside className="hidden self-start lg:block">
@@ -196,19 +152,37 @@ export default function Sidebar() {
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-lg font-bold text-stone-900">
-                {team.name || "팀 정보를 불러오는 중..."}
+                {!sidebarLoaded
+                  ? "팀 정보를 불러오는 중..."
+                  : team?.name || "팀 정보 없음"}
               </p>
               <p className="mt-1 text-xs text-stone-500">
                 선수와 경기 운영을 한곳에서
               </p>
             </div>
-            {team.name && (
+            {team?.name && (
               <span className="shrink-0 rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                {team.sport === "futsal" ? "풋살" : "축구"}
+                {team?.sport === "futsal" ? "풋살" : "축구"}
               </span>
             )}
           </div>
         </div>
+
+        {sidebarError && (
+          <div className="mx-3 mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5">
+            <p className="text-xs font-medium leading-5 text-rose-600">
+              {sidebarError}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => void reloadSidebarData()}
+              className="mt-1 text-xs font-semibold text-rose-600 underline underline-offset-4"
+            >
+              다시 불러오기
+            </button>
+          </div>
+        )}
 
         <nav className="space-y-1 p-3">
           {menuSections.map((section, index) => (
@@ -280,14 +254,14 @@ export default function Sidebar() {
                 Team invite
               </p>
               <p className="mt-0.5 truncate font-mono text-xs font-semibold tracking-wider text-stone-700">
-                {team.inviteCode || "초대 코드 없음"}
+                {team?.inviteCode || "초대 코드 없음"}
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleCopyInviteCode}
-              disabled={!team.inviteCode}
+              disabled={!team?.inviteCode}
               aria-label="초대 코드 복사"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-stone-400 transition hover:bg-emerald-50 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -307,10 +281,10 @@ export default function Sidebar() {
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-stone-900">
-                {user.name || "사용자"}
+                {user?.name || "사용자"}
               </p>
               <p className="truncate text-[11px] text-stone-400">
-                {user.email || "이메일 없음"}
+                {user?.email || "이메일 없음"}
               </p>
             </div>
 
