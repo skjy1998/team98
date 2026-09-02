@@ -1,5 +1,7 @@
 import { supabase } from "../supabase";
 
+export type AppAccessStatus = "unauthenticated" | "team-required" | "granted";
+
 export interface CurrentUserSummary {
   name: string;
   email: string;
@@ -84,4 +86,25 @@ export async function signUpCurrentUser(
 
   if (error) throw error;
   if (!data.user) throw new Error("created user not found");
+}
+
+export async function getAppAccessStatus(): Promise<AppAccessStatus> {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) throw userError;
+  if (!user) return "unauthenticated";
+
+  const { data: membership, error: membershipError } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (membershipError) throw membershipError;
+
+  return membership ? "granted" : "team-required";
 }
