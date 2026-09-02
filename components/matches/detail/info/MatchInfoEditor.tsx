@@ -1,14 +1,9 @@
-import type {
-  MatchCreateFormValue,
-  MatchItem,
-  MatchPlayersPerSide,
-  MatchType,
-} from "@/types/match";
-import { useEffect, useState } from "react";
+import type { MatchCreateFormValue, MatchItem } from "@/types/match";
+
 import MatchInfoFieldCard from "./MatchInfoFieldCard";
 
 import MatchFormatSection from "../../MatchFormatSection";
-import { getDateTimeLocalValue } from "@/lib/matches/match-time";
+import { useMatchInfoEditor } from "@/hooks/matches/useMatchInfoEditor";
 
 interface MatchInfoEditorProps {
   match: MatchItem;
@@ -21,111 +16,17 @@ export default function MatchInfoEditor({
   onCancel,
   onSave,
 }: Readonly<MatchInfoEditorProps>) {
-  const [type, setType] = useState<MatchType>(match.type);
-  const [date, setDate] = useState(match.date);
-  const [startTime, setStartTime] = useState(match.startTime);
-  const [endTime, setEndTime] = useState(match.endTime);
-  const [voteDeadline, setVoteDeadline] = useState(
-    getDateTimeLocalValue(match.voteDeadline),
-  );
-  const [opponent, setOpponent] = useState(match.opponent ?? "");
-  const [location, setLocation] = useState(match.location ?? "");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const [playersPerSide, setPlayersPerSide] = useState<MatchPlayersPerSide>(
-    match.playersPerSide,
-  );
-  const [quarterCount, setQuarterCount] = useState(match.quarterCount);
-  const [quarterDurationMinutes, setQuarterDurationMinutes] = useState(
-    match.quarterDurationMinutes,
-  );
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setType(match.type);
-    setDate(match.date);
-    setStartTime(match.startTime);
-    setEndTime(match.endTime);
-    setVoteDeadline(getDateTimeLocalValue(match.voteDeadline));
-    setOpponent(match.opponent ?? "");
-    setLocation(match.location ?? "");
-    setPlayersPerSide(match.playersPerSide);
-    setQuarterCount(match.quarterCount);
-    setQuarterDurationMinutes(match.quarterDurationMinutes);
-    setErrorMessage("");
-  }, [match]);
-
-  const handleChangeType = (nextType: MatchType) => {
-    setType(nextType);
-
-    if (nextType === "자체전") {
-      setOpponent("");
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!Number.isInteger(quarterCount) || quarterCount < 1) {
-      setErrorMessage("쿼터 수를 1 이상 입력해 주세요.");
-      return;
-    }
-
-    if (
-      !Number.isInteger(quarterDurationMinutes) ||
-      quarterDurationMinutes < 5 ||
-      quarterDurationMinutes > 60
-    ) {
-      setErrorMessage("쿼터 시간은 5분부터 60분까지 입력해 주세요.");
-      return;
-    }
-
-    if (!date) {
-      setErrorMessage("날짜를 선택해 주세요.");
-      return;
-    }
-
-    if (!startTime || !endTime) {
-      setErrorMessage("시작 시간과 종료 시간을 모두 입력해 주세요.");
-      return;
-    }
-
-    if (startTime >= endTime) {
-      setErrorMessage("종료 시간은 시작 시간보다 늦어야 해요.");
-      return;
-    }
-
-    if (type === "정규" && !opponent.trim()) {
-      setErrorMessage("정규 경기는 상대팀을 입력해 주세요.");
-      return;
-    }
-
-    if (!voteDeadline) {
-      setErrorMessage("투표 마감일을 입력해 주세요.");
-      return;
-    }
-
-    if (new Date(voteDeadline) > new Date(`${date}T${startTime}`)) {
-      setErrorMessage("투표 마감일은 경기 시작 전이어야 해요.");
-      return;
-    }
-
-    setErrorMessage("");
-
-    await onSave({
-      title: type === "정규" ? `vs ${opponent || "상대팀 미정"}` : "자체전",
-      type,
-      sport: match.sport,
-      playersPerSide,
-      quarterCount,
-      quarterDurationMinutes,
-      date,
-      startTime,
-      endTime,
-      voteDeadline,
-      opponent: type === "정규" ? opponent : "",
-      location,
-      uniform: match.uniform,
-    });
-  };
+  const {
+    form,
+    errorMessage,
+    isSubmitting,
+    updateField,
+    handleChangeType,
+    handleSubmit,
+  } = useMatchInfoEditor({
+    match,
+    onSave,
+  });
 
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
@@ -142,10 +43,11 @@ export default function MatchInfoEditor({
           </button>
           <button
             type="button"
-            onClick={handleSubmit}
+            disabled={isSubmitting}
+            onClick={() => void handleSubmit()}
             className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
-            저장
+            {isSubmitting ? "저장 중..." : "저장"}
           </button>
         </div>
       </div>
@@ -153,12 +55,16 @@ export default function MatchInfoEditor({
       <div className="mt-6 space-y-4">
         <MatchFormatSection
           sport={match.sport}
-          playersPerSide={playersPerSide}
-          onChangePlayersPerSide={setPlayersPerSide}
-          quarterCount={quarterCount}
-          onChangeQuarterCount={setQuarterCount}
-          quarterDurationMinutes={quarterDurationMinutes}
-          onChangeQuarterDurationMinutes={setQuarterDurationMinutes}
+          playersPerSide={form.playersPerSide}
+          onChangePlayersPerSide={(value) =>
+            updateField("playersPerSide", value)
+          }
+          quarterCount={form.quarterCount}
+          onChangeQuarterCount={(value) => updateField("quarterCount", value)}
+          quarterDurationMinutes={form.quarterDurationMinutes}
+          onChangeQuarterDurationMinutes={(value) =>
+            updateField("quarterDurationMinutes", value)
+          }
         />
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
@@ -168,7 +74,7 @@ export default function MatchInfoEditor({
                 type="button"
                 onClick={() => handleChangeType("정규")}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  type === "정규"
+                  form.type === "정규"
                     ? "bg-emerald-600 text-white"
                     : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
                 }`}
@@ -179,7 +85,7 @@ export default function MatchInfoEditor({
                 type="button"
                 onClick={() => handleChangeType("자체전")}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  type === "자체전"
+                  form.type === "자체전"
                     ? "bg-sky-600 text-white"
                     : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
                 }`}
@@ -192,8 +98,8 @@ export default function MatchInfoEditor({
             <input
               id="edit-match-date"
               type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
+              value={form.date}
+              onChange={(event) => updateField("date", event.target.value)}
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
             />
           </MatchInfoFieldCard>
@@ -207,8 +113,10 @@ export default function MatchInfoEditor({
                 <input
                   id="edit-match-start-time"
                   type="time"
-                  value={startTime}
-                  onChange={(event) => setStartTime(event.target.value)}
+                  value={form.startTime}
+                  onChange={(event) =>
+                    updateField("startTime", event.target.value)
+                  }
                   className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
                 />
               </div>
@@ -222,8 +130,10 @@ export default function MatchInfoEditor({
                 <input
                   id="edit-match-end-time"
                   type="time"
-                  value={endTime}
-                  onChange={(event) => setEndTime(event.target.value)}
+                  value={form.endTime}
+                  onChange={(event) =>
+                    updateField("endTime", event.target.value)
+                  }
                   className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
                 />
               </div>
@@ -234,19 +144,21 @@ export default function MatchInfoEditor({
             <input
               id="edit-match-vote-deadline"
               type="datetime-local"
-              value={voteDeadline}
-              onChange={(event) => setVoteDeadline(event.target.value)}
+              value={form.voteDeadline}
+              onChange={(event) =>
+                updateField("voteDeadline", event.target.value)
+              }
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
             />
           </MatchInfoFieldCard>
         </div>
 
-        {type === "정규" && (
+        {form.type === "정규" && (
           <MatchInfoFieldCard label="상대팀">
             <input
               id="edit-match-opponent"
-              value={opponent}
-              onChange={(event) => setOpponent(event.target.value)}
+              value={form.opponent}
+              onChange={(event) => updateField("opponent", event.target.value)}
               placeholder="상대 팀 이름을 입력하세요"
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
             />
@@ -256,8 +168,8 @@ export default function MatchInfoEditor({
         <MatchInfoFieldCard label="장소">
           <input
             id="edit-match-location"
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
+            value={form.location}
+            onChange={(event) => updateField("location", event.target.value)}
             placeholder="경기 장소를 입력하세요"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
