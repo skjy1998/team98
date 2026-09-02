@@ -30,3 +30,58 @@ export async function signOutCurrentUser() {
 
   if (error) throw error;
 }
+
+export async function hasCurrentSession() {
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error) throw error;
+
+  return Boolean(session);
+}
+
+export async function signInCurrentUser(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+  if (!data.user) throw new Error("authenticated user not found");
+
+  return data.user.id;
+}
+
+export async function hasTeamMembership(userId: string) {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return Boolean(data);
+}
+
+export async function signUpCurrentUser(
+  name: string,
+  email: string,
+  password: string,
+) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+      },
+    },
+  });
+
+  if (error) throw error;
+  if (!data.user) throw new Error("created user not found");
+}
