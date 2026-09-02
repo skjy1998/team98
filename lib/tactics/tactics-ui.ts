@@ -13,6 +13,10 @@ import type {
 import type { TeamSport } from "@/types/team";
 import { createQuarterOptions } from "../matches/match-quarter";
 
+export const FUTSAL_PLAYER_COUNT_OPTIONS: readonly MatchPlayersPerSide[] = [
+  3, 4, 5, 6, 7,
+];
+
 const futsalFormationNames = Object.keys(
   futsalFormationTemplates,
 ) as FormationName[];
@@ -165,4 +169,71 @@ export function getAvailableTacticsPlayers(
     (player) =>
       attendPlayerIds.has(player.id) && !assignedPlayerIds.has(player.id),
   );
+}
+
+export function changeTacticsFormation(
+  current: QuarterTacticsState,
+  formation: FormationName,
+): QuarterTacticsState {
+  return {
+    ...current,
+    formation,
+    slots: formationTemplate[formation],
+    cornerKickPlayerId: "",
+    freeKickPlayerId: "",
+    penaltyKickPlayerId: "",
+  };
+}
+
+export function resetTacticsFormation(
+  current: QuarterTacticsState,
+): QuarterTacticsState {
+  return {
+    ...current,
+    slots: formationTemplate[current.formation],
+    cornerKickPlayerId: "",
+    freeKickPlayerId: "",
+    penaltyKickPlayerId: "",
+  };
+}
+
+export function assignPlayerToTacticsSlot(
+  current: QuarterTacticsState,
+  slotId: string,
+  playerId: string,
+): QuarterTacticsState {
+  return {
+    ...current,
+    slots: current.slots.map((slot) =>
+      slot.id === slotId ? { ...slot, playerId } : slot,
+    ),
+  };
+}
+
+export function clearTacticsSlot(
+  current: QuarterTacticsState,
+  slotId: string,
+): QuarterTacticsState {
+  const clearedPlayerId = current.slots.find(
+    (slot) => slot.id === slotId,
+  )?.playerId;
+
+  return {
+    ...current,
+    slots: current.slots.map((slot) =>
+      slot.id === slotId ? { ...slot, playerId: undefined } : slot,
+    ),
+    cornerKickPlayerId:
+      current.cornerKickPlayerId === clearedPlayerId
+        ? ""
+        : current.cornerKickPlayerId,
+    freeKickPlayerId:
+      current.freeKickPlayerId === clearedPlayerId
+        ? ""
+        : current.freeKickPlayerId,
+    penaltyKickPlayerId:
+      current.penaltyKickPlayerId === clearedPlayerId
+        ? ""
+        : current.penaltyKickPlayerId,
+  };
 }
