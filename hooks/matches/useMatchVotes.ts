@@ -150,7 +150,9 @@ export function useMatchVotes() {
     }
 
     try {
-      await removeTeamMatchVote(teamId, matchId, playerId);
+      const removed = await removeTeamMatchVote(teamId, matchId, playerId);
+
+      if (!removed) return false;
 
       setVotes((currentVotes) => ({
         ...currentVotes,

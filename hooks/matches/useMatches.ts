@@ -1,4 +1,4 @@
-import {
+import type {
   MatchCreateFormValue,
   MatchItem,
   MatchPlayersPerSide,
@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useToastStore } from "@/stores/toast-store";
 import {
-  getActiveSeasonId,
   getTeamMatches,
   createTeamMatch,
   updateTeamMatch,
@@ -16,6 +15,7 @@ import {
   updateTeamMatchRecordCompletion,
   deleteTeamMatch,
 } from "@/lib/matches/match-repository";
+import { getActiveTeamSeasonId } from "@/lib/settings/team-season-repository";
 
 interface UseMatchesOptions {
   includeAllSeasons?: boolean;
@@ -52,7 +52,7 @@ export function useMatches({
       let targetSeasonId = seasonId;
 
       if (!includeAllSeasons && !targetSeasonId) {
-        targetSeasonId = await getActiveSeasonId(teamId);
+        targetSeasonId = await getActiveTeamSeasonId(teamId);
 
         if (!targetSeasonId) {
           setMatches([]);
@@ -84,9 +84,9 @@ export function useMatches({
     if (!teamId) return false;
 
     try {
-      const createdMatch = await createTeamMatch(teamId, value);
+      const activeSeasonId = await getActiveTeamSeasonId(teamId);
 
-      if (!createdMatch) {
+      if (!activeSeasonId) {
         showToast(
           "활성 시즌이 없습니다. 설정에서 활성 시즌을 먼저 지정해 주세요.",
           "info",
@@ -94,6 +94,8 @@ export function useMatches({
 
         return false;
       }
+
+      const createdMatch = await createTeamMatch(teamId, activeSeasonId, value);
 
       setMatches((current) => [createdMatch, ...current]);
 
@@ -191,7 +193,9 @@ export function useMatches({
     if (!teamId) return false;
 
     try {
-      await deleteTeamMatch(teamId, matchId);
+      const deleted = await deleteTeamMatch(teamId, matchId);
+
+      if (!deleted) return false;
 
       setMatches((current) => current.filter((match) => match.id !== matchId));
 

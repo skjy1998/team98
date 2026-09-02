@@ -80,7 +80,9 @@ export function useMatchRecords(matchId: string) {
     if (!teamId || !matchId) return false;
 
     try {
-      await removeMatchRecordEvent(teamId, matchId, eventId);
+      const removed = await removeMatchRecordEvent(teamId, matchId, eventId);
+
+      if (!removed) return false;
 
       setEvents((currentsEvents) =>
         currentsEvents.filter((event) => event.id !== eventId),

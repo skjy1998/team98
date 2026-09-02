@@ -74,7 +74,13 @@ export function useNotifications() {
     const readAt = new Date().toISOString();
 
     try {
-      await markTeamNotificationRead(teamId, notificationId, readAt);
+      const updated = await markTeamNotificationRead(
+        teamId,
+        notificationId,
+        readAt,
+      );
+
+      if (!updated) return false;
 
       setNotifications((current) =>
         markNotificationReadInList(current, notificationId, readAt),
@@ -109,7 +115,9 @@ export function useNotifications() {
     if (!teamId) return false;
 
     try {
-      await deleteTeamNotification(teamId, notificationId);
+      const deleted = await deleteTeamNotification(teamId, notificationId);
+
+      if (!deleted) return false;
 
       setNotifications((current) =>
         removeNotificationFromList(current, notificationId),

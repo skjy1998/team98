@@ -90,14 +90,18 @@ export async function markTeamNotificationRead(
 ) {
   const userId = await getAuthenticatedUserId();
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("notifications")
     .update({ read_at: readAt })
     .eq("id", notificationId)
     .eq("team_id", teamId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function markAllTeamNotificationsRead(
@@ -122,14 +126,18 @@ export async function deleteTeamNotification(
 ) {
   const userId = await getAuthenticatedUserId();
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("notifications")
     .delete()
     .eq("id", notificationId)
     .eq("team_id", teamId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export function subscribeToTeamNotifications(

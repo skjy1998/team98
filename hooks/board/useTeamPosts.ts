@@ -83,7 +83,10 @@ export function useTeamPosts() {
         };
 
     try {
-      await updateTeamPost(teamId, postId, updateValue);
+      const updated = await updateTeamPost(teamId, postId, updateValue);
+
+      if (!updated) return false;
+
       await loadPosts();
       return true;
     } catch (error) {
@@ -96,7 +99,9 @@ export function useTeamPosts() {
     if (!teamId) return false;
 
     try {
-      await deleteTeamPost(teamId, postId);
+      const deleted = await deleteTeamPost(teamId, postId);
+
+      if (!deleted) return false;
 
       setPosts((current) => current.filter((post) => post.id !== postId));
 

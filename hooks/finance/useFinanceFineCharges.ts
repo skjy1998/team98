@@ -1,6 +1,5 @@
 import type {
   CreateFineChargeInput,
-  FinanceEntry,
   FineCharge,
   FineChargeStatus,
 } from "@/types/finance";
@@ -10,26 +9,20 @@ import {
   createTeamFineCharges,
   deleteUnpaidTeamFineCharge,
   getTeamFineCharges,
-  markTeamFineChargePaid,
-  markTeamFineChargeUnpaid,
-  restoreTeamFineChargePaid,
+  payTeamFineCharge,
+  unpayTeamFineCharge,
 } from "@/lib/finance/finance-fine-charge-repository";
 import {
-  createFinePaymentEntry,
   markFineChargePaidInList,
   markFineChargeUnpaidInList,
 } from "@/lib/finance/finance-fine-charge";
 
 interface UseFinanceFineChargesParams {
-  addEntryWithResult: (
-    entry: Omit<FinanceEntry, "id">,
-  ) => Promise<FinanceEntry | null>;
-  deleteEntry: (entryId: string) => Promise<boolean>;
+  reloadEntries: () => Promise<void>;
 }
 
 export function useFinanceFineCharges({
-  addEntryWithResult,
-  deleteEntry,
+  reloadEntries,
 }: UseFinanceFineChargesParams) {
   const { team, teamLoaded } = useCurrentTeam();
   const teamId = team?.id;
@@ -86,7 +79,9 @@ export function useFinanceFineCharges({
     if (!teamId) return false;
 
     try {
-      await deleteUnpaidTeamFineCharge(teamId, fineChargeId);
+      const deleted = await deleteUnpaidTeamFineCharge(teamId, fineChargeId);
+
+      if (!deleted) return false;
 
       setFineCharges((current) =>
         current.filter((charge) => charge.id !== fineChargeId),
@@ -102,75 +97,46 @@ export function useFinanceFineCharges({
   const markFineChargePaid = async (charge: FineCharge) => {
     if (!teamId || charge.status === "paid") return true;
 
-    const now = new Date();
-    const paidAt = now.toISOString();
-
-    const createdEntry = await addEntryWithResult(
-      createFinePaymentEntry(charge, now),
-    );
-
-    if (!createdEntry) return false;
+    const paidAt = new Date().toISOString();
 
     try {
-      const updated = await markTeamFineChargePaid(
-        teamId,
-        charge.id,
-        createdEntry.id,
-        paidAt,
+      const result = await payTeamFineCharge(teamId, charge.id, paidAt);
+
+      setFineCharges((current) =>
+        markFineChargePaidInList(
+          current,
+          charge.id,
+          result.paid_entry_id,
+          result.paid_at,
+        ),
       );
 
-      if (!updated) {
-        await deleteEntry(createdEntry.id);
-        return false;
-      }
+      await reloadEntries();
+      return true;
     } catch (error) {
       console.error("mark fine charge paid error", error);
-      await deleteEntry(createdEntry.id);
       return false;
     }
-
-    setFineCharges((current) =>
-      markFineChargePaidInList(current, charge.id, createdEntry.id, paidAt),
-    );
-
-    return true;
   };
 
   const markFineChargeUnpaid = async (charge: FineCharge) => {
     if (!teamId || charge.status === "unpaid") return true;
 
-    const previousPaidEntryId = charge.paidEntryId;
-    const previousPaidAt = charge.paidAt;
-
     try {
-      await markTeamFineChargeUnpaid(teamId, charge.id);
+      const updated = await unpayTeamFineCharge(teamId, charge.id);
+
+      if (!updated) return false;
+
+      setFineCharges((current) =>
+        markFineChargeUnpaidInList(current, charge.id),
+      );
+
+      await reloadEntries();
+      return true;
     } catch (error) {
       console.error("mark fine charge unpaid error", error);
       return false;
     }
-
-    if (previousPaidEntryId) {
-      const deleted = await deleteEntry(previousPaidEntryId);
-
-      if (!deleted) {
-        try {
-          await restoreTeamFineChargePaid(
-            teamId,
-            charge.id,
-            previousPaidEntryId,
-            previousPaidAt,
-          );
-        } catch (error) {
-          console.error("restore fine charge paid error", error);
-        }
-
-        return false;
-      }
-    }
-
-    setFineCharges((current) => markFineChargeUnpaidInList(current, charge.id));
-
-    return true;
   };
 
   const handleChangeFineChargeStatus = async (

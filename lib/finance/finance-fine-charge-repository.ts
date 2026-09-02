@@ -21,6 +21,11 @@ interface FineChargeRow {
   paid_at: string | null;
 }
 
+interface FineChargePaymentResult {
+  paid_entry_id: string;
+  paid_at: string;
+}
+
 const FINE_CHARGE_COLUMNS = `
   id,
   match_id,
@@ -102,86 +107,52 @@ export async function deleteUnpaidTeamFineCharge(
   teamId: string,
   fineChargeId: string,
 ) {
-  const { error } = await supabase
-    .from("finance_fine_charges")
-    .delete()
-    .eq("id", fineChargeId)
-    .eq("team_id", teamId)
-    .eq("status", "unpaid");
-
-  if (error) {
-    throw error;
-  }
-}
-
-export async function markTeamFineChargePaid(
-  teamId: string,
-  fineChargeId: string,
-  paidEntryId: string,
-  paidAt: string,
-) {
   const { data, error } = await supabase
     .from("finance_fine_charges")
-    .update({
-      status: "paid",
-      paid_entry_id: paidEntryId,
-      paid_at: paidAt,
-      updated_at: paidAt,
-    })
+    .delete()
     .eq("id", fineChargeId)
     .eq("team_id", teamId)
     .eq("status", "unpaid")
     .select("id")
     .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return data !== null;
 }
 
-export async function markTeamFineChargeUnpaid(
+export async function payTeamFineCharge(
   teamId: string,
   fineChargeId: string,
-) {
-  const { error } = await supabase
-    .from("finance_fine_charges")
-    .update({
-      status: "unpaid",
-      paid_entry_id: null,
-      paid_at: null,
-      updated_at: new Date().toISOString(),
+  paidAt: string,
+): Promise<FineChargePaymentResult> {
+  const { data, error } = await supabase
+    .rpc("pay_team_fine_charge", {
+      p_team_id: teamId,
+      p_fine_charge_id: fineChargeId,
+      p_paid_at: paidAt,
     })
-    .eq("id", fineChargeId)
-    .eq("team_id", teamId)
-    .eq("status", "paid");
+    .single();
 
-  if (error) {
-    throw error;
+  if (error || !data) {
+    throw error ?? new Error("벌금 납부 처리 결과가 없습니다.");
   }
+
+  return data as FineChargePaymentResult;
 }
 
-export async function restoreTeamFineChargePaid(
+export async function unpayTeamFineCharge(
   teamId: string,
   fineChargeId: string,
-  paidEntryId: string,
-  paidAt?: string,
-) {
-  const { error } = await supabase
-    .from("finance_fine_charges")
-    .update({
-      status: "paid",
-      paid_entry_id: paidEntryId,
-      paid_at: paidAt ?? null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", fineChargeId)
-    .eq("team_id", teamId);
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("unpay_team_fine_charge", {
+    p_team_id: teamId,
+    p_fine_charge_id: fineChargeId,
+  });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data === true;
 }
 
 export async function getPlayerUnpaidFineSummary(

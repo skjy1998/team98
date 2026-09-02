@@ -71,7 +71,7 @@ export async function updateTeamSeason(
   seasonId: string,
   value: TeamSeasonFormValue,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_seasons")
     .update({
       name: value.name.trim(),
@@ -80,9 +80,13 @@ export async function updateTeamSeason(
       updated_at: new Date().toISOString(),
     })
     .eq("id", seasonId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function activateTeamSeason(teamId: string, seasonId: string) {
@@ -95,11 +99,28 @@ export async function activateTeamSeason(teamId: string, seasonId: string) {
 }
 
 export async function deleteTeamSeason(teamId: string, seasonId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_seasons")
     .delete()
     .eq("id", seasonId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
+}
+
+export async function getActiveTeamSeasonId(teamId: string) {
+  const { data, error } = await supabase
+    .from("team_seasons")
+    .select("id")
+    .eq("team_id", teamId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data?.id;
 }

@@ -81,7 +81,13 @@ export function useTeamPostComments() {
     if (!teamId || !normalizedContent) return false;
 
     try {
-      await updateTeamPostComment(teamId, commentId, normalizedContent);
+      const updated = await updateTeamPostComment(
+        teamId,
+        commentId,
+        normalizedContent,
+      );
+
+      if (!updated) return false;
 
       await loadComments();
       return true;
@@ -95,7 +101,9 @@ export function useTeamPostComments() {
     if (!teamId) return false;
 
     try {
-      await deleteTeamPostComment(teamId, commentId);
+      const deleted = await deleteTeamPostComment(teamId, commentId);
+
+      if (!deleted) return false;
 
       setCommentsByPostId((current) =>
         removeCommentFromGroups(current, commentId),

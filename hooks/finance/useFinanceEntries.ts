@@ -46,25 +46,18 @@ export function useFinanceEntries() {
     loadEntries();
   }, [loadEntries]);
 
-  const addEntryWithResult = async (
-    entry: Omit<FinanceEntry, "id">,
-  ): Promise<FinanceEntry | null> => {
-    if (!teamId) return null;
+  const addEntry = async (entry: Omit<FinanceEntry, "id">) => {
+    if (!teamId) return false;
 
     try {
       const createdEntry = await createTeamFinanceEntry(teamId, entry);
 
       setEntries((current) => [createdEntry, ...current]);
-      return createdEntry;
+      return true;
     } catch (error) {
       console.error("finance entry create error", error);
-      return null;
+      return false;
     }
-  };
-
-  const addEntry = async (entry: Omit<FinanceEntry, "id">) => {
-    const createdEntry = await addEntryWithResult(entry);
-    return createdEntry !== null;
   };
 
   const updateEntry = async (
@@ -74,7 +67,9 @@ export function useFinanceEntries() {
     if (!teamId) return false;
 
     try {
-      await updateTeamFinanceEntry(teamId, entryId, updates);
+      const updated = await updateTeamFinanceEntry(teamId, entryId, updates);
+
+      if (!updated) return false;
 
       setEntries((current) =>
         current.map((entry) =>
@@ -93,7 +88,9 @@ export function useFinanceEntries() {
     if (!teamId) return false;
 
     try {
-      await deleteTeamFinanceEntry(teamId, entryId);
+      const deleted = await deleteTeamFinanceEntry(teamId, entryId);
+
+      if (!deleted) return false;
 
       setEntries((current) => current.filter((entry) => entry.id !== entryId));
 
@@ -109,7 +106,6 @@ export function useFinanceEntries() {
     entriesLoaded,
     entriesError,
     addEntry,
-    addEntryWithResult,
     updateEntry,
     deleteEntry,
     reloadEntries: loadEntries,

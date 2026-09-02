@@ -142,15 +142,19 @@ export async function removeMatchRecordEvent(
   teamId: string,
   matchId: string,
   eventId: string,
-): Promise<void> {
-  const { error } = await supabase
+) {
+  const { data, error } = await supabase
     .from("match_records")
     .delete()
     .eq("id", eventId)
     .eq("team_id", teamId)
-    .eq("match_id", matchId);
+    .eq("match_id", matchId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function updateMatchRecordOrder(
@@ -165,13 +169,19 @@ export async function updateMatchRecordOrder(
         .update({ sort_order: index })
         .eq("id", event.id)
         .eq("team_id", teamId)
-        .eq("match_id", matchId),
+        .eq("match_id", matchId)
+        .select("id")
+        .maybeSingle(),
     ),
   );
 
-  const failedResult = results.find((result) => result.error);
+  const failedResult = results.find((result) => result.error || !result.data);
 
   if (failedResult?.error) {
     throw failedResult.error;
+  }
+
+  if (failedResult && !failedResult.data) {
+    throw new Error("순서를 변경할 경기 기록을 찾을 수 없어요.");
   }
 }

@@ -109,11 +109,15 @@ export async function deleteTeamTacticsPreset(
   teamId: string,
   presetId: string,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_tactics_presets")
     .delete()
     .eq("id", presetId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }

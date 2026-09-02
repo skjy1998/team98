@@ -1,23 +1,4 @@
-import type { FinanceEntry, FineCharge } from "@/types/finance";
-import { getFinanceDefaults } from "./finance";
-
-export function createFinePaymentEntry(
-  charge: FineCharge,
-  date = new Date(),
-): Omit<FinanceEntry, "id"> {
-  const { defaultDate, defaultTime } = getFinanceDefaults(date);
-
-  return {
-    type: "income",
-    amount: charge.amount,
-    description: charge.description,
-    date: defaultDate,
-    time: defaultTime,
-    category: "fine",
-    playerId: charge.playerId,
-    matchId: charge.matchId,
-  };
-}
+import type { FineCharge } from "@/types/finance";
 
 export function markFineChargePaidInList(
   fineCharges: FineCharge[],

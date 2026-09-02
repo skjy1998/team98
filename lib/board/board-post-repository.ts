@@ -160,23 +160,31 @@ export async function updateTeamPost(
     }),
   };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_posts")
     .update(updateValue)
     .eq("id", postId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function deleteTeamPost(teamId: string, postId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_posts")
     .delete()
     .eq("id", postId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function incrementTeamPostViewCount(postId: string) {

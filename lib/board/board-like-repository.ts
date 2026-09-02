@@ -43,12 +43,16 @@ export async function deleteTeamPostLike(
   postId: string,
   userId: string,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_post_likes")
     .delete()
     .eq("team_id", teamId)
     .eq("post_id", postId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }

@@ -30,7 +30,7 @@ interface MatchRow {
   our_score: number | null;
   opponent_score: number | null;
   record_completed_at: string | null;
-  counts_toward_record: boolean;
+  counts_toward_record: boolean | null;
 }
 
 const MATCH_COLUMNS = `
@@ -82,21 +82,6 @@ function mapMatchRow(match: MatchRow): MatchItem {
   };
 }
 
-export async function getActiveSeasonId(teamId: string) {
-  const { data, error } = await supabase
-    .from("team_seasons")
-    .select("id")
-    .eq("team_id", teamId)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return data?.id;
-}
-
 export async function getTeamMatches(teamId: string, seasonId?: string) {
   let query = supabase
     .from("matches")
@@ -120,19 +105,14 @@ export async function getTeamMatches(teamId: string, seasonId?: string) {
 
 export async function createTeamMatch(
   teamId: string,
+  seasonId: string,
   value: MatchCreateFormValue,
 ) {
-  const activeSeasonId = await getActiveSeasonId(teamId);
-
-  if (!activeSeasonId) {
-    return null;
-  }
-
   const { data, error } = await supabase
     .from("matches")
     .insert({
       team_id: teamId,
-      season_id: activeSeasonId,
+      season_id: seasonId,
       title: value.title,
       type: value.type,
       sport: value.sport,
@@ -257,13 +237,15 @@ export async function updateTeamMatchRecordCompletion(
 }
 
 export async function deleteTeamMatch(teamId: string, matchId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("matches")
     .delete()
     .eq("id", matchId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data !== null;
 }

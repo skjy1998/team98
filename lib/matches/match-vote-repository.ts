@@ -91,15 +91,17 @@ export async function removeTeamMatchVote(
   teamId: string,
   matchId: string,
   playerId: string,
-): Promise<void> {
-  const { error } = await supabase
+) {
+  const { data, error } = await supabase
     .from("match_votes")
     .delete()
     .eq("team_id", teamId)
     .eq("match_id", matchId)
-    .eq("player_id", playerId);
+    .eq("player_id", playerId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data !== null;
 }

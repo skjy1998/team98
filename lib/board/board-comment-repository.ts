@@ -125,24 +125,32 @@ export async function updateTeamPostComment(
   commentId: string,
   content: string,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_post_comments")
     .update({
       content,
       updated_at: new Date().toISOString(),
     })
     .eq("id", commentId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }
 
 export async function deleteTeamPostComment(teamId: string, commentId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("team_post_comments")
     .delete()
     .eq("id", commentId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  return data !== null;
 }

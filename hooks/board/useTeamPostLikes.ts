@@ -60,7 +60,9 @@ export function useTeamPostLikes() {
 
     try {
       if (current.isLiked) {
-        await deleteTeamPostLike(teamId, postId, currentUserId);
+        const deleted = await deleteTeamPostLike(teamId, postId, currentUserId);
+
+        if (!deleted) return false;
       } else {
         await createTeamPostLike(teamId, postId, currentUserId);
       }

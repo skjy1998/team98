@@ -65,7 +65,9 @@ export function usePlayers() {
     if (!teamId) return false;
 
     try {
-      await deleteTeamPlayer(teamId, playerId);
+      const deleted = await deleteTeamPlayer(teamId, playerId);
+
+      if (!deleted) return false;
 
       setPlayers((current) =>
         current.filter((player) => player.id !== playerId),

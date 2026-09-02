@@ -96,28 +96,32 @@ export async function updateTeamFinanceEntry(
   entryId: string,
   updates: Omit<FinanceEntry, "id">,
 ) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("finance_entries")
     .update({
       ...getFinanceEntryPayload(updates),
       updated_at: new Date().toISOString(),
     })
     .eq("id", entryId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data !== null;
 }
 
 export async function deleteTeamFinanceEntry(teamId: string, entryId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("finance_entries")
     .delete()
     .eq("id", entryId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data !== null;
 }

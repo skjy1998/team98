@@ -67,24 +67,21 @@ function mapPlayerRow(
 }
 
 export async function getTeamPlayers(teamId: string) {
-  const { data: playerRows, error: playersError } = await supabase
-    .from("players")
-    .select(PLAYER_COLUMNS)
-    .eq("team_id", teamId)
-    .order("created_at", { ascending: true });
+  const [playersResult, teamMembersResult] = await Promise.all([
+    supabase
+      .from("players")
+      .select(PLAYER_COLUMNS)
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: true }),
 
-  if (playersError) {
-    throw playersError;
-  }
+    supabase.from("team_members").select("user_id, role").eq("team_id", teamId),
+  ]);
 
-  const { data: teamMemberRows, error: teamMembersError } = await supabase
-    .from("team_members")
-    .select("user_id, role")
-    .eq("team_id", teamId);
+  if (playersResult.error) throw playersResult.error;
+  if (teamMembersResult.error) throw teamMembersResult.error;
 
-  if (teamMembersError) {
-    throw teamMembersError;
-  }
+  const playerRows = playersResult.data;
+  const teamMemberRows = teamMembersResult.data;
 
   const roleMap = new Map(
     (teamMemberRows as TeamMemberRow[]).map((member) => [
@@ -126,15 +123,17 @@ export async function createTeamPlayer(teamId: string, player: PlayerType) {
 }
 
 export async function deleteTeamPlayer(teamId: string, playerId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("players")
     .delete()
     .eq("id", playerId)
-    .eq("team_id", teamId);
+    .eq("team_id", teamId)
+    .select("id")
+    .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
+  return data !== null;
 }
 
 export async function getConnectableTeamMembers(

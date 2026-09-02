@@ -26,7 +26,6 @@ export function useFinancePageData() {
     entriesLoaded,
     entriesError,
     addEntry,
-    addEntryWithResult,
     updateEntry,
     deleteEntry,
     reloadEntries,
@@ -49,8 +48,7 @@ export function useFinancePageData() {
     handleChangeFineChargeStatus,
     reloadFineCharges,
   } = useFinanceFineCharges({
-    addEntryWithResult,
-    deleteEntry,
+    reloadEntries,
   });
 
   const primaryFeeAmount = useMemo(

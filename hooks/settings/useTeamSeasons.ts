@@ -68,7 +68,10 @@ export function useTeamSeasons() {
     if (!teamId || !canManage) return false;
 
     try {
-      await updateTeamSeason(teamId, seasonId, value);
+      const updated = await updateTeamSeason(teamId, seasonId, value);
+
+      if (!updated) return false;
+
       await loadSeasons();
       return true;
     } catch (error) {
@@ -98,7 +101,9 @@ export function useTeamSeasons() {
     if (!season || season.isActive) return false;
 
     try {
-      await deleteTeamSeason(teamId, seasonId);
+      const deleted = await deleteTeamSeason(teamId, seasonId);
+
+      if (!deleted) return false;
 
       setSeasons((current) => current.filter((item) => item.id !== seasonId));
 

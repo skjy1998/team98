@@ -81,7 +81,9 @@ export function useMatchAttendance() {
     if (!teamId) return false;
 
     try {
-      await removeMatchAttendance(teamId, matchId, playerId);
+      const removed = await removeMatchAttendance(teamId, matchId, playerId);
+
+      if (!removed) return false;
 
       setAttendance((previousAttendance) => {
         const currentAttendance = previousAttendance[matchId] ?? [];

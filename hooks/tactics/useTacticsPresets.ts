@@ -154,7 +154,11 @@ export function useTacticsPresets({
     if (!confirmed) return;
 
     try {
-      await deleteTeamTacticsPreset(teamId, selectedPresetId);
+      const deleted = await deleteTeamTacticsPreset(teamId, selectedPresetId);
+
+      if (!deleted) {
+        throw new Error("삭제할 전술을 찾을 수 없어요.");
+      }
 
       setSavedPresets((previous) =>
         previous.filter((preset) => preset.id !== selectedPresetId),
