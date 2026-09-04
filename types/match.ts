@@ -87,3 +87,10 @@ export interface MatchOpponentRecordSummary {
   winRate: number;
   recentMatches: MatchOpponentRecordItem[];
 }
+
+export interface MatchRecordEditValue {
+  playerId: string;
+  assistPlayerId: string;
+  quarter: MatchRecordQuarter;
+  minute: string;
+}

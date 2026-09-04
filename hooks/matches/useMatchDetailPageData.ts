@@ -9,7 +9,11 @@ import { useMatchRecords } from "./useMatchRecords";
 import { useMatchVotes } from "./useMatchVotes";
 import { getHasMatchStarted } from "@/lib/matches/match-time";
 import { getDisplayMatches } from "@/lib/matches/match-list-ui";
-import { getMatchDetailDisplay } from "@/lib/matches/match-detail-ui";
+import {
+  getMatchDetailDisplay,
+  getMatchWithRecordScore,
+} from "@/lib/matches/match-detail-ui";
+import { getAttendingPlayers } from "@/lib/matches/match-vote";
 
 export type MatchDetailPageData = ReturnType<typeof useMatchDetailPageData>;
 
@@ -80,33 +84,25 @@ export function useMatchDetailPageData(matchId: string) {
     [attendance, matchId],
   );
 
-  const attendancePlayers = useMemo(() => {
-    const attendPlayerIds = new Set(
-      matchVotes
-        .filter((vote) => vote.status === "attend")
-        .map((vote) => vote.playerId),
-    );
-
-    return players
-      .filter((player) => attendPlayerIds.has(player.id))
-      .toSorted((a, b) => a.name.localeCompare(b.name, "ko"));
-  }, [players, matchVotes]);
+  const attendancePlayers = useMemo(
+    () => getAttendingPlayers(players, matchVotes),
+    [players, matchVotes],
+  );
 
   const displayMatches = useMemo(
     () => getDisplayMatches(matches, records),
     [matches, records],
   );
 
-  const resolvedMatch =
-    matchRecordsLoaded &&
-    match &&
-    (events.length > 0 || match.recordCompletedAt)
-      ? {
-          ...match,
-          ourScore,
-          opponentScore,
-        }
-      : match;
+  const resolvedMatch = match
+    ? getMatchWithRecordScore(
+        match,
+        matchRecordsLoaded,
+        events,
+        ourScore,
+        opponentScore,
+      )
+    : undefined;
 
   const matchDisplay = resolvedMatch
     ? getMatchDetailDisplay(resolvedMatch)

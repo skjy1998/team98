@@ -164,3 +164,22 @@ export function getPlayersAfterRecordDelete(
     };
   });
 }
+
+export function getMatchRecordMinuteValidationMessage(
+  minute: string,
+  quarterDurationMinutes: number,
+) {
+  if (!minute) return null;
+
+  const minuteValue = Number(minute);
+
+  if (
+    !Number.isInteger(minuteValue) ||
+    minuteValue < 0 ||
+    minuteValue > quarterDurationMinutes
+  ) {
+    return `경기 시간은 0분부터 ${quarterDurationMinutes}분까지 입력해 주세요.`;
+  }
+
+  return null;
+}

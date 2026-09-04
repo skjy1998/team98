@@ -2,7 +2,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { MatchDetailPageData } from "./useMatchDetailPageData";
 import { useToastStore } from "@/stores/toast-store";
 import { useConfirmStore } from "@/stores/confirm-store";
-import {
+import type {
   MatchCreateFormValue,
   MatchDetailTab,
   MatchPlayersPerSide,

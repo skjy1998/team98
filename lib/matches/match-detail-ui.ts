@@ -1,5 +1,9 @@
 // 상세 화면 계산
-import type { MatchDetailTab, MatchItem } from "@/types/match";
+import type {
+  MatchDetailTab,
+  MatchItem,
+  MatchRecordEvent,
+} from "@/types/match";
 import { getMatchResult, getOpponentName, statusMap } from "./match-display";
 
 export function getMatchDetailStatusLabel(match: MatchItem) {
@@ -62,4 +66,22 @@ export function getMatchDetailTab(value: string | null): MatchDetailTab {
     value === "record"
     ? value
     : "info";
+}
+
+export function getMatchWithRecordScore(
+  match: MatchItem,
+  recordsLoaded: boolean,
+  events: MatchRecordEvent[],
+  ourScore: number,
+  opponentScore: number,
+): MatchItem {
+  if (!recordsLoaded || (events.length === 0 && !match.recordCompletedAt)) {
+    return match;
+  }
+
+  return {
+    ...match,
+    ourScore,
+    opponentScore,
+  };
 }

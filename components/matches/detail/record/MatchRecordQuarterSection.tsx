@@ -5,8 +5,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type {
+  MatchRecordEditValue,
   MatchRecordEvent,
-  MatchRecordQuarter,
   MatchType,
   SelfMatchSide,
 } from "@/types/match";
@@ -31,12 +31,7 @@ interface MatchRecordQuarterSectionProps {
   onDeleteRecord: (event: MatchRecordEvent) => void;
   onSubmitEdit: (
     eventId: string,
-    updates: {
-      playerId: string;
-      assistPlayerId: string;
-      quarter: MatchRecordQuarter;
-      minute: string;
-    },
+    updates: MatchRecordEditValue,
   ) => void | Promise<void>;
   onDragEnd: (event: DragEndEvent) => void;
 }

@@ -4,7 +4,7 @@ import type {
   VoteMember,
   VoteStatus,
 } from "@/types/match-vote";
-import { PlayerType } from "@/types/player";
+import type { PlayerType } from "@/types/player";
 
 export function getVoteMembers(
   players: PlayerType[],
@@ -91,4 +91,16 @@ export function getPlayerVoteStatus(
   if (!playerId) return "unvoted";
 
   return votes.find((vote) => vote.playerId === playerId)?.status ?? "unvoted";
+}
+
+export function getAttendingPlayers(players: PlayerType[], votes: MatchVote[]) {
+  const attendingPlayerIds = new Set(
+    votes
+      .filter((vote) => vote.status === "attend")
+      .map((vote) => vote.playerId),
+  );
+
+  return players
+    .filter((player) => attendingPlayerIds.has(player.id))
+    .toSorted((a, b) => a.name.localeCompare(b.name, "ko"));
 }

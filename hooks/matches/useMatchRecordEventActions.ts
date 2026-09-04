@@ -1,9 +1,9 @@
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type {
+  MatchRecordEditValue,
   MatchRecordEvent,
   MatchRecordEventType,
-  MatchRecordQuarter,
 } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 import type { DragEndEvent } from "@dnd-kit/core";
@@ -80,12 +80,7 @@ export function useMatchRecordEventActions({
 
   const handleSubmitEdit = async (
     eventId: string,
-    updates: {
-      playerId: string;
-      assistPlayerId: string;
-      quarter: MatchRecordQuarter;
-      minute: string;
-    },
+    updates: MatchRecordEditValue,
   ) => {
     if (!canEdit) return;
 
