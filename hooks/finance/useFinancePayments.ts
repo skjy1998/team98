@@ -1,15 +1,11 @@
 import {
   createMonthlyFeeEntry,
   getAdjacentFinanceMonth,
-  getCurrentMonthLabel,
-  getMonthlyPaymentEntries,
-  getPaymentRowsByStatus,
-  getPaymentStatusRows,
-  getPaymentSummary,
 } from "@/lib/finance/finance-payment";
 import type { FinanceEntry, PaymentStatusRow } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useFinancePaymentViewData } from "./useFinancePaymentViewData";
 
 interface UseFinancePaymentsParams {
   entries: FinanceEntry[];
@@ -32,39 +28,17 @@ export function useFinancePayments({
   const [isUnpaidOpen, setIsUnpaidOpen] = useState(false);
   const [isPaidOpen, setIsPaidOpen] = useState(false);
 
-  // 화면용 월 문자열
-  const currentMonthLabel = useMemo(
-    () => getCurrentMonthLabel(currentMonth),
-    [currentMonth],
-  );
-
-  // 이번 달 회비 납부 기록 목록
-  const monthlyPaymentEntries = useMemo(
-    () => getMonthlyPaymentEntries(entries, currentMonth),
-    [entries, currentMonth],
-  );
-
-  // 선수 별 납부 상태 status === paid 면 납부완료
-  const paymentStatusRows = useMemo(
-    () => getPaymentStatusRows(players, monthlyPaymentEntries),
-    [players, monthlyPaymentEntries],
-  );
-
-  // 통계값 만들기
-  const paymentSummary = useMemo(
-    () => getPaymentSummary(paymentStatusRows),
-    [paymentStatusRows],
-  );
-
-  const unpaidPaymentRows = useMemo(
-    () => getPaymentRowsByStatus(paymentStatusRows, "unpaid"),
-    [paymentStatusRows],
-  );
-
-  const paidPaymentRows = useMemo(
-    () => getPaymentRowsByStatus(paymentStatusRows, "paid"),
-    [paymentStatusRows],
-  );
+  const {
+    currentMonthLabel,
+    monthlyPaymentEntries,
+    paymentSummary,
+    unpaidPaymentRows,
+    paidPaymentRows,
+  } = useFinancePaymentViewData({
+    entries,
+    players,
+    currentMonth,
+  });
 
   const handleMoveMonth = (direction: "prev" | "next") => {
     setCurrentMonth((month) => getAdjacentFinanceMonth(month, direction));

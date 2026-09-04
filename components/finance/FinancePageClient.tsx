@@ -21,25 +21,18 @@ export default function FinancePageClient() {
   const searchParams = useSearchParams();
   const activeTab = getFinanceTab(searchParams.get("tab"));
 
+  const pageData = useFinancePageData();
+
   const {
     canManage,
     financeSummary,
     primaryFeeAmount,
-    players,
-    settings,
-    matches,
-    votes,
-    attendance,
-    fineCharges,
-    createFineCharges,
-    deleteFineCharge,
-    handleChangeFineChargeStatus,
     payments,
     transactions,
     isLoaded,
     pageError,
     reloadPageData,
-  } = useFinancePageData();
+  } = pageData;
 
   const {
     transactionToolbarState,
@@ -49,10 +42,13 @@ export default function FinancePageClient() {
     paymentsHeaderState,
     unpaidPaymentGroupState,
     paidPaymentGroupState,
+    fineSectionState,
+    settingsSectionState,
   } = useFinanceSectionStates({
     canManage,
     payments,
     transactions,
+    pageData,
   });
 
   // 핸들러
@@ -136,33 +132,9 @@ export default function FinancePageClient() {
             onBulkMarkPaid={payments.handleBulkMarkPaid}
           />
         )}
-        {activeTab === "fines" && (
-          <FinanceFineSection
-            fineCharges={fineCharges}
-            canManage={canManage}
-            matches={matches}
-            players={players}
-            votes={votes}
-            attendance={attendance}
-            fineRules={settings.fineRules}
-            createFineCharges={createFineCharges}
-            deleteFineCharge={deleteFineCharge}
-            onChangeFineChargeStatus={handleChangeFineChargeStatus}
-          />
-        )}
+        {activeTab === "fines" && <FinanceFineSection {...fineSectionState} />}
         {activeTab === "settings" && (
-          <FinanceSettingsSection
-            canManage={canManage}
-            dueDay={settings.dueDay}
-            feeTypes={settings.feeTypes}
-            fineRules={settings.fineRules}
-            onChangeDueDay={settings.handleChangeDueDay}
-            onAddFeeType={settings.handleAddFeeType}
-            onUpdateFeeType={settings.handleUpdateFeeType}
-            onDeleteFeeType={settings.handleDeleteFeeType}
-            onAddFineRule={settings.handleAddFineRule}
-            onDeleteFineRule={settings.handleDeleteFineRule}
-          />
+          <FinanceSettingsSection {...settingsSectionState} />
         )}
       </div>
     </div>

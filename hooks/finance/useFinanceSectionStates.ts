@@ -1,16 +1,32 @@
+import type { useFinancePageData } from "./useFinancePageData";
 import type { useFinancePayments } from "./useFinancePayments";
 import type { useFinanceTransactions } from "./useFinanceTransactions";
+
+type FinanceSectionPageData = Pick<
+  ReturnType<typeof useFinancePageData>,
+  | "players"
+  | "matches"
+  | "votes"
+  | "attendance"
+  | "fineCharges"
+  | "settings"
+  | "createFineCharges"
+  | "deleteFineCharge"
+  | "handleChangeFineChargeStatus"
+>;
 
 interface UseFinanceSectionStatesParams {
   canManage: boolean;
   payments: ReturnType<typeof useFinancePayments>;
   transactions: ReturnType<typeof useFinanceTransactions>;
+  pageData: FinanceSectionPageData;
 }
 
 export function useFinanceSectionStates({
   canManage,
   payments,
   transactions,
+  pageData,
 }: Readonly<UseFinanceSectionStatesParams>) {
   const transactionToolbarState = {
     canManage,
@@ -83,6 +99,32 @@ export function useFinanceSectionStates({
     rows: payments.paidPaymentRows,
   };
 
+  const fineSectionState = {
+    fineCharges: pageData.fineCharges,
+    canManage,
+    matches: pageData.matches,
+    players: pageData.players,
+    votes: pageData.votes,
+    attendance: pageData.attendance,
+    fineRules: pageData.settings.fineRules,
+    createFineCharges: pageData.createFineCharges,
+    deleteFineCharge: pageData.deleteFineCharge,
+    onChangeFineChargeStatus: pageData.handleChangeFineChargeStatus,
+  };
+
+  const settingsSectionState = {
+    canManage,
+    dueDay: pageData.settings.dueDay,
+    feeTypes: pageData.settings.feeTypes,
+    fineRules: pageData.settings.fineRules,
+    onChangeDueDay: pageData.settings.handleChangeDueDay,
+    onAddFeeType: pageData.settings.handleAddFeeType,
+    onUpdateFeeType: pageData.settings.handleUpdateFeeType,
+    onDeleteFeeType: pageData.settings.handleDeleteFeeType,
+    onAddFineRule: pageData.settings.handleAddFineRule,
+    onDeleteFineRule: pageData.settings.handleDeleteFineRule,
+  };
+
   return {
     transactionToolbarState,
     transactionCreateState,
@@ -91,5 +133,7 @@ export function useFinanceSectionStates({
     paymentsHeaderState,
     unpaidPaymentGroupState,
     paidPaymentGroupState,
+    fineSectionState,
+    settingsSectionState,
   };
 }
