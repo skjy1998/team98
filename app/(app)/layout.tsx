@@ -3,6 +3,7 @@
 import ContentState from "@/components/common/ContentState";
 import AppShell from "@/components/layout/AppShell";
 import { CurrentTeamProvider } from "@/components/providers/CurrentTeamProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { useAppAccess } from "@/hooks/auth/useAppAccess";
 
 export default function AppLayout({
@@ -42,7 +43,9 @@ export default function AppLayout({
 
   return (
     <CurrentTeamProvider>
-      <AppShell>{children}</AppShell>
+      <NotificationProvider>
+        <AppShell>{children}</AppShell>
+      </NotificationProvider>
     </CurrentTeamProvider>
   );
 }

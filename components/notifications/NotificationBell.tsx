@@ -1,9 +1,9 @@
 "use client";
 
 import { useNotifications } from "@/hooks/notifications/useNotifications";
-import { Bell } from "lucide-react";
 import { useNotificationBellState } from "@/hooks/notifications/useNotificationBellState";
 import NotificationBellPanel from "./NotificationBellPanel";
+import { Bell } from "lucide-react";
 
 interface NotificationBellProps {
   align?: "left" | "right";
