@@ -31,22 +31,9 @@ export default function PlayerEditModal({
   onSave,
 }: Readonly<PlayerEditModalProps>) {
   const {
-    number,
-    setNumber,
-    detailPositions,
-    birth,
-    setBirth,
-    role,
-    setRole,
-    preferredFoot,
-    setPreferredFoot,
-    note,
-    setNote,
-    teamRole,
-    setTeamRole,
-    linkedUserId,
-    setLinkedUserId,
+    form,
     isSubmitting,
+    updateField,
     handleToggleDetailPosition,
     handleSubmit,
   } = usePlayerEditForm({
@@ -80,38 +67,48 @@ export default function PlayerEditModal({
         <div className="space-y-5">
           <PlayerEditSummaryCard
             playerName={player.name}
-            number={number}
-            detailPositions={detailPositions}
-            birth={birth}
+            number={form.number}
+            detailPositions={form.detailPositions}
+            birth={form.birth}
             appearance={String(player.appearance ?? 0)}
             goal={String(player.goal ?? 0)}
             assist={String(player.assist ?? 0)}
           />
-          <PlayerEditNumberSection number={number} onChangeNumber={setNumber} />
+          <PlayerEditNumberSection
+            number={form.number}
+            onChangeNumber={(value) => updateField("number", value)}
+          />
 
           <PlayerEditPositionSection
-            detailPositions={detailPositions}
+            detailPositions={form.detailPositions}
             onToggleDetailPosition={handleToggleDetailPosition}
           />
-          <PlayerEditRoleSection role={role} onChangeRole={setRole} />
+          <PlayerEditRoleSection
+            role={form.role}
+            onChangeRole={(value) => updateField("role", value)}
+          />
           <PlayerEditPermissionSection
-            role={teamRole}
-            onChangeRole={setTeamRole}
+            role={form.teamRole}
+            onChangeRole={(value) => updateField("teamRole", value)}
           />
           <PlayerEditAccountSection
             linkedUserId={player.userId}
             members={connectableMembers}
-            selectedUserId={linkedUserId}
-            onChangeSelectedUserId={setLinkedUserId}
+            selectedUserId={form.linkedUserId}
+            onChangeSelectedUserId={(value) =>
+              updateField("linkedUserId", value)
+            }
           />
 
           <PlayerEditExtraInfoSection
-            birth={birth}
-            onChangeBirth={setBirth}
-            preferredFoot={preferredFoot}
-            onChangePreferredFoot={setPreferredFoot}
-            note={note}
-            onChangeNote={setNote}
+            birth={form.birth}
+            onChangeBirth={(value) => updateField("birth", value)}
+            preferredFoot={form.preferredFoot}
+            onChangePreferredFoot={(value) =>
+              updateField("preferredFoot", value)
+            }
+            note={form.note}
+            onChangeNote={(value) => updateField("note", value)}
           />
 
           <div className="flex justify-end gap-2 pt-1">

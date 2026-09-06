@@ -1,4 +1,4 @@
-import { PlayerSortType, PlayerType } from "@/types/player";
+import type { PlayerSortType, PlayerType } from "@/types/player";
 import { useState } from "react";
 
 export function usePlayersPageState() {

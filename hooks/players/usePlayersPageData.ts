@@ -23,8 +23,9 @@ export function usePlayersPageData({
   sortType,
   editingPlayer,
 }: Readonly<UsePlayersPageDataParams>) {
-  const { team } = useCurrentTeam();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
+  const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
+  const { canManage, memberLoaded, memberError, reloadMember } =
+    useCurrentTeamMember();
 
   const {
     players,
@@ -61,6 +62,7 @@ export function usePlayersPageData({
   );
 
   const isLoaded =
+    teamLoaded &&
     playersLoaded &&
     matchesLoaded &&
     attendanceLoaded &&
@@ -69,6 +71,8 @@ export function usePlayersPageData({
     membersLoaded;
 
   const pageError =
+    teamError ||
+    memberError ||
     playersError ||
     matchesError ||
     attendanceError ||
@@ -77,6 +81,8 @@ export function usePlayersPageData({
 
   const reloadPageData = async () => {
     await Promise.all([
+      reloadTeam(),
+      reloadMember(),
       reloadPlayers(),
       reloadMatches(),
       reloadAttendance(),

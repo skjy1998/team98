@@ -1,8 +1,7 @@
 import { X, ArrowRight } from "lucide-react";
-import { useState } from "react";
 import type { PlayerType } from "@/types/player";
-import { useToastStore } from "@/stores/toast-store";
 import { useEscapeKey } from "@/hooks/common/useEscapeKey";
+import { usePlayerCreateForm } from "@/hooks/players/usePlayerCreateForm";
 
 interface PlayerCreateModalProps {
   onClose: () => void;
@@ -13,41 +12,10 @@ export default function PlayerCreateModal({
   onClose,
   onSave,
 }: Readonly<PlayerCreateModalProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-
-  const [name, setName] = useState("");
-  const [birth, setBirth] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { name, setName, birth, setBirth, isSubmitting, handleSubmit } =
+    usePlayerCreateForm({ onSave });
 
   useEscapeKey(onClose);
-
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
-
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      showToast("이름을 입력해 주세요.", "info");
-      return;
-    }
-
-    const nextPlayer: PlayerType = {
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      birth: birth || undefined,
-      appearance: 0,
-      goal: 0,
-      assist: 0,
-    };
-
-    setIsSubmitting(true);
-
-    try {
-      await onSave(nextPlayer);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">

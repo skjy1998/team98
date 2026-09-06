@@ -1,57 +1,32 @@
 "use client";
 
 import PageHeader from "@/components/PageHeader";
-import PlayerCreateModal from "@/components/players/modal/PlayerCreateModal";
-import PlayerEditModal from "@/components/players/modal/edit/PlayerEditModal";
-import PlayerTable from "@/components/players/list/PlayerTable";
-import PlayerToolbar from "@/components/players/list/PlayerToolbar";
 import { usePlayersPageState } from "@/hooks/players/usePlayersPageState";
 import { usePlayersPageActions } from "@/hooks/players/usePlayersPageActions";
 import ContentState from "../common/ContentState";
 import { usePlayersPageData } from "@/hooks/players/usePlayersPageData";
+import PlayersPageContent from "./PlayersPageContent";
 
 export default function PlayersPageClient() {
-  const {
-    search,
-    setSearch,
-    sortType,
-    setSortType,
-    isCreateOpen,
-    editingPlayer,
-    handleOpenCreate,
-    handleCloseCreate,
-    handleEdit,
-    handleCloseEdit,
-  } = usePlayersPageState();
+  const pageState = usePlayersPageState();
 
-  const {
-    teamId,
-    players,
-    filteredPlayers,
-    availableMembers,
-    canManage,
-    isLoaded,
-    pageError,
-    addPlayer,
-    deletePlayer,
-    reloadPlayers,
-    reloadPageData,
-  } = usePlayersPageData({
-    search,
-    sortType,
-    editingPlayer,
+  const pageData = usePlayersPageData({
+    search: pageState.search,
+    sortType: pageState.sortType,
+    editingPlayer: pageState.editingPlayer,
   });
 
-  const { handleCreatePlayer, handleEditPlayer, handleDeletePlayer } =
-    usePlayersPageActions({
-      teamId,
-      players,
-      addPlayer,
-      deletePlayer,
-      reloadPlayers,
-      handleCloseCreate,
-      handleCloseEdit,
-    });
+  const pageActions = usePlayersPageActions({
+    teamId: pageData.teamId,
+    players: pageData.players,
+    addPlayer: pageData.addPlayer,
+    deletePlayer: pageData.deletePlayer,
+    reloadPlayers: pageData.reloadPlayers,
+    handleCloseCreate: pageState.handleCloseCreate,
+    handleCloseEdit: pageState.handleCloseEdit,
+  });
+
+  const { isLoaded, pageError, reloadPageData } = pageData;
 
   if (!isLoaded) {
     return (
@@ -95,46 +70,10 @@ export default function PlayersPageClient() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="선수 관리"
-        description="등록된 선수 목록을 확인하고 관리하세요."
-      />
-      {!canManage && (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-          현재 계정은 읽기 전용이에요. 회장 또는 운영진만 선수 정보를 추가하거나
-          수정할 수 있어요.
-        </div>
-      )}
-      <PlayerToolbar
-        search={search}
-        totalCount={filteredPlayers.length}
-        sortType={sortType}
-        onSearchChange={setSearch}
-        onChangeSortType={setSortType}
-        onOpen={canManage ? handleOpenCreate : undefined}
-      />
-      {canManage && isCreateOpen && (
-        <PlayerCreateModal
-          onClose={handleCloseCreate}
-          onSave={handleCreatePlayer}
-        />
-      )}
-      <PlayerTable
-        players={filteredPlayers}
-        onEdit={canManage ? handleEdit : undefined}
-        onDelete={canManage ? handleDeletePlayer : undefined}
-      />
-
-      {canManage && editingPlayer && (
-        <PlayerEditModal
-          key={editingPlayer.id}
-          player={editingPlayer}
-          connectableMembers={availableMembers}
-          onClose={handleCloseEdit}
-          onSave={handleEditPlayer}
-        />
-      )}
-    </div>
+    <PlayersPageContent
+      state={pageState}
+      data={pageData}
+      actions={pageActions}
+    />
   );
 }

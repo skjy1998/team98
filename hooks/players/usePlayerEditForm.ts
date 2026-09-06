@@ -15,7 +15,18 @@ interface UsePlayerEditFormParams {
   ) => void | Promise<void>;
 }
 
-function getInitialEditState(player: PlayerType) {
+interface PlayerEditFormState {
+  number: string;
+  detailPositions: PlayerDetailPosition[];
+  birth: string;
+  role: PlayerRole;
+  preferredFoot: PlayerPreferredFoot;
+  note: string;
+  teamRole: TeamMemberRole;
+  linkedUserId: string;
+}
+
+function getInitialEditState(player: PlayerType): PlayerEditFormState {
   return {
     number: player.number ? String(player.number) : "",
     detailPositions: player.detailPositions ?? [],
@@ -32,70 +43,59 @@ export function usePlayerEditForm({
   player,
   onSave,
 }: Readonly<UsePlayerEditFormParams>) {
-  const initialState = getInitialEditState(player);
+  const [form, setForm] = useState<PlayerEditFormState>(() =>
+    getInitialEditState(player),
+  );
 
-  const [number, setNumber] = useState(initialState.number);
-  const [detailPositions, setDetailPositions] = useState<
-    PlayerDetailPosition[]
-  >(initialState.detailPositions);
-  const [birth, setBirth] = useState(initialState.birth);
-  const [role, setRole] = useState<PlayerRole>(initialState.role);
-  const [preferredFoot, setPreferredFoot] = useState<PlayerPreferredFoot>(
-    initialState.preferredFoot,
-  );
-  const [note, setNote] = useState(initialState.note);
-  const [teamRole, setTeamRole] = useState<TeamMemberRole>(
-    initialState.teamRole,
-  );
-  const [linkedUserId, setLinkedUserId] = useState(initialState.linkedUserId);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const updateField = <Key extends keyof PlayerEditFormState>(
+    key: Key,
+    value: PlayerEditFormState[Key],
+  ) => {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
+
   const handleToggleDetailPosition = (detail: PlayerDetailPosition) => {
-    setDetailPositions((current) =>
-      current.includes(detail)
-        ? current.filter((item) => item !== detail)
-        : [...current, detail],
-    );
+    setForm((current) => ({
+      ...current,
+      detailPositions: current.detailPositions.includes(detail)
+        ? current.detailPositions.filter((item) => item !== detail)
+        : [...current.detailPositions, detail],
+    }));
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+
     const nextPlayer: PlayerType = {
       ...player,
-      userId: linkedUserId || undefined,
-      number: number ? Number(number) : undefined,
-      detailPositions: detailPositions.length > 0 ? detailPositions : undefined,
-      birth: birth || undefined,
-      role,
-      preferredFoot,
-      note: note.trim() || undefined,
+      userId: form.linkedUserId || undefined,
+      number: form.number ? Number(form.number) : undefined,
+      detailPositions:
+        form.detailPositions.length > 0 ? form.detailPositions : undefined,
+      birth: form.birth || undefined,
+      role: form.role,
+      preferredFoot: form.preferredFoot,
+      note: form.note.trim() || undefined,
     };
 
     setIsSubmitting(true);
 
     try {
-      await onSave(nextPlayer, teamRole);
+      await onSave(nextPlayer, form.teamRole);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return {
-    number,
-    setNumber,
-    detailPositions,
-    birth,
-    setBirth,
-    role,
-    setRole,
-    preferredFoot,
-    setPreferredFoot,
-    note,
-    setNote,
-    teamRole,
-    setTeamRole,
-    linkedUserId,
-    setLinkedUserId,
+    form,
     isSubmitting,
+    updateField,
     handleToggleDetailPosition,
     handleSubmit,
   };

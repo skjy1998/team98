@@ -1,11 +1,8 @@
 import { updateTeamPlayerWithRoles } from "@/lib/players/player-repository";
-import {
-  findCurrentCaptain,
-  findCurrentOwner,
-} from "@/lib/players/player-role";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
 import type { PlayerType, TeamMemberRole } from "@/types/player";
+import { usePlayerRoleChangeConfirmation } from "./usePlayerRoleChangeConfirmation";
 
 interface UsePlayersPageActionsParams {
   teamId?: string;
@@ -29,6 +26,8 @@ export function usePlayersPageActions({
   const showToast = useToastStore((state) => state.showToast);
   const confirm = useConfirmStore((state) => state.confirm);
 
+  const { confirmRoleChanges } = usePlayerRoleChangeConfirmation(players);
+
   // 생성 수정 삭제 액션
   const handleCreatePlayer = async (player: PlayerType) => {
     const success = await addPlayer(player);
@@ -40,35 +39,6 @@ export function usePlayersPageActions({
     }
 
     showToast("선수 추가에 실패했어요.", "error");
-  };
-
-  const confirmRoleChanges = async (
-    player: PlayerType,
-    teamRole: TeamMemberRole,
-    currentOwner?: PlayerType,
-    currentCaptain?: PlayerType,
-  ) => {
-    if (teamRole === "owner" && currentOwner) {
-      const confirmed = await confirm({
-        title: "회장 변경",
-        description: `${currentOwner.name}님이 현재 회장이에요. 기존 회장을 일반 회원으로 변경하고 ${player.name}님을 새 회장으로 지정할까요?`,
-        confirmLabel: "변경",
-      });
-
-      if (!confirmed) return false;
-    }
-
-    if (player.role === "captain" && currentCaptain) {
-      const confirmed = await confirm({
-        title: "주장 변경",
-        description: `${currentCaptain.name}님이 현재 주장이에요. 기존 주장을 일반 회원으로 변경하고 ${player.name}님을 새 주장으로 지정할까요?`,
-        confirmLabel: "변경",
-      });
-
-      if (!confirmed) return false;
-    }
-
-    return true;
   };
 
   const handleEditPlayer = async (
@@ -88,15 +58,7 @@ export function usePlayersPageActions({
       return;
     }
 
-    const currentOwner = findCurrentOwner(players, player.id);
-    const currentCaptain = findCurrentCaptain(players, player.id);
-
-    const confirmed = await confirmRoleChanges(
-      player,
-      teamRole,
-      currentOwner,
-      currentCaptain,
-    );
+    const confirmed = await confirmRoleChanges(player, teamRole);
 
     if (!confirmed) return;
 
