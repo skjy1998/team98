@@ -23,6 +23,16 @@ export default function SeasonForm({
   const startDateId = `${formId}-start-date`;
   const endDateId = `${formId}-end-date`;
 
+  const updateField = <Key extends keyof TeamSeasonFormValue>(
+    key: Key,
+    nextValue: TeamSeasonFormValue[Key],
+  ) => {
+    onChange({
+      ...value,
+      [key]: nextValue,
+    });
+  };
+
   const hasInvalidDateRange = Boolean(
     value.startDate && value.endDate && value.endDate < value.startDate,
   );
@@ -53,12 +63,7 @@ export default function SeasonForm({
             id={nameId}
             value={value.name}
             maxLength={50}
-            onChange={(event) =>
-              onChange({
-                ...value,
-                name: event.target.value,
-              })
-            }
+            onChange={(event) => updateField("name", event.target.value)}
             placeholder="예: 2026 시즌"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
@@ -79,12 +84,7 @@ export default function SeasonForm({
               id={startDateId}
               type="date"
               value={value.startDate}
-              onChange={(event) =>
-                onChange({
-                  ...value,
-                  startDate: event.target.value,
-                })
-              }
+              onChange={(event) => updateField("startDate", event.target.value)}
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
             />
           </div>
@@ -103,10 +103,7 @@ export default function SeasonForm({
               min={value.startDate || undefined}
               value={value.endDate ?? ""}
               onChange={(event) =>
-                onChange({
-                  ...value,
-                  endDate: event.target.value || undefined,
-                })
+                updateField("endDate", event.target.value || undefined)
               }
               className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
             />
