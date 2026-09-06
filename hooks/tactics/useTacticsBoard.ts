@@ -1,30 +1,38 @@
 import { useMemo, useState } from "react";
-
 import type {
   FormationName,
-  FormationSlot,
+  QuarterTacticsState,
   SavedFormation,
 } from "@/types/tactics";
 import { formationTemplate } from "@/data/formationTemplates";
 import { usePlayers } from "../players/usePlayers";
 import {
+  assignPlayerToTacticsSlot,
+  changeTacticsFormation,
+  clearTacticsSlot,
   getAssignedPlayerIds,
   getPlayerById as findPlayerById,
+  resetTacticsFormation,
 } from "@/lib/tactics/tactics-ui";
 
 export function useTacticsBoard() {
   const { players, playersLoaded, playersError, reloadPlayers } = usePlayers();
-  // 포메이션 상태
-  const [formation, setFormation] = useState<FormationName>("4-4-2");
+
   // 클릭해서 선택한 포지션 슬롯 id
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  // 운동장 슬롯 배열
-  const [slots, setSlots] = useState<FormationSlot[]>(
-    formationTemplate["4-4-2"],
-  );
-  const [cornerKickPlayerId, setCornerKickPlayerId] = useState("");
-  const [freeKickPlayerId, setFreeKickPlayerId] = useState("");
-  const [penaltyKickPlayerId, setPenaltyKickPlayerId] = useState("");
+  const [tacticsState, setTacticsState] = useState<QuarterTacticsState>({
+    formation: "4-4-2",
+    slots: formationTemplate["4-4-2"],
+    cornerKickPlayerId: "",
+    freeKickPlayerId: "",
+    penaltyKickPlayerId: "",
+  });
+
+  const { formation, slots } = tacticsState;
+
+  const cornerKickPlayerId = tacticsState.cornerKickPlayerId ?? "";
+  const freeKickPlayerId = tacticsState.freeKickPlayerId ?? "";
+  const penaltyKickPlayerId = tacticsState.penaltyKickPlayerId ?? "";
 
   // 현재 선택된 슬롯 계산
   const selectedSlot = useMemo(
@@ -45,29 +53,24 @@ export function useTacticsBoard() {
 
   // 포메이션 바꾸기
   const handleFormationChange = (value: FormationName) => {
-    setFormation(value);
-    setSlots(formationTemplate[value]);
+    setTacticsState((current) => changeTacticsFormation(current, value));
     setSelectedSlotId(null);
   };
 
   // 포메이션 초기화
   const handleResetTactics = () => {
-    setSlots(formationTemplate[formation]);
+    setTacticsState(resetTacticsFormation);
     setSelectedSlotId(null);
-    setCornerKickPlayerId("");
-    setFreeKickPlayerId("");
-    setPenaltyKickPlayerId("");
   };
 
   // 선수 배치하기
   const handleAssignPlayer = (playerId: string) => {
     if (!selectedSlotId) return;
 
-    setSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === selectedSlotId ? { ...slot, playerId } : slot,
-      ),
+    setTacticsState((current) =>
+      assignPlayerToTacticsSlot(current, selectedSlotId, playerId),
     );
+
     setSelectedSlotId(null);
   };
 
@@ -75,29 +78,43 @@ export function useTacticsBoard() {
   const handleClearSlot = () => {
     if (!selectedSlotId) return;
 
-    setSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === selectedSlotId ? { ...slot, playerId: undefined } : slot,
-      ),
-    );
+    setTacticsState((current) => clearTacticsSlot(current, selectedSlotId));
     setSelectedSlotId(null);
   };
 
+  const setCornerKickPlayerId = (value: string) => {
+    setTacticsState((current) => ({
+      ...current,
+      cornerKickPlayerId: value,
+    }));
+  };
+
+  const setFreeKickPlayerId = (value: string) => {
+    setTacticsState((current) => ({
+      ...current,
+      freeKickPlayerId: value,
+    }));
+  };
+
+  const setPenaltyKickPlayerId = (value: string) => {
+    setTacticsState((current) => ({
+      ...current,
+      penaltyKickPlayerId: value,
+    }));
+  };
+
   // 내보내기 함수
-  const exportTactics = () => ({
-    formation,
-    slots,
-    cornerKickPlayerId,
-    freeKickPlayerId,
-    penaltyKickPlayerId,
-  });
+  const exportTactics = () => tacticsState;
 
   const importTactics = (data: SavedFormation) => {
-    setFormation(data.formation);
-    setSlots(data.slots);
-    setCornerKickPlayerId(data.cornerKickPlayerId ?? "");
-    setFreeKickPlayerId(data.freeKickPlayerId ?? "");
-    setPenaltyKickPlayerId(data.penaltyKickPlayerId ?? "");
+    setTacticsState({
+      formation: data.formation,
+      slots: data.slots,
+      cornerKickPlayerId: data.cornerKickPlayerId ?? "",
+      freeKickPlayerId: data.freeKickPlayerId ?? "",
+      penaltyKickPlayerId: data.penaltyKickPlayerId ?? "",
+    });
+
     setSelectedSlotId(null);
   };
 

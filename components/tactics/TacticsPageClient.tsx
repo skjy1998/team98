@@ -1,53 +1,14 @@
 "use client";
 
 import PageHeader from "@/components/PageHeader";
-import TacticsField from "@/components/tactics/board/TacticsField";
-import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
-import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
 import ContentState from "../common/ContentState";
 import { useTacticsPageData } from "@/hooks/tactics/useTacticsPageData";
+import TacticsBoardContent from "./board/TacticsBoardContent";
 
 export default function TacticsPageClient() {
-  const {
-    canManage,
-    isLoaded,
-    pageError,
-    reloadPageData,
-    tactics,
-    presets,
-    sortedAvailablePlayers,
-    presetOptions,
-  } = useTacticsPageData();
+  const pageData = useTacticsPageData();
 
-  const {
-    playersLoaded,
-    players,
-    formation,
-    slots,
-    selectedSlotId,
-    selectedSlot,
-    cornerKickPlayerId,
-    freeKickPlayerId,
-    penaltyKickPlayerId,
-    getPlayerById,
-    setSelectedSlotId,
-    setCornerKickPlayerId,
-    setFreeKickPlayerId,
-    setPenaltyKickPlayerId,
-    handleFormationChange,
-    handleAssignPlayer,
-    handleClearSlot,
-  } = tactics;
-
-  const {
-    presetName,
-    setPresetName,
-    selectedPresetId,
-    handleSavePreset,
-    handleLoadPreset,
-    handleDeletePreset,
-    handleResetPresetState,
-  } = presets;
+  const { canManage, isLoaded, pageError, reloadPageData } = pageData;
 
   if (!isLoaded) {
     return (
@@ -89,55 +50,7 @@ export default function TacticsPageClient() {
         }
       />
 
-      {!canManage && (
-        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
-          저장된 전술은 누구나 불러와서 볼 수 있고, 저장과 수정은 운영진만 할 수
-          있어요.
-        </div>
-      )}
-      <TacticsToolbar
-        formation={formation}
-        onChangeFormation={handleFormationChange}
-        onReset={handleResetPresetState}
-        saveMode="manual"
-        presetName={presetName}
-        onChangePresetName={setPresetName}
-        savedPresets={presetOptions}
-        selectedPresetId={selectedPresetId}
-        onLoadPreset={handleLoadPreset}
-        onSave={handleSavePreset}
-        onDelete={handleDeletePreset}
-        canManage={canManage}
-      />
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <TacticsField
-          formation={formation}
-          slots={slots}
-          selectedSlotId={selectedSlotId}
-          onSelectSlot={setSelectedSlotId}
-          getPlayerById={getPlayerById}
-          canManage={canManage}
-        />
-
-        <TacticsSidebar
-          playersLoaded={playersLoaded}
-          players={players}
-          availablePlayers={sortedAvailablePlayers}
-          selectedSlot={selectedSlot}
-          selectedSlotId={selectedSlotId}
-          onAssignPlayer={handleAssignPlayer}
-          onClearSlot={handleClearSlot}
-          getPlayerById={getPlayerById}
-          cornerKickPlayerId={cornerKickPlayerId}
-          freeKickPlayerId={freeKickPlayerId}
-          penaltyKickPlayerId={penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={setCornerKickPlayerId}
-          onChangeFreeKickPlayerId={setFreeKickPlayerId}
-          onChangePenaltyKickPlayerId={setPenaltyKickPlayerId}
-          canManage={canManage}
-        />
-      </div>
+      <TacticsBoardContent data={pageData} />
     </div>
   );
 }
