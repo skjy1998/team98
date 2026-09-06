@@ -1,6 +1,5 @@
 import type { TeamPost } from "@/types/board";
 import BoardPostItem from "./BoardPostItem";
-import { useRef, useState } from "react";
 import BoardCommentSection from "./BoardCommentSection";
 import ContentState from "../common/ContentState";
 import type {
@@ -8,6 +7,7 @@ import type {
   BoardLikeState,
   BoardPostActions,
 } from "@/types/board-ui";
+import { useBoardPostListState } from "@/hooks/board/useBoardPostListState";
 
 interface BoardPostListProps {
   posts: TeamPost[];
@@ -44,24 +44,9 @@ export default function BoardPostList({
     onViewPost,
   } = postActions;
 
-  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
-  const viewedPostIds = useRef(new Set<string>());
-
-  const handleTogglePost = async (postId: string) => {
-    const isOpening = expandedPostId !== postId;
-
-    setExpandedPostId(isOpening ? postId : null);
-
-    if (!isOpening || viewedPostIds.current.has(postId)) return;
-
-    viewedPostIds.current.add(postId);
-
-    const success = await onViewPost(postId);
-
-    if (!success) {
-      viewedPostIds.current.delete(postId);
-    }
-  };
+  const { expandedPostId, handleTogglePost } = useBoardPostListState({
+    onViewPost,
+  });
 
   if (posts.length === 0) {
     return (

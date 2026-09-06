@@ -1,81 +1,27 @@
 "use client";
 import PageHeader from "../PageHeader";
-import BoardToolbar from "./BoardToolbar";
-import BoardPostList from "./BoardPostList";
-import BoardPostModal from "./BoardPostModal";
 import ContentState from "../common/ContentState";
 import { useBoardPageData } from "@/hooks/board/useBoardPageData";
 import { useBoardPageState } from "@/hooks/board/useBoardPageState";
+import BoardContent from "./BoardContent";
 
 export default function BoardPageClient() {
+  const boardData = useBoardPageData();
+
   const {
     posts,
     boardLoaded,
     boardError,
-    currentUserId,
-    canManage,
-    createPost,
-    updatePost,
-    deletePost,
-    incrementPostViewCount,
-    commentsByPostId,
-    commentsLoaded,
     commentsError,
-    createComment,
-    updateComment,
-    deleteComment,
-    likesByPostId,
-    likesLoaded,
     likesError,
-    togglePostLike,
     reloadBoardData,
-  } = useBoardPageData();
+  } = boardData;
 
-  const {
-    search,
-    onChangeSearch,
-    filter,
-    onChangeFilter,
-    filteredPosts,
-    hasSearchCondition,
-    editingPost,
-    onStartEdit,
-    onCloseEdit,
-    isCreateOpen,
-    onOpenCreate,
-    onCloseCreate,
-    handleTogglePin,
-    handleSaveEdit,
-    handleDeletePost,
-  } = useBoardPageState({
+  const boardState = useBoardPageState({
     posts,
-    updatePost,
-    deletePost,
+    updatePost: boardData.updatePost,
+    deletePost: boardData.deletePost,
   });
-
-  const commentState = {
-    commentsByPostId,
-    commentsLoaded,
-    commentsError,
-    onCreateComment: createComment,
-    onUpdateComment: updateComment,
-    onDeleteComment: deleteComment,
-  };
-
-  const likeState = {
-    likesByPostId,
-    likesLoaded,
-    onToggleLike: togglePostLike,
-  };
-
-  const postActions = {
-    currentUserId,
-    canManage,
-    onEdit: onStartEdit,
-    onTogglePin: handleTogglePin,
-    onDelete: handleDeletePost,
-    onViewPost: incrementPostViewCount,
-  };
 
   const secondaryError = [commentsError, likesError].filter(Boolean).join(" ");
 
@@ -146,36 +92,7 @@ export default function BoardPageClient() {
           </button>
         </div>
       )}
-
-      <BoardToolbar
-        search={search}
-        filter={filter}
-        onChangeSearch={onChangeSearch}
-        onChangeFilter={onChangeFilter}
-        onOpenCreate={onOpenCreate}
-      />
-      <BoardPostList
-        posts={filteredPosts}
-        hasSearchCondition={hasSearchCondition}
-        commentState={commentState}
-        likeState={likeState}
-        postActions={postActions}
-      />
-      {isCreateOpen && (
-        <BoardPostModal
-          canManage={canManage}
-          onClose={onCloseCreate}
-          onSave={createPost}
-        />
-      )}
-      {editingPost && (
-        <BoardPostModal
-          post={editingPost}
-          canManage={canManage}
-          onClose={onCloseEdit}
-          onSave={handleSaveEdit}
-        />
-      )}
+      <BoardContent data={boardData} state={boardState} />
     </div>
   );
 }

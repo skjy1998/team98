@@ -2,6 +2,7 @@ import { useBoardCommentSectionState } from "@/hooks/board/useBoardCommentSectio
 import type { TeamPostComment, TeamPostLikeSummary } from "@/types/board";
 import { ChevronDown, Heart, MessageCircle } from "lucide-react";
 import BoardCommentItem from "./BoardCommentItem";
+import { useBoardLikeButtonState } from "@/hooks/board/useBoardLikeButtonState";
 
 interface BoardCommentSectionProps {
   comments: TeamPostComment[];
@@ -37,7 +38,6 @@ export default function BoardCommentSection({
     editingContent,
     onChangeEditingContent,
     isSubmitting,
-    isLikeSubmitting,
     isCommentsOpen,
     commentsContentId,
     handleToggleComments,
@@ -46,12 +46,14 @@ export default function BoardCommentSection({
     handleCancelEdit,
     handleSaveEdit,
     handleDelete,
-    handleToggleLike,
   } = useBoardCommentSectionState({
-    likesLoaded,
     onCreate,
     onUpdate,
     onDelete,
+  });
+
+  const { isLikeSubmitting, handleToggleLike } = useBoardLikeButtonState({
+    likesLoaded,
     onToggleLike,
   });
 

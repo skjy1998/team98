@@ -1,14 +1,8 @@
 import { formatPostDate } from "@/lib/board/board-ui";
 import type { TeamPost } from "@/types/board";
 import type { ReactNode } from "react";
-import {
-  ChevronDown,
-  Eye,
-  MessageCircle,
-  Pencil,
-  Pin,
-  Trash2,
-} from "lucide-react";
+import { Eye, MessageCircle, Pin } from "lucide-react";
+import BoardPostItemActions from "./BoardPostItemActions";
 
 interface BoardPostItemProps {
   post: TeamPost;
@@ -109,74 +103,18 @@ export default function BoardPostItem({
           </div>
         </button>
 
-        <div className="flex shrink-0 items-center gap-1 py-5 pr-5">
-          {isExpanded && (
-            <>
-              {canPin && (
-                <button
-                  type="button"
-                  onClick={onTogglePin}
-                  aria-label={
-                    post.isPinned
-                      ? `${post.title} 게시물 고정 해제`
-                      : `${post.title} 게시물 상단 고정`
-                  }
-                  title={post.isPinned ? "고정 해제" : "상단 고정"}
-                  className={[
-                    "flex h-9 w-9 items-center justify-center rounded-lg transition",
-                    post.isPinned
-                      ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
-                      : "text-stone-400 hover:bg-amber-50 hover:text-amber-600",
-                  ].join(" ")}
-                >
-                  <Pin
-                    className={[
-                      "h-4 w-4",
-                      post.isPinned ? "fill-current" : "",
-                    ].join(" ")}
-                  />
-                </button>
-              )}
-              {canEdit && (
-                <>
-                  <button
-                    type="button"
-                    onClick={onEdit}
-                    aria-label={`${post.title} 게시물 수정`}
-                    title="수정"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onDelete}
-                    aria-label={`${post.title} 게시물 삭제`}
-                    title="삭제"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-            </>
-          )}
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls={contentId}
-            onClick={onToggle}
-            aria-label={isExpanded ? "게시물 접기" : "게시물 펼치기"}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-300 transition hover:bg-stone-100 hover:text-stone-600"
-          >
-            <ChevronDown
-              className={[
-                "h-5 w-5 transition duration-200",
-                isExpanded ? "rotate-180 text-stone-600" : "",
-              ].join(" ")}
-            />
-          </button>
-        </div>
+        <BoardPostItemActions
+          title={post.title}
+          contentId={contentId}
+          isExpanded={isExpanded}
+          isPinned={post.isPinned}
+          canEdit={canEdit}
+          canPin={canPin}
+          onToggle={onToggle}
+          onEdit={onEdit}
+          onTogglePin={onTogglePin}
+          onDelete={onDelete}
+        />
       </div>
 
       {isExpanded && (

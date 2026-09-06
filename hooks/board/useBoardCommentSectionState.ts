@@ -4,19 +4,15 @@ import type { TeamPostComment } from "@/types/board";
 import { type SubmitEvent, useId, useRef, useState } from "react";
 
 interface UseBoardCommentSectionStateParams {
-  likesLoaded: boolean;
   onCreate: (content: string) => Promise<boolean>;
   onUpdate: (commentId: string, content: string) => Promise<boolean>;
   onDelete: (commentId: string) => Promise<boolean>;
-  onToggleLike: () => Promise<boolean>;
 }
 
 export function useBoardCommentSectionState({
-  likesLoaded,
   onCreate,
   onUpdate,
   onDelete,
-  onToggleLike,
 }: UseBoardCommentSectionStateParams) {
   const showToast = useToastStore((state) => state.showToast);
   const confirm = useConfirmStore((state) => state.confirm);
@@ -25,11 +21,10 @@ export function useBoardCommentSectionState({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLikeSubmitting, setIsLikeSubmitting] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
   const isSubmittingRef = useRef(false);
-  const isLikeSubmittingRef = useRef(false);
+
   const commentsContentId = useId();
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
@@ -122,24 +117,6 @@ export function useBoardCommentSectionState({
     }
   };
 
-  const handleToggleLike = async () => {
-    if (!likesLoaded || isLikeSubmittingRef.current) return;
-
-    isLikeSubmittingRef.current = true;
-    setIsLikeSubmitting(true);
-
-    try {
-      const success = await onToggleLike();
-
-      if (!success) {
-        showToast("좋아요 처리에 실패했어요.", "error");
-      }
-    } finally {
-      isLikeSubmittingRef.current = false;
-      setIsLikeSubmitting(false);
-    }
-  };
-
   return {
     content,
     onChangeContent: setContent,
@@ -147,7 +124,6 @@ export function useBoardCommentSectionState({
     editingContent,
     onChangeEditingContent: setEditingContent,
     isSubmitting,
-    isLikeSubmitting,
     isCommentsOpen,
     commentsContentId,
     handleToggleComments: () => setIsCommentsOpen((current) => !current),
@@ -156,6 +132,5 @@ export function useBoardCommentSectionState({
     handleCancelEdit,
     handleSaveEdit,
     handleDelete,
-    handleToggleLike,
   };
 }
