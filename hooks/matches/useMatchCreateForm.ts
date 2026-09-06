@@ -9,17 +9,15 @@ import type {
   MatchUniform,
 } from "@/types/match";
 import type { TeamSport } from "@/types/team";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface UseMatchCreateFormParams {
   defaultSport: TeamSport;
-  onClose: () => void;
   onSave: (value: MatchCreateFormValue) => Promise<boolean>;
 }
 
 export function useMatchCreateForm({
   defaultSport,
-  onClose,
   onSave,
 }: UseMatchCreateFormParams) {
   const showToast = useToastStore((state) => state.showToast);
@@ -38,20 +36,6 @@ export function useMatchCreateForm({
   const [location, setLocation] = useState(defaults.defaultLocation);
   const [uniform, setUniform] = useState<MatchUniform>("home");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    globalThis.window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      globalThis.window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;

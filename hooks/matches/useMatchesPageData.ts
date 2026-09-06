@@ -15,8 +15,9 @@ export function useMatchesPageData() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { team, teamLoaded } = useCurrentTeam();
-  const { canManage, memberLoaded } = useCurrentTeamMember();
+  const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
+  const { canManage, memberLoaded, memberError, reloadMember } =
+    useCurrentTeamMember();
 
   const { records, recordsLoaded, recordsError, reloadRecords } =
     useMatchRecordsMap();
@@ -59,7 +60,13 @@ export function useMatchesPageData() {
   };
 
   const handleRetry = async () => {
-    await Promise.all([reloadSeasons(), reloadMatches(), reloadRecords()]);
+    await Promise.all([
+      reloadTeam(),
+      reloadMember(),
+      reloadSeasons(),
+      reloadMatches(),
+      reloadRecords(),
+    ]);
   };
 
   const isLoaded =
@@ -69,7 +76,8 @@ export function useMatchesPageData() {
     memberLoaded &&
     seasonsLoaded;
 
-  const pageError = seasonsError || matchesError || recordsError;
+  const pageError =
+    teamError || memberError || seasonsError || matchesError || recordsError;
 
   const canCreateMatch = canManage && selectedSeason?.isActive === true;
 
