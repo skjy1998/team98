@@ -1,6 +1,5 @@
 import type { TeamSport } from "@/types/team";
-import { LayoutGrid } from "lucide-react";
-import { FaFutbol } from "react-icons/fa6";
+import TeamSportOption from "./TeamSportOption";
 
 interface TeamCreateFormProps {
   teamName: string;
@@ -51,89 +50,19 @@ export default function TeamCreateForm({
         <div>
           <p className="mb-2 text-sm font-medium text-stone-900">종목</p>
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => onChangeTeamSport("soccer")}
+            <TeamSportOption
+              sport="soccer"
+              selected={teamSport === "soccer"}
               disabled={isSubmitting}
-              aria-pressed={teamSport === "soccer"}
-              className={[
-                "rounded-xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60",
-                teamSport === "soccer"
-                  ? "border-emerald-300 bg-emerald-50"
-                  : "border-stone-200 bg-white hover:bg-stone-50",
-              ].join(" ")}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={[
-                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-                    teamSport === "soccer"
-                      ? "bg-emerald-100 text-emerald-600"
-                      : "bg-stone-100 text-stone-400",
-                  ].join(" ")}
-                >
-                  <FaFutbol className="h-5 w-5" />
-                </span>
+              onSelect={onChangeTeamSport}
+            />
 
-                <span className="min-w-0">
-                  <span
-                    className={[
-                      "block text-sm font-semibold",
-                      teamSport === "soccer"
-                        ? "text-emerald-700"
-                        : "text-stone-900",
-                    ].join(" ")}
-                  >
-                    축구
-                  </span>
-                  <span className="mt-1 block text-xs leading-5 text-stone-500">
-                    정규 축구 경기 기준으로 팀을 운영해요.
-                  </span>
-                </span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onChangeTeamSport("futsal")}
+            <TeamSportOption
+              sport="futsal"
+              selected={teamSport === "futsal"}
               disabled={isSubmitting}
-              aria-pressed={teamSport === "futsal"}
-              className={[
-                "rounded-xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60",
-                teamSport === "futsal"
-                  ? "border-emerald-300 bg-emerald-50"
-                  : "border-stone-200 bg-white hover:bg-stone-50",
-              ].join(" ")}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={[
-                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-                    teamSport === "futsal"
-                      ? "bg-emerald-100 text-emerald-600"
-                      : "bg-stone-100 text-stone-400",
-                  ].join(" ")}
-                >
-                  <LayoutGrid className="h-5 w-5" />
-                </span>
-
-                <span className="min-w-0">
-                  <span
-                    className={[
-                      "block text-sm font-semibold",
-                      teamSport === "futsal"
-                        ? "text-emerald-700"
-                        : "text-stone-900",
-                    ].join(" ")}
-                  >
-                    풋살
-                  </span>
-                  <span className="mt-1 block text-xs leading-5 text-stone-500">
-                    소규모 인원 중심으로 팀을 운영해요.
-                  </span>
-                </span>
-              </div>
-            </button>
+              onSelect={onChangeTeamSport}
+            />
           </div>
         </div>
       </div>
