@@ -1,11 +1,11 @@
 import {
-  hasCurrentSession,
   hasTeamMembership,
   signInCurrentUser,
 } from "@/lib/auth/auth-repository";
 import { getAuthErrorMessage } from "@/lib/auth/auth-ui";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useGuestAuthGuard } from "./useGuestAuthGuard";
 
 interface LoginCredentials {
   email: string;
@@ -14,29 +14,9 @@ interface LoginCredentials {
 
 export function useLogin() {
   const router = useRouter();
+  const { isCheckingAuth, authCheckError } = useGuestAuthGuard();
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-
-  useEffect(() => {
-    async function checkSession() {
-      try {
-        const hasSession = await hasCurrentSession();
-
-        if (hasSession) {
-          router.replace("/dashboard");
-          return;
-        }
-      } catch (error) {
-        console.error("login session check error", error);
-        setErrorMessage("로그인 상태를 확인하지 못했어요.");
-      }
-
-      setIsCheckingAuth(false);
-    }
-
-    void checkSession();
-  }, [router]);
 
   const login = async ({ email, password }: LoginCredentials) => {
     setErrorMessage("");
@@ -62,7 +42,7 @@ export function useLogin() {
   };
 
   return {
-    errorMessage,
+    errorMessage: authCheckError || errorMessage,
     isCheckingAuth,
     login,
   };

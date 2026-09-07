@@ -2,6 +2,7 @@ import { loginSchema, type LoginFormValues } from "@/lib/auth/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import AuthFormField from "./AuthFormField";
 
 interface LoginFormProps {
   errorMessage: string;
@@ -27,45 +28,23 @@ export default function LoginForm({
   return (
     <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label
-            htmlFor="login-email"
-            className="mb-2 block text-sm font-medium text-stone-500"
-          >
-            이메일
-          </label>
-          <input
-            id="login-email"
-            type="email"
-            placeholder="you@example.com"
-            {...register("email")}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300"
-          />
-          {errors.email && (
-            <p className="mt-2 text-sm text-rose-500">{errors.email.message}</p>
-          )}
-        </div>
+        <AuthFormField
+          id="login-email"
+          label="이메일"
+          type="email"
+          placeholder="you@example.com"
+          registration={register("email")}
+          errorMessage={errors.email?.message}
+        />
 
-        <div>
-          <label
-            htmlFor="login-password"
-            className="mb-2 block text-sm font-medium text-stone-500"
-          >
-            비밀번호
-          </label>
-          <input
-            id="login-password"
-            type="password"
-            placeholder="비밀번호 입력"
-            {...register("password")}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300"
-          />
-          {errors.password && (
-            <p className="mt-2 text-sm text-rose-500">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+        <AuthFormField
+          id="login-password"
+          label="비밀번호"
+          type="password"
+          placeholder="비밀번호 입력"
+          registration={register("password")}
+          errorMessage={errors.password?.message}
+        />
 
         {errorMessage && (
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
