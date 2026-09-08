@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import AuthFormField from "./AuthFormField";
+import AuthSubmitButton from "./AuthSubmitButton";
 
 interface LoginFormProps {
   errorMessage: string;
@@ -26,49 +27,56 @@ export default function LoginForm({
   });
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <AuthFormField
-          id="login-email"
-          label="이메일"
-          type="email"
-          placeholder="you@example.com"
-          registration={register("email")}
-          errorMessage={errors.email?.message}
-        />
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      aria-busy={isSubmitting}
+      className="space-y-5"
+    >
+      <AuthFormField
+        id="login-email"
+        label="이메일"
+        type="email"
+        placeholder="you@example.com"
+        autoComplete="email"
+        registration={register("email")}
+        errorMessage={errors.email?.message}
+      />
 
-        <AuthFormField
-          id="login-password"
-          label="비밀번호"
-          type="password"
-          placeholder="비밀번호 입력"
-          registration={register("password")}
-          errorMessage={errors.password?.message}
-        />
+      <AuthFormField
+        id="login-password"
+        label="비밀번호"
+        type="password"
+        placeholder="비밀번호 입력"
+        autoComplete="current-password"
+        registration={register("password")}
+        errorMessage={errors.password?.message}
+      />
 
-        {errorMessage && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
-            {errorMessage}
-          </div>
-        )}
-
-        <div className="space-y-3 pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="h-12 w-full rounded-xl bg-emerald-600 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSubmitting ? "로그인 중..." : "로그인"}
-          </button>
-
-          <Link
-            href="/signup"
-            className="flex h-12 w-full items-center justify-center rounded-xl border border-stone-200 text-sm font-medium text-stone-600 transition hover:bg-stone-50"
-          >
-            회원가입 하러 가기
-          </Link>
+      {errorMessage && (
+        <div
+          role="alert"
+          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+        >
+          {errorMessage}
         </div>
-      </form>
-    </section>
+      )}
+
+      <AuthSubmitButton
+        isSubmitting={isSubmitting}
+        label="로그인"
+        submittingLabel="로그인 중..."
+      />
+
+      <p className="text-center text-sm text-stone-500">
+        아직 계정이 없나요?{" "}
+        <Link
+          href="/signup"
+          className="font-bold text-emerald-700 transition hover:text-emerald-600"
+        >
+          회원가입
+        </Link>
+      </p>
+    </form>
   );
 }
