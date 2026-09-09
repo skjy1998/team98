@@ -6,6 +6,7 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
+export type SignupFormValues = z.infer<typeof signupSchema>;
 
 export const signupSchema = z
   .object({
@@ -19,4 +20,22 @@ export const signupSchema = z
     path: ["passwordConfirm"],
   });
 
-export type SignupFormValues = z.infer<typeof signupSchema>;
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email("올바른 이메일 형식이 아니에요."),
+});
+
+export type PasswordResetRequestFormValues = z.infer<
+  typeof passwordResetRequestSchema
+>;
+
+export const passwordUpdateSchema = z
+  .object({
+    password: z.string().min(6, "비밀번호는 6자 이상이어야 해요."),
+    passwordConfirm: z.string().min(1, "비밀번호 확인을 입력해 주세요."),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "비밀번호 확인이 일치하지 않아요.",
+    path: ["passwordConfirm"],
+  });
+
+export type PasswordUpdateFormValues = z.infer<typeof passwordUpdateSchema>;

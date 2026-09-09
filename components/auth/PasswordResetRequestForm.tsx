@@ -1,28 +1,32 @@
-import { loginSchema, type LoginFormValues } from "@/lib/auth/auth-schema";
+import {
+  type PasswordResetRequestFormValues,
+  passwordResetRequestSchema,
+} from "@/lib/auth/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import AuthFormField from "./AuthFormField";
 import AuthSubmitButton from "./AuthSubmitButton";
+import Link from "next/link";
 
-interface LoginFormProps {
+interface PasswordResetRequestFormProps {
   errorMessage: string;
-  onSubmit: (values: LoginFormValues) => void | Promise<void>;
+  successMessage: string;
+  onSubmit: (value: PasswordResetRequestFormValues) => void | Promise<void>;
 }
 
-export default function LoginForm({
+export default function PasswordResetRequestForm({
   errorMessage,
+  successMessage,
   onSubmit,
-}: Readonly<LoginFormProps>) {
+}: Readonly<PasswordResetRequestFormProps>) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<PasswordResetRequestFormValues>({
+    resolver: zodResolver(passwordResetRequestSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
@@ -34,7 +38,7 @@ export default function LoginForm({
       className="space-y-5"
     >
       <AuthFormField
-        id="login-email"
+        id="reset-email"
         label="이메일"
         type="email"
         placeholder="you@example.com"
@@ -42,27 +46,6 @@ export default function LoginForm({
         registration={register("email")}
         errorMessage={errors.email?.message}
       />
-
-      <div>
-        <AuthFormField
-          id="login-password"
-          label="비밀번호"
-          type="password"
-          placeholder="비밀번호 입력"
-          autoComplete="current-password"
-          registration={register("password")}
-          errorMessage={errors.password?.message}
-        />
-
-        <div className="mt-2 text-right">
-          <Link
-            href="/forgot-password"
-            className="text-sm font-semibold text-stone-500 transition hover:text-emerald-700"
-          >
-            비밀번호를 잊으셨나요?
-          </Link>
-        </div>
-      </div>
 
       {errorMessage && (
         <div
@@ -73,19 +56,25 @@ export default function LoginForm({
         </div>
       )}
 
+      {successMessage && (
+        <output className="block rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {successMessage}
+        </output>
+      )}
+
       <AuthSubmitButton
         isSubmitting={isSubmitting}
-        label="로그인"
-        submittingLabel="로그인 중..."
+        label="재설정 링크 보내기"
+        submittingLabel="전송 중..."
       />
 
       <p className="text-center text-sm text-stone-500">
-        아직 계정이 없나요?{" "}
+        비밀번호가 기억났나요?{" "}
         <Link
-          href="/signup"
+          href="/login"
           className="font-bold text-emerald-700 transition hover:text-emerald-600"
         >
-          회원가입
+          로그인
         </Link>
       </p>
     </form>

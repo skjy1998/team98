@@ -88,6 +88,23 @@ export async function signUpCurrentUser(
   if (!data.user) throw new Error("created user not found");
 }
 
+export async function requestPasswordReset(email: string, redirectTo: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  if (error) throw error;
+}
+
+export async function updateCurrentUserPassword(password: string) {
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) throw error;
+  if (!data.user) throw new Error("updated user not found");
+}
+
 export async function getAppAccessStatus(): Promise<AppAccessStatus> {
   const {
     data: { user },
