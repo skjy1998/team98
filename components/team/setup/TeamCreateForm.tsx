@@ -1,5 +1,6 @@
 import type { TeamSport } from "@/types/team";
 import TeamSportOption from "./TeamSportOption";
+import { LoaderCircle } from "lucide-react";
 
 interface TeamCreateFormProps {
   teamName: string;
@@ -21,19 +22,36 @@ export default function TeamCreateForm({
   const canSubmit = Boolean(teamName.trim()) && !isSubmitting;
 
   return (
-    <section className="rounded-xl border border-emerald-200 bg-white p-6 shadow-sm">
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-stone-900">새 팀 만들기</h3>
-        <p className="text-sm text-stone-500">
-          팀 이름과 기본 정보를 입력해 팀을 생성해요.
-        </p>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void onCreateTeam();
+      }}
+      className="rounded-xl border border-stone-200 bg-white p-8 shadow-[0_24px_70px_-40px_rgba(28,25,23,0.3)]"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">
+            Create Team
+          </p>
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-stone-900">
+            새 팀 정보
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-stone-500">
+            팀 이름과 주로 활동하는 종목을 선택해 주세요.
+          </p>
+        </div>
+
+        <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+          팀 관리자
+        </span>
       </div>
 
-      <div className="mt-5 space-y-4">
+      <div className="mt-8 space-y-6">
         <div>
           <label
             htmlFor="team-name"
-            className="mb-2 block text-sm font-medium text-stone-900"
+            className="mb-2 block text-sm font-bold text-stone-700"
           >
             팀 이름
           </label>
@@ -42,13 +60,18 @@ export default function TeamCreateForm({
             type="text"
             value={teamName}
             onChange={(event) => onChangeTeamName(event.target.value)}
-            placeholder="우리 팀의 이름"
+            placeholder="예: SquadFlow FC"
             disabled={isSubmitting}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            autoComplete="organization"
+            className="h-12 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
-        <div>
-          <p className="mb-2 text-sm font-medium text-stone-900">종목</p>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-bold text-stone-700">
+            기본 종목
+          </legend>
+
           <div className="grid grid-cols-2 gap-3">
             <TeamSportOption
               sport="soccer"
@@ -64,24 +87,28 @@ export default function TeamCreateForm({
               onSelect={onChangeTeamSport}
             />
           </div>
-        </div>
+
+          <p className="mt-2 text-xs leading-5 text-stone-400">
+            경기별 종목과 인원은 이후 일정에서 자유롭게 변경할 수 있어요.
+          </p>
+        </fieldset>
       </div>
 
-      <div className="mt-6">
-        <button
-          type="button"
-          onClick={onCreateTeam}
-          disabled={!canSubmit}
-          className={[
-            "flex h-14 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold transition",
-            canSubmit
-              ? "bg-emerald-600 text-white hover:bg-emerald-700"
-              : "cursor-not-allowed bg-stone-100 text-stone-400",
-          ].join(" ")}
-        >
-          {isSubmitting ? "팀 생성 중..." : "팀 만들고 시작하기"}
-        </button>
-      </div>
-    </section>
+      <button
+        type="submit"
+        disabled={!canSubmit}
+        className={[
+          "mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition",
+          canSubmit
+            ? "bg-stone-900 text-white hover:bg-emerald-600"
+            : "cursor-not-allowed bg-stone-100 text-stone-400",
+        ].join(" ")}
+      >
+        {isSubmitting && (
+          <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
+        )}
+        {isSubmitting ? "팀 생성 중..." : "팀 만들고 시작하기"}
+      </button>
+    </form>
   );
 }

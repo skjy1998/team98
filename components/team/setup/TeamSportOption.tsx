@@ -12,12 +12,12 @@ interface TeamSportOptionProps {
 const sportContent = {
   soccer: {
     label: "축구",
-    description: "정규 축구 경기 기준으로 팀을 운영해요.",
+    description: "축구를 중심으로 활동하는 팀",
     icon: FaFutbol,
   },
   futsal: {
     label: "풋살",
-    description: "소규모 인원 중심으로 팀을 운영해요.",
+    description: "풋살을 중심으로 활동하는 팀",
     icon: LayoutGrid,
   },
 } as const;
@@ -38,38 +38,35 @@ export default function TeamSportOption({
       disabled={disabled}
       aria-pressed={selected}
       className={[
-        "rounded-xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60",
+        "relative rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60",
         selected
-          ? "border-emerald-300 bg-emerald-50"
-          : "border-stone-200 bg-white hover:bg-stone-50",
+          ? "border-emerald-500 bg-emerald-50"
+          : "border-stone-200 bg-stone-50 hover:border-stone-300 hover:bg-white",
       ].join(" ")}
     >
-      <div className="flex items-center gap-3">
-        <span
-          className={[
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-            selected
-              ? "bg-emerald-100 text-emerald-600"
-              : "bg-stone-100 text-stone-400",
-          ].join(" ")}
-        >
-          <Icon className="h-5 w-5" />
-        </span>
+      <span
+        className={[
+          "flex h-10 w-10 items-center justify-center rounded-xl",
+          selected ? "bg-emerald-600 text-white" : "bg-white text-stone-500",
+        ].join(" ")}
+      >
+        <Icon className="h-5 w-5" strokeWidth={1.8} />
+      </span>
 
-        <span className="min-w-0">
-          <span
-            className={[
-              "block text-sm font-semibold",
-              selected ? "text-emerald-700" : "text-stone-900",
-            ].join(" ")}
-          >
-            {content.label}
-          </span>
-          <span className="mt-1 block text-xs leading-5 text-stone-500">
-            {content.description}
-          </span>
-        </span>
-      </div>
+      <span className="mt-4 block text-sm font-black text-stone-900">
+        {content.label}
+      </span>
+
+      <span className="mt-1 block text-xs leading-5 text-stone-500">
+        {content.description}
+      </span>
+
+      <span
+        className={[
+          "absolute right-4 top-4 h-2.5 w-2.5 rounded-full",
+          selected ? "bg-emerald-500" : "bg-stone-200",
+        ].join(" ")}
+      />
     </button>
   );
 }
