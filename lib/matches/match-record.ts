@@ -46,7 +46,11 @@ export function getGroupedMatchRecordEvents(
   quarterCount: number,
 ) {
   const sections = createMatchRecordQuarterSections(quarterCount);
-  const validQuarters = new Set<string>(createQuarterOptions(quarterCount));
+  const validQuarters = new Set(
+    sections
+      .filter((section) => section.key !== "unknown")
+      .map((section) => section.key),
+  );
 
   const groupedEvents: Record<string, MatchRecordEvent[]> = {};
 
@@ -75,17 +79,20 @@ export function getSelfMatchPlayersBySide(
   attendPlayers: PlayerType[],
   votes: MatchVote[],
 ) {
-  const teamAPlayerIds = new Set(
-    votes
-      .filter((vote) => vote.status === "attend" && vote.side === "team_a")
-      .map((vote) => vote.playerId),
-  );
+  const teamAPlayerIds = new Set<string>();
+  const teamBPlayerIds = new Set<string>();
 
-  const teamBPlayerIds = new Set(
-    votes
-      .filter((vote) => vote.status === "attend" && vote.side === "team_b")
-      .map((vote) => vote.playerId),
-  );
+  for (const vote of votes) {
+    if (vote.status !== "attend") continue;
+
+    if (vote.side === "team_a") {
+      teamAPlayerIds.add(vote.playerId);
+    }
+
+    if (vote.side === "team_b") {
+      teamBPlayerIds.add(vote.playerId);
+    }
+  }
 
   return {
     team_a: attendPlayers.filter((player) => teamAPlayerIds.has(player.id)),

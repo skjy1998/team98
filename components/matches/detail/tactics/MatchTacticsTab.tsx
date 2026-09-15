@@ -1,9 +1,7 @@
 import TacticsField from "@/components/tactics/board/TacticsField";
 import TacticsSidebar from "@/components/tactics/board/TacticsSidebar";
 import TacticsToolbar from "@/components/tactics/board/TacticsToolbar";
-
 import { useMatchTactics } from "@/hooks/matches/useMatchTactics";
-
 import MatchQuarterTabs from "../MatchQuarterTabs";
 import ContentState from "@/components/common/ContentState";
 import type { TeamSport } from "@/types/team";
@@ -12,7 +10,6 @@ import type {
   MatchType,
   SelfMatchSide,
 } from "@/types/match";
-
 import MatchTacticsSideTabs from "./MatchTacticsSideTabs";
 import type { PlayerType } from "@/types/player";
 import type { MatchVote } from "@/types/match-vote";
@@ -94,6 +91,24 @@ export default function MatchTacticsTab({
     penaltyKickPlayerId = "",
   } = currentTactics;
 
+  const selectedSelfMatchSide: SelfMatchSide =
+    selectedSide === "team_b" ? "team_b" : "team_a";
+
+  const playerCountState =
+    sport === "futsal"
+      ? {
+          options: FUTSAL_PLAYER_COUNT_OPTIONS,
+          value: playersPerSide,
+          onChange: handleChangePlayersPerSide,
+          isSaving: isPlayerCountSaving,
+        }
+      : undefined;
+
+  const playerListEmptyMessage =
+    matchType === "자체전"
+      ? "출석 탭에서 현재 팀에 선수를 먼저 배정하세요."
+      : "출석 탭에서 참석 선수를 먼저 체크하세요.";
+
   if (!tacticsLoaded) {
     return (
       <ContentState
@@ -132,7 +147,7 @@ export default function MatchTacticsTab({
       />
       {matchType === "자체전" && (
         <MatchTacticsSideTabs
-          selectedSide={selectedSide as SelfMatchSide}
+          selectedSide={selectedSelfMatchSide}
           onChangeSide={handleChangeSide}
         />
       )}
@@ -148,16 +163,7 @@ export default function MatchTacticsTab({
         onReset={handleResetFormation}
         saveMode="auto"
         canManage={canManage}
-        playerCountState={
-          sport === "futsal"
-            ? {
-                options: FUTSAL_PLAYER_COUNT_OPTIONS,
-                value: playersPerSide,
-                onChange: handleChangePlayersPerSide,
-                isSaving: isPlayerCountSaving,
-              }
-            : undefined
-        }
+        playerCountState={playerCountState}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -183,20 +189,8 @@ export default function MatchTacticsTab({
           cornerKickPlayerId={cornerKickPlayerId}
           freeKickPlayerId={freeKickPlayerId}
           penaltyKickPlayerId={penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={(value) =>
-            handleChangeSetPiecePlayer("cornerKickPlayerId", value)
-          }
-          onChangeFreeKickPlayerId={(value) =>
-            handleChangeSetPiecePlayer("freeKickPlayerId", value)
-          }
-          onChangePenaltyKickPlayerId={(value) =>
-            handleChangeSetPiecePlayer("penaltyKickPlayerId", value)
-          }
-          playerListEmptyMessage={
-            matchType === "자체전"
-              ? "출석 탭에서 현재 팀에 선수를 먼저 배정하세요."
-              : "출석 탭에서 참석 선수를 먼저 체크하세요."
-          }
+          onChangeSetPiecePlayer={handleChangeSetPiecePlayer}
+          playerListEmptyMessage={playerListEmptyMessage}
           canManage={canManage}
         />
       </div>

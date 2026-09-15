@@ -1,16 +1,14 @@
 "use client";
 import MatchDetailHeader from "@/components/matches/detail/MatchDetailHeader";
 import MatchDetailTabs from "@/components/matches/detail/MatchDetailTabs";
-import { MatchInfoTab } from "@/components/matches/detail/info/MatchInfoTab";
-import MatchTacticsTab from "@/components/matches/detail/tactics/MatchTacticsTab";
-import MatchVoteTab from "@/components/matches/detail/vote/MatchVoteTab";
+
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import MatchRecordTab from "./record/MatchRecordTab";
-import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
+
 import ContentState from "@/components/common/ContentState";
 import { useMatchDetailPageData } from "@/hooks/matches/useMatchDetailPageData";
 import { useMatchDetailActions } from "@/hooks/matches/useMatchDetailActions";
+import MatchDetailTabContent from "./MatchDetailTabContent";
 
 interface MatchDetailPageClientProps {
   matchId: string;
@@ -19,49 +17,23 @@ interface MatchDetailPageClientProps {
 export default function MatchDetailPageClient({
   matchId,
 }: Readonly<MatchDetailPageClientProps>) {
+  const pageData = useMatchDetailPageData(matchId);
+
   const {
     team,
-    canManage,
-    players,
-    currentUserId,
     isLoaded,
     pageError,
     reloadPageData,
     match,
     resolvedMatch,
-    matchDisplay,
-    displayMatches,
-    hasMatchStarted,
-    matchVotes,
-    matchAttendance,
-    attendancePlayers,
-    matchRecordsLoaded,
-    events,
     updateMatch,
     updateMatchPlayersPerSide,
     updateMatchRecordInclusion,
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
-    saveVote,
-    saveVoteSide,
-    deleteVote,
-    saveAttendance,
-    deleteAttendance,
-    addEvent,
-    deleteEvent,
-    updateEvent,
-    reorderEvents,
-  } = useMatchDetailPageData(matchId);
+  } = pageData;
 
-  const {
-    activeTab,
-    handleChangeTab,
-    handleUpdateMatch,
-    handleDeleteMatch,
-    handleChangeRecordCompletion,
-    handleChangePlayersPerSide,
-    handleChangeRecordInclusion,
-  } = useMatchDetailActions({
+  const detailActions = useMatchDetailActions({
     match,
     updateMatch,
     updateMatchPlayersPerSide,
@@ -69,6 +41,8 @@ export default function MatchDetailPageClient({
     setMatchRecordCompletion,
     deleteMatch: removeMatch,
   });
+
+  const { activeTab, handleChangeTab } = detailActions;
 
   if (!isLoaded) {
     return (
@@ -115,17 +89,9 @@ export default function MatchDetailPageClient({
     );
   }
 
-  if (!resolvedMatch || !matchDisplay) {
+  if (!resolvedMatch) {
     return null;
   }
-
-  const {
-    displayScore,
-    matchStatusLabel,
-    matchSubText,
-    opponentName,
-    statusBadgeClassName,
-  } = matchDisplay;
 
   return (
     <div className="space-y-6">
@@ -140,85 +106,14 @@ export default function MatchDetailPageClient({
       <MatchDetailHeader
         match={resolvedMatch}
         teamName={team?.name ?? "우리 팀"}
-        displayScore={displayScore}
-        matchStatusLabel={matchStatusLabel}
-        matchSubText={matchSubText}
-        opponentName={opponentName}
-        statusBadgeClassName={statusBadgeClassName}
       />
 
       <MatchDetailTabs activeTab={activeTab} onChange={handleChangeTab} />
-      {activeTab === "info" && (
-        <MatchInfoTab
-          match={resolvedMatch}
-          matches={displayMatches}
-          onSave={handleUpdateMatch}
-          onDelete={handleDeleteMatch}
-          canManage={canManage}
-        />
-      )}
-
-      {activeTab === "vote" && (
-        <MatchVoteTab
-          matchId={match.id}
-          match={resolvedMatch}
-          players={players}
-          currentUserId={currentUserId}
-          canManage={canManage}
-          votes={matchVotes}
-          saveVote={saveVote}
-          deleteVote={deleteVote}
-        />
-      )}
-      {activeTab === "attendance" && (
-        <MatchAttendanceTab
-          matchId={match.id}
-          matchType={match.type}
-          players={attendancePlayers}
-          votes={matchVotes}
-          attendance={matchAttendance}
-          canManage={canManage}
-          saveAttendance={saveAttendance}
-          saveVoteSide={saveVoteSide}
-          deleteAttendance={deleteAttendance}
-        />
-      )}
-
-      {activeTab === "tactics" && (
-        <MatchTacticsTab
-          matchId={match.id}
-          matchType={match.type}
-          players={attendancePlayers}
-          votes={matchVotes}
-          sport={match.sport}
-          playersPerSide={match.playersPerSide}
-          quarterCount={match.quarterCount}
-          onChangePlayersPerSide={handleChangePlayersPerSide}
-          canManage={canManage}
-        />
-      )}
-
-      {activeTab === "record" && (
-        <MatchRecordTab
-          votes={matchVotes}
-          attendPlayers={attendancePlayers}
-          matchType={match.type}
-          countsTowardRecord={match.countsTowardRecord}
-          onChangeRecordInclusion={handleChangeRecordInclusion}
-          quarterCount={match.quarterCount}
-          quarterDurationMinutes={match.quarterDurationMinutes}
-          events={events}
-          recordsLoaded={matchRecordsLoaded}
-          recordCompletedAt={match.recordCompletedAt}
-          hasMatchStarted={hasMatchStarted}
-          addEvent={addEvent}
-          deleteEvent={deleteEvent}
-          updateEvent={updateEvent}
-          reorderEvents={reorderEvents}
-          onChangeCompletion={handleChangeRecordCompletion}
-          canManage={canManage}
-        />
-      )}
+      <MatchDetailTabContent
+        match={resolvedMatch}
+        data={pageData}
+        actions={detailActions}
+      />
     </div>
   );
 }

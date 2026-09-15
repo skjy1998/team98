@@ -4,7 +4,7 @@ import type {
   MatchTacticsBySide,
   MatchTacticsSide,
 } from "@/types/tactics";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import type { TeamSport } from "@/types/team";
 import type { MatchPlayersPerSide } from "@/types/match";
@@ -27,6 +27,8 @@ export function useMatchTactics(
   const [tacticsLoaded, setTacticsLoaded] = useState(false);
   const [tacticsError, setTacticsError] = useState("");
 
+  const tacticsBySideRef = useRef(tacticsBySide);
+
   const loadMatchTactics = useCallback(async () => {
     if (!teamLoaded) return;
 
@@ -37,6 +39,7 @@ export function useMatchTactics(
     );
 
     if (!teamId || !matchId) {
+      tacticsBySideRef.current = defaultTactics;
       setTacticsBySide(defaultTactics);
       setTacticsLoaded(true);
       setTacticsError("");
@@ -54,10 +57,11 @@ export function useMatchTactics(
         playersPerSide,
         quarterCount,
       );
-
+      tacticsBySideRef.current = nextTactics;
       setTacticsBySide(nextTactics);
     } catch (error) {
       console.error("match tactics load error", error);
+      tacticsBySideRef.current = defaultTactics;
       setTacticsBySide(defaultTactics);
       setTacticsError("경기 전술을 불러오지 못했어요.");
     } finally {
@@ -78,14 +82,17 @@ export function useMatchTactics(
   ) => {
     if (!teamId || !matchId) return false;
 
-    const currentTactics = tacticsBySide[side];
+    const currentTactics = tacticsBySideRef.current[side];
     const nextTactics =
       typeof updater === "function" ? updater(currentTactics) : updater;
 
-    setTacticsBySide((current) => ({
-      ...current,
+    const nextTacticsBySide = {
+      ...tacticsBySideRef.current,
       [side]: nextTactics,
-    }));
+    };
+
+    tacticsBySideRef.current = nextTacticsBySide;
+    setTacticsBySide(nextTacticsBySide);
 
     try {
       await upsertMatchTacticsBySide(teamId, matchId, side, nextTactics);

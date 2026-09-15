@@ -1,50 +1,80 @@
+import type { VoteSummary } from "@/types/match-vote";
+
 interface VoteSummaryCardProps {
-  attend: number;
-  pending: number;
-  absent: number;
-  unvoted: number;
-  total: number;
+  summary: VoteSummary;
 }
 
-export default function VoteSummaryCard({
-  attend,
-  pending,
-  absent,
-  unvoted,
-  total,
-}: Readonly<VoteSummaryCardProps>) {
-  const attendRate = total > 0 ? (attend / total) * 100 : 0;
-  const pendingRate = total > 0 ? (pending / total) * 100 : 0;
-  const absentRate = total > 0 ? (absent / total) * 100 : 0;
-  const unvotedRate = total > 0 ? (unvoted / total) * 100 : 0;
+type SummaryStatus = Exclude<keyof VoteSummary, "total">;
 
-  const summaryItems = [
-    { label: "참석", value: attend, textClassName: "text-emerald-600" },
-    { label: "미정", value: pending, textClassName: "text-amber-600" },
-    { label: "불참", value: absent, textClassName: "text-rose-600" },
-    { label: "미투표", value: unvoted, textClassName: "text-stone-500" },
-  ];
+const summaryMeta: {
+  status: SummaryStatus;
+  label: string;
+  textClassName: string;
+  barClassName: string;
+}[] = [
+  {
+    status: "attend",
+    label: "참석",
+    textClassName: "text-emerald-600",
+    barClassName: "bg-emerald-500",
+  },
+  {
+    status: "pending",
+    label: "미정",
+    textClassName: "text-amber-600",
+    barClassName: "bg-amber-400",
+  },
+  {
+    status: "absent",
+    label: "불참",
+    textClassName: "text-rose-600",
+    barClassName: "bg-rose-500",
+  },
+  {
+    status: "unvoted",
+    label: "미투표",
+    textClassName: "text-stone-500",
+    barClassName: "bg-stone-300",
+  },
+];
+
+export default function VoteSummaryCard({
+  summary,
+}: Readonly<VoteSummaryCardProps>) {
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
-      <div className="overflow-hidden rounded-xl border border-stone-200">
-        <div className="flex h-3 w-full">
-          <div className="bg-emerald-500" style={{ width: `${attendRate}%` }} />
-          <div className="bg-amber-400" style={{ width: `${pendingRate}%` }} />
-          <div className="bg-rose-500" style={{ width: `${absentRate}%` }} />
-          <div className="bg-stone-300" style={{ width: `${unvotedRate}%` }} />
-        </div>
+      <div
+        aria-hidden="true"
+        className="flex h-3 overflow-hidden rounded-xl border border-stone-200"
+      >
+        {summaryMeta.map((item) => {
+          const rate =
+            summary.total > 0
+              ? (summary[item.status] / summary.total) * 100
+              : 0;
+
+          return (
+            <div
+              key={item.status}
+              className={item.barClassName}
+              style={{ width: `${rate}%` }}
+            />
+          );
+        })}
       </div>
-      <div className="grid grid-cols-4 divide-x divide-stone-200 bg-white">
-        {summaryItems.map((item) => (
-          <div key={item.label} className="px-4 py-5 text-center">
+      <div className="grid grid-cols-4 divide-x divide-stone-200">
+        {summaryMeta.map((item) => (
+          <div key={item.status} className="px-4 py-5 text-center">
             <p className={`text-3xl font-bold ${item.textClassName}`}>
-              {item.value}
+              {summary[item.status]}
             </p>
             <p className="mt-1 text-sm text-stone-500">{item.label}</p>
           </div>
         ))}
       </div>
-      <p className="mt-4 text-center text-sm text-stone-400">총 {total}명</p>
+      <p className="mt-4 text-center text-sm text-stone-400">
+        총 {summary.total}명
+      </p>
     </section>
   );
 }

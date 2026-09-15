@@ -6,8 +6,7 @@ import { useTeamSeasons } from "../settings/useTeamSeasons";
 import { getSelectedSeason } from "@/lib/settings/settings-ui";
 import { useMatches } from "./useMatches";
 import { useMemo, useState } from "react";
-
-import type { MatchCreateFormValue } from "@/types/match";
+import type { MatchCreateFormValue, MatchScheduleView } from "@/types/match";
 import { getMatchListData } from "@/lib/matches/match-list-ui";
 
 export function useMatchesPageData() {
@@ -26,6 +25,9 @@ export function useMatchesPageData() {
     useTeamSeasons();
 
   const requestedSeasonId = searchParams.get("season");
+  const requestedView = searchParams.get("view");
+  const scheduleView: MatchScheduleView =
+    requestedView === "calendar" ? "calendar" : "list";
   const selectedSeason = getSelectedSeason(seasons, requestedSeasonId);
 
   const { matches, matchesLoaded, matchesError, addMatch, reloadMatches } =
@@ -55,6 +57,22 @@ export function useMatchesPageData() {
     params.set("season", seasonId);
 
     router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  };
+
+  const handleChangeScheduleView = (view: MatchScheduleView) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (view === "calendar") {
+      params.set("view", "calendar");
+    } else {
+      params.delete("view");
+    }
+
+    const queryString = params.toString();
+
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
       scroll: false,
     });
   };
@@ -89,6 +107,7 @@ export function useMatchesPageData() {
     displayMatches,
     upcomingMatches,
     pastMatches,
+    scheduleView,
     isLoaded,
     pageError,
     isCreateOpen,
@@ -96,6 +115,7 @@ export function useMatchesPageData() {
     onCloseCreate: () => setIsCreateOpen(false),
     onCreateMatch: handleCreateMatch,
     onChangeSeason: handleChangeSeason,
+    onChangeScheduleView: handleChangeScheduleView,
     onRetry: handleRetry,
     canCreateMatch,
   };

@@ -4,28 +4,28 @@ import type {
 } from "@/types/match-attendance";
 import type { PlayerType } from "@/types/player";
 import FinanceReadonlyNotice from "@/components/finance/FinanceReadonlyNotice";
-import { useToastStore } from "@/stores/toast-store";
 import type { MatchVote } from "@/types/match-vote";
 import type { MatchType, SelfMatchSide } from "@/types/match";
 import SelfMatchTeamAssignmentSection from "./SelfMatchTeamAssignmentSection";
 import MatchAttendanceCheckSection from "./MatchAttendanceCheckSection";
 import MatchAttendanceModeTabs, {
-  MatchAttendanceMode,
+  type MatchAttendanceMode,
 } from "./MatchAttendanceModeTabs";
 import { useState } from "react";
+import { useMatchAttendanceTabActions } from "@/hooks/matches/useMatchAttendanceTabActions";
 
 interface MatchAttendanceTabProps {
   matchId: string;
   matchType: MatchType;
   votes: MatchVote[];
+  players: PlayerType[];
+  attendance: MatchAttendance[];
+  canManage: boolean;
   saveVoteSide: (
     matchId: string,
     playerId: string,
     side: SelfMatchSide | null,
   ) => Promise<boolean>;
-  players: PlayerType[];
-  attendance: MatchAttendance[];
-  canManage: boolean;
   saveAttendance: (
     matchId: string,
     playerId: string,
@@ -38,62 +38,25 @@ export default function MatchAttendanceTab({
   matchId,
   matchType,
   votes,
-  saveVoteSide,
   players,
   attendance,
   canManage,
+  saveVoteSide,
   saveAttendance,
   deleteAttendance,
 }: Readonly<MatchAttendanceTabProps>) {
-  const showToast = useToastStore((state) => state.showToast);
+  const { handleChangeSide, handleChangeStatus, handleMarkAllAttend } =
+    useMatchAttendanceTabActions({
+      matchId,
+      players,
+      attendance,
+      saveVoteSide,
+      saveAttendance,
+      deleteAttendance,
+    });
+
   const [activeMode, setActiveMode] =
     useState<MatchAttendanceMode>("assignment");
-
-  const handleChangeStatus = async (
-    playerId: string,
-    status: MatchAttendanceStatus | "unchecked",
-  ) => {
-    const success =
-      status === "unchecked"
-        ? await deleteAttendance(matchId, playerId)
-        : await saveAttendance(matchId, playerId, status);
-
-    if (!success) {
-      showToast("출석 저장에 실패했어요.", "error");
-    }
-  };
-
-  const handleChangeSide = async (
-    playerId: string,
-    side: SelfMatchSide | null,
-  ) => {
-    const success = await saveVoteSide(matchId, playerId, side);
-
-    if (!success) {
-      showToast("팀 배정 저장에 실패했어요.", "error");
-    }
-  };
-
-  const handleMarkAllAttend = async () => {
-    if (players.length === 0) return;
-
-    for (const player of players) {
-      const currentAttendance = attendance.find(
-        (item) => item.playerId === player.id,
-      );
-
-      if (currentAttendance?.status === "attend") continue;
-
-      const success = await saveAttendance(matchId, player.id, "attend");
-
-      if (!success) {
-        showToast("전체 출석 처리 중 저장에 실패했어요.", "error");
-        return;
-      }
-    }
-
-    showToast("투표 참석 인원을 모두 출석 처리했어요.", "success");
-  };
 
   if (players.length === 0) {
     return (

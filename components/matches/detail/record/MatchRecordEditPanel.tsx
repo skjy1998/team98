@@ -55,19 +55,16 @@ export default function MatchRecordEditPanel({
     matchType === "자체전" ? (event.type === "goal" ? "A팀" : "B팀") : "";
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-stone-50/80 p-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-stone-900">기록 수정 중</h3>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-700"
-        >
-          취소
-        </button>
-      </div>
+    <form
+      onSubmit={(submitEvent) => {
+        submitEvent.preventDefault();
+        void handleSubmit();
+      }}
+      className="rounded-xl border border-stone-200 bg-stone-50/80 p-6"
+    >
+      <h3 className="text-lg font-semibold text-stone-900">기록 수정 중</h3>
 
-      <div className="mt-6 space-y-6">
+      <fieldset disabled={isSubmitting} className="mt-6 space-y-6">
         {canEditPlayerRecord && (
           <>
             <MatchRecordPlayerPicker
@@ -75,7 +72,6 @@ export default function MatchRecordEditPanel({
               players={attendPlayers}
               selectedPlayerId={playerId}
               onChange={setPlayerId}
-              variant="scorer"
             />
 
             <MatchRecordPlayerPicker
@@ -86,14 +82,13 @@ export default function MatchRecordEditPanel({
               selectedPlayerId={assistPlayerId}
               onChange={setAssistPlayerId}
               allowEmpty
-              variant="assist"
             />
           </>
         )}
 
         <div>
           <p className="mb-3 text-sm font-semibold text-stone-700">쿼터</p>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-2 rounded-xl bg-emerald-50/50 p-2">
             {quarterOptions.map((item) => {
               const isActive = quarter === item;
 
@@ -101,11 +96,12 @@ export default function MatchRecordEditPanel({
                 <button
                   key={item}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => setQuarter(item)}
-                  className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
                     isActive
-                      ? "bg-orange-500 text-white"
-                      : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                      ? "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-100"
+                      : "border-stone-200 bg-white text-stone-500 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
                   }`}
                 >
                   {item === "unknown" ? "모름" : item}
@@ -116,10 +112,14 @@ export default function MatchRecordEditPanel({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-stone-700">
+          <label
+            htmlFor="record-edit-minute"
+            className="mb-2 block text-sm font-semibold text-stone-700"
+          >
             시간
           </label>
           <input
+            id="record-edit-minute"
             type="number"
             min={0}
             max={quarterDurationMinutes}
@@ -130,7 +130,7 @@ export default function MatchRecordEditPanel({
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-300 focus:border-emerald-300"
           />
           {errorMessage && (
-            <p className="mt-2 text-sm font-medium text-rose-500">
+            <p role="alert" className="mt-2 text-sm font-medium text-rose-500">
               {errorMessage}
             </p>
           )}
@@ -140,21 +140,21 @@ export default function MatchRecordEditPanel({
           <button
             type="button"
             onClick={onCancel}
-            className="h-12 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-600 transition hover:bg-stone-50"
+            disabled={isSubmitting}
+            className="h-12 rounded-xl border border-stone-200 px-5 text-sm font-medium text-stone-600 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             취소
           </button>
 
           <button
-            type="button"
+            type="submit"
             disabled={isSubmitting}
-            onClick={() => void handleSubmit()}
-            className="h-12 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
+            className="h-12 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none"
           >
             {isSubmitting ? "수정 중..." : "수정 완료"}
           </button>
         </div>
-      </div>
-    </section>
+      </fieldset>
+    </form>
   );
 }

@@ -42,6 +42,8 @@ export default function SelfMatchTeamAssignmentSection({
 
   const unassignedCount = players.length - teamACount - teamBcount;
 
+  const voteByPlayerId = new Map(votes.map((vote) => [vote.playerId, vote]));
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
       <div className="flex items-center justify-between gap-4">
@@ -69,9 +71,7 @@ export default function SelfMatchTeamAssignmentSection({
 
       <div className="mt-5 space-y-3">
         {players.map((player) => {
-          const currentSide = votes.find(
-            (vote) => vote.playerId === player.id,
-          )?.side;
+          const currentSide = voteByPlayerId.get(player.id)?.side;
 
           return (
             <div
@@ -88,6 +88,7 @@ export default function SelfMatchTeamAssignmentSection({
                     <button
                       key={option.value}
                       type="button"
+                      aria-pressed={isActive}
                       disabled={!canManage}
                       onClick={() =>
                         onChangeSide(player.id, isActive ? null : option.value)

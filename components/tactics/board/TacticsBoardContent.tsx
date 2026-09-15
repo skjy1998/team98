@@ -35,6 +35,8 @@ export default function TacticsBoardContent({
         onSave={presets.handleSavePreset}
         onDelete={presets.handleDeletePreset}
         canManage={canManage}
+        isSaving={presets.isSaving}
+        isDeleting={presets.isDeleting}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -59,9 +61,7 @@ export default function TacticsBoardContent({
           cornerKickPlayerId={tactics.cornerKickPlayerId}
           freeKickPlayerId={tactics.freeKickPlayerId}
           penaltyKickPlayerId={tactics.penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={tactics.setCornerKickPlayerId}
-          onChangeFreeKickPlayerId={tactics.setFreeKickPlayerId}
-          onChangePenaltyKickPlayerId={tactics.setPenaltyKickPlayerId}
+          onChangeSetPiecePlayer={tactics.handleChangeSetPiecePlayer}
           canManage={canManage}
         />
       </div>

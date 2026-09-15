@@ -16,6 +16,7 @@ export type MatchDetailTab =
 
 export type MatchOpponentRecordResult = "win" | "draw" | "lose";
 export type MatchPlayersPerSide = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type MatchScheduleView = "list" | "calendar";
 
 export interface MatchRecordEvent {
   id: string;
@@ -66,6 +67,14 @@ export interface MatchItem {
   recordCompletedAt?: string;
   isUpcoming: boolean;
   countsTowardRecord: boolean;
+}
+
+export interface MatchCalendarDay {
+  date: string;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  matches: MatchItem[];
 }
 
 export interface MatchOpponentRecordItem {

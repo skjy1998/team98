@@ -132,3 +132,5 @@ export function useMatchDetailActions({
     handleChangeRecordInclusion,
   };
 }
+
+export type MatchDetailActions = ReturnType<typeof useMatchDetailActions>;

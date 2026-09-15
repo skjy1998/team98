@@ -1,9 +1,11 @@
 import type { MatchCreateFormValue, MatchItem } from "@/types/match";
-
 import MatchInfoFieldCard from "./MatchInfoFieldCard";
-
 import MatchFormatSection from "../../MatchFormatSection";
 import { useMatchInfoEditor } from "@/hooks/matches/useMatchInfoEditor";
+import MatchSportSelector from "../../MatchSportSelector";
+import MatchUniformSelector from "../../MatchUniformSelector";
+import MatchInfoScheduleFields from "./MatchInfoScheduleFields";
+import MatchTypeSelector from "../../MatchTypeSelector";
 
 interface MatchInfoEditorProps {
   match: MatchItem;
@@ -23,13 +25,20 @@ export default function MatchInfoEditor({
     updateField,
     handleChangeType,
     handleSubmit,
+    handleChangeSport,
   } = useMatchInfoEditor({
     match,
     onSave,
   });
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit();
+      }}
+      className="rounded-xl border border-stone-200 bg-white p-6"
+    >
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-stone-900">경기 정보 수정</h2>
 
@@ -37,24 +46,34 @@ export default function MatchInfoEditor({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-500 transition hover:bg-stone-50"
+            disabled={isSubmitting}
+            className="rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-500 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             취소
           </button>
           <button
-            type="button"
+            type="submit"
             disabled={isSubmitting}
-            onClick={() => void handleSubmit()}
-            className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-emerald-600"
           >
             {isSubmitting ? "저장 중..." : "저장"}
           </button>
         </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <fieldset disabled={isSubmitting} className="mt-6 space-y-4">
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
+          <p className="mb-3 text-sm font-semibold text-stone-700">경기 종목</p>
+
+          <MatchSportSelector
+            value={form.sport}
+            onChange={handleChangeSport}
+            disabled={isSubmitting}
+          />
+        </div>
+
         <MatchFormatSection
-          sport={match.sport}
+          sport={form.sport}
           playersPerSide={form.playersPerSide}
           onChangePlayersPerSide={(value) =>
             updateField("playersPerSide", value)
@@ -67,90 +86,15 @@ export default function MatchInfoEditor({
           }
         />
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <p className="text-sm text-stone-400">경기 유형</p>
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleChangeType("정규")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  form.type === "정규"
-                    ? "bg-emerald-600 text-white"
-                    : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-                }`}
-              >
-                정규
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangeType("자체전")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  form.type === "자체전"
-                    ? "bg-sky-600 text-white"
-                    : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-                }`}
-              >
-                자체전
-              </button>
-            </div>
-          </div>
-          <MatchInfoFieldCard label="날짜">
-            <input
-              id="edit-match-date"
-              type="date"
-              value={form.date}
-              onChange={(event) => updateField("date", event.target.value)}
-              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-            />
-          </MatchInfoFieldCard>
-
-          <MatchInfoFieldCard label="경기 시간">
-            <div className="grid items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
-              <div>
-                <label htmlFor="edit-match-start-time" className="sr-only">
-                  시작 시간
-                </label>
-                <input
-                  id="edit-match-start-time"
-                  type="time"
-                  value={form.startTime}
-                  onChange={(event) =>
-                    updateField("startTime", event.target.value)
-                  }
-                  className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-                />
-              </div>
-
-              <span className="text-stone-400">-</span>
-
-              <div>
-                <label htmlFor="edit-match-end-time" className="sr-only">
-                  종료 시간
-                </label>
-                <input
-                  id="edit-match-end-time"
-                  type="time"
-                  value={form.endTime}
-                  onChange={(event) =>
-                    updateField("endTime", event.target.value)
-                  }
-                  className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-                />
-              </div>
-            </div>
-          </MatchInfoFieldCard>
-
-          <MatchInfoFieldCard label="투표 마감">
-            <input
-              id="edit-match-vote-deadline"
-              type="datetime-local"
-              value={form.voteDeadline}
-              onChange={(event) =>
-                updateField("voteDeadline", event.target.value)
-              }
-              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-emerald-300"
-            />
-          </MatchInfoFieldCard>
+          <MatchTypeSelector
+            value={form.type}
+            onChange={handleChangeType}
+            disabled={isSubmitting}
+          />
+          <MatchInfoScheduleFields
+            value={form}
+            onChange={(field, value) => updateField(field, value)}
+          />
         </div>
 
         {form.type === "정규" && (
@@ -175,12 +119,22 @@ export default function MatchInfoEditor({
           />
         </MatchInfoFieldCard>
 
+        <MatchInfoFieldCard label="유니폼">
+          <MatchUniformSelector
+            value={form.uniform}
+            onChange={(value) => updateField("uniform", value)}
+            disabled={isSubmitting}
+          />
+        </MatchInfoFieldCard>
         {errorMessage && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
+          <div
+            role="alert"
+            className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+          >
             {errorMessage}
           </div>
         )}
-      </div>
-    </section>
+      </fieldset>
+    </form>
   );
 }

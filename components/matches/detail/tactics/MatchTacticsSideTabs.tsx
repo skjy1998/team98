@@ -19,7 +19,7 @@ export default function MatchTacticsSideTabs({
 }: Readonly<MatchTacticsSideTabsProps>) {
   return (
     <section className="rounded-xl border border-stone-200 bg-stone-100 p-1">
-      <div className="grid gird-cols-2 gap-1">
+      <div className="grid grid-cols-2 gap-1">
         {sideOptions.map((side) => {
           const isActive = selectedSide === side.value;
 
@@ -27,6 +27,7 @@ export default function MatchTacticsSideTabs({
             <button
               key={side.value}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onChangeSide(side.value)}
               className={[
                 "rounded-lg px-4 py-2.5 text-sm font-semibold transition",

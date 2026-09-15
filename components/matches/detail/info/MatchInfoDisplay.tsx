@@ -1,6 +1,4 @@
-import { matchSportMap, typeMap } from "@/lib/matches/match-display";
 import { formatMatchDate } from "@/lib/matches/match-time";
-
 import { formatVoteDeadline } from "@/lib/matches/match-vote";
 import type { MatchItem } from "@/types/match";
 import {
@@ -27,7 +25,6 @@ export default function MatchInfoDisplay({
   onDelete,
   canManage,
 }: Readonly<MatchInfoDisplayProps>) {
-  const sport = matchSportMap[match.sport];
   const uniformLabel = match.uniform === "home" ? "홈 유니폼" : "원정 유니폼";
 
   const scheduleItems = [
@@ -59,20 +56,6 @@ export default function MatchInfoDisplay({
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-stone-100 px-6 py-5">
         <div>
           <h2 className="text-xl font-semibold text-stone-900">경기 정보</h2>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${sport.className}`}
-            >
-              {sport.label}
-            </span>
-
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeMap[match.type]}`}
-            >
-              {match.type}
-            </span>
-          </div>
         </div>
 
         {canManage && (

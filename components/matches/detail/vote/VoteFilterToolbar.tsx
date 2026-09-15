@@ -49,8 +49,16 @@ export default function VoteFilterToolbar({
   return (
     <>
       <div className="relative mt-5">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+        />
+        <label htmlFor="vote-member-search" className="sr-only">
+          선수 이름 검색
+        </label>
         <input
+          id="vote-member-search"
+          type="search"
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="이름 검색"
@@ -66,6 +74,7 @@ export default function VoteFilterToolbar({
             <button
               key={option.value}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onFilterChange(option.value)}
               className={`rounded-xl px-4 py-2 text-sm font-medium ${
                 isActive

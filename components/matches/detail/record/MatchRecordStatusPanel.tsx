@@ -13,6 +13,18 @@ export default function MatchRecordStatusPanel({
   isCompletionSaving,
   onChangeCompletion,
 }: Readonly<MatchRecordStatusPanelProps>) {
+  const statusLabel = isCompleted ? "기록 완료" : "작성 중";
+
+  const statusDescription = isCompleted
+    ? "완료된 기록은 다시 수정하기 전까지 잠겨요."
+    : "기록 입력이 끝나면 완료 상태로 변경해 주세요.";
+
+  let actionLabel = isCompleted ? "다시 수정" : "기록 완료";
+
+  if (isCompletionSaving) {
+    actionLabel = "처리 중...";
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white px-5 py-4">
@@ -25,14 +37,10 @@ export default function MatchRecordStatusPanel({
                 : "bg-amber-50 text-amber-700",
             ].join(" ")}
           >
-            {isCompleted ? "기록 완료" : "작성 중"}
+            {statusLabel}
           </span>
 
-          <p className="mt-2 text-sm text-stone-400">
-            {isCompleted
-              ? "완료된 기록은 다시 수정하기 전까지 잠겨요."
-              : "기록 입력이 끝나면 완료 상태로 변경해 주세요."}
-          </p>
+          <p className="mt-2 text-sm text-stone-400">{statusDescription}</p>
         </div>
 
         {canManage && hasMatchStarted && (
@@ -47,11 +55,7 @@ export default function MatchRecordStatusPanel({
                 : "bg-emerald-600 text-white hover:bg-emerald-700",
             ].join(" ")}
           >
-            {isCompletionSaving
-              ? "처리 중..."
-              : isCompleted
-                ? "다시 수정"
-                : "기록 완료"}
+            {actionLabel}
           </button>
         )}
       </div>

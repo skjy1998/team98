@@ -1,20 +1,25 @@
 import { getMatchEditValidationMessage } from "@/lib/matches/match-form";
 import { getDateTimeLocalValue } from "@/lib/matches/match-time";
 import type { MatchCreateFormValue, MatchItem, MatchType } from "@/types/match";
+import type { TeamSport } from "@/types/team";
 import { useState } from "react";
 
-type MatchInfoEditorState = Pick<
-  MatchCreateFormValue,
-  | "type"
-  | "playersPerSide"
-  | "quarterCount"
-  | "quarterDurationMinutes"
-  | "date"
-  | "startTime"
-  | "endTime"
-  | "voteDeadline"
-  | "opponent"
-  | "location"
+type MatchInfoEditorState = Required<
+  Pick<
+    MatchCreateFormValue,
+    | "type"
+    | "sport"
+    | "playersPerSide"
+    | "quarterCount"
+    | "quarterDurationMinutes"
+    | "date"
+    | "startTime"
+    | "endTime"
+    | "voteDeadline"
+    | "opponent"
+    | "location"
+    | "uniform"
+  >
 >;
 
 interface UseMatchInfoEditorParams {
@@ -25,6 +30,7 @@ interface UseMatchInfoEditorParams {
 function getInitialState(match: MatchItem): MatchInfoEditorState {
   return {
     type: match.type,
+    sport: match.sport,
     playersPerSide: match.playersPerSide,
     quarterCount: match.quarterCount,
     quarterDurationMinutes: match.quarterDurationMinutes,
@@ -34,6 +40,20 @@ function getInitialState(match: MatchItem): MatchInfoEditorState {
     voteDeadline: getDateTimeLocalValue(match.voteDeadline),
     opponent: match.opponent ?? "",
     location: match.location ?? "",
+    uniform: match.uniform,
+  };
+}
+
+function createMatchEditValue(
+  form: MatchInfoEditorState,
+): MatchCreateFormValue {
+  const opponent = form.type === "정규" ? form.opponent.trim() : "";
+
+  return {
+    ...form,
+    opponent,
+    location: form.location.trim(),
+    title: form.type === "정규" ? `vs ${opponent}` : "자체전",
   };
 }
 
@@ -67,6 +87,21 @@ export function useMatchInfoEditor({
     setErrorMessage("");
   };
 
+  const handleChangeSport = (sport: TeamSport) => {
+    setForm((current) => ({
+      ...current,
+      sport,
+      playersPerSide:
+        sport === "soccer"
+          ? 11
+          : current.playersPerSide <= 7
+            ? current.playersPerSide
+            : 5,
+    }));
+
+    setErrorMessage("");
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return;
 
@@ -81,16 +116,7 @@ export function useMatchInfoEditor({
     setIsSubmitting(true);
 
     try {
-      await onSave({
-        title:
-          form.type === "정규"
-            ? `vs ${form.opponent || "상대팀 미정"}`
-            : "자체전",
-        ...form,
-        sport: match.sport,
-        opponent: form.type === "정규" ? form.opponent : "",
-        uniform: match.uniform,
-      });
+      await onSave(createMatchEditValue(form));
     } catch (error) {
       console.error("match info edit submit error", error);
       setErrorMessage("경기 정보 수정 중 오류가 발생했어요.");
@@ -106,5 +132,6 @@ export function useMatchInfoEditor({
     updateField,
     handleChangeType,
     handleSubmit,
+    handleChangeSport,
   };
 }

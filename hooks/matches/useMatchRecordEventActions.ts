@@ -32,6 +32,7 @@ export function useMatchRecordEventActions({
   const showToast = useToastStore((state) => state.showToast);
   const confirm = useConfirmStore((state) => state.confirm);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [isAddingEvent, setIsAddingEvent] = useState(false);
 
   const handleStartEdit = (event: MatchRecordEvent) => {
     if (!canEdit) return;
@@ -43,12 +44,18 @@ export function useMatchRecordEventActions({
   };
 
   const handleAddEvent = async (type: MatchRecordEventType) => {
-    if (!canEdit) return;
+    if (!canEdit || isAddingEvent) return;
 
-    const success = await addEvent(type);
+    setIsAddingEvent(true);
 
-    if (!success) {
-      showToast("기록 추가에 실패했어요.", "error");
+    try {
+      const success = await addEvent(type);
+
+      if (!success) {
+        showToast("기록 추가에 실패했어요.", "error");
+      }
+    } finally {
+      setIsAddingEvent(false);
     }
   };
 
@@ -84,19 +91,15 @@ export function useMatchRecordEventActions({
   ) => {
     if (!canEdit) return;
 
-    const selectedPlayer = attendPlayers.find(
-      (player) => player.id === updates.playerId,
-    );
-
-    const selectedAssistPlayer = attendPlayers.find(
-      (player) => player.id === updates.assistPlayerId,
+    const playerById = new Map(
+      attendPlayers.map((player) => [player.id, player]),
     );
 
     const success = await updateEvent(eventId, {
       playerId: updates.playerId,
-      playerName: selectedPlayer?.name ?? "",
+      playerName: playerById.get(updates.playerId)?.name ?? "",
       assistPlayerId: updates.assistPlayerId,
-      assistPlayerName: selectedAssistPlayer?.name ?? "",
+      assistPlayerName: playerById.get(updates.assistPlayerId)?.name ?? "",
       quarter: updates.quarter,
       minute: updates.minute,
     });
@@ -125,6 +128,7 @@ export function useMatchRecordEventActions({
 
   return {
     editingEventId,
+    isAddingEvent,
     handleStartEdit,
     handleCancelEdit,
     handleAddEvent,

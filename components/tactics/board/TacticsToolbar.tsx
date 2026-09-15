@@ -23,6 +23,8 @@ interface ManualTacticsToolbarProps extends TacticsToolbarBaseProps {
   onLoadPreset: (presetId: string) => void;
   onSave: () => void | Promise<void>;
   onDelete: () => void | Promise<void>;
+  isSaving: boolean;
+  isDeleting: boolean;
 }
 
 interface AutoTacticsToolbarProps extends TacticsToolbarBaseProps {
@@ -44,6 +46,12 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
   const availableFormationOptions =
     formationOptions ?? (Object.keys(formationTemplate) as FormationName[]);
 
+  const isBusy =
+    props.saveMode === "manual"
+      ? props.isSaving || props.isDeleting
+      : Boolean(props.playerCountState?.isSaving);
+  const canEdit = canManage && !isBusy;
+
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-4 md:p-5">
       <div className="flex flex-col gap-4">
@@ -61,26 +69,26 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
             formation={formation}
             options={availableFormationOptions}
             onChange={onChangeFormation}
-            canManage={canManage}
+            canManage={canEdit}
           />
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onReset}
-              disabled={!canManage}
+              disabled={!canEdit}
               className={`inline-flex h-14 items-center gap-2 rounded-xl border px-5 text-sm font-medium transition ${
-                canManage
+                canEdit
                   ? "border-stone-200 text-stone-600 hover:bg-stone-50"
-                  : "border-stone-200 bg-stone-100 text-stone-400"
+                  : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
               }`}
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw aria-hidden="true" className="h-4 w-4" />
               초기화
             </button>
 
             {props.saveMode === "auto" && (
               <div className="inline-flex h-14 items-center gap-2 rounded-xl bg-emerald-50 px-5 text-sm font-medium text-emerald-700">
-                <Save className="h-4 w-4" />
+                <Save aria-hidden="true" className="h-4 w-4" />
                 자동 저장됨
               </div>
             )}
@@ -97,6 +105,8 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
             onSave={props.onSave}
             onDelete={props.onDelete}
             canManage={canManage}
+            isSaving={props.isSaving}
+            isDeleting={props.isDeleting}
           />
         )}
       </div>

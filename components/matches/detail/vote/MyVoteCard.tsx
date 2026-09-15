@@ -82,6 +82,7 @@ export default function MyVoteCard({
             <button
               key={option}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onChangeStatus(playerId, option)}
               className={`relative rounded-2xl px-4 py-6 transition ${
                 isActive
@@ -90,7 +91,10 @@ export default function MyVoteCard({
               }`}
             >
               {isActive && (
-                <span className="absolute right-4 top-4 text-lg font-semibold">
+                <span
+                  aria-hidden="true"
+                  className="absolute right-4 top-4 text-lg font-semibold"
+                >
                   ✓
                 </span>
               )}

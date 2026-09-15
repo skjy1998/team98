@@ -48,8 +48,8 @@ export default function TacticsField({
         <div className="absolute left-0 top-1/2 h-px w-full bg-white/30" />
         <div className="absolute left-1/2 top-3 h-28 w-96 -translate-x-1/2 border-2 border-white/30" />
         <div className="absolute left-1/2 top-3 h-14 w-32 -translate-x-1/2 border-2 border-white/30" />
-        <div className="absolute bottom-3 left-1/2 h-28 w-96 -translate-x-1/2 border-2  border-white/30" />
-        <div className="absolute bottom-3 left-1/2 h-14 w-32 -translate-x-1/2 border-2  border-white/30" />
+        <div className="absolute bottom-3 left-1/2 h-28 w-96 -translate-x-1/2 border-2 border-white/30" />
+        <div className="absolute bottom-3 left-1/2 h-14 w-32 -translate-x-1/2 border-2 border-white/30" />
         <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50" />
 
         {slots.map((slot) => {
@@ -61,6 +61,7 @@ export default function TacticsField({
               key={slot.id}
               type="button"
               onClick={() => handleSelectSlot(slot.id)}
+              aria-pressed={isActive}
               disabled={!canManage}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border text-center transition ${
                 isActive

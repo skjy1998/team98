@@ -32,6 +32,8 @@ export function useTacticsPresets({
   const [selectedPresetId, setSelectedPresetId] = useState("");
   const [presetLoaded, setPresetLoaded] = useState(false);
   const [presetError, setPresetError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadPresets = useCallback(async () => {
     if (!teamLoaded) return;
@@ -81,6 +83,8 @@ export function useTacticsPresets({
       ...exportTactics(),
     };
 
+    setIsSaving(true);
+
     try {
       if (selectedPresetId) {
         const updatedPreset = await updateTeamTacticsPreset(
@@ -113,6 +117,8 @@ export function useTacticsPresets({
           : "전술 저장에 실패했어요.",
         "error",
       );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -120,7 +126,10 @@ export function useTacticsPresets({
     setSelectedPresetId(presetId);
 
     const preset = savedPresets.find((item) => item.id === presetId);
-    if (!preset) return;
+    if (!preset) {
+      setPresetName("");
+      return;
+    }
 
     setPresetName(preset.name);
 
@@ -153,6 +162,8 @@ export function useTacticsPresets({
 
     if (!confirmed) return;
 
+    setIsDeleting(true);
+
     try {
       const deleted = await deleteTeamTacticsPreset(teamId, selectedPresetId);
 
@@ -169,6 +180,8 @@ export function useTacticsPresets({
     } catch (error) {
       console.error("tactics preset delete error", error);
       showToast("전술 삭제에 실패했어요.", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -190,5 +203,7 @@ export function useTacticsPresets({
     handleDeletePreset,
     handleResetPresetState,
     reloadPresets: loadPresets,
+    isSaving,
+    isDeleting,
   };
 }

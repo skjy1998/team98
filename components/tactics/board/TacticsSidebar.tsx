@@ -1,5 +1,5 @@
 import type { PlayerType } from "@/types/player";
-import type { FormationSlot } from "@/types/tactics";
+import type { FormationSlot, SetPieceKey } from "@/types/tactics";
 import TacticsSelectedSlotCard from "./TacticsSelectedSlotCard";
 import TacticsPlayerList from "./TacticsPlayerList";
 import TacticsKickerSection from "./TacticsKickerSection";
@@ -16,9 +16,7 @@ interface TacticsSidebarProps {
   cornerKickPlayerId: string;
   freeKickPlayerId: string;
   penaltyKickPlayerId: string;
-  onChangeCornerKickPlayerId: (value: string) => void;
-  onChangeFreeKickPlayerId: (value: string) => void;
-  onChangePenaltyKickPlayerId: (value: string) => void;
+  onChangeSetPiecePlayer: (key: SetPieceKey, value: string) => void;
   playerListEmptyMessage?: string;
   showKickerSection?: boolean;
   canManage: boolean;
@@ -36,16 +34,11 @@ export default function TacticsSidebar({
   cornerKickPlayerId,
   freeKickPlayerId,
   penaltyKickPlayerId,
-  onChangeCornerKickPlayerId,
-  onChangeFreeKickPlayerId,
-  onChangePenaltyKickPlayerId,
+  onChangeSetPiecePlayer,
   playerListEmptyMessage,
   showKickerSection = true,
   canManage,
 }: Readonly<TacticsSidebarProps>) {
-  const cornerKickPlayer = getPlayerById(cornerKickPlayerId);
-  const freeKickPlayer = getPlayerById(freeKickPlayerId);
-  const penaltyKickPlayer = getPlayerById(penaltyKickPlayerId);
   return (
     <aside className="space-y-4">
       <TacticsSelectedSlotCard
@@ -68,12 +61,7 @@ export default function TacticsSidebar({
           cornerKickPlayerId={cornerKickPlayerId}
           freeKickPlayerId={freeKickPlayerId}
           penaltyKickPlayerId={penaltyKickPlayerId}
-          onChangeCornerKickPlayerId={onChangeCornerKickPlayerId}
-          onChangeFreeKickPlayerId={onChangeFreeKickPlayerId}
-          onChangePenaltyKickPlayerId={onChangePenaltyKickPlayerId}
-          cornerKickPlayer={cornerKickPlayer}
-          freeKickPlayer={freeKickPlayer}
-          penaltyKickPlayer={penaltyKickPlayer}
+          onChangeSetPiecePlayer={onChangeSetPiecePlayer}
           canManage={canManage}
         />
       )}

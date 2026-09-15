@@ -31,6 +31,7 @@ export default function MatchRecordInclusionToggle({
         ].join(" ")}
       >
         <span
+          aria-hidden="true"
           className={[
             "absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition",
             enabled ? "left-6" : "left-1",

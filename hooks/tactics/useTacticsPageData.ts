@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useCurrentTeam } from "../team/useCurrentTeam";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import { useTacticsBoard } from "./useTacticsBoard";
@@ -21,23 +20,15 @@ export function useTacticsPageData() {
     resetTactics: tactics.handleResetTactics,
   });
 
-  const sortedAvailablePlayers = useMemo(
-    () =>
-      sortPlayersByRecommendedPosition(
-        tactics.availablePlayers,
-        tactics.selectedSlot,
-      ),
-    [tactics.availablePlayers, tactics.selectedSlot],
+  const sortedAvailablePlayers = sortPlayersByRecommendedPosition(
+    tactics.availablePlayers,
+    tactics.selectedSlot,
   );
 
-  const presetOptions = useMemo(
-    () =>
-      presets.savedPresets.map((preset) => ({
-        id: preset.id,
-        name: preset.name,
-      })),
-    [presets.savedPresets],
-  );
+  const presetOptions = presets.savedPresets.map((preset) => ({
+    id: preset.id,
+    name: preset.name,
+  }));
 
   const isLoaded =
     teamLoaded && memberLoaded && tactics.playersLoaded && presets.presetLoaded;

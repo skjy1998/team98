@@ -1,25 +1,26 @@
+import { getMatchDetailDisplay } from "@/lib/matches/match-detail-ui";
+import { matchSportMap, typeMap } from "@/lib/matches/match-display";
 import { formatMatchDate } from "@/lib/matches/match-time";
 import type { MatchItem } from "@/types/match";
 
 interface MatchDetailHeaderProps {
   match: MatchItem;
   teamName: string;
-  displayScore: string;
-  matchStatusLabel: string;
-  matchSubText: string;
-  opponentName: string;
-  statusBadgeClassName: string;
 }
 
 export default function MatchDetailHeader({
   match,
   teamName,
-  displayScore,
-  matchStatusLabel,
-  matchSubText,
-  opponentName,
-  statusBadgeClassName,
 }: Readonly<MatchDetailHeaderProps>) {
+  const {
+    displayScore,
+    matchStatusLabel,
+    matchSubText,
+    opponentName,
+    statusBadgeClassName,
+  } = getMatchDetailDisplay(match);
+  const sport = matchSportMap[match.sport];
+
   const isSelfMatch = match.type === "자체전";
 
   const safeTeamName = isSelfMatch ? "A팀" : teamName || "우리팀";
@@ -30,6 +31,32 @@ export default function MatchDetailHeader({
 
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-6 py-4 md:px-8">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${sport.className}`}
+            >
+              {sport.label}
+            </span>
+
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${typeMap[match.type]}`}
+            >
+              {match.type}
+            </span>
+          </div>
+
+          <h1 className="mt-2 truncate text-lg font-bold text-stone-900">
+            {match.title}
+          </h1>
+        </div>
+
+        <span className="text-xs font-medium text-stone-400">
+          {match.playersPerSide} vs {match.playersPerSide}
+        </span>
+      </div>
+
       <div className="bg-stone-50/70 px-6 py-8 md:px-8">
         <div className="grid items-center gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex flex-col items-center justify-center text-center">

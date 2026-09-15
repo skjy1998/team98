@@ -33,6 +33,7 @@ export default function MatchAttendanceModeTabs({
             <button
               key={option.value}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onChangeMode(option.value)}
               className={[
                 "rounded-lg px-4 py-3 text-sm font-semibold transition",

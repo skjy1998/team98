@@ -14,6 +14,14 @@ export interface VoteMember {
   status: VoteStatus;
 }
 
+export interface VoteSummary {
+  attend: number;
+  pending: number;
+  absent: number;
+  unvoted: number;
+  total: number;
+}
+
 export type VoteFilter = "all" | VoteStatus;
 
 export type MatchVotesByMatchId = Record<string, MatchVote[]>;

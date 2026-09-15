@@ -1,4 +1,5 @@
 import type { PlayerType } from "@/types/player";
+import type { SetPieceKey } from "@/types/tactics";
 import { ChevronDown } from "lucide-react";
 
 interface TacticsKickerSectionProps {
@@ -6,13 +7,16 @@ interface TacticsKickerSectionProps {
   cornerKickPlayerId: string;
   freeKickPlayerId: string;
   penaltyKickPlayerId: string;
-  onChangeCornerKickPlayerId: (value: string) => void;
-  onChangeFreeKickPlayerId: (value: string) => void;
-  onChangePenaltyKickPlayerId: (value: string) => void;
-  cornerKickPlayer?: PlayerType;
-  freeKickPlayer?: PlayerType;
-  penaltyKickPlayer?: PlayerType;
+  onChangeSetPiecePlayer: (key: SetPieceKey, value: string) => void;
   canManage: boolean;
+}
+
+interface KickerField {
+  id: string;
+  label: string;
+  value: string;
+  setPieceKey: SetPieceKey;
+  selectedPlayer?: PlayerType;
 }
 
 export default function TacticsKickerSection({
@@ -20,35 +24,32 @@ export default function TacticsKickerSection({
   cornerKickPlayerId,
   freeKickPlayerId,
   penaltyKickPlayerId,
-  onChangeCornerKickPlayerId,
-  onChangeFreeKickPlayerId,
-  onChangePenaltyKickPlayerId,
-  cornerKickPlayer,
-  freeKickPlayer,
-  penaltyKickPlayer,
+  onChangeSetPiecePlayer,
   canManage,
 }: Readonly<TacticsKickerSectionProps>) {
-  const kickerFields = [
+  const playerById = new Map(players.map((player) => [player.id, player]));
+
+  const kickerFields: KickerField[] = [
     {
       id: "corner-kicker",
       label: "코너킥",
       value: cornerKickPlayerId,
-      onChange: onChangeCornerKickPlayerId,
-      selectedPlayer: cornerKickPlayer,
+      setPieceKey: "cornerKickPlayerId",
+      selectedPlayer: playerById.get(cornerKickPlayerId),
     },
     {
       id: "freekick-kicker",
       label: "프리킥",
       value: freeKickPlayerId,
-      onChange: onChangeFreeKickPlayerId,
-      selectedPlayer: freeKickPlayer,
+      setPieceKey: "freeKickPlayerId",
+      selectedPlayer: playerById.get(freeKickPlayerId),
     },
     {
       id: "penalty-kicker",
       label: "페널티킥",
       value: penaltyKickPlayerId,
-      onChange: onChangePenaltyKickPlayerId,
-      selectedPlayer: penaltyKickPlayer,
+      setPieceKey: "penaltyKickPlayerId",
+      selectedPlayer: playerById.get(penaltyKickPlayerId),
     },
   ];
 
@@ -69,7 +70,9 @@ export default function TacticsKickerSection({
               <select
                 id={field.id}
                 value={field.value}
-                onChange={(event) => field.onChange(event.target.value)}
+                onChange={(event) =>
+                  onChangeSetPiecePlayer(field.setPieceKey, event.target.value)
+                }
                 disabled={!canManage}
                 className={`h-12 w-full appearance-none rounded-xl border px-4 pr-10 text-sm outline-none ${
                   canManage
@@ -85,17 +88,19 @@ export default function TacticsKickerSection({
                 ))}
               </select>
               <ChevronDown
+                aria-hidden="true"
                 className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ${
                   canManage ? "text-stone-400" : "text-stone-300"
                 }`}
               />
             </div>
 
-            <div className="mt-2 rounded-lg bg-stone-50 px-3 py-2 text-sm text-stone-600">
-              {field.selectedPlayer
-                ? field.selectedPlayer.name
-                : "선택된 선수가 없습니다."}
-            </div>
+            <output
+              htmlFor={field.id}
+              className="mt-2 block rounded-lg bg-stone-50 px-3 py-2 text-sm text-stone-600"
+            >
+              {field.selectedPlayer?.name ?? "선택된 선수가 없습니다."}
+            </output>
           </div>
         ))}
       </div>

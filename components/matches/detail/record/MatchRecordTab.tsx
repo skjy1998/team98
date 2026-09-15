@@ -74,6 +74,7 @@ export default function MatchRecordTab({
 
   const {
     editingEventId,
+    isAddingEvent,
     handleStartEdit,
     handleCancelEdit,
     handleAddEvent,
@@ -124,6 +125,7 @@ export default function MatchRecordTab({
       {canEdit && (
         <MatchRecordScoreActions
           matchType={matchType}
+          isAddingEvent={isAddingEvent}
           onAddEvent={handleAddEvent}
         />
       )}

@@ -2,7 +2,7 @@ import type { MatchVote, VoteFilter, VoteStatus } from "@/types/match-vote";
 import type { MatchItem } from "@/types/match";
 import type { PlayerType } from "@/types/player";
 import { useMemo, useState } from "react";
-import { useToastStore } from "@/stores/toast-store";
+
 import {
   formatVoteDeadline,
   getFilteredVoteMembers,
@@ -14,6 +14,7 @@ import {
 import MyVoteCard from "./MyVoteCard";
 import VoteSummaryCard from "./VoteSummaryCard";
 import VoteManagementPanel from "./VoteManagementPanel";
+import { useMatchVoteTabActions } from "@/hooks/matches/useMatchVoteTabActions";
 
 interface MatchVoteTabProps {
   matchId: string;
@@ -40,8 +41,6 @@ export default function MatchVoteTab({
   saveVote,
   deleteVote,
 }: Readonly<MatchVoteTabProps>) {
-  const showToast = useToastStore((state) => state.showToast);
-
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<VoteFilter>("all");
 
@@ -67,18 +66,12 @@ export default function MatchVoteTab({
   const isClosed = isVoteClosed(match.voteDeadline);
   const voteDeadlineText = formatVoteDeadline(match.voteDeadline);
 
-  const handleChangeStatus = async (playerId: string, status: VoteStatus) => {
-    const currentStatus = getPlayerVoteStatus(votes, playerId);
-
-    const success =
-      currentStatus === status
-        ? await deleteVote(matchId, playerId)
-        : await saveVote(matchId, playerId, status);
-
-    if (!success) {
-      showToast("투표 저장에 실패했어요.", "error");
-    }
-  };
+  const { handleChangeStatus } = useMatchVoteTabActions({
+    matchId,
+    votes,
+    saveVote,
+    deleteVote,
+  });
 
   return (
     <div className="space-y-5">
@@ -99,21 +92,13 @@ export default function MatchVoteTab({
             </p>
           </section>
         ))}
-      <VoteSummaryCard
-        attend={summary.attend}
-        pending={summary.pending}
-        absent={summary.absent}
-        unvoted={summary.unvoted}
-        total={summary.total}
-      />
+      <VoteSummaryCard summary={summary} />
       <VoteManagementPanel
-        title="전체 투표 현황"
         members={filteredMembers}
         canManage={canManage}
         filterState={{
           search,
           filter,
-          showFilters: canManage,
           onSearchChange: setSearch,
           onFilterChange: setFilter,
         }}

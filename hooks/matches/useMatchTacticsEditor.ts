@@ -17,7 +17,7 @@ import type {
 } from "@/types/tactics";
 import type { TeamSport } from "@/types/team";
 import { useState } from "react";
-import { useMatchTacticsViewData } from "./useMatchTacticsViewData";
+
 import { useMatchPlayerCountAction } from "./useMatchPlayerCountAction";
 import {
   assignPlayerToTacticsSlot,
@@ -25,6 +25,7 @@ import {
   clearTacticsSlot,
   resetTacticsFormation,
 } from "@/lib/tactics/tactics-ui";
+import { getMatchTacticsViewData } from "@/lib/tactics/match-tactics-view";
 
 interface UseMatchTacticsEditorParams {
   matchType: MatchType;
@@ -67,7 +68,7 @@ export function useMatchTacticsEditor({
 
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
-  const viewData = useMatchTacticsViewData({
+  const viewData = getMatchTacticsViewData({
     matchType,
     sport,
     playersPerSide,
@@ -93,19 +94,23 @@ export function useMatchTacticsEditor({
       onResetSelection: () => setSelectedSlotId(null),
     });
 
-  const updateCurrentQuarterTactics = (
+  const updateCurrentQuarterTactics = async (
     updater: (current: QuarterTacticsState) => QuarterTacticsState,
   ) => {
-    void saveTacticsBySide(selectedSide, (current) => ({
+    const saved = await saveTacticsBySide(selectedSide, (current) => ({
       ...current,
       [selectedQuarter]: updater(current[selectedQuarter]),
     }));
+
+    if (!saved) {
+      showToast("전술 저장에 실패했어요.", "error");
+    }
   };
 
   const handleFormationChange = (formation: FormationName) => {
     if (!canManage) return;
 
-    updateCurrentQuarterTactics((current) =>
+    void updateCurrentQuarterTactics((current) =>
       changeTacticsFormation(current, formation),
     );
 
@@ -115,7 +120,7 @@ export function useMatchTacticsEditor({
   const handleResetFormation = () => {
     if (!canManage) return;
 
-    updateCurrentQuarterTactics(resetTacticsFormation);
+    void updateCurrentQuarterTactics(resetTacticsFormation);
 
     setSelectedSlotId(null);
   };
@@ -128,7 +133,7 @@ export function useMatchTacticsEditor({
       return;
     }
 
-    updateCurrentQuarterTactics((current) =>
+    void updateCurrentQuarterTactics((current) =>
       assignPlayerToTacticsSlot(current, selectedSlotId, playerId),
     );
 
@@ -138,7 +143,7 @@ export function useMatchTacticsEditor({
   const handleClearSlot = () => {
     if (!canManage || !selectedSlotId) return;
 
-    updateCurrentQuarterTactics((current) =>
+    void updateCurrentQuarterTactics((current) =>
       clearTacticsSlot(current, selectedSlotId),
     );
 
@@ -148,7 +153,7 @@ export function useMatchTacticsEditor({
   const handleChangeSetPiecePlayer = (key: SetPieceKey, value: string) => {
     if (!canManage) return;
 
-    updateCurrentQuarterTactics((current) => ({
+    void updateCurrentQuarterTactics((current) => ({
       ...current,
       [key]: value,
     }));

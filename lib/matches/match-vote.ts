@@ -3,6 +3,7 @@ import type {
   VoteFilter,
   VoteMember,
   VoteStatus,
+  VoteSummary,
 } from "@/types/match-vote";
 import type { PlayerType } from "@/types/player";
 
@@ -10,17 +11,17 @@ export function getVoteMembers(
   players: PlayerType[],
   currentVotes: MatchVote[],
 ): VoteMember[] {
-  return players
-    .map((player) => {
-      const vote = currentVotes.find((item) => item.playerId === player.id);
+  const voteByPlayerId = new Map(
+    currentVotes.map((vote) => [vote.playerId, vote]),
+  );
 
-      return {
-        id: player.id,
-        name: player.name,
-        status: vote?.status ?? "unvoted",
-      };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  return players
+    .map((player) => ({
+      id: player.id,
+      name: player.name,
+      status: voteByPlayerId.get(player.id)?.status ?? "unvoted",
+    }))
+    .toSorted((a, b) => a.name.localeCompare(b.name, "ko"));
 }
 
 export function getFilteredVoteMembers(
@@ -35,27 +36,20 @@ export function getFilteredVoteMembers(
   });
 }
 
-export function getVoteSummary(voteMembers: VoteMember[]) {
-  const attend = voteMembers.filter(
-    (member) => member.status === "attend",
-  ).length;
-  const pending = voteMembers.filter(
-    (member) => member.status === "pending",
-  ).length;
-  const absent = voteMembers.filter(
-    (member) => member.status === "absent",
-  ).length;
-  const unvoted = voteMembers.filter(
-    (member) => member.status === "unvoted",
-  ).length;
-
-  return {
-    attend,
-    pending,
-    absent,
-    unvoted,
+export function getVoteSummary(voteMembers: VoteMember[]): VoteSummary {
+  const summary = {
+    attend: 0,
+    pending: 0,
+    absent: 0,
+    unvoted: 0,
     total: voteMembers.length,
   };
+
+  for (const member of voteMembers) {
+    summary[member.status] += 1;
+  }
+
+  return summary;
 }
 
 export function formatVoteDeadline(voteDeadline: string) {

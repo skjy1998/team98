@@ -1,7 +1,7 @@
 import { createDefaultMatchTactics } from "@/lib/tactics/tactics-ui";
 import { useConfirmStore } from "@/stores/confirm-store";
 import { useToastStore } from "@/stores/toast-store";
-import { MatchPlayersPerSide, MatchType } from "@/types/match";
+import type { MatchPlayersPerSide, MatchType } from "@/types/match";
 import type { MatchTacticsByQuarter, MatchTacticsSide } from "@/types/tactics";
 import type { TeamSport } from "@/types/team";
 import { useState } from "react";

@@ -23,6 +23,10 @@ export default function MatchAttendanceCheckSection({
   onChangeStatus,
   onMarkAllAttend,
 }: Readonly<MatchAttendanceCheckSectionProps>) {
+  const attendanceByPlayerId = new Map(
+    attendance.map((item) => [item.playerId, item]),
+  );
+
   return (
     <section className="rounded-xl border border-stone-200 bg-white p-6">
       <div className="flex items-center justify-between gap-4">
@@ -52,9 +56,7 @@ export default function MatchAttendanceCheckSection({
 
       <div className="mt-5 space-y-3">
         {players.map((player) => {
-          const currentAttendance = attendance.find(
-            (item) => item.playerId === player.id,
-          );
+          const currentAttendance = attendanceByPlayerId.get(player.id);
 
           return (
             <AttendanceMemberRow

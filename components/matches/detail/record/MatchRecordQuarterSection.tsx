@@ -36,6 +36,19 @@ interface MatchRecordQuarterSectionProps {
   onDragEnd: (event: DragEndEvent) => void;
 }
 
+function getEditablePlayers(
+  matchType: MatchType,
+  event: MatchRecordEvent,
+  attendPlayers: PlayerType[],
+  playersBySide: Record<SelfMatchSide, PlayerType[]>,
+) {
+  if (matchType !== "자체전") {
+    return attendPlayers;
+  }
+
+  return event.type === "goal" ? playersBySide.team_a : playersBySide.team_b;
+}
+
 export default function MatchRecordQuarterSection({
   matchType,
   selfMatchPlayersBySide,
@@ -79,12 +92,12 @@ export default function MatchRecordQuarterSection({
             >
               {quarterEvents.map((event) => {
                 const isEditing = editingEventId === event.id;
-                const editablePlayers =
-                  matchType === "자체전"
-                    ? event.type === "goal"
-                      ? selfMatchPlayersBySide.team_a
-                      : selfMatchPlayersBySide.team_b
-                    : attendPlayers;
+                const editablePlayers = getEditablePlayers(
+                  matchType,
+                  event,
+                  attendPlayers,
+                  selfMatchPlayersBySide,
+                );
 
                 return (
                   <div key={event.id} className="space-y-3">
@@ -123,8 +136,6 @@ export default function MatchRecordQuarterSection({
               event={event}
               isEditing={false}
               canManage={false}
-              onEdit={() => {}}
-              onDelete={() => {}}
             />
           ))
         )}

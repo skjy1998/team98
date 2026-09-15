@@ -11,41 +11,39 @@ interface AttendanceMemberRowProps {
   ) => void;
 }
 
-const statusOptions = [
-  {
-    value: "attend",
+type AttendanceUiStatus = MatchAttendanceStatus | "unchecked";
+
+const selectableStatuses = ["attend", "late", "absent"] as const;
+
+const statusMeta = {
+  attend: {
     label: "출석",
     activeClassName: "bg-emerald-600 text-white",
+    readOnlyClassName: "bg-emerald-100 text-emerald-700",
   },
-  {
-    value: "late",
+  late: {
     label: "지각",
     activeClassName: "bg-amber-500 text-white",
+    readOnlyClassName: "bg-amber-100 text-amber-700",
   },
-  {
-    value: "absent",
+  absent: {
     label: "무단불참",
     activeClassName: "bg-rose-600 text-white",
+    readOnlyClassName: "bg-rose-100 text-rose-700",
   },
-] as const;
-
-const readOnlyStatusClassName: Record<
-  MatchAttendanceStatus | "unchecked",
-  string
-> = {
-  attend: "bg-emerald-100 text-emerald-700",
-  late: "bg-amber-100 text-amber-700",
-  absent: "bg-rose-100 text-rose-700",
-  unchecked: "bg-stone-100 text-stone-600",
-};
-
-const readOnlyStatusLabel: Record<MatchAttendanceStatus | "unchecked", string> =
+  unchecked: {
+    label: "미체크",
+    activeClassName: "",
+    readOnlyClassName: "bg-stone-100 text-stone-600",
+  },
+} satisfies Record<
+  AttendanceUiStatus,
   {
-    attend: "출석",
-    late: "지각",
-    absent: "무단불참",
-    unchecked: "미체크",
-  };
+    label: string;
+    activeClassName: string;
+    readOnlyClassName: string;
+  }
+>;
 
 export default function AttendanceMemberRow({
   id,
@@ -60,15 +58,17 @@ export default function AttendanceMemberRow({
 
       {canEdit ? (
         <div className="flex items-center gap-2">
-          {statusOptions.map((option) => {
-            const isActive = status === option.value;
+          {selectableStatuses.map((optionStatus) => {
+            const option = statusMeta[optionStatus];
+            const isActive = status === optionStatus;
 
             return (
               <button
-                key={option.value}
+                key={optionStatus}
                 type="button"
+                aria-pressed={isActive}
                 onClick={() =>
-                  onChangeStatus(id, isActive ? "unchecked" : option.value)
+                  onChangeStatus(id, isActive ? "unchecked" : optionStatus)
                 }
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                   isActive
@@ -83,9 +83,9 @@ export default function AttendanceMemberRow({
         </div>
       ) : (
         <span
-          className={`rounded-full px-3 py-1 text-sm font-semibold ${readOnlyStatusClassName[status]}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold ${statusMeta[status].readOnlyClassName}`}
         >
-          {readOnlyStatusLabel[status]}
+          {statusMeta[status].label}
         </span>
       )}
     </div>

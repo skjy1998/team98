@@ -8,37 +8,37 @@ interface VoteMemberRowProps {
   onChangeStatus: (playerId: string, status: VoteStatus) => void;
 }
 
-const statusOptions = [
-  {
-    value: "attend",
+const selectableStatuses = ["attend", "pending", "absent"] as const;
+
+const statusMeta = {
+  attend: {
     label: "참석",
     activeClassName: "bg-emerald-600 text-white",
+    readOnlyClassName: "bg-emerald-100 text-emerald-700",
   },
-  {
-    value: "pending",
+  pending: {
     label: "미정",
     activeClassName: "bg-amber-500 text-white",
+    readOnlyClassName: "bg-amber-100 text-amber-700",
   },
-  {
-    value: "absent",
+  absent: {
     label: "불참",
     activeClassName: "bg-rose-600 text-white",
+    readOnlyClassName: "bg-rose-100 text-rose-700",
   },
-] as const;
-
-const readOnlyStatusClassName: Record<VoteStatus, string> = {
-  attend: "bg-emerald-100 text-emerald-700",
-  pending: "bg-amber-100 text-amber-700",
-  absent: "bg-rose-100 text-rose-700",
-  unvoted: "bg-stone-100 text-stone-600",
-};
-
-const readOnlyStatusLabel: Record<VoteStatus, string> = {
-  attend: "참석",
-  pending: "미정",
-  absent: "불참",
-  unvoted: "미투표",
-};
+  unvoted: {
+    label: "미투표",
+    activeClassName: "",
+    readOnlyClassName: "bg-stone-100 text-stone-600",
+  },
+} satisfies Record<
+  VoteStatus,
+  {
+    label: string;
+    activeClassName: string;
+    readOnlyClassName: string;
+  }
+>;
 
 export default function VoteMemberRow({
   id,
@@ -52,18 +52,20 @@ export default function VoteMemberRow({
       <p className="text-base font-semibold text-stone-900">{name}</p>
       {canEdit ? (
         <div className="flex items-center gap-2">
-          {statusOptions.map((option) => {
-            const isActive = status === option.value;
+          {selectableStatuses.map((optionStatus) => {
+            const option = statusMeta[optionStatus];
+            const isActive = status === optionStatus;
 
             return (
               <button
-                key={option.value}
+                key={optionStatus}
                 type="button"
-                onClick={() => onChangeStatus(id, option.value)}
-                className={`rounded-xl px-4 py-2 text-sm font-medium ${
+                aria-pressed={isActive}
+                onClick={() => onChangeStatus(id, optionStatus)}
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                   isActive
                     ? option.activeClassName
-                    : "border border-stone-200 bg-white text-stone-600"
+                    : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
                 }`}
               >
                 {option.label}
@@ -73,9 +75,9 @@ export default function VoteMemberRow({
         </div>
       ) : (
         <span
-          className={`rounded-full px-3 py-1 text-sm font-semibold ${readOnlyStatusClassName[status]}`}
+          className={`rounded-full px-3 py-1 text-sm font-semibold ${statusMeta[status].readOnlyClassName}`}
         >
-          {readOnlyStatusLabel[status]}
+          {statusMeta[status].label}
         </span>
       )}
     </div>

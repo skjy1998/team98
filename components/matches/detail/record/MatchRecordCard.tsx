@@ -7,30 +7,24 @@ interface MatchRecordCardProps {
   matchType: MatchType;
   event: MatchRecordEvent;
   isEditing: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
   canManage: boolean;
 }
 
-export default function MatchRecordCard({
-  matchType,
-  event,
-  isEditing,
-  onEdit,
-  onDelete,
-  canManage,
-}: Readonly<MatchRecordCardProps>) {
+function getRecordDisplay(matchType: MatchType, event: MatchRecordEvent) {
   const isSelfMatch = matchType === "자체전";
-  const isTeamAGoal = event.type === "goal";
-  const canDisplayPlayer = isTeamAGoal || isSelfMatch;
+  const isGoalEvent = event.type === "goal";
 
-  const scoreLabel = isSelfMatch
-    ? isTeamAGoal
-      ? "A팀 득점"
-      : "B팀 득점"
-    : isTeamAGoal
-      ? "득점"
-      : "실점";
+  let scoreLabel = "실점";
+
+  if (isSelfMatch) {
+    scoreLabel = isGoalEvent ? "A팀 득점" : "B팀 득점";
+  } else if (isGoalEvent) {
+    scoreLabel = "득점";
+  }
+
+  const canDisplayPlayer = isGoalEvent || isSelfMatch;
 
   const title = canDisplayPlayer
     ? event.playerName || `${scoreLabel}자 미지정`
@@ -48,6 +42,27 @@ export default function MatchRecordCard({
     .filter(Boolean)
     .join(" · ");
 
+  return {
+    isGoalEvent,
+    scoreLabel,
+    title,
+    meta,
+  };
+}
+
+export default function MatchRecordCard({
+  matchType,
+  event,
+  isEditing,
+  onEdit,
+  onDelete,
+  canManage,
+}: Readonly<MatchRecordCardProps>) {
+  const { isGoalEvent, scoreLabel, title, meta } = getRecordDisplay(
+    matchType,
+    event,
+  );
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: event.id,
@@ -64,7 +79,7 @@ export default function MatchRecordCard({
       style={style}
       className={`rounded-2xl border px-5 py-4 transition ${
         isEditing
-          ? "border-orange-300 bg-stone-100 ring-2 ring-orange-200"
+          ? "border-emerald-300 bg-emerald-50/40 ring-2 ring-emerald-100"
           : "border-stone-200 bg-stone-100/70 hover:border-stone-300"
       }`}
     >
@@ -86,7 +101,7 @@ export default function MatchRecordCard({
               <div className="flex items-center gap-3">
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    event.type === "goal"
+                    isGoalEvent
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-rose-100 text-rose-600"
                   }`}
@@ -109,7 +124,8 @@ export default function MatchRecordCard({
             <button
               type="button"
               onClick={onEdit}
-              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50"
+              disabled={!onEdit}
+              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isEditing ? "닫기" : "수정"}
             </button>
@@ -117,7 +133,8 @@ export default function MatchRecordCard({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-100"
+              disabled={!onDelete}
+              className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
               삭제
             </button>

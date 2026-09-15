@@ -6,7 +6,6 @@ interface MatchRecordPlayerPickerProps {
   selectedPlayerId: string;
   onChange: (playerId: string) => void;
   allowEmpty?: boolean;
-  variant: "scorer" | "assist";
 }
 
 export default function MatchRecordPlayerPicker({
@@ -15,31 +14,23 @@ export default function MatchRecordPlayerPicker({
   selectedPlayerId,
   onChange,
   allowEmpty = false,
-  variant,
 }: Readonly<MatchRecordPlayerPickerProps>) {
-  const activeClassName =
-    variant === "scorer"
-      ? "bg-amber-500 text-white"
-      : "bg-emerald-500 text-white";
-
-  const inactiveClassName =
-    variant === "scorer"
-      ? "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-      : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100";
-
   return (
-    <div>
-      <p className="mb-3 text-sm font-semibold text-stone-700">{label}</p>
+    <fieldset>
+      <legend className="mb-3 text-sm font-semibold text-stone-700">
+        {label}
+      </legend>
 
       <div className="flex flex-wrap gap-2">
         {allowEmpty && (
           <button
             type="button"
+            aria-pressed={selectedPlayerId === ""}
             onClick={() => onChange("")}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
               selectedPlayerId === ""
-                ? "bg-stone-900 text-white"
-                : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+                ? "border-stone-700 bg-stone-700 text-white shadow-sm"
+                : "border-stone-200 bg-white text-stone-500 hover:bg-stone-100"
             }`}
           >
             없음
@@ -50,17 +41,18 @@ export default function MatchRecordPlayerPicker({
           <button
             key={player.id}
             type="button"
+            aria-pressed={selectedPlayerId === player.id}
             onClick={() => onChange(player.id)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
               selectedPlayerId === player.id
-                ? activeClassName
-                : inactiveClassName
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+                : "border-stone-200 bg-white text-stone-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
             }`}
           >
             {player.name}
           </button>
         ))}
       </div>
-    </div>
+    </fieldset>
   );
 }

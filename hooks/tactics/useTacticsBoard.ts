@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type {
   FormationName,
   QuarterTacticsState,
   SavedFormation,
+  SetPieceKey,
 } from "@/types/tactics";
-import { formationTemplate } from "@/data/formationTemplates";
+
 import { usePlayers } from "../players/usePlayers";
 import {
   assignPlayerToTacticsSlot,
@@ -13,6 +14,7 @@ import {
   getAssignedPlayerIds,
   getPlayerById as findPlayerById,
   resetTacticsFormation,
+  createDefaultQuarterTactics,
 } from "@/lib/tactics/tactics-ui";
 
 export function useTacticsBoard() {
@@ -20,13 +22,9 @@ export function useTacticsBoard() {
 
   // 클릭해서 선택한 포지션 슬롯 id
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  const [tacticsState, setTacticsState] = useState<QuarterTacticsState>({
-    formation: "4-4-2",
-    slots: formationTemplate["4-4-2"],
-    cornerKickPlayerId: "",
-    freeKickPlayerId: "",
-    penaltyKickPlayerId: "",
-  });
+  const [tacticsState, setTacticsState] = useState<QuarterTacticsState>(
+    createDefaultQuarterTactics,
+  );
 
   const { formation, slots } = tacticsState;
 
@@ -35,20 +33,16 @@ export function useTacticsBoard() {
   const penaltyKickPlayerId = tacticsState.penaltyKickPlayerId ?? "";
 
   // 현재 선택된 슬롯 계산
-  const selectedSlot = useMemo(
-    () => slots.find((slot) => slot.id === selectedSlotId),
-    [slots, selectedSlotId],
-  );
+  const selectedSlot = slots.find((slot) => slot.id === selectedSlotId);
   // 슬롯에 배치된 선수 찾기
   const getPlayerById = (playerId?: string) =>
     findPlayerById(players, playerId);
 
   // 이미 배치된 선수 id들 모으기
-  const assignedPlayerIds = useMemo(() => getAssignedPlayerIds(slots), [slots]);
+  const assignedPlayerIds = getAssignedPlayerIds(slots);
   // 아직 배치 안 된 선수들만 골라내기
-  const availablePlayers = useMemo(
-    () => players.filter((player) => !assignedPlayerIds.has(player.id)),
-    [players, assignedPlayerIds],
+  const availablePlayers = players.filter(
+    (player) => !assignedPlayerIds.has(player.id),
   );
 
   // 포메이션 바꾸기
@@ -82,24 +76,10 @@ export function useTacticsBoard() {
     setSelectedSlotId(null);
   };
 
-  const setCornerKickPlayerId = (value: string) => {
+  const handleChangeSetPiecePlayer = (key: SetPieceKey, value: string) => {
     setTacticsState((current) => ({
       ...current,
-      cornerKickPlayerId: value,
-    }));
-  };
-
-  const setFreeKickPlayerId = (value: string) => {
-    setTacticsState((current) => ({
-      ...current,
-      freeKickPlayerId: value,
-    }));
-  };
-
-  const setPenaltyKickPlayerId = (value: string) => {
-    setTacticsState((current) => ({
-      ...current,
-      penaltyKickPlayerId: value,
+      [key]: value,
     }));
   };
 
@@ -137,9 +117,7 @@ export function useTacticsBoard() {
 
     getPlayerById,
     setSelectedSlotId,
-    setCornerKickPlayerId,
-    setFreeKickPlayerId,
-    setPenaltyKickPlayerId,
+    handleChangeSetPiecePlayer,
 
     handleFormationChange,
     handleResetTactics,

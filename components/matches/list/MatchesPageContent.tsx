@@ -4,6 +4,8 @@ import PageHeader from "@/components/PageHeader";
 import type { useMatchesPageData } from "@/hooks/matches/useMatchesPageData";
 import MatchSection from "./MatchSection";
 import MatchCreateModal from "./create/MatchCreateModal";
+import MatchViewToggle from "./MatchViewToggle";
+import MatchesCalendar from "../calendar/MatchesCalendar";
 
 interface MatchesPageContentProps {
   data: ReturnType<typeof useMatchesPageData>;
@@ -44,10 +46,16 @@ export default function MatchesPageContent({
           ariaLabel="조회할 시즌 선택"
           onChange={data.onChangeSeason}
         />
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium text-stone-500">
+            총 {data.displayMatches.length}경기
+          </span>
 
-        <span className="text-sm font-medium text-stone-500">
-          총 {data.displayMatches.length}경기
-        </span>
+          <MatchViewToggle
+            value={data.scheduleView}
+            onChange={data.onChangeScheduleView}
+          />
+        </div>
       </div>
 
       {!data.canManage && (
@@ -71,6 +79,11 @@ export default function MatchesPageContent({
           variant="empty"
           title="등록된 경기 일정이 없어요."
           description={emptyDescription}
+        />
+      ) : data.scheduleView === "calendar" ? (
+        <MatchesCalendar
+          key={data.selectedSeason?.id ?? "no-season"}
+          matches={data.displayMatches}
         />
       ) : (
         <div className="space-y-8">

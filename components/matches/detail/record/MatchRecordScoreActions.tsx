@@ -2,11 +2,13 @@ import type { MatchRecordEventType, MatchType } from "@/types/match";
 
 interface MatchRecordScoreActionsProps {
   matchType: MatchType;
+  isAddingEvent: boolean;
   onAddEvent: (type: MatchRecordEventType) => Promise<void>;
 }
 
 export default function MatchRecordScoreActions({
   matchType,
+  isAddingEvent,
   onAddEvent,
 }: Readonly<MatchRecordScoreActionsProps>) {
   const isSelfMatch = matchType === "자체전";
@@ -17,18 +19,20 @@ export default function MatchRecordScoreActions({
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <button
           type="button"
+          disabled={isAddingEvent}
           onClick={() => void onAddEvent("goal")}
-          className="h-16 rounded-xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200"
+          className="h-16 rounded-xl bg-emerald-100 text-lg font-semibold text-emerald-700 transition hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSelfMatch ? "+ A팀 득점" : "+ 득점"}
+          {isAddingEvent ? "추가 중..." : isSelfMatch ? "+ A팀 득점" : "+ 득점"}
         </button>
 
         <button
           type="button"
+          disabled={isAddingEvent}
           onClick={() => void onAddEvent("concede")}
-          className="h-16 rounded-xl bg-rose-100 text-lg font-semibold text-rose-600 transition hover:bg-rose-200"
+          className="h-16 rounded-xl bg-rose-100 text-lg font-semibold text-rose-600 transition hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSelfMatch ? "+ B팀 득점" : "+ 실점"}
+          {isAddingEvent ? "추가 중..." : isSelfMatch ? "+ B팀 득점" : "+ 실점"}
         </button>
       </div>
 

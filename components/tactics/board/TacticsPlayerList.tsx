@@ -69,7 +69,9 @@ export default function TacticsPlayerList({
                     )}
 
                     <span className="text-sm text-stone-400">
-                      {player.number ? `#${player.number}` : "등번호 없음"}
+                      {player.number != null
+                        ? `#${player.number}`
+                        : "등번호 없음"}
                     </span>
                   </div>
                 </div>
