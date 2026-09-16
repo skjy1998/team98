@@ -62,6 +62,7 @@ export function getPlayerRecentMatches(
   matches: MatchItem[],
   attendance: MatchAttendanceByMatchId,
   records: MatchRecordMap,
+  onlyAppearances = false,
 ): PlayerRecentMatch[] {
   if (!playerId) return [];
 
@@ -70,7 +71,12 @@ export function getPlayerRecentMatches(
       (match) =>
         match.status !== "canceled" &&
         match.countsTowardRecord &&
-        getHasMatchStarted(match.date, match.startTime),
+        getHasMatchStarted(match.date, match.startTime) &&
+        (!onlyAppearances ||
+          attendance[match.id]?.some(
+            (item) =>
+              item.playerId === playerId && getIsAppearanceStatus(item.status),
+          )),
     )
     .sort((a, b) => {
       const aTime = new Date(`${a.date}T${a.startTime}`).getTime();

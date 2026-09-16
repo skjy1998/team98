@@ -6,12 +6,14 @@ interface PlayerTableProps {
   players: PlayerType[];
   onEdit?: (player: PlayerType) => void;
   onDelete?: (player: PlayerType) => void;
+  onView: (player: PlayerType) => void;
 }
 
 export default function PlayerTable({
   players,
   onEdit,
   onDelete,
+  onView,
 }: Readonly<PlayerTableProps>) {
   if (players.length === 0) {
     return (
@@ -31,6 +33,7 @@ export default function PlayerTable({
             player={player}
             onEdit={onEdit}
             onDelete={onDelete}
+            onView={onView}
           />
         ))}
       </div>

@@ -14,6 +14,7 @@ export default function PlayersPageClient() {
     search: pageState.search,
     sortType: pageState.sortType,
     editingPlayer: pageState.editingPlayer,
+    viewingPlayerId: pageState.viewingPlayerId,
   });
 
   const pageActions = usePlayersPageActions({

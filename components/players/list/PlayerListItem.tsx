@@ -10,12 +10,14 @@ interface PlayerListItemProps {
   player: PlayerType;
   onEdit?: (player: PlayerType) => void;
   onDelete?: (player: PlayerType) => void;
+  onView: (player: PlayerType) => void;
 }
 
 export default function PlayerListItem({
   player,
   onEdit,
   onDelete,
+  onView,
 }: Readonly<PlayerListItemProps>) {
   const mainPosition = getMainPositionFromDetail(player.detailPositions);
   const badges = getPlayerBadges(player);
@@ -24,17 +26,26 @@ export default function PlayerListItem({
     <div className="rounded-[22px] px-3 py-3 transition hover:bg-stone-50">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-100">
+          <button
+            type="button"
+            onClick={() => onView(player)}
+            aria-label={`${player.name} 프로필 보기`}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-100 transition hover:border-emerald-300"
+          >
             <span className="text-sm font-semibold text-stone-700">
               {player.number ?? player.name.slice(0, 1)}
             </span>
-          </div>
+          </button>
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
-              <p className="truncate text-[15px] font-semibold text-stone-900">
+              <button
+                type="button"
+                onClick={() => onView(player)}
+                className="truncate text-left text-[15px] font-semibold text-stone-900 hover:text-emerald-700"
+              >
                 {player.name}
-              </p>
+              </button>
 
               {badges.map((badge) => (
                 <span

@@ -10,6 +10,7 @@ export function usePlayersPageState() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   // 어떤 선수를 수정 중인지 기억
   const [editingPlayer, setEditingPlayer] = useState<PlayerType | null>(null);
+  const [viewingPlayerId, setViewingPlayerId] = useState<string | null>(null);
 
   // 새 선수 추가 버튼 눌렀을 때 실행
   const handleOpenCreate = () => {
@@ -24,12 +25,19 @@ export function usePlayersPageState() {
   // 수정 함수
   const handleEdit = (player: PlayerType) => {
     setIsCreateOpen(false);
+    setViewingPlayerId(null);
     setEditingPlayer(player);
   };
 
   const handleCloseEdit = () => {
     setEditingPlayer(null);
   };
+
+  const handleViewProfile = (player: PlayerType) => {
+    setViewingPlayerId(player.id);
+  };
+
+  const handleCloseProfile = () => setViewingPlayerId(null);
 
   return {
     search,
@@ -38,9 +46,12 @@ export function usePlayersPageState() {
     setSortType,
     isCreateOpen,
     editingPlayer,
+    viewingPlayerId,
     handleOpenCreate,
     handleCloseCreate,
     handleEdit,
     handleCloseEdit,
+    handleViewProfile,
+    handleCloseProfile,
   };
 }

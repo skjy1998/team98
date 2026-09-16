@@ -6,6 +6,7 @@ import PlayerToolbar from "./list/PlayerToolbar";
 import PlayerCreateModal from "./modal/PlayerCreateModal";
 import PlayerTable from "./list/PlayerTable";
 import PlayerEditModal from "./modal/edit/PlayerEditModal";
+import PlayerProfileModal from "./modal/PlayerProfileModal";
 
 interface PlayersPageContentProps {
   state: ReturnType<typeof usePlayersPageState>;
@@ -18,6 +19,10 @@ export default function PlayersPageContent({
   data,
   actions,
 }: Readonly<PlayersPageContentProps>) {
+  const profilePlayer = data.displayPlayers.find(
+    (player) => player.id === state.viewingPlayerId,
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -52,8 +57,17 @@ export default function PlayersPageContent({
         players={data.filteredPlayers}
         onEdit={data.canManage ? state.handleEdit : undefined}
         onDelete={data.canManage ? actions.handleDeletePlayer : undefined}
+        onView={state.handleViewProfile}
       />
-
+      {profilePlayer && (
+        <PlayerProfileModal
+          player={profilePlayer}
+          onClose={state.handleCloseProfile}
+          onEdit={data.canManage ? state.handleEdit : undefined}
+          mvpCount={data.profileMvpCount}
+          recentMatches={data.profileRecentMatches}
+        />
+      )}
       {data.canManage && state.editingPlayer && (
         <PlayerEditModal
           key={state.editingPlayer.id}

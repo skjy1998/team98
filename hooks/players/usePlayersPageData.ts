@@ -11,17 +11,23 @@ import {
   getFilteredPlayers,
 } from "@/lib/players/player-list";
 import { useMemo } from "react";
+import { useMatchMvpVotes } from "../matches/useMatchMvpVotes";
+import { getPlayerRecentMatches } from "@/lib/players/player-stats";
+import { getHasMatchEnded } from "@/lib/matches/match-time";
+import { getPlayerMvpWinCounts } from "@/lib/matches/match-mvp";
 
 interface UsePlayersPageDataParams {
   search: string;
   sortType: PlayerSortType;
   editingPlayer: PlayerType | null;
+  viewingPlayerId: string | null;
 }
 
 export function usePlayersPageData({
   search,
   sortType,
   editingPlayer,
+  viewingPlayerId,
 }: Readonly<UsePlayersPageDataParams>) {
   const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
   const { canManage, memberLoaded, memberError, reloadMember } =
@@ -51,6 +57,9 @@ export function usePlayersPageData({
       editingPlayer,
     });
 
+  const { mvpVotes, mvpVotesLoaded, mvpVotesError, reloadMvpVotes } =
+    useMatchMvpVotes();
+
   const displayPlayers = useMemo(
     () => getDisplayPlayers(players, matches, attendance, records),
     [players, matches, attendance, records],
@@ -61,6 +70,39 @@ export function usePlayersPageData({
     [displayPlayers, search, sortType],
   );
 
+  const profileRecentMatches = useMemo(
+    () =>
+      getPlayerRecentMatches(
+        viewingPlayerId ?? undefined,
+        matches,
+        attendance,
+        records,
+        true,
+      ),
+    [viewingPlayerId, matches, attendance, records],
+  );
+
+  const profileMvpCount = useMemo(() => {
+    if (!viewingPlayerId) return 0;
+
+    const matchIds = matches
+      .filter(
+        (match) =>
+          match.status !== "canceled" &&
+          getHasMatchEnded(match.date, match.endTime),
+      )
+      .map((match) => match.id);
+
+    const counts = getPlayerMvpWinCounts(
+      matchIds,
+      players,
+      attendance,
+      mvpVotes,
+    );
+
+    return counts[viewingPlayerId] ?? 0;
+  }, [viewingPlayerId, matches, players, attendance, mvpVotes]);
+
   const isLoaded =
     teamLoaded &&
     playersLoaded &&
@@ -68,6 +110,7 @@ export function usePlayersPageData({
     attendanceLoaded &&
     recordsLoaded &&
     memberLoaded &&
+    mvpVotesLoaded &&
     membersLoaded;
 
   const pageError =
@@ -77,6 +120,7 @@ export function usePlayersPageData({
     matchesError ||
     attendanceError ||
     recordsError ||
+    mvpVotesError ||
     membersError;
 
   const reloadPageData = async () => {
@@ -88,12 +132,14 @@ export function usePlayersPageData({
       reloadAttendance(),
       reloadRecords(),
       reloadMembers(),
+      reloadMvpVotes(),
     ]);
   };
 
   return {
     teamId: team?.id,
     players,
+    displayPlayers,
     filteredPlayers,
     availableMembers,
     canManage,
@@ -103,5 +149,7 @@ export function usePlayersPageData({
     deletePlayer,
     reloadPlayers,
     reloadPageData,
+    profileRecentMatches,
+    profileMvpCount,
   };
 }
