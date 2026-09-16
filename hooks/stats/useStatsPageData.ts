@@ -5,8 +5,8 @@ import { usePlayers } from "../players/usePlayers";
 import { useCurrentTeamMember } from "../team/useCurrentTeamMember";
 import {
   getAppearanceRanking,
-  getAppearanceStreakRanking,
   getAssisterRanking,
+  getMvpRankingItems,
   getPlayerRank,
   getRankingItems,
   getRankPlayerStats,
@@ -22,25 +22,50 @@ import {
   getPlayerRecentMatches,
   getPlayerStats,
 } from "@/lib/players/player-stats";
+import { useMatchMvpVotes } from "../matches/useMatchMvpVotes";
+import { getHasMatchEnded } from "@/lib/matches/match-time";
+import { getPlayerMvpWinCounts } from "@/lib/matches/match-mvp";
 
 export default function useStatsPageData(seasonId?: string) {
   const { matches, matchesLoaded } = useMatches({ seasonId });
   const { players, playersLoaded } = usePlayers();
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { attendance, attendanceLoaded } = useMatchAttendance();
+  const { mvpVotes, mvpVotesLoaded } = useMatchMvpVotes();
   const { member, memberLoaded } = useCurrentTeamMember();
 
   const statsData = useMemo(() => {
     const recentResults = getRecentResults(matches, records);
     const teamSummary = getTeamSummary(matches, records);
 
-    const playerStats = getPlayerStats(players, matches, attendance, records);
+    const mvpMatchIds = matches
+      .filter(
+        (match) =>
+          match.status !== "canceled" &&
+          getHasMatchEnded(match.date, match.endTime),
+      )
+      .map((match) => match.id);
+
+    const mvpWinCounts = getPlayerMvpWinCounts(
+      mvpMatchIds,
+      players,
+      attendance,
+      mvpVotes,
+    );
+    const playerStats = getPlayerStats(
+      players,
+      matches,
+      attendance,
+      records,
+    ).map((player) => ({
+      ...player,
+      mvpCount: mvpWinCounts[player.id] ?? 0,
+    }));
     const teamHighlights = getTeamHighlights(matches, records);
 
     const scorerRanking = getScorerRanking(playerStats);
     const assisterRanking = getAssisterRanking(playerStats);
     const appearanceRanking = getAppearanceRanking(playerStats);
-    const appearanceStreakRanking = getAppearanceStreakRanking(playerStats);
 
     const rankedPlayerStats = getRankPlayerStats(playerStats);
 
@@ -76,19 +101,17 @@ export default function useStatsPageData(seasonId?: string) {
         teamHighlights,
         scorerRankingItems: getRankingItems(scorerRanking, "goal"),
         assisterRankingItems: getRankingItems(assisterRanking, "assist"),
-        appearanceStreakRankingItems: getRankingItems(
-          appearanceStreakRanking,
-          "appearanceStreak",
-        ),
+        mvpRankingItems: getMvpRankingItems(playerStats),
       },
     };
-  }, [matches, players, records, attendance, member?.userId]);
+  }, [matches, players, records, attendance, mvpVotes, member?.userId]);
 
   const isLoaded =
     matchesLoaded &&
     playersLoaded &&
     recordsLoaded &&
     attendanceLoaded &&
+    mvpVotesLoaded &&
     memberLoaded;
 
   return {

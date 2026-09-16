@@ -4,13 +4,13 @@ import StatsRankingCard from "./StatsRankingCard";
 interface StatsRankingSectionProps {
   scorerRankingItems: RankingItem[];
   assisterRankingItems: RankingItem[];
-  appearanceStreakRankingItems: RankingItem[];
+  mvpRankingItems: RankingItem[];
 }
 
 export default function StatsRankingSection({
   scorerRankingItems,
   assisterRankingItems,
-  appearanceStreakRankingItems,
+  mvpRankingItems,
 }: Readonly<StatsRankingSectionProps>) {
   const rankingCards = [
     {
@@ -28,9 +28,9 @@ export default function StatsRankingSection({
       valueClassName: "text-sky-700",
     },
     {
-      title: "연속 출전 리더",
-      items: appearanceStreakRankingItems,
-      unitLabel: "경기",
+      title: "MVP 리더",
+      items: mvpRankingItems,
+      unitLabel: "회",
       leaderClassName: "border-amber-100 bg-amber-50",
       valueClassName: "text-amber-700",
     },

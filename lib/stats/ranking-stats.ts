@@ -1,6 +1,8 @@
 import { getPlayerStats } from "../players/player-stats";
 import type { RankingPlayer } from "@/types/stats";
 
+type PlayerStatsItem = ReturnType<typeof getPlayerStats>[number];
+
 export function getScorerRanking(
   playerStats: ReturnType<typeof getPlayerStats>,
 ) {
@@ -63,9 +65,9 @@ export function getTopAppearances(
   return getAppearanceRanking(playerStats).slice(0, 3);
 }
 
-export function getRankPlayerStats(
-  playerStats: ReturnType<typeof getPlayerStats>,
-) {
+export function getRankPlayerStats<T extends PlayerStatsItem>(
+  playerStats: T[],
+): T[] {
   return [...playerStats].sort((a, b) => {
     if (b.attackPoint !== a.attackPoint) return b.attackPoint - a.attackPoint;
     if (b.goal !== a.goal) return b.goal - a.goal;
@@ -107,4 +109,18 @@ export function getPlayerRank(
   ).length;
 
   return higherPlayerCount + 1;
+}
+
+export function getMvpRankingItems<
+  T extends PlayerStatsItem & { mvpCount: number },
+>(playerStats: T[]) {
+  return [...playerStats]
+    .sort(
+      (a, b) => b.mvpCount - a.mvpCount || a.name.localeCompare(b.name, "ko"),
+    )
+    .map((player) => ({
+      id: player.id,
+      name: player.name,
+      value: player.mvpCount,
+    }));
 }

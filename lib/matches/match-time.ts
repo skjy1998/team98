@@ -36,3 +36,13 @@ export function getHasMatchStarted(date: string, startTime: string) {
 export function getIsUpcomingMatch(date: string, startTime: string) {
   return !getHasMatchStarted(date, startTime);
 }
+
+export function getHasMatchEnded(date: string, endTime: string) {
+  if (!date || !endTime) return false;
+
+  const matchEndAt = new Date(`${date}T${endTime}`);
+
+  if (Number.isNaN(matchEndAt.getTime())) return false;
+
+  return matchEndAt.getTime() <= Date.now();
+}

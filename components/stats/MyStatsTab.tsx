@@ -31,8 +31,8 @@ export default function MyStatsTab({ data }: Readonly<MyStatsTabProps>) {
           valueClassName: "text-sky-600",
         },
         {
-          label: "공격포인트",
-          value: player.attackPoint,
+          label: "MVP",
+          value: player.mvpCount,
           valueClassName: "text-amber-600",
         },
         {

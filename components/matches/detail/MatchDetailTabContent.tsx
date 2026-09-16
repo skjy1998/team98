@@ -6,6 +6,7 @@ import type { MatchDetailActions } from "@/hooks/matches/useMatchDetailActions";
 import MatchAttendanceTab from "./attendance/MatchAttendanceTab";
 import MatchTacticsTab from "./tactics/MatchTacticsTab";
 import MatchRecordTab from "./record/MatchRecordTab";
+import MatchMvpTab from "./mvp/MatchMvpTab";
 
 interface MatchDetailTabContentProps {
   match: MatchItem;
@@ -97,6 +98,22 @@ export default function MatchDetailTabContent({
         reorderEvents={data.reorderEvents}
         onChangeCompletion={actions.handleChangeRecordCompletion}
         canManage={data.canManage}
+      />
+    );
+  }
+
+  if (actions.activeTab === "mvp") {
+    return (
+      <MatchMvpTab
+        matchId={match.id}
+        players={data.players}
+        attendance={data.matchAttendance}
+        votes={data.matchMvpVotes}
+        currentUserId={data.currentUserId}
+        hasMatchEnded={data.hasMatchEnded}
+        saveMvpVote={data.saveMvpVote}
+        deleteMvpVote={data.deleteMvpVote}
+        isCanceled={match.status === "canceled"}
       />
     );
   }

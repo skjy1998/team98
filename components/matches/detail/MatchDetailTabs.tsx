@@ -4,6 +4,7 @@ import {
   Info,
   LayoutGrid,
   NotebookPen,
+  Trophy,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const tabs: {
   { id: "attendance", label: "출석", icon: NotebookPen },
   { id: "tactics", label: "전술", icon: LayoutGrid },
   { id: "record", label: "기록", icon: ClipboardList },
+  { id: "mvp", label: "MVP", icon: Trophy },
 ];
 
 interface MatchDetailTabsProps {
@@ -31,7 +33,7 @@ export default function MatchDetailTabs({
 }: Readonly<MatchDetailTabsProps>) {
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="grid grid-cols-3 md:grid-cols-5">
+      <div className="grid grid-cols-3 md:grid-cols-6">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

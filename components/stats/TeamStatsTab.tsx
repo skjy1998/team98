@@ -16,7 +16,7 @@ interface TeamStatsTabProps {
     teamHighlights: TeamHighlights;
     scorerRankingItems: RankingItem[];
     assisterRankingItems: RankingItem[];
-    appearanceStreakRankingItems: RankingItem[];
+    mvpRankingItems: RankingItem[];
   };
 }
 
@@ -27,7 +27,7 @@ export default function TeamStatsTab({ data }: Readonly<TeamStatsTabProps>) {
     teamHighlights,
     scorerRankingItems,
     assisterRankingItems,
-    appearanceStreakRankingItems,
+    mvpRankingItems,
   } = data;
 
   return (
@@ -38,7 +38,7 @@ export default function TeamStatsTab({ data }: Readonly<TeamStatsTabProps>) {
       <StatsRankingSection
         scorerRankingItems={scorerRankingItems}
         assisterRankingItems={assisterRankingItems}
-        appearanceStreakRankingItems={appearanceStreakRankingItems}
+        mvpRankingItems={mvpRankingItems}
       />
     </div>
   );

@@ -23,6 +23,11 @@ const sortableColumns: {
     activeClassName: "font-semibold text-sky-600",
   },
   {
+    key: "mvpCount",
+    label: "MVP",
+    activeClassName: "font-semibold text-amber-600",
+  },
+  {
     key: "appearance",
     label: "출전",
     activeClassName: "font-semibold text-amber-600",
@@ -134,7 +139,7 @@ export default function StatsPlayerTable({
             전체 선수 기록
           </h2>
           <p className="mt-2 text-sm text-stone-400">
-            선수별 출전, 득점, 어시스트 기록을 확인하세요.
+            선수별 득점, 어시스트, MVP 및 출전 기록을 확인하세요.
           </p>
         </div>
       </div>
@@ -142,7 +147,7 @@ export default function StatsPlayerTable({
       <div className="mt-6 overflow-x-auto">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <caption className="sr-only">
-            선수별 공격포인트, 득점, 도움, 출전 및 출석률 순위
+            선수별 공격포인트, 득점, 도움, MVP, 출전 및 출석률 순위
           </caption>
           <thead>
             <tr className="text-stone-400">
@@ -171,7 +176,7 @@ export default function StatsPlayerTable({
             {sortedPlayers.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-12 text-center text-sm text-stone-400"
                 >
                   표시할 선수 기록이 없어요.
@@ -218,6 +223,9 @@ export default function StatsPlayerTable({
                     </td>
                     <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-sky-600">
                       {player.assist}
+                    </td>
+                    <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-amber-600">
+                      {player.mvpCount}
                     </td>
                     <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-stone-700">
                       {player.appearance}

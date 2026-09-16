@@ -6,6 +6,7 @@ export type StatsSortKey =
   | "attackPoint"
   | "goal"
   | "assist"
+  | "mvpCount"
   | "appearance"
   | "attendanceRate";
 
@@ -33,6 +34,7 @@ export interface StatsPlayerRow {
   assist: number;
   appearance: number;
   attendanceRate: number;
+  mvpCount: number;
 }
 
 export interface TeamSummary {

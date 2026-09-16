@@ -63,7 +63,8 @@ export function getMatchDetailTab(value: string | null): MatchDetailTab {
     value === "vote" ||
     value === "attendance" ||
     value === "tactics" ||
-    value === "record"
+    value === "record" ||
+    value === "mvp"
     ? value
     : "info";
 }

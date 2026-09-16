@@ -7,13 +7,14 @@ import { useMatches } from "./useMatches";
 import useMatchRecordsMap from "./useMatchRecordMap";
 import { useMatchRecords } from "./useMatchRecords";
 import { useMatchVotes } from "./useMatchVotes";
-import { getHasMatchStarted } from "@/lib/matches/match-time";
+import { getHasMatchEnded, getHasMatchStarted } from "@/lib/matches/match-time";
 import { getDisplayMatches } from "@/lib/matches/match-list-ui";
 import {
   getMatchDetailDisplay,
   getMatchWithRecordScore,
 } from "@/lib/matches/match-detail-ui";
 import { getAttendingPlayers } from "@/lib/matches/match-vote";
+import { useMatchMvpVotes } from "./useMatchMvpVotes";
 
 export type MatchDetailPageData = ReturnType<typeof useMatchDetailPageData>;
 
@@ -56,6 +57,15 @@ export function useMatchDetailPageData(matchId: string) {
     reloadAttendance,
   } = useMatchAttendance();
 
+  const {
+    mvpVotes,
+    mvpVotesLoaded,
+    mvpVotesError,
+    saveMvpVote,
+    deleteMvpVote,
+    reloadMvpVotes,
+  } = useMatchMvpVotes();
+
   const { players, playersLoaded, playersError, reloadPlayers } = usePlayers();
   const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
   const { member, canManage, memberLoaded, memberError, reloadMember } =
@@ -82,6 +92,11 @@ export function useMatchDetailPageData(matchId: string) {
   const matchAttendance = useMemo(
     () => attendance[matchId] ?? [],
     [attendance, matchId],
+  );
+
+  const matchMvpVotes = useMemo(
+    () => mvpVotes[matchId] ?? [],
+    [mvpVotes, matchId],
   );
 
   const attendancePlayers = useMemo(
@@ -112,6 +127,10 @@ export function useMatchDetailPageData(matchId: string) {
     ? getHasMatchStarted(match.date, match.startTime)
     : false;
 
+  const hasMatchEnded = match
+    ? getHasMatchEnded(match.date, match.endTime)
+    : false;
+
   const isLoaded =
     teamLoaded &&
     matchesLoaded &&
@@ -120,6 +139,7 @@ export function useMatchDetailPageData(matchId: string) {
     memberLoaded &&
     votesLoaded &&
     playersLoaded &&
+    mvpVotesLoaded &&
     attendanceLoaded;
 
   const pageError =
@@ -130,6 +150,7 @@ export function useMatchDetailPageData(matchId: string) {
     attendanceError ||
     playersError ||
     memberError ||
+    mvpVotesError ||
     recordsError;
 
   const reloadPageData = async () => {
@@ -142,6 +163,7 @@ export function useMatchDetailPageData(matchId: string) {
       reloadPlayers(),
       reloadMember(),
       reloadMatchRecords(),
+      reloadMvpVotes(),
     ]);
   };
 
@@ -159,9 +181,11 @@ export function useMatchDetailPageData(matchId: string) {
     matchDisplay,
     displayMatches,
     hasMatchStarted,
+    hasMatchEnded,
 
     matchVotes,
     matchAttendance,
+    matchMvpVotes,
     attendancePlayers,
 
     matchRecordsLoaded,
@@ -179,6 +203,9 @@ export function useMatchDetailPageData(matchId: string) {
 
     saveAttendance,
     deleteAttendance,
+
+    saveMvpVote,
+    deleteMvpVote,
 
     addEvent,
     deleteEvent,
