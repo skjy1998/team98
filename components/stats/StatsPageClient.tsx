@@ -20,15 +20,21 @@ export default function StatsPageClient() {
 
   const activeTab = getStatsTab(searchParams.get("tab"));
 
-  const { seasons, seasonsLoaded } = useTeamSeasons();
+  const { seasons, seasonsLoaded, seasonsError, reloadSeasons } =
+    useTeamSeasons();
 
   const requestedSeasonId = searchParams.get("season");
 
   const selectedSeason = getSelectedSeason(seasons, requestedSeasonId);
 
-  const { isLoaded, myStats, teamStats, rankedPlayerStats } = useStatsPageData(
-    selectedSeason?.id,
-  );
+  const {
+    isLoaded,
+    pageError,
+    reloadPageData,
+    myStats,
+    teamStats,
+    rankedPlayerStats,
+  } = useStatsPageData(selectedSeason?.id);
 
   const handleChangeTab = (tab: StatsTab) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -68,6 +74,23 @@ export default function StatsPageClient() {
           variant="loading"
           title="통계 데이터를 불러오는 중..."
           description="팀과 선수의 시즌 기록을 계산하고 있어요."
+        />
+      ) : pageError || seasonsError ? (
+        <ContentState
+          variant="error"
+          title="통계 데이터를 불러오지 못했어요."
+          description={pageError || seasonsError}
+          action={
+            <button
+              type="button"
+              onClick={() => {
+                void Promise.all([reloadSeasons(), reloadPageData()]);
+              }}
+              className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+            >
+              다시 시도
+            </button>
+          }
         />
       ) : (
         <>

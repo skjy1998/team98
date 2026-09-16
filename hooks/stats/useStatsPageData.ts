@@ -27,12 +27,18 @@ import { getHasMatchEnded } from "@/lib/matches/match-time";
 import { getPlayerMvpWinCounts } from "@/lib/matches/match-mvp";
 
 export default function useStatsPageData(seasonId?: string) {
-  const { matches, matchesLoaded } = useMatches({ seasonId });
-  const { players, playersLoaded } = usePlayers();
-  const { records, recordsLoaded } = useMatchRecordsMap();
-  const { attendance, attendanceLoaded } = useMatchAttendance();
-  const { mvpVotes, mvpVotesLoaded } = useMatchMvpVotes();
-  const { member, memberLoaded } = useCurrentTeamMember();
+  const { matches, matchesLoaded, matchesError, reloadMatches } = useMatches({
+    seasonId,
+  });
+  const { players, playersLoaded, playersError, reloadPlayers } = usePlayers();
+  const { records, recordsLoaded, recordsError, reloadRecords } =
+    useMatchRecordsMap();
+  const { attendance, attendanceLoaded, attendanceError, reloadAttendance } =
+    useMatchAttendance();
+  const { mvpVotes, mvpVotesLoaded, mvpVotesError, reloadMvpVotes } =
+    useMatchMvpVotes();
+  const { member, memberLoaded, memberError, reloadMember } =
+    useCurrentTeamMember();
 
   const statsData = useMemo(() => {
     const recentResults = getRecentResults(matches, records);
@@ -114,8 +120,29 @@ export default function useStatsPageData(seasonId?: string) {
     mvpVotesLoaded &&
     memberLoaded;
 
+  const pageError =
+    matchesError ||
+    playersError ||
+    recordsError ||
+    attendanceError ||
+    mvpVotesError ||
+    memberError;
+
+  const reloadPageData = async () => {
+    await Promise.all([
+      reloadMatches(),
+      reloadPlayers(),
+      reloadRecords(),
+      reloadAttendance(),
+      reloadMvpVotes(),
+      reloadMember(),
+    ]);
+  };
+
   return {
     ...statsData,
     isLoaded,
+    pageError,
+    reloadPageData,
   };
 }
