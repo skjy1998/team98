@@ -65,27 +65,12 @@ export async function createTeamWithOwner({
 }
 
 export async function joinTeamWithInviteCode(inviteCode: string) {
-  const user = await getSetupUser();
-
-  const { data: team, error: teamError } = await supabase
-    .from("teams")
-    .select("id")
-    .eq("invite_code", inviteCode)
-    .maybeSingle();
-
-  if (teamError) throw teamError;
-  if (!team) {
-    throw new Error("일치하는 팀 초대코드를 찾을 수 없어요.");
-  }
-
-  const { error: memberError } = await supabase.from("team_members").insert({
-    team_id: team.id,
-    user_id: user.id,
-    role: "member",
-    display_name: user.displayName,
+  const { data, error } = await supabase.rpc("join_team_with_invite_code", {
+    p_invite_code: inviteCode,
   });
 
-  if (memberError) throw memberError;
+  if (error) throw error;
+  if (!data) throw new Error("참가한 팀 정보를 확인할 수 없어요.");
 
-  return team.id;
+  return data as string;
 }

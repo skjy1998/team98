@@ -1,9 +1,9 @@
-import type { TeamSetupMode } from "@/hooks/team/useTeamSetup";
+import { TeamEntryMode } from "@/types/team";
 import { KeyRound, Plus } from "lucide-react";
 
-interface TeamSetupModeSelectorProps {
-  mode: TeamSetupMode;
-  onChangeMode: (mode: TeamSetupMode) => void;
+interface TeamEntryModeSelectorProps {
+  mode: TeamEntryMode;
+  onChangeMode: (mode: TeamEntryMode) => void;
 }
 
 const modeItems = [
@@ -21,10 +21,10 @@ const modeItems = [
   },
 ] as const;
 
-export default function TeamSetupModeSelector({
+export default function TeamEntryModeSelector({
   mode,
   onChangeMode,
-}: Readonly<TeamSetupModeSelectorProps>) {
+}: Readonly<TeamEntryModeSelectorProps>) {
   return (
     <div
       role="group"

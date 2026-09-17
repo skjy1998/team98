@@ -5,6 +5,9 @@ import {
   signOutCurrentUser,
   type CurrentUserSummary,
 } from "@/lib/auth/auth-repository";
+import { PlayerRole, TeamMemberRole } from "@/types/player";
+import { getCurrentTeamMember } from "@/lib/team/team-member-repository";
+import { getCurrentTeamPlayerRole } from "@/lib/players/player-repository";
 
 export function useSidebarData() {
   const { team, teamLoaded, teamError, reloadTeam } = useCurrentTeam();
@@ -12,6 +15,10 @@ export function useSidebarData() {
   const [user, setUser] = useState<CurrentUserSummary | null>(null);
   const [userLoaded, setUserLoaded] = useState(false);
   const [userError, setUserError] = useState("");
+  const [memberRole, setMemberRole] = useState<TeamMemberRole | null>(null);
+  const [playerRole, setPlayerRole] = useState<PlayerRole | null>(null);
+
+  const teamId = team?.id;
 
   const loadUser = useCallback(async () => {
     setUserLoaded(false);
@@ -29,10 +36,37 @@ export function useSidebarData() {
     }
   }, []);
 
+  const loadRoleSummary = useCallback(async () => {
+    if (!teamId) {
+      setMemberRole(null);
+      setPlayerRole(null);
+      return;
+    }
+
+    try {
+      const [member, nextPlayerRole] = await Promise.all([
+        getCurrentTeamMember(teamId),
+        getCurrentTeamPlayerRole(teamId),
+      ]);
+
+      setMemberRole(member?.role ?? null);
+      setPlayerRole(nextPlayerRole);
+    } catch (error) {
+      console.error("sidebar role summary load error", error);
+      setMemberRole(null);
+      setPlayerRole(null);
+    }
+  }, [teamId]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadUser();
   }, [loadUser]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRoleSummary();
+  }, [loadRoleSummary]);
 
   const logout = async () => {
     try {
@@ -45,12 +79,14 @@ export function useSidebarData() {
   };
 
   const reloadSidebarData = async () => {
-    await Promise.all([reloadTeam(), loadUser()]);
+    await Promise.all([reloadTeam(), loadUser(), loadRoleSummary()]);
   };
 
   return {
     user,
     team,
+    memberRole,
+    playerRole,
     sidebarLoaded: teamLoaded && userLoaded,
     sidebarError: teamError || userError,
     logout,

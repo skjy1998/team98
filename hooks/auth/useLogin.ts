@@ -34,7 +34,7 @@ export function useLogin() {
     try {
       const hasMembership = await hasTeamMembership(userId);
 
-      router.push(hasMembership ? "/dashboard" : "/teams/setup");
+      router.push(hasMembership ? "/dashboard" : "/teams/add");
     } catch (error) {
       console.error("team membership check error", error);
       setErrorMessage("팀 정보를 확인하는 중 문제가 발생했어요.");

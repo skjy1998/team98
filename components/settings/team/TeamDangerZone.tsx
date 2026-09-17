@@ -4,11 +4,13 @@ import { LogOut, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+type TeamExitDestination = "dashboard" | "setup";
+
 interface TeamDangerZoneProps {
   teamName: string;
   role: TeamMemberRole | null;
-  onLeaveTeam: () => Promise<boolean>;
-  onDeleteTeam: (teamName: string) => Promise<boolean>;
+  onLeaveTeam: () => Promise<TeamExitDestination | false>;
+  onDeleteTeam: (teamName: string) => Promise<TeamExitDestination | false>;
 }
 
 export default function TeamDangerZone({
@@ -23,8 +25,8 @@ export default function TeamDangerZone({
   const [confirmationName, setConfirmationName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const moveToTeamSetup = () => {
-    router.replace("/teams/setup");
+  const moveAfterTeamAction = (destination: TeamExitDestination) => {
+    router.replace(destination === "dashboard" ? "/dashboard" : "/teams/add");
     router.refresh();
   };
 
@@ -40,11 +42,11 @@ export default function TeamDangerZone({
     if (!confirmed) return;
 
     setIsSubmitting(true);
-    const success = await onLeaveTeam();
+    const destination = await onLeaveTeam();
     setIsSubmitting(false);
 
-    if (success) {
-      moveToTeamSetup();
+    if (destination) {
+      moveAfterTeamAction(destination);
     }
   };
 
@@ -60,11 +62,11 @@ export default function TeamDangerZone({
     if (!confirmed) return;
 
     setIsSubmitting(true);
-    const success = await onDeleteTeam(confirmationName);
+    const destination = await onDeleteTeam(confirmationName);
     setIsSubmitting(false);
 
-    if (success) {
-      moveToTeamSetup();
+    if (destination) {
+      moveAfterTeamAction(destination);
     }
   };
 

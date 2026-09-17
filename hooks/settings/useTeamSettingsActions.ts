@@ -12,7 +12,7 @@ interface UseTeamSettingsActionsParams {
   team: CurrentTeam | null;
   memberRole: TeamMemberRole | null;
   canManage: boolean;
-  reloadTeam: () => Promise<void>;
+  reloadTeam: () => Promise<CurrentTeam[]>;
 }
 
 export function useTeamSettingsActions({
@@ -94,7 +94,10 @@ export function useTeamSettingsActions({
 
     try {
       await leaveCurrentTeam(teamId);
-      return true;
+
+      const remainingTeams = await reloadTeam();
+
+      return remainingTeams.length > 0 ? "dashboard" : "setup";
     } catch (error) {
       console.error("leave team error", error);
       setTeamActionError("팀 나가기에 실패했어요.");
@@ -124,7 +127,10 @@ export function useTeamSettingsActions({
 
     try {
       await deleteCurrentTeam(teamId, normalizedTeamName);
-      return true;
+
+      const remainingTeams = await reloadTeam();
+
+      return remainingTeams.length > 0 ? "dashboard" : "setup";
     } catch (error) {
       console.error("delete team error", error);
       setTeamActionError("팀 삭제에 실패했어요.");

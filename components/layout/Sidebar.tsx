@@ -1,18 +1,37 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
 import NotificationBell from "../notifications/NotificationBell";
 import { useSidebarData } from "@/hooks/layout/useSidebarData";
-
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarFooter from "./SidebarFooter";
+import SidebarTeamSwitcher from "./SidebarTeamSwitcher";
+import type { PlayerRole, TeamMemberRole } from "@/types/player";
+
+function getSidebarRoleLabel(
+  memberRole: TeamMemberRole | null,
+  playerRole: PlayerRole | null,
+) {
+  if (memberRole === "owner") return "회장";
+  if (memberRole === "staff") return "운영진";
+  if (playerRole === "captain") return "주장";
+  if (playerRole === "viceCaptain") return "부주장";
+
+  return "일반 회원";
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
 
-  const { user, team, sidebarLoaded, sidebarError, logout, reloadSidebarData } =
-    useSidebarData();
+  const {
+    user,
+    team,
+    memberRole,
+    playerRole,
+    sidebarError,
+    logout,
+    reloadSidebarData,
+  } = useSidebarData();
 
   return (
     <aside className="hidden self-start lg:block">
@@ -28,13 +47,11 @@ export default function Sidebar() {
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-lg font-bold text-stone-900">
-                {!sidebarLoaded
-                  ? "팀 정보를 불러오는 중..."
-                  : team?.name || "팀 정보 없음"}
-              </p>
-              <p className="mt-1 text-xs text-stone-500">
-                선수와 경기 운영을 한곳에서
+              <SidebarTeamSwitcher />
+
+              <p className="mt-1 text-xs font-medium text-stone-500">
+                {getSidebarRoleLabel(memberRole, playerRole)} ·{" "}
+                {user?.name ?? "사용자"}
               </p>
             </div>
             {team?.name && (

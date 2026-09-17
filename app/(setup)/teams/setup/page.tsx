@@ -1,5 +1,5 @@
-import TeamSetupPageClient from "@/components/team/setup/TeamSetupPageClient";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "팀 시작하기 | SquadFlow",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TeamSetupPage() {
-  return <TeamSetupPageClient />;
+  redirect("/teams/add");
 }

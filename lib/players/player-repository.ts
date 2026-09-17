@@ -179,3 +179,24 @@ export async function updateTeamPlayerWithRoles(
     throw error;
   }
 }
+
+export async function getCurrentTeamPlayerRole(teamId: string) {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) throw userError;
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("players")
+    .select("role")
+    .eq("team_id", teamId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return (data?.role as PlayerRole | null) ?? null;
+}

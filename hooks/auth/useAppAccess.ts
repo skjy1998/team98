@@ -2,7 +2,13 @@ import { getAppAccessStatus } from "@/lib/auth/auth-repository";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export function useAppAccess() {
+interface UseAppAccessOptions {
+  allowWithoutTeam?: boolean;
+}
+
+export function useAppAccess({
+  allowWithoutTeam = false,
+}: Readonly<UseAppAccessOptions> = {}) {
   const router = useRouter();
 
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
@@ -19,7 +25,12 @@ export function useAppAccess() {
         }
 
         if (status === "team-required") {
-          router.replace("/teams/setup");
+          if (allowWithoutTeam) {
+            setIsCheckingAccess(false);
+            return;
+          }
+
+          router.replace("/teams/add");
           return;
         }
 
@@ -32,7 +43,7 @@ export function useAppAccess() {
     }
 
     void checkAccess();
-  }, [router]);
+  }, [allowWithoutTeam, router]);
 
   return {
     isCheckingAccess,
