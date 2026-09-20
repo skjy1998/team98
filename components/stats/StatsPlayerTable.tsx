@@ -10,7 +10,7 @@ const sortableColumns: {
   {
     key: "attackPoint",
     label: "G+A",
-    activeClassName: "font-semibold text-orange-500",
+    activeClassName: "font-semibold text-emerald-600",
   },
   {
     key: "goal",
@@ -35,7 +35,7 @@ const sortableColumns: {
   {
     key: "attendanceRate",
     label: "출석률",
-    activeClassName: "font-semibold text-orange-500",
+    activeClassName: "font-semibold text-stone-700",
   },
 ];
 
@@ -103,10 +103,12 @@ function getPlayerRank(
 
 interface StatsPlayerTableProps {
   players: StatsPlayerRow[];
+  currentPlayerId?: string;
 }
 
 export default function StatsPlayerTable({
   players,
+  currentPlayerId,
 }: Readonly<StatsPlayerTableProps>) {
   const [sortKey, setSortKey] = useState<StatsSortKey>("attackPoint");
   const [isAscending, setIsAscending] = useState(false);
@@ -132,19 +134,123 @@ export default function StatsPlayerTable({
     });
   }, [players, sortKey, isAscending]);
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-stone-900">
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-2xl">
             전체 선수 기록
           </h2>
-          <p className="mt-2 text-sm text-stone-400">
+          <p className="mt-1 text-xs text-stone-400 sm:mt-2 sm:text-sm">
             선수별 득점, 어시스트, MVP 및 출전 기록을 확인하세요.
           </p>
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto">
+      <div className="-mx-1 mt-4 flex gap-1.5 overflow-x-auto px-1 pb-1 md:hidden">
+        {sortableColumns.map((column) => {
+          const isActive = sortKey === column.key;
+
+          return (
+            <button
+              key={column.key}
+              type="button"
+              onClick={() => handleSort(column.key)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                isActive
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-stone-200 bg-white text-stone-500"
+              }`}
+            >
+              {column.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 space-y-3 md:hidden">
+        {sortedPlayers.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-stone-200 py-10 text-center text-xs text-stone-400">
+            표시할 선수 기록이 없어요.
+          </div>
+        ) : (
+          sortedPlayers.map((player) => {
+            const rank = getPlayerRank(players, player, sortKey);
+            const isCurrentPlayer = player.id === currentPlayerId;
+
+            return (
+              <article
+                key={player.id}
+                className={`rounded-2xl border p-4 transition ${
+                  isCurrentPlayer
+                    ? "border-emerald-200 bg-emerald-50/50"
+                    : "border-stone-200 bg-white"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className={`w-4 shrink-0 text-center text-sm font-bold ${
+                        isCurrentPlayer ? "text-emerald-600" : "text-stone-500"
+                      }`}
+                    >
+                      {rank ?? "-"}
+                    </span>
+
+                    {player.number !== undefined && (
+                      <span className="rounded-md bg-emerald-50 px-1.5 py-1 text-xs font-bold text-emerald-700">
+                        #{player.number}
+                      </span>
+                    )}
+
+                    <p className="truncate text-base font-semibold text-stone-900">
+                      {player.name}
+                    </p>
+                  </div>
+
+                  <span className="shrink-0 text-base font-bold text-emerald-700">
+                    G+A {player.attackPoint}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-4 gap-1.5">
+                  {[
+                    {
+                      label: "골",
+                      value: player.goal,
+                      className: "text-emerald-600",
+                    },
+                    {
+                      label: "도움",
+                      value: player.assist,
+                      className: "text-sky-600",
+                    },
+                    {
+                      label: "MVP",
+                      value: player.mvpCount,
+                      className: "text-amber-600",
+                    },
+                    {
+                      label: "출석",
+                      value: `${player.attendanceRate}%`,
+                      className: "text-stone-700",
+                    },
+                  ].map((item) => (
+                    <div key={item.label} className="text-center">
+                      <p className="text-xs text-stone-400">{item.label}</p>
+                      <p
+                        className={`mt-1 text-base font-bold ${item.className}`}
+                      >
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            );
+          })
+        )}
+      </div>
+
+      <div className="mt-6 hidden overflow-x-auto md:block">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <caption className="sr-only">
             선수별 공격포인트, 득점, 도움, MVP, 출전 및 출석률 순위
@@ -185,18 +291,24 @@ export default function StatsPlayerTable({
             ) : (
               sortedPlayers.map((player) => {
                 const rank = getPlayerRank(players, player, sortKey);
-                const isLeader = rank === 1;
+                const isCurrentPlayer = player.id === currentPlayerId;
 
                 return (
                   <tr
                     key={player.id}
-                    className={isLeader ? "bg-orange-50/50" : "bg-white"}
+                    className={
+                      isCurrentPlayer ? "bg-emerald-50/50" : "bg-white"
+                    }
                   >
                     <td
                       className={`border-b border-stone-100 px-4 py-4 text-left ${
-                        rank !== null && rank <= 3
-                          ? "font-bold text-orange-500"
-                          : "font-semibold text-stone-500"
+                        rank === 1
+                          ? "font-bold text-emerald-600"
+                          : rank === 2
+                            ? "font-bold text-stone-600"
+                            : rank === 3
+                              ? "font-bold text-amber-600"
+                              : "font-semibold text-stone-500"
                       }`}
                     >
                       {rank ?? "-"}
@@ -205,7 +317,7 @@ export default function StatsPlayerTable({
                     <td className="border-b border-stone-100 px-4 py-4">
                       <div className="flex items-center gap-2">
                         {player.number !== undefined ? (
-                          <span className="text-orange-500">
+                          <span className="text-emerald-500">
                             #{player.number}
                           </span>
                         ) : null}
@@ -215,7 +327,7 @@ export default function StatsPlayerTable({
                       </div>
                     </td>
 
-                    <td className="border-b border-stone-100 px-4 py-4 text-right text-2xl font-semibold text-orange-500">
+                    <td className="border-b border-stone-100 px-4 py-4 text-right text-2xl font-semibold text-emerald-500">
                       {player.attackPoint}
                     </td>
                     <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-emerald-600">
@@ -230,7 +342,7 @@ export default function StatsPlayerTable({
                     <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-stone-700">
                       {player.appearance}
                     </td>
-                    <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-orange-500">
+                    <td className="border-b border-stone-100 px-4 py-4 text-right text-xl font-medium text-stone-700">
                       {player.attendanceRate}%
                     </td>
                   </tr>

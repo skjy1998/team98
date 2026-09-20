@@ -62,32 +62,40 @@ export default function MyStatsTab({ data }: Readonly<MyStatsTabProps>) {
   ];
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
-      <h2 className="text-xl font-semibold text-stone-900">내 기록</h2>
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
+      <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+        내 기록
+      </h2>
 
       {!player ? (
         <p className="mt-4 text-sm text-stone-500">
           현재 계정에 연결된 선수 정보가 없어서 개인 기록을 불러올 수 없어요.
         </p>
       ) : (
-        <div className="mt-5 space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {recordItems.map((item) => (
+        <div className="mt-4 space-y-4 sm:mt-5 sm:space-y-6">
+          <div className="grid grid-cols-6 gap-2 sm:grid-cols-5 sm:gap-4">
+            {recordItems.map((item, index) => (
               <div
                 key={item.label}
-                className="rounded-xl bg-stone-50 px-4 py-5 text-center"
+                className={`col-span-2 rounded-xl bg-stone-50 px-2 py-3 text-center sm:col-span-1 sm:px-4 sm:py-5 ${
+                  index === 3 ? "col-start-2 sm:col-auto" : ""
+                }`}
               >
-                <p className={`text-2xl font-bold ${item.valueClassName}`}>
+                <p
+                  className={`text-lg font-bold sm:text-2xl ${item.valueClassName}`}
+                >
                   {item.value}
                 </p>
-                <p className="mt-1 text-sm text-stone-500">{item.label}</p>
+                <p className="mt-1 text-[11px] text-stone-500 sm:text-sm">
+                  {item.label}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-5">
+          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 sm:p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-stone-900">
+              <h3 className="text-sm font-semibold text-stone-900 sm:text-base">
                 내 순위 요약
               </h3>
               <span className="text-xs font-medium text-stone-400">
@@ -95,12 +103,17 @@ export default function MyStatsTab({ data }: Readonly<MyStatsTabProps>) {
               </span>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-3">
               {rankItems.map((item) => (
-                <div key={item.label} className="rounded-lg bg-white px-4 py-4">
-                  <p className="text-sm text-stone-500">{item.label}</p>
+                <div
+                  key={item.label}
+                  className="rounded-lg bg-white px-2 py-3 sm:px-4 sm:py-4"
+                >
+                  <p className="text-[11px] text-stone-500 sm:text-sm">
+                    {item.label}
+                  </p>
                   <p
-                    className={`mt-2 text-xl font-bold ${item.valueClassName}`}
+                    className={`mt-1 text-lg font-bold sm:text-xl ${item.valueClassName}`}
                   >
                     {item.rank ? `${item.rank}위` : "-"}
                   </p>

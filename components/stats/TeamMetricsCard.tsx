@@ -47,28 +47,34 @@ export default function TeamMetricsCard({
   ];
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-stone-900">경기 지표</h2>
-          <p className="mt-1 text-sm text-stone-400">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 shadow-sm sm:p-5">
+      <div className="flex items-start justify-between gap-3 sm:items-center sm:gap-4">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+            경기 지표
+          </h2>
+          <p className="mt-1 text-xs text-stone-400 sm:text-sm">
             경기당 득점과 실점 흐름이에요.
           </p>
         </div>
 
-        <span className="shrink-0 rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-500">
+        <span className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-500 sm:px-3 sm:text-xs">
           총 {summary.total}경기 기준
         </span>
       </div>
 
-      <div className="mt-5 grid divide-y divide-stone-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="mt-4 divide-y divide-stone-100 sm:mt-5 sm:grid sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         {summaryItems.map((item) => (
           <div
             key={item.label}
-            className="px-3 py-4 first:pl-0 last:pr-0 sm:py-1 sm:text-center"
+            className="flex items-center justify-between py-3 first:pt-0 last:pb-0 sm:block sm:px-3 sm:py-1 sm:text-center first:sm:pl-0 last:sm:pr-0"
           >
-            <p className="text-sm font-medium text-stone-500">{item.label}</p>
-            <p className={`mt-2 text-3xl font-bold ${item.valueClassName}`}>
+            <p className="text-xs font-medium text-stone-500 sm:text-sm">
+              {item.label}
+            </p>
+            <p
+              className={`text-2xl font-bold ${item.valueClassName} sm:mt-2 sm:text-3xl`}
+            >
               {item.value}
             </p>
           </div>

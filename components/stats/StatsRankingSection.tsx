@@ -39,13 +39,15 @@ export default function StatsRankingSection({
   return (
     <section>
       <div>
-        <h2 className="text-lg font-semibold text-stone-900">팀 리더</h2>
-        <p className="mt-1 text-sm text-stone-400">
+        <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+          팀 리더
+        </h2>
+        <p className="mt-1 text-xs text-stone-400 sm:text-sm">
           주요 기록에서 앞서고 있는 선수들이에요.
         </p>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 xl:grid-cols-3">
         {rankingCards.map((card) => (
           <StatsRankingCard
             key={card.title}

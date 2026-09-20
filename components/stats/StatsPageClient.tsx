@@ -53,12 +53,12 @@ export default function StatsPageClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="통계"
         description="팀 전적과 선수 랭킹을 한눈에 확인하세요."
       />
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <SeasonSelect
           seasons={seasons}
           selectedSeasonId={selectedSeason?.id}
@@ -66,7 +66,7 @@ export default function StatsPageClient() {
           onChange={handleChangeSeason}
         />
 
-        <span className="text-sm text-stone-500">시즌 기록</span>
+        <span className="text-xs text-stone-500 sm:text-sm">시즌 기록</span>
       </div>
 
       {!isLoaded || !seasonsLoaded ? (
@@ -86,7 +86,7 @@ export default function StatsPageClient() {
               onClick={() => {
                 void Promise.all([reloadSeasons(), reloadPageData()]);
               }}
-              className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+              className="rounded-xl bg-stone-900 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-stone-700 sm:px-4 sm:text-sm"
             >
               다시 시도
             </button>
@@ -98,7 +98,10 @@ export default function StatsPageClient() {
           {activeTab === "team" && <TeamStatsTab data={teamStats} />}
           {activeTab === "me" && <MyStatsTab data={myStats} />}
           {activeTab === "ranking" && (
-            <StatsPlayerTable players={rankedPlayerStats} />
+            <StatsPlayerTable
+              players={rankedPlayerStats}
+              currentPlayerId={myStats.player?.id}
+            />
           )}
         </>
       )}

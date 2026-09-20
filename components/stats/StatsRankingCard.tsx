@@ -39,23 +39,29 @@ export default function StatsRankingCard({
   const leaderNames = leaders.map((item) => item.name).join(" · ");
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-5">
+    <div className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-stone-900">{title}</h3>
+        <h3 className="text-sm font-semibold text-stone-900 sm:text-base">
+          {title}
+        </h3>
         <span className="text-xs font-medium text-stone-400">상위 기록</span>
       </div>
 
       {!leader ? (
-        <div className="flex min-h-44 items-center justify-center text-sm text-stone-400">
+        <div className="flex min-h-28 items-center justify-center text-xs text-stone-400 sm:min-h-44 sm:text-sm">
           아직 집계된 선수 기록이 없어요.
         </div>
       ) : (
         <>
-          <div className={`mt-4 rounded-xl border p-4 ${leaderClassName}`}>
-            <div className="flex items-center justify-between gap-4">
+          <div
+            className={`mt-3 rounded-xl border p-3 sm:mt-4 sm:p-4 ${leaderClassName}`}
+          >
+            <div className="flex items-center justify-between gap-3 sm:gap-4">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/80">
-                  <Crown className={`h-4 w-4 ${valueClassName}`} />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/80 sm:h-9 sm:w-9">
+                  <Crown
+                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${valueClassName}`}
+                  />
                 </div>
 
                 <div className="min-w-0">
@@ -71,7 +77,9 @@ export default function StatsRankingCard({
                 </div>
               </div>
               <div className="shrink-0 text-right">
-                <span className={`text-3xl font-bold ${valueClassName}`}>
+                <span
+                  className={`text-2xl font-bold sm:text-3xl ${valueClassName}`}
+                >
                   {leader.value}
                 </span>
                 <span className="ml-1 text-xs font-medium text-stone-500">
@@ -80,22 +88,22 @@ export default function StatsRankingCard({
               </div>
             </div>
           </div>
-          <div className="mt-3 divide-y divide-stone-100">
+          <div className="mt-2 divide-y divide-stone-100 sm:mt-3">
             {remainingItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-3 py-3"
+                className="flex items-center justify-between gap-3 py-2.5 sm:py-3"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-500">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 text-[11px] font-semibold text-stone-500 sm:h-7 sm:w-7 sm:text-xs">
                     {getItemRank(rankedItems, item)}
                   </span>
-                  <p className="truncate text-sm font-medium text-stone-800">
+                  <p className="truncate text-xs font-medium text-stone-800 sm:text-sm">
                     {item.name}
                   </p>
                 </div>
 
-                <p className="shrink-0 text-sm font-semibold text-stone-700">
+                <p className="shrink-0 text-xs font-semibold text-stone-700 sm:text-sm">
                   {item.value}
                   <span className="ml-1 text-xs font-normal text-stone-400">
                     {unitLabel}

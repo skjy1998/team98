@@ -31,7 +31,7 @@ export default function TeamStatsTab({ data }: Readonly<TeamStatsTabProps>) {
   } = data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <TeamSummaryCard summary={teamSummary} recentResults={recentResults} />
       <TeamMetricsCard summary={teamSummary} />
       <TeamHighlightsCard highlights={teamHighlights} />
