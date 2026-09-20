@@ -24,14 +24,14 @@ export default function PlayersPageContent({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="선수 관리"
         description="등록된 선수 목록을 확인하고 관리하세요."
       />
 
       {!data.canManage && (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+        <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs leading-5 text-sky-700 sm:px-4 sm:py-3">
           현재 계정은 읽기 전용입니다. 회장 또는 운영진만 선수 정보를 추가하거나
           수정할 수 있어요.
         </div>

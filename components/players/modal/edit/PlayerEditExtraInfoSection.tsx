@@ -40,19 +40,21 @@ export default function PlayerEditExtraInfoSection({
   onChangeNote,
 }: Readonly<PlayerEditExtraInfoSectionProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 p-5">
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-emerald-600">06 추가 정보</p>
-        <p className="mt-1 text-sm text-stone-400">
+    <section className="rounded-xl border border-stone-200 p-3.5 sm:p-5">
+      <div className="mb-3 sm:mb-4">
+        <p className="text-xs font-semibold text-emerald-600 sm:text-sm">
+          06 추가 정보
+        </p>
+        <p className="mt-1 text-xs text-stone-400 sm:text-sm">
           선수 기본 프로필을 관리할 수 있어요.
         </p>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         <div className="space-y-2">
           <label
             htmlFor="player-birth"
-            className="text-sm font-semibold text-stone-700"
+            className="text-xs font-semibold text-stone-700 sm:text-sm"
           >
             생년월일
           </label>
@@ -61,14 +63,16 @@ export default function PlayerEditExtraInfoSection({
             type="date"
             value={birth}
             onChange={(event) => onChangeBirth(event.target.value)}
-            className="h-14 w-full rounded-xl border border-stone-200 px-4 text-sm text-stone-800 outline-none transition focus:border-emerald-300"
+            className="h-11 w-full rounded-xl border border-stone-200 px-3 text-sm text-stone-800 outline-none transition focus:border-emerald-300 sm:h-14 sm:px-4"
           />
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-stone-700">주발</p>
+          <p className="text-xs font-semibold text-stone-700 sm:text-sm">
+            주발
+          </p>
 
-          <div className="grid gap-2 md:grid-cols-3">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
             {preferredFootOptions.map((option) => {
               const isActive = preferredFoot === option.value;
 
@@ -78,7 +82,7 @@ export default function PlayerEditExtraInfoSection({
                   type="button"
                   onClick={() => onChangePreferredFoot(option.value)}
                   className={[
-                    "flex h-12 items-center justify-center rounded-xl border text-sm font-semibold transition",
+                    "flex h-11 items-center justify-center rounded-xl border text-xs font-semibold transition sm:h-12 sm:text-sm",
                     isActive
                       ? option.activeClassName
                       : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
@@ -94,7 +98,7 @@ export default function PlayerEditExtraInfoSection({
         <div className="space-y-2">
           <label
             htmlFor="player-note"
-            className="text-sm font-semibold text-stone-700"
+            className="text-xs font-semibold text-stone-700 sm:text-sm"
           >
             메모
           </label>
@@ -104,7 +108,7 @@ export default function PlayerEditExtraInfoSection({
             onChange={(event) => onChangeNote(event.target.value)}
             placeholder="예: 선호 포지션 보조 가능, 주말 위주 참석, 수비 조율 강점"
             rows={4}
-            className="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
+            className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300 sm:px-4 sm:py-3"
           />
         </div>
       </div>

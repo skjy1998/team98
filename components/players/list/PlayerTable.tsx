@@ -25,8 +25,8 @@ export default function PlayerTable({
     );
   }
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-3 md:p-4">
-      <div className="grid gap-2.5 md:grid-cols-2">
+    <div className="rounded-xl border border-stone-200 bg-white p-1.5 sm:p-3 md:p-4">
+      <div className="grid gap-1 sm:gap-2.5 md:grid-cols-2">
         {players.map((player) => (
           <PlayerListItem
             key={player.id}

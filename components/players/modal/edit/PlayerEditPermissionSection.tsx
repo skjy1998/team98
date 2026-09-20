@@ -36,15 +36,17 @@ export default function PlayerEditPermissionSection({
   onChangeRole,
 }: Readonly<PlayerEditPermissionSectionProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 p-5">
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-emerald-600">04 서비스 권한</p>
-        <p className="mt-1 text-sm text-stone-400">
+    <section className="rounded-xl border border-stone-200 p-3.5 sm:p-5">
+      <div className="mb-3 sm:mb-4">
+        <p className="text-xs font-semibold text-emerald-600 sm:text-sm">
+          04 서비스 권한
+        </p>
+        <p className="mt-1 text-xs leading-5 text-stone-400 sm:text-sm">
           서비스 접근 권한을 설정해요. 회장과 운영진만 선수/일정/회비를 관리할
           수 있어요.
         </p>
       </div>
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
         {permissionOptions.map((option) => {
           const isActive = role === option.value;
 
@@ -54,14 +56,14 @@ export default function PlayerEditPermissionSection({
               type="button"
               onClick={() => onChangeRole(option.value)}
               className={[
-                "flex h-14 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition",
+                "flex h-11 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition sm:h-14 sm:gap-2 sm:text-sm",
                 isActive
                   ? option.activeClassName
                   : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50",
               ].join(" ")}
             >
               <span
-                className={`h-2.5 w-2.5 rounded-full ${option.dotClassName}`}
+                className={`h-2 w-2 rounded-full sm:h-2.5 sm:w-2.5 ${option.dotClassName}`}
               />
               {option.label}
             </button>

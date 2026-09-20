@@ -44,7 +44,7 @@ export default function PlayerProfileModal({
     .join(" · ");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 md:items-center md:px-4 md:py-6">
       <button
         type="button"
         onClick={onClose}
@@ -55,20 +55,20 @@ export default function PlayerProfileModal({
       <dialog
         open
         aria-label={`${player.name} 선수 프로필`}
-        className="relative z-10 m-0 max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border-0 bg-white shadow-2xl"
+        className="relative z-10 m-0 max-h-[88dvh] w-full max-w-xl overflow-y-auto rounded-t-2xl border-0 bg-white shadow-2xl md:max-h-[90vh] md:rounded-2xl"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="닫기"
-          className="absolute right-5 top-5 rounded-lg p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+          className="absolute right-3 top-3 rounded-lg p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 sm:right-5 sm:top-5"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <header className="px-6 pb-6 pt-8 pr-14">
+        <header className="px-4 pb-4 pt-6 pr-12 sm:px-6 sm:pb-6 sm:pt-8 sm:pr-14">
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold tracking-tight text-stone-900">
+            <h2 className="text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">
               {player.name}
             </h2>
             {player.number !== undefined && (
@@ -77,10 +77,12 @@ export default function PlayerProfileModal({
               </span>
             )}
           </div>
-          <p className="mt-2 text-sm text-stone-500">{profileDetails}</p>
+          <p className="mt-1 text-xs text-stone-500 sm:mt-2 sm:text-sm">
+            {profileDetails}
+          </p>
         </header>
 
-        <div className="grid grid-cols-4 border-y border-stone-100 py-5">
+        <div className="grid grid-cols-4 border-y border-stone-100 py-4 sm:py-5">
           {[
             { label: "출전", value: player.appearance },
             { label: "득점", value: player.goal },
@@ -89,14 +91,14 @@ export default function PlayerProfileModal({
           ].map((item) => (
             <div key={item.label} className="text-center">
               <p className="text-xs text-stone-500">{item.label}</p>
-              <p className="mt-1 text-xl font-bold text-stone-900">
+              <p className="mt-1 text-lg font-bold text-stone-900 sm:text-xl">
                 {item.value}
               </p>
             </div>
           ))}
         </div>
 
-        <section className="px-6 py-6">
+        <section className="px-4 py-4 sm:px-6 sm:py-6">
           <h3 className="text-sm font-semibold text-stone-900">최근 5경기</h3>
 
           {recentMatches.length === 0 ? (
@@ -108,7 +110,7 @@ export default function PlayerProfileModal({
               {recentMatches.map((match) => (
                 <div
                   key={match.id}
-                  className="flex items-center justify-between gap-4 py-3"
+                  className="flex items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-stone-900">
@@ -116,7 +118,7 @@ export default function PlayerProfileModal({
                     </p>
                     <p className="mt-1 text-xs text-stone-400">{match.date}</p>
                   </div>
-                  <p className="shrink-0 text-sm text-stone-600">
+                  <p className="shrink-0 text-xs text-stone-600 sm:text-sm">
                     득점 {match.goal} · 도움 {match.assist}
                   </p>
                 </div>
@@ -126,11 +128,11 @@ export default function PlayerProfileModal({
         </section>
 
         {onEdit && (
-          <div className="flex justify-end border-t border-stone-100 px-6 py-4">
+          <div className="sticky bottom-0 flex justify-end border-t border-stone-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
             <button
               type="button"
               onClick={() => onEdit(player)}
-              className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 sm:px-4 sm:py-2.5 sm:text-sm"
             >
               선수 정보 수정
             </button>

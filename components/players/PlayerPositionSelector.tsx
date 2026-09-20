@@ -66,21 +66,21 @@ export default function PlayerPositionSelector({
   disabled = false,
 }: Readonly<PlayerPositionSelectorProps>) {
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2 sm:space-y-2.5">
       {positionSections.map((section) => (
         <div
           key={section.title}
-          className="rounded-[18px] border border-stone-200 bg-white px-4 py-3"
+          className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 sm:rounded-[18px] sm:px-4 sm:py-3"
         >
           <div className="flex items-center gap-2">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${section.dotClassName}`}
+              className={`h-2 w-2 rounded-full sm:h-2.5 sm:w-2.5 ${section.dotClassName}`}
             />
-            <p className="text-sm font-semibold text-stone-900">
+            <p className="text-xs font-semibold text-stone-900 sm:text-sm">
               {section.title}
             </p>
           </div>
-          <div className="mt-3.5 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-1.5 sm:mt-3.5 sm:gap-2">
             {section.items.map((item) => {
               const isActive = detailPositions.includes(item.value);
 
@@ -91,7 +91,7 @@ export default function PlayerPositionSelector({
                   disabled={disabled}
                   onClick={() => onTogglePosition(item.value)}
                   className={[
-                    "rounded-full border px-4 py-2 text-xs font-semibold transition",
+                    "rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-4 sm:py-2 sm:text-xs",
                     isActive
                       ? section.activeClassName
                       : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",

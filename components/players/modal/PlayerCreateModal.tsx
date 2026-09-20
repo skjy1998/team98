@@ -18,7 +18,7 @@ export default function PlayerCreateModal({
   useEscapeKey(onClose);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 md:items-center md:px-4 md:py-6">
       <button
         type="button"
         aria-label="선수 추가 모달 닫기"
@@ -28,7 +28,7 @@ export default function PlayerCreateModal({
       <dialog
         open
         aria-labelledby="player-create-title"
-        className="relative z-10 m-0 w-full max-w-2xl rounded-[32px] border-0 bg-white px-6 py-6 shadow-2xl md:px-8 md:py-7"
+        className="relative z-10 m-0 max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-t-2xl border-0 bg-white px-4 pb-4 pt-5 shadow-2xl md:rounded-[32px] md:px-8 md:py-7"
       >
         <form
           onSubmit={(event) => {
@@ -39,30 +39,30 @@ export default function PlayerCreateModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-50"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-50 sm:right-5 sm:top-5 sm:h-10 sm:w-10"
             aria-label="닫기"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <div className="mt-4">
+          <div className="mt-2 sm:mt-4">
             <h2
               id="player-create-title"
-              className="text-3xl font-extrabold tracking-tight text-stone-900 md:text-4xl"
+              className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl md:text-4xl"
             >
               선수 추가하기
             </h2>
-            <p className="mt-2 text-base leading-7 text-stone-500">
+            <p className="mt-1.5 text-sm leading-6 text-stone-500 sm:mt-2 sm:text-base sm:leading-7">
               이름만 먼저 등록하고, 자세한 정보는 나중에 수정에서 채워도 돼요.
             </p>
           </div>
 
-          <div className="mt-7 space-y-5">
+          <div className="mt-5 space-y-4 sm:mt-7 sm:space-y-5">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="player-create-name"
-                  className="text-lg font-bold text-stone-900"
+                  className="text-base font-bold text-stone-900 sm:text-lg"
                 >
                   이름
                 </label>
@@ -75,7 +75,7 @@ export default function PlayerCreateModal({
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="실명 또는 닉네임"
-                className="h-16 w-full rounded-[20px] border border-stone-200 px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
+                className="h-12 w-full rounded-xl border border-stone-200 px-4 text-base text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300 sm:h-16 sm:rounded-[20px] sm:px-5 sm:text-lg"
               />
             </div>
 
@@ -96,7 +96,7 @@ export default function PlayerCreateModal({
                 value={birth}
                 onChange={(event) => setBirth(event.target.value)}
                 type="date"
-                className="h-14 w-full rounded-[18px] border border-stone-200 px-4 text-base text-stone-800 outline-none transition focus:border-emerald-300"
+                className="h-11 w-full rounded-xl border border-stone-200 px-3 text-sm text-stone-800 outline-none transition focus:border-emerald-300 sm:h-14 sm:rounded-[18px] sm:px-4 sm:text-base"
               />
               <p className="text-sm text-stone-500">
                 비워두고 등록한 뒤 나중에 추가해도 괜찮아요.
@@ -107,7 +107,7 @@ export default function PlayerCreateModal({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-7 flex h-15 w-full items-center justify-center gap-2 rounded-[22px] bg-stone-100 text-xl font-bold text-stone-700 transition hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:bg-stone-200"
+            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-stone-100 text-base font-bold text-stone-700 transition hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:bg-stone-200 sm:mt-7 sm:h-15 sm:rounded-[22px] sm:text-xl"
           >
             {isSubmitting ? "등록 중..." : "등록하기"}
             {!isSubmitting && <ArrowRight className="h-5 w-5" />}

@@ -29,15 +29,15 @@ export default function PlayerToolbar({
   onOpen,
 }: Readonly<PlayerToolbarProps>) {
   return (
-    <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-4 md:p-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+    <div className="space-y-3 rounded-xl border border-stone-200 bg-white p-3.5 sm:space-y-4 sm:p-4 md:p-5">
+      <div className="flex gap-2.5 md:flex-row md:items-center">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 sm:left-4" />
           <input
             placeholder="선수 이름으로 검색"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            className="h-14 w-full rounded-xl border border-stone-200 bg-stone-50/50 pl-11 pr-4 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300 focus:bg-white"
+            className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/50 pl-10 pr-3 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-emerald-300 focus:bg-white sm:h-14 sm:pl-11 sm:pr-4"
           />
         </div>
 
@@ -45,15 +45,15 @@ export default function PlayerToolbar({
           <button
             type="button"
             onClick={onOpen}
-            className="h-14 shrink-0 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            className="h-11 shrink-0 rounded-xl bg-emerald-600 px-3.5 text-xs font-semibold text-white transition hover:bg-emerald-700 sm:h-14 sm:px-5 sm:text-sm"
           >
             선수 추가
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2">
+      <div className="flex items-center justify-between gap-3 md:flex-row md:items-center">
+        <div className="-mx-1 flex min-w-0 gap-1.5 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:px-0 sm:pb-0">
           {sortOptions.map((option) => {
             const isActive = sortType === option.value;
 
@@ -62,7 +62,7 @@ export default function PlayerToolbar({
                 key={option.value}
                 type="button"
                 onClick={() => onChangeSortType(option.value)}
-                className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition ${
+                className={`inline-flex h-9 shrink-0 items-center rounded-full border px-3 text-xs font-medium transition sm:h-10 sm:px-4 sm:text-sm ${
                   isActive
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
@@ -73,7 +73,9 @@ export default function PlayerToolbar({
             );
           })}
         </div>
-        <p className="text-sm font-medium text-stone-500">총 {totalCount}명</p>
+        <p className="shrink-0 text-xs font-medium text-stone-500 sm:text-sm">
+          총 {totalCount}명
+        </p>
       </div>
     </div>
   );
