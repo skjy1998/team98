@@ -32,25 +32,24 @@ export default function MatchesPageContent({
           <button
             type="button"
             onClick={data.onOpenCreate}
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+            className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 md:w-auto"
           >
             + 일정 등록
           </button>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <SeasonSelect
           seasons={data.seasons}
           selectedSeasonId={data.selectedSeason?.id}
           ariaLabel="조회할 시즌 선택"
           onChange={data.onChangeSeason}
         />
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-stone-500">
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-xs font-medium text-stone-500 sm:text-sm">
             총 {data.displayMatches.length}경기
           </span>
-
           <MatchViewToggle
             value={data.scheduleView}
             onChange={data.onChangeScheduleView}

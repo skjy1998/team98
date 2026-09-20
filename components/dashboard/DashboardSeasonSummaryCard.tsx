@@ -26,32 +26,40 @@ export default function DashboardSeasonSummaryCard({
   recentResults,
 }: Readonly<DashboardSeasonSummaryCardProps>) {
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="grid grid-cols-3 divide-x divide-stone-100">
         <div className="text-center">
-          <p className="text-4xl font-bold leading-none text-emerald-400">
+          <p className="text-3xl font-bold leading-none text-emerald-400 sm:text-4xl">
             {win}
           </p>
-          <p className="mt-1 text-sm font-medium text-stone-500">승</p>
+          <p className="mt-1 text-xs font-medium text-stone-500 sm:text-sm">
+            승
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-4xl font-bold leading-none text-stone-500">
+          <p className="text-3xl font-bold leading-none text-stone-500 sm:text-4xl">
             {draw}
           </p>
-          <p className="mt-1 text-sm font-medium text-stone-500">무</p>
+          <p className="mt-1 text-xs font-medium text-stone-500 sm:text-sm">
+            무
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-4xl font-bold leading-none text-rose-400">
+          <p className="text-3xl font-bold leading-none text-rose-400 sm:text-4xl">
             {lose}
           </p>
-          <p className="mt-1 text-sm font-medium text-stone-500">패</p>
+          <p className="mt-1 text-xs font-medium text-stone-500 sm:text-sm">
+            패
+          </p>
         </div>
       </div>
       <div className="mt-3 border-t border-dashed border-stone-200 pt-3">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-stone-400">최근 5경기</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="shrink-0 text-xs font-semibold text-stone-400 sm:text-sm">
+            최근 5경기
+          </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {recentResults.map((result, index) => (
               <span
                 key={`${result}-${index}`}

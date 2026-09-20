@@ -7,6 +7,7 @@ interface MatchRecordCardProps {
   matchType: MatchType;
   event: MatchRecordEvent;
   isEditing: boolean;
+  isDragging?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   canManage: boolean;
@@ -54,6 +55,7 @@ export default function MatchRecordCard({
   matchType,
   event,
   isEditing,
+  isDragging = false,
   onEdit,
   onDelete,
   canManage,
@@ -77,30 +79,32 @@ export default function MatchRecordCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-2xl border px-5 py-4 transition ${
-        isEditing
-          ? "border-emerald-300 bg-emerald-50/40 ring-2 ring-emerald-100"
-          : "border-stone-200 bg-stone-100/70 hover:border-stone-300"
+      className={`rounded-xl border px-3.5 py-3.5 transition sm:rounded-2xl sm:px-5 sm:py-4 ${
+        isDragging
+          ? "scale-[1.01] border-emerald-400 bg-emerald-50 shadow-lg shadow-emerald-100"
+          : isEditing
+            ? "border-emerald-300 bg-emerald-50/40 ring-2 ring-emerald-100"
+            : "border-stone-200 bg-stone-100/70 hover:border-stone-300"
       }`}
     >
-      <div className="flex items-stretch gap-3">
+      <div className="flex items-stretch gap-2 sm:gap-3">
         {canManage && (
           <button
             type="button"
             {...attributes}
             {...listeners}
-            className="flex shrink-0 items-center self-stretch px-1 text-stone-300 transition hover:text-stone-500"
+            className="flex shrink-0 touch-none select-none items-center self-stretch px-0.5 text-stone-300 transition hover:text-stone-500 sm:px-1"
             aria-label="기록 순서 변경"
           >
-            <GripVertical className="h-5 w-5" />
+            <GripVertical className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-2 sm:gap-4">
             <div className="min-w-0">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold sm:px-3 sm:text-xs ${
                     isGoalEvent
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-rose-100 text-rose-600"
@@ -109,23 +113,25 @@ export default function MatchRecordCard({
                   {scoreLabel}
                 </span>
 
-                <p className="truncate text-lg font-semibold text-stone-900">
+                <p className="truncate text-base font-semibold text-stone-900 sm:text-lg">
                   {title}
                 </p>
               </div>
             </div>
           </div>
 
-          <p className="mt-3 text-sm text-stone-500">{meta}</p>
+          <p className="mt-2 text-xs text-stone-500 sm:mt-3 sm:text-sm">
+            {meta}
+          </p>
         </div>
 
         {canManage && (
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={onEdit}
               disabled={!onEdit}
-              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-stone-200 bg-white px-2.5 py-2 text-[11px] font-medium text-stone-600 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-xs"
             >
               {isEditing ? "닫기" : "수정"}
             </button>
@@ -134,7 +140,7 @@ export default function MatchRecordCard({
               type="button"
               onClick={onDelete}
               disabled={!onDelete}
-              className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-rose-50 px-2.5 py-2 text-[11px] font-medium text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-xs"
             >
               삭제
             </button>

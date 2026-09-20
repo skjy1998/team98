@@ -1,5 +1,12 @@
 import type { DragEndEvent } from "@dnd-kit/core";
-import { closestCenter, DndContext } from "@dnd-kit/core";
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -15,6 +22,7 @@ import type { PlayerType } from "@/types/player";
 import MatchRecordEditPanel from "./MatchRecordEditPanel";
 import type { MatchRecordQuarterSectionItem } from "@/lib/matches/match-record";
 import MatchRecordCard from "./MatchRecordCard";
+import { useState } from "react";
 
 interface MatchRecordQuarterSectionProps {
   matchType: MatchType;
@@ -65,27 +73,52 @@ export default function MatchRecordQuarterSection({
   onSubmitEdit,
   onDragEnd,
 }: Readonly<MatchRecordQuarterSectionProps>) {
+  const [activeEventId, setActiveEventId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 180,
+        tolerance: 8,
+      },
+    }),
+  );
+
   if (quarterEvents.length === 0) {
     return null;
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-center justify-between border-b border-stone-200 pb-2.5 sm:pb-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 sm:px-3 sm:text-sm">
             {section.label}
           </span>
         </div>
 
-        <span className="text-sm font-medium text-stone-400">
+        <span className="text-xs font-medium text-stone-400 sm:text-sm">
           {quarterEvents.length}개 기록
         </span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5 sm:space-y-3">
         {canManage ? (
-          <DndContext onDragEnd={onDragEnd} collisionDetection={closestCenter}>
+          <DndContext
+            sensors={sensors}
+            onDragStart={({ active }) => setActiveEventId(String(active.id))}
+            onDragCancel={() => setActiveEventId(null)}
+            onDragEnd={(dragEvent) => {
+              setActiveEventId(null);
+              onDragEnd(dragEvent);
+            }}
+            collisionDetection={closestCenter}
+          >
             <SortableContext
               items={quarterEvents.map((event) => event.id)}
               strategy={verticalListSortingStrategy}
@@ -118,6 +151,7 @@ export default function MatchRecordQuarterSection({
                       event={event}
                       isEditing={isEditing}
                       canManage={canManage}
+                      isDragging={activeEventId === event.id}
                       onEdit={() =>
                         isEditing ? onCancelEdit() : onStartEdit(event)
                       }

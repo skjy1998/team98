@@ -43,39 +43,41 @@ export default function DashboardUpcomingMatchCard({
   const myVoteStatus = getPlayerVoteStatus(votes, myPlayer?.id);
 
   return (
-    <article className="relative rounded-2xl border border-orange-200 bg-[radial-gradient(circle_at_top_right,_rgba(251,146,60,0.10),_transparent_28%),linear-gradient(180deg,#fffdfb_0%,#ffffff_100%)] p-5 shadow-sm">
+    <article className="relative rounded-2xl border border-emerald-200 bg-[radial-gradient(circle_at_top_right,_rgba(52,211,153,0.12),_transparent_28%),linear-gradient(180deg,#f8fffb_0%,#ffffff_100%)] p-5 shadow-sm">
       <Link
         href={`/matches/${match.id}`}
         aria-label={`${getOpponentName(match)} 경기 상세 보기`}
-        className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+        className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
       />
       <div className="flex items-start justify-between gap-4">
-        <span className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-1 text-sm font-semibold text-orange-600">
+        <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-600">
           {match.type}
         </span>
 
-        <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-sm font-semibold text-orange-500">
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-500">
           {dDay}
         </span>
       </div>
 
-      <div className="mt-5 grid gap-5 md:grid-cols-[100px_minmax(0,1fr)]">
-        <div className="flex flex-col items-center justify-center text-center md:border-r md:border-stone-200 md:pr-5">
-          <p className="text-base font-semibold text-stone-400">{month}월</p>
-          <p className="mt-1 text-5xl font-bold leading-none text-stone-900">
+      <div className="mt-5 grid grid-cols-[78px_minmax(0,1fr)] gap-4 sm:grid-cols-[100px_minmax(0,1fr)] sm:gap-5">
+        <div className="flex flex-col items-center justify-center border-r border-stone-200 pr-4 text-center sm:pr-5">
+          <p className="text-sm font-semibold text-stone-400 sm:text-base">
+            {month}월
+          </p>
+          <p className="mt-1 text-4xl font-bold leading-none text-stone-900 sm:text-5xl">
             {day}
           </p>
-          <p className="mt-2 text-base font-semibold text-stone-500">
+          <p className="mt-1.5 text-sm font-semibold text-stone-500 sm:mt-2 sm:text-base">
             {dayOfWeek}
           </p>
         </div>
 
         <div className="min-w-0 space-y-1.5">
           <div className="space-y-1">
-            <p className="text-sm font-semibold tracking-[0.1em] text-orange-400">
+            <p className="text-sm font-semibold tracking-[0.1em] text-emerald-500">
               {match.type === "정규" ? "상대팀" : "경기"}
             </p>
-            <p className="text-3xl font-semibold tracking-tight text-stone-900">
+            <p className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">
               {getOpponentName(match)}
             </p>
           </div>

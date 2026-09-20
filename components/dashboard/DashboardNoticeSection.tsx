@@ -38,20 +38,20 @@ export default function DashboardNoticeSection({
             <Link
               key={notice.id}
               href="/board"
-              className="group flex items-center gap-4 px-5 py-4 transition hover:bg-stone-50"
+              className="group flex items-center gap-3 px-4.5 py-3.5 transition hover:bg-stone-50 sm:gap-4 sm:px-5 sm:py-4"
             >
               <div
                 className={[
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10",
                   notice.isPinned
                     ? "bg-amber-50 text-amber-600"
                     : "bg-emerald-50 text-emerald-600",
                 ].join(" ")}
               >
                 {notice.isPinned ? (
-                  <Pin className="h-5 w-5 fill-current" />
+                  <Pin className="h-4 w-4 fill-current sm:h-5 sm:w-5" />
                 ) : (
-                  <Megaphone className="h-5 w-5" />
+                  <Megaphone className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
               </div>
 

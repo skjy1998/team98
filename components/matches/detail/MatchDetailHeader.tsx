@@ -31,8 +31,8 @@ export default function MatchDetailHeader({
 
   return (
     <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-6 py-4 md:px-8">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-4 py-3 md:px-8 md:py-4">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${sport.className}`}
@@ -47,7 +47,7 @@ export default function MatchDetailHeader({
             </span>
           </div>
 
-          <h1 className="mt-2 truncate text-lg font-bold text-stone-900">
+          <h1 className="mt-2 truncate text-base font-bold text-stone-900 sm:text-lg">
             {match.title}
           </h1>
         </div>
@@ -57,49 +57,53 @@ export default function MatchDetailHeader({
         </span>
       </div>
 
-      <div className="bg-stone-50/70 px-6 py-8 md:px-8">
-        <div className="grid items-center gap-6 md:grid-cols-[1fr_auto_1fr]">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-3xl font-bold text-emerald-700">
+      <div className="bg-stone-50/70 px-4 py-5 md:px-8 md:py-8">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-6">
+          <div className="flex min-w-0 flex-col items-center justify-center text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-xl font-bold text-emerald-700 sm:h-20 sm:w-20 sm:rounded-3xl  sm:text-3xl">
               {teamInitial}
             </div>
-            <p className="mt-3 text-xl font-semibold text-stone-900">
+            <p className="mt-2 truncate text-sm font-semibold text-stone-900 sm:mt-3 sm:text-xl">
               {safeTeamName}
             </p>
           </div>
 
-          <div className="text-center">
+          <div className="min-w-0 text-center">
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${statusBadgeClassName}`}
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold sm:text-sm ${statusBadgeClassName}`}
             >
               {matchStatusLabel}
             </span>
-            <p className="mt-4 text-5xl font-bold tracking-tight text-stone-900">
+            <p className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:mt-4 sm:text-5xl">
               {displayScore}
             </p>
-            <p className="mt-2 text-sm text-stone-400">{matchSubText}</p>
+            <p className="mt-1 text-xs text-stone-400 sm:mt-2 sm:text-sm">
+              {matchSubText}
+            </p>
           </div>
 
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-stone-100 text-3xl font-bold text-stone-700">
+          <div className="flex min-w-0 flex-col items-center justify-center text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-xl font-bold text-stone-700 sm:h-20 sm:w-20 sm:rounded-3xl sm:text-3xl">
               {opponentInitial}
             </div>
-            <p className="mt-3 text-xl font-semibold text-stone-900">
+            <p className="mt-2 truncate text-sm font-semibold text-stone-900 sm:mt-3 sm:text-xl">
               {safeOpponentName}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-stone-200 px-6 py-4 md:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-stone-500">
+      <div className="border-t border-stone-200 px-4 py-3 md:px-8 md:py-4">
+        <div className="flex flex-wrap items-center justify-start gap-x-3 gap-y-1 text-xs text-stone-500 sm:justify-center sm:text-sm">
           <span>{formatMatchDate(match.date)}</span>
-          <span className="text-stone-300">|</span>
+          <span className="hidden text-stone-300 sm:inline">|</span>
           <span>
             {match.startTime} - {match.endTime}
           </span>
-          <span className="text-stone-300">|</span>
-          <span>{match.location || "장소 미정"}</span>
+          <span className="hidden text-stone-300 sm:inline">|</span>
+          <span className="basis-full sm:basis-auto">
+            {match.location || "장소 미정"}
+          </span>
         </div>
       </div>
     </section>

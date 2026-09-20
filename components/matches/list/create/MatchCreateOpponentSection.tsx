@@ -31,13 +31,13 @@ export default function MatchCreateOpponentSection({
       </div>
 
       <div className="relative">
-        <Users className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-300" />
+        <Users className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-300 md:right-4 md:h-5 md:w-5" />
         <input
           id="match-opponent"
           value={opponent}
           onChange={(event) => onChangeOpponent(event.target.value)}
           placeholder="상대 팀 이름을 입력하세요."
-          className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300"
+          className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300 md:h-16 md:px-5 md:text-lg"
         />
       </div>
     </section>

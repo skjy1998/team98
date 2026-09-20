@@ -26,6 +26,7 @@ interface MenuSection {
 
 interface SidebarNavigationProps {
   pathname: string;
+  onNavigate?: () => void;
 }
 
 const menuSections: MenuSection[] = [
@@ -96,6 +97,7 @@ const menuSections: MenuSection[] = [
 
 export default function SidebarNavigation({
   pathname,
+  onNavigate,
 }: Readonly<SidebarNavigationProps>) {
   return (
     <nav className="space-y-1 p-3">
@@ -117,6 +119,7 @@ export default function SidebarNavigation({
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onNavigate}
                   className={[
                     "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition",
                     isActive

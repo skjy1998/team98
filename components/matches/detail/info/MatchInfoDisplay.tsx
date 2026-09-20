@@ -1,5 +1,8 @@
 import { formatMatchDate } from "@/lib/matches/match-time";
-import { formatVoteDeadline } from "@/lib/matches/match-vote";
+import {
+  formatVoteDeadline,
+  isVoteDeadlineSoon,
+} from "@/lib/matches/match-vote";
 import type { MatchItem } from "@/types/match";
 import {
   CalendarDays,
@@ -26,6 +29,7 @@ export default function MatchInfoDisplay({
   canManage,
 }: Readonly<MatchInfoDisplayProps>) {
   const uniformLabel = match.uniform === "home" ? "홈 유니폼" : "원정 유니폼";
+  const isDeadlineSoon = isVoteDeadlineSoon(match.voteDeadline);
 
   const scheduleItems = [
     {
@@ -53,9 +57,11 @@ export default function MatchInfoDisplay({
 
   return (
     <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-stone-100 px-6 py-5">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-stone-100 px-4 py-4 sm:px-6 sm:py-5">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">경기 정보</h2>
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+            경기 정보
+          </h2>
         </div>
 
         {canManage && (
@@ -81,7 +87,7 @@ export default function MatchInfoDisplay({
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="grid gap-3 md:grid-cols-3">
           {scheduleItems.map((item) => {
             const Icon = item.icon;
@@ -89,7 +95,7 @@ export default function MatchInfoDisplay({
             return (
               <div
                 key={item.label}
-                className="flex min-w-0 items-center gap-4 rounded-xl bg-stone-50 px-4 py-5"
+                className="flex min-w-0 items-center gap-3 rounded-xl bg-stone-50 px-3.5 py-4 sm:gap-4 sm:px-4 sm:py-5"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-stone-500 shadow-sm">
                   <Icon className="h-5 w-5" />
@@ -109,7 +115,7 @@ export default function MatchInfoDisplay({
         </div>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <div className="flex items-center gap-4 rounded-xl border border-stone-200 px-4 py-4">
+          <div className="flex items-center gap-3 rounded-xl border border-stone-200 px-3.5 py-3.5 sm:gap-4 sm:px-4 sm:py-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-50 text-stone-500">
               <Settings2 className="h-5 w-5" />
             </div>
@@ -121,20 +127,41 @@ export default function MatchInfoDisplay({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+          <div
+            className={[
+              "flex items-center gap-3 rounded-xl border px-3.5 py-3.5 sm:gap-4 sm:px-4 sm:py-4",
+              isDeadlineSoon
+                ? "border-emerald-100 bg-emerald-50/70"
+                : "border-stone-200",
+            ].join(" ")}
+          >
+            <div
+              className={[
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                isDeadlineSoon
+                  ? "bg-white text-emerald-600 shadow-sm"
+                  : "bg-stone-50 text-stone-500",
+              ].join(" ")}
+            >
               <Vote className="h-5 w-5" />
             </div>
 
             <div>
-              <p className="text-xs font-medium text-emerald-600">투표 마감</p>
+              <p
+                className={[
+                  "text-xs font-medium",
+                  isDeadlineSoon ? "text-emerald-600" : "text-stone-400",
+                ].join(" ")}
+              >
+                투표 마감
+              </p>
               <p className="mt-1 text-sm font-semibold text-stone-900">
                 {formatVoteDeadline(match.voteDeadline)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-stone-200 px-4 py-4">
+          <div className="flex items-center gap-3 rounded-xl border border-stone-200 px-3.5 py-3.5 sm:gap-4 sm:px-4 sm:py-4">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-50 text-stone-500">
               <Shirt className="h-5 w-5" />
             </div>

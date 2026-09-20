@@ -31,8 +31,10 @@ export default function VoteManagementPanel({
     : "표시할 선수가 없어요.";
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
-      <h2 className="text-xl font-semibold text-stone-900">전체 투표 현황</h2>
+    <section className="rounded-xl border border-stone-200 bg-white p-4 sm:p-6">
+      <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+        전체 투표 현황
+      </h2>
       {canManage && (
         <VoteFilterToolbar
           search={search}
@@ -42,12 +44,12 @@ export default function VoteManagementPanel({
         />
       )}
       {!canManage && (
-        <p className="mt-4 text-sm text-stone-500">
+        <p className="mt-3 text-xs text-stone-500 sm:mt-4 sm:text-sm">
           전체 명단은 조회만 가능하고, 내 투표는 위 카드에서 변경할 수 있어요.
         </p>
       )}
       {members.length > 0 ? (
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2 sm:mt-5 sm:space-y-3">
           {members.map((member) => (
             <VoteMemberRow
               key={member.id}
@@ -60,7 +62,7 @@ export default function VoteManagementPanel({
           ))}
         </div>
       ) : (
-        <div className="mt-5 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 py-10 text-center">
+        <div className="mt-4 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-center sm:mt-5 sm:py-10">
           <p className="text-sm font-medium text-stone-500">{emptyMessage}</p>
         </div>
       )}

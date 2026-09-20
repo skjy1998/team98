@@ -37,10 +37,12 @@ export default function MatchInfoEditor({
         event.preventDefault();
         void handleSubmit();
       }}
-      className="rounded-xl border border-stone-200 bg-white p-6"
+      className="rounded-xl border border-stone-200 bg-white p-4 sm:p-6"
     >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold text-stone-900">경기 정보 수정</h2>
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+          경기 정보 수정
+        </h2>
 
         <div className="flex gap-2">
           <button
@@ -61,7 +63,10 @@ export default function MatchInfoEditor({
         </div>
       </div>
 
-      <fieldset disabled={isSubmitting} className="mt-6 space-y-4">
+      <fieldset
+        disabled={isSubmitting}
+        className="mt-5 space-y-3 sm:mt-6 sm:space-y-4"
+      >
         <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
           <p className="mb-3 text-sm font-semibold text-stone-700">경기 종목</p>
 
@@ -85,7 +90,7 @@ export default function MatchInfoEditor({
             updateField("quarterDurationMinutes", value)
           }
         />
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 sm:gap-4">
           <MatchTypeSelector
             value={form.type}
             onChange={handleChangeType}

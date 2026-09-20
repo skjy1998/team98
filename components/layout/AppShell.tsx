@@ -7,9 +7,9 @@ interface AppShellProps {
 export default function AppShell({ children }: Readonly<AppShellProps>) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto grid max-w-7xl grid-cols-[260px_1fr] gap-4 px-3 py-4 ">
+      <div className="mx-auto w-full max-w-7xl px-3 py-4 lg:grid lg:grid-cols-[260px_1fr] lg:gap-4 lg:px-3">
         <Sidebar />
-        <main className="min-w-0">{children}</main>
+        <main className="w-full min-w-0">{children}</main>
       </div>
     </div>
   );

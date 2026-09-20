@@ -17,7 +17,7 @@ export default function TacticsPlayerCountSelect({
   canManage,
 }: Readonly<TacticsPlayerCountSelectProps>) {
   return (
-    <div className="min-w-[180px]">
+    <div className="min-w-0 sm:min-w-[180px]">
       <label
         htmlFor="player-count-select"
         className="mb-2 block text-sm font-medium text-stone-500"

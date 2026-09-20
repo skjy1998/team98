@@ -36,7 +36,7 @@ export default function MatchAttendanceModeTabs({
               aria-pressed={isActive}
               onClick={() => onChangeMode(option.value)}
               className={[
-                "rounded-lg px-4 py-3 text-sm font-semibold transition",
+                "rounded-lg px-3 py-2.5 text-xs font-semibold transition sm:px-4 sm:py-3 sm:text-sm",
                 isActive
                   ? "bg-white text-emerald-700 shadow-sm"
                   : "text-stone-500 hover:bg-white/60 hover:text-stone-700",

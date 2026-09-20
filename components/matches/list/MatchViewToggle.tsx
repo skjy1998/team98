@@ -41,16 +41,17 @@ export default function MatchViewToggle({
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
+            aria-label={`${option.label} 보기`}
             aria-pressed={isActive}
             className={[
-              "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition",
+              "inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition sm:h-9 sm:w-auto sm:gap-2 sm:px-3 sm:text-sm",
               isActive
                 ? "bg-white text-stone-900 shadow-sm"
                 : "text-stone-500 hover:text-stone-800",
             ].join(" ")}
           >
-            <Icon className="h-4 w-4" aria-hidden="true" />
-            <span>{option.label}</span>
+            <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+            <span className="sr-only sm:not-sr-only">{option.label}</span>
           </button>
         );
       })}

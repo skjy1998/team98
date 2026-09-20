@@ -109,7 +109,7 @@ export default function MatchRecordTab({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <MatchRecordInclusionToggle
         enabled={countsTowardRecord}
         disabled={!canManage || isInclusionSaving}
@@ -129,21 +129,25 @@ export default function MatchRecordTab({
           onAddEvent={handleAddEvent}
         />
       )}
-      <section className="rounded-xl border border-stone-200 bg-white p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-stone-900">경기 기록</h2>
-          <p className="text-sm text-stone-400">{events.length}개 기록</p>
+      <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+            경기 기록
+          </h2>
+          <p className="shrink-0 text-xs text-stone-400 sm:text-sm">
+            {events.length}개 기록
+          </p>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
           {events.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-8 text-center">
-              <p className="text-sm text-stone-500">
+            <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-5 text-center sm:p-8">
+              <p className="text-xs text-stone-500 sm:text-sm">
                 아직 추가된 경기 기록이 없어요.
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {quarterSections.map((section) => (
                 <MatchRecordQuarterSection
                   key={section.key}

@@ -12,6 +12,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import MatchCalendarLegend from "./MatchCalendarLegend";
 import MatchCalendarDayCell from "./MatchCalendarDayCell";
+import MatchMobileCalendarDayCell from "./MatchMobileCalendarDayCell";
+import MatchMobileCalendarDetail from "./MatchMobileCalendarDetail";
 
 interface MatchesCalendarProps {
   matches: MatchItem[];
@@ -33,26 +35,37 @@ export default function MatchesCalendar({
     getInitialCalendarMonth(matches, today),
   );
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const calendarDays = createCalendarDays(currentMonth, matches, today);
+  const selectedCalendarDay = calendarDays.find(
+    (calendarDay) => calendarDay.date === selectedDate,
+  );
 
   const handleMoveMonth = (offset: number) => {
     setCurrentMonth((month) => moveCalendarMonth(month, offset));
     setExpandedDate(null);
+    setSelectedDate(null);
   };
 
   const handleMoveToday = () => {
     setCurrentMonth(createCurrentMonth());
     setExpandedDate(null);
+    setSelectedDate(null);
   };
 
   const handleMoveOutsideMonth = (date: string) => {
     setCurrentMonth(getCalendarMonthFromDate(date));
     setExpandedDate(null);
+    setSelectedDate(null);
   };
 
   const handleToggleExpanded = (date: string) => {
     setExpandedDate((currentDate) => (currentDate === date ? null : date));
+  };
+
+  const handleSelectDate = (date: string) => {
+    setSelectedDate((currentDate) => (currentDate === date ? null : date));
   };
 
   return (
@@ -93,34 +106,70 @@ export default function MatchesCalendar({
           오늘
         </button>
       </div>
-      <div className="flex items-center justify-end border-b border-stone-200 px-5 py-2.5">
+      <div className="hidden items-center justify-end border-b border-stone-200 px-5 py-2.5 md:flex">
         <MatchCalendarLegend />
       </div>
-      <div className="grid grid-cols-7 border-b border-stone-200 bg-stone-50/80">
-        {weekDays.map((weekDay, index) => (
-          <div
-            key={weekDay}
-            className={[
-              "py-3 text-center text-xs font-semibold",
-              index === 0 ? "text-rose-500" : "text-stone-500",
-            ].join(" ")}
-          >
-            {weekDay}
+      <div className="md:hidden">
+        <div className="grid grid-cols-7 px-2 pt-2">
+          {weekDays.map((weekDay, index) => (
+            <div
+              key={weekDay}
+              className={[
+                "py-2 text-center text-xs font-semibold",
+                index === 0 ? "text-rose-500" : "text-stone-500",
+              ].join(" ")}
+            >
+              {weekDay}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 px-2 pb-2">
+          {calendarDays.map((calendarDay, index) => (
+            <MatchMobileCalendarDayCell
+              key={calendarDay.date}
+              calendarDay={calendarDay}
+              index={index}
+              isSelected={selectedDate === calendarDay.date}
+              onSelect={handleSelectDate}
+            />
+          ))}
+        </div>
+
+        {selectedCalendarDay && (
+          <div className="border-t border-stone-100 p-3">
+            <MatchMobileCalendarDetail calendarDay={selectedCalendarDay} />
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="grid grid-cols-7">
-        {calendarDays.map((calendarDay, index) => (
-          <MatchCalendarDayCell
-            key={calendarDay.date}
-            calendarDay={calendarDay}
-            index={index}
-            isExpanded={expandedDate === calendarDay.date}
-            onMoveOutsideMonth={handleMoveOutsideMonth}
-            onToggleExpanded={handleToggleExpanded}
-          />
-        ))}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-7 border-b border-stone-200 bg-stone-50/80">
+          {weekDays.map((weekDay, index) => (
+            <div
+              key={weekDay}
+              className={[
+                "py-3 text-center text-xs font-semibold",
+                index === 0 ? "text-rose-500" : "text-stone-500",
+              ].join(" ")}
+            >
+              {weekDay}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7">
+          {calendarDays.map((calendarDay, index) => (
+            <MatchCalendarDayCell
+              key={calendarDay.date}
+              calendarDay={calendarDay}
+              index={index}
+              isExpanded={expandedDate === calendarDay.date}
+              onMoveOutsideMonth={handleMoveOutsideMonth}
+              onToggleExpanded={handleToggleExpanded}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

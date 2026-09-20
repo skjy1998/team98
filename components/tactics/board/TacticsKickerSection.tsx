@@ -54,15 +54,17 @@ export default function TacticsKickerSection({
   ];
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-4">
-      <h3 className="text-lg font-semibold text-stone-900">전담 키커</h3>
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-4">
+      <h3 className="text-base font-semibold text-stone-900 sm:text-lg">
+        전담 키커
+      </h3>
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-3 space-y-3 sm:mt-4 sm:space-y-4">
         {kickerFields.map((field) => (
           <div key={field.id}>
             <label
               htmlFor={field.id}
-              className="text-sm font-medium text-stone-500"
+              className="text-xs font-medium text-stone-500 sm:text-sm"
             >
               {field.label}
             </label>
@@ -74,7 +76,7 @@ export default function TacticsKickerSection({
                   onChangeSetPiecePlayer(field.setPieceKey, event.target.value)
                 }
                 disabled={!canManage}
-                className={`h-12 w-full appearance-none rounded-xl border px-4 pr-10 text-sm outline-none ${
+                className={`h-11 w-full appearance-none rounded-xl border px-3 pr-10 text-sm outline-none sm:h-12 sm:px-4 ${
                   canManage
                     ? "border-stone-200 bg-white text-stone-800 focus:border-emerald-300"
                     : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
@@ -97,7 +99,7 @@ export default function TacticsKickerSection({
 
             <output
               htmlFor={field.id}
-              className="mt-2 block rounded-lg bg-stone-50 px-3 py-2 text-sm text-stone-600"
+              className="mt-1.5 block rounded-lg bg-stone-50 px-3 py-2 text-xs text-stone-600 sm:mt-2 sm:text-sm"
             >
               {field.selectedPlayer?.name ?? "선택된 선수가 없습니다."}
             </output>

@@ -53,11 +53,13 @@ export default function AttendanceMemberRow({
   onChangeStatus,
 }: Readonly<AttendanceMemberRowProps>) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-4">
-      <p className="text-base font-semibold text-stone-900">{name}</p>
+    <div className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/50 px-3 py-3 sm:px-4 sm:py-4">
+      <p className="min-w-0 truncate text-sm font-semibold text-stone-900 sm:text-base">
+        {name}
+      </p>
 
       {canEdit ? (
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {selectableStatuses.map((optionStatus) => {
             const option = statusMeta[optionStatus];
             const isActive = status === optionStatus;
@@ -70,7 +72,7 @@ export default function AttendanceMemberRow({
                 onClick={() =>
                   onChangeStatus(id, isActive ? "unchecked" : optionStatus)
                 }
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm ${
                   isActive
                     ? option.activeClassName
                     : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
@@ -83,7 +85,7 @@ export default function AttendanceMemberRow({
         </div>
       ) : (
         <span
-          className={`rounded-full px-3 py-1 text-sm font-semibold ${statusMeta[status].readOnlyClassName}`}
+          className={`rounded-full px-2.5 py-1 text-xs font-semibold sm:px-3 sm:text-sm ${statusMeta[status].readOnlyClassName}`}
         >
           {statusMeta[status].label}
         </span>

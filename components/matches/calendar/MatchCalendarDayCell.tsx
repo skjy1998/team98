@@ -38,7 +38,7 @@ export default function MatchCalendarDayCell({
   return (
     <div
       className={[
-        "min-h-40 p-2.5 transition-colors",
+        "min-h-32 p-2 transition-colors sm:min-h-40 sm:p-2.5",
         index % 7 !== 6 ? "border-r border-stone-200" : "",
         index < 35 ? "border-b border-stone-200" : "",
         !calendarDay.isCurrentMonth

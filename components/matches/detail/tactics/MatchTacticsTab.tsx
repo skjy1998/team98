@@ -191,6 +191,7 @@ export default function MatchTacticsTab({
           penaltyKickPlayerId={penaltyKickPlayerId}
           onChangeSetPiecePlayer={handleChangeSetPiecePlayer}
           playerListEmptyMessage={playerListEmptyMessage}
+          onCloseSlotPicker={() => handleSelectSlot(null)}
           canManage={canManage}
         />
       </div>

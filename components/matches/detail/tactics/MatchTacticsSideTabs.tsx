@@ -30,7 +30,7 @@ export default function MatchTacticsSideTabs({
               aria-pressed={isActive}
               onClick={() => onChangeSide(side.value)}
               className={[
-                "rounded-lg px-4 py-2.5 text-sm font-semibold transition",
+                "rounded-lg px-3 py-2.5 text-xs font-semibold transition sm:px-4 sm:text-sm",
                 isActive
                   ? "bg-white text-emerald-700 shadow-sm"
                   : "text-stone-500 hover:bg-white/60 hover:text-stone-700",

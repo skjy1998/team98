@@ -18,16 +18,16 @@ export default function DashboardQuickLinkButton({
   return (
     <Link
       href={href}
-      className="flex h-16 items-center justify-between rounded-xl border border-stone-200 bg-white px-4 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50"
+      className="flex h-14 items-center justify-between rounded-xl border border-stone-200 bg-white px-3.5 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 sm:h-16 sm:px-4"
     >
       <div className="flex min-w-0 items-center gap-3">
         <span
           className={[
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border sm:h-10 sm:w-10",
             iconClassName,
           ].join(" ")}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </span>
         <span>{label}</span>
       </div>

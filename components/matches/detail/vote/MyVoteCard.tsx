@@ -1,5 +1,11 @@
 import type { VoteStatus } from "@/types/match-vote";
-import { CircleHelp, Clock3, UserRoundCheck, UserRoundX } from "lucide-react";
+import {
+  Check,
+  CircleHelp,
+  Clock3,
+  UserRoundCheck,
+  UserRoundX,
+} from "lucide-react";
 
 interface MyVoteCardProps {
   playerId: string;
@@ -54,25 +60,27 @@ export default function MyVoteCard({
   const currentStatus = statusMeta[status];
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">내 투표</h2>
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
+            내 투표
+          </h2>
 
-          <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-stone-500 sm:mt-3 sm:gap-2 sm:text-sm">
             <Clock3 className="h-4 w-4" />
             <span>마감: {deadlineText}</span>
           </div>
         </div>
 
         <span
-          className={`rounded-xl px-3 py-2 text-sm font-semibold ${currentStatus.badgeClassName}`}
+          className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold sm:rounded-xl sm:px-3 sm:py-2 sm:text-sm ${currentStatus.badgeClassName}`}
         >
           {currentStatus.label}
         </span>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3">
         {voteOptions.map((option) => {
           const meta = statusMeta[option];
           const isActive = status === option;
@@ -84,24 +92,24 @@ export default function MyVoteCard({
               type="button"
               aria-pressed={isActive}
               onClick={() => onChangeStatus(playerId, option)}
-              className={`relative rounded-2xl px-4 py-6 transition ${
+              className={`relative rounded-xl px-2 py-4 transition active:scale-[0.98] sm:rounded-2xl sm:px-4 sm:py-6 ${
                 isActive
                   ? meta.cardClassName
                   : "bg-stone-100 text-stone-600 hover:bg-stone-200"
               }`}
             >
               {isActive && (
-                <span
+                <Check
                   aria-hidden="true"
-                  className="absolute right-4 top-4 text-lg font-semibold"
-                >
-                  ✓
-                </span>
+                  className="absolute right-2 top-2 h-4 w-4 stroke-[3] sm:right-4 sm:top-4 sm:h-5 sm:w-5"
+                />
               )}
 
               <div className="flex flex-col items-center justify-center">
-                <Icon className="h-7 w-7" />
-                <span className="mt-3 text-lg font-semibold">{meta.label}</span>
+                <Icon className="h-5 w-5 sm:h-7 sm:w-7" />
+                <span className="mt-2 text-sm font-semibold sm:mt-3 sm:text-lg">
+                  {meta.label}
+                </span>
               </div>
             </button>
           );

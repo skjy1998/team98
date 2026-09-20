@@ -78,6 +78,18 @@ export function isVoteClosed(voteDeadline: string) {
   return parsedDate.getTime() < Date.now();
 }
 
+export function isVoteDeadlineSoon(voteDeadline: string, hours = 24) {
+  const deadline = new Date(voteDeadline);
+
+  if (Number.isNaN(deadline.getTime())) {
+    return false;
+  }
+
+  const remainingTime = deadline.getTime() - Date.now();
+
+  return remainingTime > 0 && remainingTime <= hours * 60 * 60 * 1000;
+}
+
 export function getPlayerVoteStatus(
   votes: MatchVote[],
   playerId?: string,

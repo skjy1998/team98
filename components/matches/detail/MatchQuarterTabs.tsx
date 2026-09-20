@@ -23,7 +23,7 @@ export default function MatchQuarterTabs({
               type="button"
               onClick={() => onChangeQuarter(quarter)}
               className={[
-                "rounded-lg px-3 py-3 text-sm font-medium transition",
+                "rounded-lg px-3 py-2.5 text-xs font-medium transition sm:px-4 sm:py-3 sm:text-sm",
                 isActive
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "bg-white text-stone-500 hover:bg-stone-50",

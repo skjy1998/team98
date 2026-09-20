@@ -57,6 +57,7 @@ export default function TacticsBoardContent({
           selectedSlotId={tactics.selectedSlotId}
           onAssignPlayer={tactics.handleAssignPlayer}
           onClearSlot={tactics.handleClearSlot}
+          onCloseSlotPicker={() => tactics.setSelectedSlotId(null)}
           getPlayerById={tactics.getPlayerById}
           cornerKickPlayerId={tactics.cornerKickPlayerId}
           freeKickPlayerId={tactics.freeKickPlayerId}

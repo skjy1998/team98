@@ -42,10 +42,10 @@ export default function VoteSummaryCard({
   summary,
 }: Readonly<VoteSummaryCardProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-4 sm:p-6">
       <div
         aria-hidden="true"
-        className="flex h-3 overflow-hidden rounded-xl border border-stone-200"
+        className="flex h-2.5 overflow-hidden rounded-xl border border-stone-200 sm:h-3"
       >
         {summaryMeta.map((item) => {
           const rate =
@@ -64,15 +64,22 @@ export default function VoteSummaryCard({
       </div>
       <div className="grid grid-cols-4 divide-x divide-stone-200">
         {summaryMeta.map((item) => (
-          <div key={item.status} className="px-4 py-5 text-center">
-            <p className={`text-3xl font-bold ${item.textClassName}`}>
+          <div
+            key={item.status}
+            className="px-1 py-3 text-center sm:px-4 sm:py-5"
+          >
+            <p
+              className={`text-2xl font-bold sm:text-3xl ${item.textClassName}`}
+            >
               {summary[item.status]}
             </p>
-            <p className="mt-1 text-sm text-stone-500">{item.label}</p>
+            <p className="mt-1 text-[11px] text-stone-500 sm:text-sm">
+              {item.label}
+            </p>
           </div>
         ))}
       </div>
-      <p className="mt-4 text-center text-sm text-stone-400">
+      <p className="mt-3 text-center text-xs text-stone-400 sm:mt-4 sm:text-sm">
         총 {summary.total}명
       </p>
     </section>

@@ -14,19 +14,16 @@ const recordItems = [
     key: "appearance",
     label: "출전",
     unit: "경기",
-    valueClassName: "text-orange-500",
   },
   {
     key: "goal",
     label: "득점",
     unit: "골",
-    valueClassName: "text-emerald-600",
   },
   {
     key: "assist",
     label: "도움",
     unit: "개",
-    valueClassName: "text-sky-500",
   },
 ] as const;
 
@@ -48,16 +45,16 @@ export default function DashboardMyRecordSection({
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-emerald-200 bg-[radial-gradient(circle_at_top_right,_rgba(52,211,153,0.12),_transparent_35%),linear-gradient(180deg,#f8fffb_0%,#ffffff_100%)] p-5 shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
         {player ? (
           <>
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-200 bg-white text-xl font-bold text-emerald-700 shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-lg font-bold text-emerald-700 shadow-sm sm:h-12 sm:w-12 sm:rounded-2xl sm:text-xl">
                 {player.name.slice(0, 1)}
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-semibold text-stone-900">
+                <p className="truncate text-base font-semibold text-stone-900 sm:text-lg">
                   {player.name}
                 </p>
                 <p className="mt-0.5 text-xs font-medium text-stone-400">
@@ -65,24 +62,22 @@ export default function DashboardMyRecordSection({
                 </p>
               </div>
 
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 sm:px-3 sm:text-sm">
                 {player.number !== undefined ? `#${player.number}` : "미배정"}
               </span>
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-5">
               {recordItems.map((item) => (
                 <div
                   key={item.key}
-                  className="rounded-xl border border-white/80 bg-white/80 px-3 py-4 text-center shadow-sm"
+                  className="rounded-xl border border-stone-100 bg-stone-50/70 px-2 py-3 text-center sm:px-3 sm:py-4"
                 >
                   <p className="text-xs font-semibold text-stone-400">
                     {item.label}
                   </p>
 
-                  <p
-                    className={`mt-2 text-2xl font-bold ${item.valueClassName}`}
-                  >
+                  <p className="mt-2 text-xl font-bold text-stone-900 sm:text-2xl">
                     {player[item.key]}
                     <span className="ml-1 text-xs font-semibold text-stone-400">
                       {item.unit}

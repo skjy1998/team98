@@ -45,42 +45,44 @@ export default function SelfMatchTeamAssignmentSection({
   const voteByPlayerId = new Map(votes.map((vote) => [vote.playerId, vote]));
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
-      <div className="flex items-center justify-between gap-4">
+    <section className="rounded-xl border border-stone-200 bg-white p-4 sm:p-6">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">
+          <h2 className="text-lg font-semibold text-stone-900 sm:text-xl">
             자체전 팀 배정
           </h2>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-xs text-stone-500 sm:text-sm">
             참석 선수를 A팀과 B팀으로 나눠 주세요.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs font-semibold">
-          <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
+        <div className="flex flex-wrap gap-1.5 text-[11px] font-semibold sm:gap-2 sm:text-xs">
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 sm:px-3 sm:py-1.5">
             A팀 {teamACount}명
           </span>
-          <span className="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700">
+          <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700 sm:px-3 sm:py-1.5">
             B팀 {teamBcount}명
           </span>
-          <span className="rounded-full bg-stone-100 px-3 py-1.5 text-stone-600">
+          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-stone-600 sm:px-3 sm:py-1.5">
             미배정 {unassignedCount}명
           </span>
         </div>
       </div>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-4 space-y-2 sm:mt-5 sm:space-y-3">
         {players.map((player) => {
           const currentSide = voteByPlayerId.get(player.id)?.side;
 
           return (
             <div
               key={player.id}
-              className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-4"
+              className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/50 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4"
             >
-              <p className="font-semibold text-stone-900">{player.name}</p>
+              <p className="min-w-0 truncate text-sm font-semibold text-stone-900 sm:text-base">
+                {player.name}
+              </p>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                 {sideOptions.map((option) => {
                   const isActive = currentSide === option.value;
 
@@ -94,7 +96,7 @@ export default function SelfMatchTeamAssignmentSection({
                         onChangeSide(player.id, isActive ? null : option.value)
                       }
                       className={[
-                        "rounded-xl px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+                        "rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm",
                         isActive
                           ? option.activeClassName
                           : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50",

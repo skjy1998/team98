@@ -20,7 +20,7 @@ export default function MatchCreateScheduleSection({
   onChangeVoteDeadline,
 }: Readonly<MatchCreateScheduleSectionProps>) {
   return (
-    <section className="space-y-6">
+    <section className="space-y-5 md:space-y-6">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <label
@@ -39,7 +39,7 @@ export default function MatchCreateScheduleSection({
           type="date"
           value={date}
           onChange={(event) => onChangeDate(event.target.value)}
-          className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+          className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none transition focus:border-emerald-300 md:h-16 md:px-5 md:text-lg"
         />
       </div>
       <div className="space-y-3">
@@ -50,11 +50,11 @@ export default function MatchCreateScheduleSection({
           </span>
         </div>
 
-        <div className="grid items-end gap-3 md:grid-cols-[1fr_auto_1fr]">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-3">
           <div className="space-y-2">
             <label
               htmlFor="match-start-time"
-              className="text-sm font-semibold text-stone-700"
+              className="text-xs font-semibold text-stone-700 sm:text-sm"
             >
               시작 시간
             </label>
@@ -63,18 +63,18 @@ export default function MatchCreateScheduleSection({
               type="time"
               value={startTime}
               onChange={(event) => onChangeStartTime(event.target.value)}
-              className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none transition focus:border-emerald-300 md:h-16 md:px-5 md:text-lg"
             />
           </div>
 
-          <span className="pb-5 text-center text-xl font-medium text-stone-400">
+          <span className="pb-3.5 text-center text-base font-medium text-stone-400 sm:pb-5 sm:text-xl">
             -
           </span>
 
           <div className="space-y-2">
             <label
               htmlFor="match-end-time"
-              className="text-sm font-semibold text-stone-700"
+              className="text-xs font-semibold text-stone-700 sm:text-sm"
             >
               종료 시간
             </label>
@@ -83,7 +83,7 @@ export default function MatchCreateScheduleSection({
               type="time"
               value={endTime}
               onChange={(event) => onChangeEndTime(event.target.value)}
-              className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+              className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none transition focus:border-emerald-300 md:h-16 md:px-5 md:text-lg"
             />
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function MatchCreateScheduleSection({
           type="datetime-local"
           value={voteDeadline}
           onChange={(event) => onChangeVoteDeadline(event.target.value)}
-          className="h-16 w-full rounded-xl border border-stone-200 bg-white px-5 text-lg text-stone-800 outline-none transition focus:border-emerald-300"
+          className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-800 outline-none transition focus:border-emerald-300 md:h-16 md:px-5 md:text-lg"
         />
       </div>
     </section>

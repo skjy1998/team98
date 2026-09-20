@@ -9,6 +9,14 @@ export function formatMatchDate(date: string) {
   return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
+export function formatMatchMonthDay(date: string) {
+  if (!date) return "";
+
+  const [, month, day] = date.split("-");
+
+  return `${Number(month)}월 ${Number(day)}일`;
+}
+
 export function formatMatchTime(match: MatchItem) {
   return `${match.startTime} - ${match.endTime}`;
 }

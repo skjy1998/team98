@@ -15,7 +15,7 @@ export default function TacticsFormationSelect({
   canManage,
 }: Readonly<TacticsFormationSelectProps>) {
   return (
-    <div className="min-w-[280px] flex-1">
+    <div className="min-w-0 flex-1 sm:min-w-[280px]">
       <label
         htmlFor="formation-select"
         className="mb-2 block text-sm font-medium text-stone-500"

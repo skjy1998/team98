@@ -19,16 +19,16 @@ export default function MatchSportSelector({
         disabled={disabled}
         onClick={() => onChange("soccer")}
         className={[
-          "rounded-xl border px-6 py-5 text-center transition disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-xl border px-3 py-3.5 text-center transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-5",
           value === "soccer"
             ? "border-emerald-300 bg-emerald-50 text-emerald-600"
             : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
         ].join(" ")}
       >
-        <p className="text-2xl font-bold">축구</p>
+        <p className="text-lg font-bold sm:text-2xl">축구</p>
         <p
           className={[
-            "mt-2 text-sm font-medium",
+            "mt-1 text-xs font-medium sm:mt-2 sm:text-sm",
             value === "soccer" ? "text-emerald-400" : "text-stone-400",
           ].join(" ")}
         >
@@ -41,16 +41,16 @@ export default function MatchSportSelector({
         disabled={disabled}
         onClick={() => onChange("futsal")}
         className={[
-          "rounded-xl border px-6 py-5 text-center transition disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-xl border px-3 py-3.5 text-center transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-5",
           value === "futsal"
             ? "border-sky-300 bg-sky-50 text-sky-600"
             : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
         ].join(" ")}
       >
-        <p className="text-2xl font-bold">풋살</p>
+        <p className="text-lg font-bold sm:text-2xl">풋살</p>
         <p
           className={[
-            "mt-2 text-sm font-medium",
+            "mt-1 text-xs font-medium sm:mt-2 sm:text-sm",
             value === "futsal" ? "text-sky-400" : "text-stone-400",
           ].join(" ")}
         >

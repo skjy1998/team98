@@ -53,43 +53,55 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
   const canEdit = canManage && !isBusy;
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-4 md:p-5">
-      <div className="flex flex-col gap-4">
+    <div className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-5">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          {props.saveMode === "auto" && props.playerCountState && (
-            <TacticsPlayerCountSelect
-              options={props.playerCountState.options}
-              value={props.playerCountState.value}
-              onChange={props.playerCountState.onChange}
-              isSaving={props.playerCountState.isSaving}
-              canManage={canManage}
+          <div
+            className={[
+              "gap-3",
+              props.saveMode === "auto" && props.playerCountState
+                ? "grid grid-cols-2"
+                : "flex flex-col",
+              "lg:flex lg:flex-1",
+            ].join(" ")}
+          >
+            {props.saveMode === "auto" && props.playerCountState && (
+              <TacticsPlayerCountSelect
+                options={props.playerCountState.options}
+                value={props.playerCountState.value}
+                onChange={props.playerCountState.onChange}
+                isSaving={props.playerCountState.isSaving}
+                canManage={canManage}
+              />
+            )}
+            <TacticsFormationSelect
+              formation={formation}
+              options={availableFormationOptions}
+              onChange={onChangeFormation}
+              canManage={canEdit}
             />
-          )}
-          <TacticsFormationSelect
-            formation={formation}
-            options={availableFormationOptions}
-            onChange={onChangeFormation}
-            canManage={canEdit}
-          />
-          <div className="flex items-center gap-2">
+          </div>
+
+          <div className="flex items-center justify-end gap-2 border-t border-stone-100 pt-3 lg:shrink-0 lg:border-t-0 lg:pt-0">
             <button
               type="button"
               onClick={onReset}
               disabled={!canEdit}
-              className={`inline-flex h-14 items-center gap-2 rounded-xl border px-5 text-sm font-medium transition ${
+              aria-label="포메이션 초기화"
+              className={`inline-flex h-12 w-12 items-center justify-center rounded-lg border text-xs font-medium transition sm:w-auto sm:gap-2 sm:rounded-xl sm:px-5 sm:text-sm ${
                 canEdit
                   ? "border-stone-200 text-stone-600 hover:bg-stone-50"
                   : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
               }`}
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              초기화
+              <span className="sr-only sm:not-sr-only">초기화</span>
             </button>
 
             {props.saveMode === "auto" && (
-              <div className="inline-flex h-14 items-center gap-2 rounded-xl bg-emerald-50 px-5 text-sm font-medium text-emerald-700">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-xs font-medium text-emerald-700 sm:w-auto sm:gap-2 sm:rounded-xl sm:px-5 sm:text-sm">
                 <Save aria-hidden="true" className="h-4 w-4" />
-                자동 저장됨
+                <span className="sr-only sm:not-sr-only">자동 저장됨</span>
               </div>
             )}
           </div>

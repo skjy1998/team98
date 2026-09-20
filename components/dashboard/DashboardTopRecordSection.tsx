@@ -20,7 +20,7 @@ export default function DashboardTopRecordSection({
       value: topAppearance?.appearance ?? 0,
       unit: "경기",
       cardClassName:
-        "rounded-xl border border-orange-200 bg-[radial-gradient(circle_at_top_right,_rgba(251,146,60,0.10),_transparent_35%),linear-gradient(180deg,#fffdfb_0%,#ffffff_100%)] p-4 shadow-sm",
+        "rounded-xl border border-orange-200 bg-[radial-gradient(circle_at_top_right,_rgba(251,146,60,0.10),_transparent_35%),linear-gradient(180deg,#fffdfb_0%,#ffffff_100%)] p-3 sm:p-4 shadow-sm",
       titleClassName: "text-sm font-semibold text-orange-400",
     },
     {
@@ -29,7 +29,7 @@ export default function DashboardTopRecordSection({
       value: topScorer?.goal ?? 0,
       unit: "골",
       cardClassName:
-        "rounded-xl border border-emerald-200 bg-[radial-gradient(circle_at_top_right,_rgba(74,222,128,0.10),_transparent_35%),linear-gradient(180deg,#fafffc_0%,#ffffff_100%)] p-4 shadow-sm",
+        "rounded-xl border border-emerald-200 bg-[radial-gradient(circle_at_top_right,_rgba(74,222,128,0.10),_transparent_35%),linear-gradient(180deg,#fafffc_0%,#ffffff_100%)] p-3 sm:p-4 shadow-sm",
       titleClassName: "text-sm font-semibold text-emerald-400",
     },
     {
@@ -38,7 +38,7 @@ export default function DashboardTopRecordSection({
       value: topAssister?.assist ?? 0,
       unit: "도움",
       cardClassName:
-        "rounded-xl border border-sky-200 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.10),_transparent_35%),linear-gradient(180deg,#fbfeff_0%,#ffffff_100%)] p-4 shadow-sm",
+        "rounded-xl border border-sky-200 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.10),_transparent_35%),linear-gradient(180deg,#fbfeff_0%,#ffffff_100%)] p-3 sm:p-4 shadow-sm",
       titleClassName: "text-sm font-semibold text-sky-400",
     },
   ];
@@ -57,7 +57,7 @@ export default function DashboardTopRecordSection({
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {cards.map((card) => (
           <DashboardTopRecordCard
             key={card.title}

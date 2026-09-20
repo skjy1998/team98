@@ -36,41 +36,47 @@ export default function MatchOpponentRecordCard({
   summary,
 }: Readonly<MatchOpponentRecordCardProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-4 sm:p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-500">
-          <History className="h-5 w-5" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 sm:h-10 sm:w-10">
+          <History className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold text-stone-900">
+          <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
             {opponent} 상대 전적
           </h2>
           <p className="text-sm text-stone-400">이전 맞대결 기준 요약</p>
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl bg-stone-50 px-4 py-5 text-center">
-          <p className="text-3xl font-bold text-stone-900">
+      <div className="mt-4 grid grid-cols-4 gap-1.5 sm:mt-5 sm:gap-3">
+        <div className="rounded-xl bg-stone-50 px-1 py-3 text-center sm:px-4 sm:py-5">
+          <p className="text-2xl font-bold text-stone-900 sm:text-3xl">
             {summary.totalMatches}
           </p>
-          <p className="mt-1 text-sm text-stone-500">경기</p>
+          <p className="mt-1 text-[11px] text-stone-500">경기</p>
         </div>
 
-        <div className="rounded-xl bg-stone-50 px-4 py-5 text-center">
-          <p className="text-3xl font-bold text-emerald-600">{summary.win}</p>
-          <p className="mt-1 text-sm text-stone-500">승</p>
+        <div className="rounded-xl bg-stone-50 px-1 py-3 text-center sm:px-4 sm:py-5">
+          <p className="text-2xl font-bold text-emerald-600 sm:text-3xl">
+            {summary.win}
+          </p>
+          <p className="mt-1 text-[11px] text-stone-500">승</p>
         </div>
 
-        <div className="rounded-xl bg-stone-50 px-4 py-5 text-center">
-          <p className="text-3xl font-bold text-stone-700">{summary.draw}</p>
-          <p className="mt-1 text-sm text-stone-500">무</p>
+        <div className="rounded-xl bg-stone-50 px-1 py-3 text-center sm:px-4 sm:py-5">
+          <p className="text-2xl font-bold text-stone-700 sm:text-3xl">
+            {summary.draw}
+          </p>
+          <p className="mt-1 text-[11px] text-stone-500">무</p>
         </div>
 
-        <div className="rounded-xl bg-stone-50 px-4 py-5 text-center">
-          <p className="text-3xl font-bold text-rose-500">{summary.lose}</p>
-          <p className="mt-1 text-sm text-stone-500">패</p>
+        <div className="rounded-xl bg-stone-50 px-1 py-3 text-center sm:px-4 sm:py-5">
+          <p className="text-2xl font-bold text-rose-500 sm:text-3xl">
+            {summary.lose}
+          </p>
+          <p className="mt-1 text-[11px] text-stone-500">패</p>
         </div>
       </div>
 

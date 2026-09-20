@@ -19,7 +19,7 @@ export default function MatchUniformSelector({
         disabled={disabled}
         onClick={() => onChange("home")}
         className={[
-          "rounded-lg px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-lg px-3 py-2.5 text-xs font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-3 sm:text-sm",
           value === "home"
             ? "bg-emerald-500 text-white shadow-sm"
             : "text-stone-500 hover:bg-stone-100",
@@ -34,7 +34,7 @@ export default function MatchUniformSelector({
         disabled={disabled}
         onClick={() => onChange("away")}
         className={[
-          "rounded-lg px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-lg px-3 py-2.5 text-xs font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-3 sm:text-sm",
           value === "away"
             ? "bg-stone-900 text-white shadow-sm"
             : "text-stone-500 hover:bg-stone-100",
