@@ -55,15 +55,17 @@ export default function NotificationSettingsSection() {
   } = useNotificationSettings();
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-          <Bell className="h-5 w-5" />
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
+      <div className="flex items-start gap-2.5 sm:gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 sm:h-10 sm:w-10">
+          <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold text-stone-900">알림 설정</h2>
-          <p className="mt-1 text-sm text-stone-400">
+          <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+            알림 설정
+          </h2>
+          <p className="mt-1 text-xs text-stone-400 sm:text-sm">
             알림 센터와 대시보드에 표시할 항목을 선택하세요.
           </p>
         </div>
@@ -84,11 +86,11 @@ export default function NotificationSettingsSection() {
       )}
 
       {!settingsLoaded ? (
-        <div className="mt-6 rounded-xl bg-stone-50 p-6 text-center text-sm text-stone-400">
+        <div className="mt-4 rounded-xl bg-stone-50 p-3 text-center text-sm text-stone-400 sm:mt-6 sm:p-6 sm:text-sm">
           알림 설정을 불러오는 중...
         </div>
       ) : (
-        <div className="mt-6 divide-y divide-stone-100">
+        <div className="mt-4 divide-y divide-stone-100 sm:mt-6">
           {notificationItems.map((item) => {
             const enabled = settings[item.key];
 

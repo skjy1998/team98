@@ -51,15 +51,17 @@ export default function TeamRoleCard({ role }: Readonly<TeamRoleCardProps>) {
   const meta = role ? roleMeta[role] : null;
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
-          <ShieldCheck className="h-5 w-5" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600 sm:h-10 sm:w-10">
+          <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-semibold text-stone-900">내 팀 권한</h2>
+            <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+              내 팀 권한
+            </h2>
 
             {meta && (
               <span
@@ -70,23 +72,23 @@ export default function TeamRoleCard({ role }: Readonly<TeamRoleCardProps>) {
             )}
           </div>
 
-          <p className="mt-1 text-sm text-stone-400">
+          <p className="mt-1 text-xs text-stone-400 sm:text-sm">
             {meta?.description ?? "팀 권한 정보를 확인할 수 없어요."}
           </p>
         </div>
       </div>
 
       {meta && (
-        <div className="mt-5 rounded-xl border border-stone-200 bg-stone-50 p-4">
+        <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-3 sm:mt-5 sm:p-4">
           <p className="text-xs font-semibold tracking-wide text-stone-400">
             사용 가능한 기능
           </p>
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-1.5 sm:mt-3 sm:gap-2">
             {meta.permissions.map((permission) => (
               <span
                 key={permission}
-                className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600"
+                className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-600 sm:px-3 sm:py-1.5"
               >
                 {permission}
               </span>

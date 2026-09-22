@@ -45,10 +45,12 @@ export default function ProfileSettingsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {profileError && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <p className="text-sm font-medium text-amber-700">{profileError}</p>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 sm:px-5 sm:py-4">
+          <p className="text-xs font-medium text-amber-700 sm:text-sm">
+            {profileError}
+          </p>
         </div>
       )}
 

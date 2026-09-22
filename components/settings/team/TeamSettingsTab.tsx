@@ -53,17 +53,17 @@ export default function TeamSettingsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {teamSummaryError && (
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <p className="text-sm font-medium text-amber-700">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 sm:gap-4 sm:px-5 sm:py-4">
+          <p className="text-xs font-medium text-amber-700 sm:text-sm">
             {teamSummaryError}
           </p>
 
           <button
             type="button"
             onClick={() => void reloadTeamSummary()}
-            className="shrink-0 text-sm font-semibold text-amber-700 underline underline-offset-4"
+            className="shrink-0 text-xs font-semibold text-amber-700 underline underline-offset-4 sm:text-sm"
           >
             다시 시도
           </button>
@@ -71,8 +71,8 @@ export default function TeamSettingsTab() {
       )}
 
       {teamActionError && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <p className="text-sm font-medium text-amber-700">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 sm:px-5 sm:py-4">
+          <p className="text-xs font-medium text-amber-700 sm:text-sm">
             {teamActionError}
           </p>
         </div>

@@ -52,15 +52,17 @@ export default function MyPlayerProfileForm({
   };
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div>
-        <h2 className="text-lg font-semibold text-stone-900">내 선수 정보</h2>
-        <p className="mt-1 text-sm text-stone-400">
+        <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+          내 선수 정보
+        </h2>
+        <p className="mt-1 text-xs text-stone-400 sm:text-sm">
           등번호와 선호 포지션을 관리할 수 있어요.
         </p>
       </div>
 
-      <div className="mt-5 space-y-5">
+      <div className="mt-4 space-y-4 sm:mt-5 sm:space-y-5">
         <div>
           <label
             htmlFor="profile-player-number"
@@ -91,12 +93,12 @@ export default function MyPlayerProfileForm({
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex sm:justify-end">
           <button
             type="button"
             disabled={isSaving}
             onClick={handleSave}
-            className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-11 w-full rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {isSaving ? "저장 중..." : "선수 정보 저장"}
           </button>

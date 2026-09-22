@@ -24,7 +24,7 @@ export default function SettingsPageClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="설정"
         description="내 계정과 팀 운영 환경을 관리하세요."

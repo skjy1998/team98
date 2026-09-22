@@ -38,15 +38,17 @@ export default function SeasonListItem({
   return (
     <article
       className={[
-        "rounded-xl border bg-white p-5 shadow-sm",
+        "rounded-xl border bg-white p-3.5 shadow-sm sm:p-5",
         season.isActive ? "border-emerald-300" : "border-stone-200",
       ].join(" ")}
     >
       {isEditing ? (
         <>
-          <div className="mb-5">
-            <h3 className="font-semibold text-stone-900">시즌 수정</h3>
-            <p className="mt-1 text-sm text-stone-500">
+          <div className="mb-4 sm:mb-5">
+            <h3 className="text-sm font-semibold text-stone-900 sm:text-base">
+              시즌 수정
+            </h3>
+            <p className="mt-1 text-xs text-stone-500 sm:text-sm">
               시즌 이름과 운영 기간을 수정하세요.
             </p>
           </div>

@@ -41,11 +41,13 @@ export default function TeamSummaryCard({
   summary,
 }: Readonly<TeamSummaryCardProps>) {
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-stone-900">팀 현황</h2>
-          <p className="mt-1 text-sm text-stone-400">
+          <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+            팀 현황
+          </h2>
+          <p className="mt-1 text-xs text-stone-400 sm:text-sm">
             현재 팀원과 계정 연결 상태를 확인하세요.
           </p>
         </div>
@@ -58,28 +60,30 @@ export default function TeamSummaryCard({
         </Link>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-3">
         {summaryItems.map((item) => {
           const Icon = item.icon;
 
           return (
             <div
               key={item.key}
-              className="rounded-xl border border-stone-200 bg-stone-50 p-4"
+              className="rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-center sm:p-4"
             >
               <div
-                className={`flex h-9 w-9 items-center justify-center rounded-lg ${item.iconClassName}`}
+                className={`mx-auto flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${item.iconClassName}`}
               >
                 <Icon className="h-4 w-4" />
               </div>
 
-              <p className="mt-4 text-2xl font-bold text-stone-900">
+              <p className="mt-2 text-xl font-bold text-stone-900 sm:mt-4 sm:text-2xl">
                 {summary[item.key]}
               </p>
-              <p className="mt-1 text-sm font-semibold text-stone-700">
+              <p className="mt-1 text-xs font-semibold text-stone-700 sm:text-sm">
                 {item.label}
               </p>
-              <p className="mt-1 text-xs text-stone-400">{item.description}</p>
+              <p className="mt-1 hidden text-xs text-stone-400 sm:block">
+                {item.description}
+              </p>
             </div>
           );
         })}

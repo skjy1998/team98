@@ -18,16 +18,18 @@ export default function SeasonList({
   onDelete,
 }: Readonly<SeasonListProps>) {
   return (
-    <section className="space-y-4">
-      <div className="flex items-end justify-between">
+    <section className="space-y-3 sm:space-y-4">
+      <div className="flex items-end justify-between sm:gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-stone-900">시즌 목록</h2>
-          <p className="mt-1 text-sm text-stone-900">
+          <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+            시즌 목록
+          </h2>
+          <p className="mt-0.5 text-xs text-stone-500 sm:mt-1 sm:text-sm">
             팀에서 운영한 시즌을 확인하고 관리하세요.
           </p>
         </div>
 
-        <span className="text-sm font-medium text-stone-500">
+        <span className="shrink-0 text-xs font-medium text-stone-500 sm:text-sm">
           총 {seasons.length}개
         </span>
       </div>
@@ -43,7 +45,7 @@ export default function SeasonList({
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {seasons.map((season) => (
             <SeasonListItem
               key={season.id}

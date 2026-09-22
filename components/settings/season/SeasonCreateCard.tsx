@@ -58,7 +58,7 @@ export default function SeasonCreateCard({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 px-5 py-5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 px-4 py-4 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 sm:px-5 sm:py-5"
       >
         <Plus className="h-4 w-4" />새 시즌 만들기
       </button>
@@ -66,10 +66,12 @@ export default function SeasonCreateCard({
   }
 
   return (
-    <section className="rounded-xl border border-emerald-200 bg-white p-6 shadow-sm">
-      <div className="mb-5">
-        <h2 className="text-lg font-semibold text-stone-900">새 시즌 만들기</h2>
-        <p className="mt-1 text-sm text-stone-500">
+    <section className="rounded-xl border border-emerald-200 bg-white p-3.5 shadow-sm sm:p-6">
+      <div className="mb-4 sm:mb-5">
+        <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+          새 시즌 만들기
+        </h2>
+        <p className="mt-1 text-xs text-stone-500 sm:text-sm">
           시즌 이름과 운영 기간을 설정하세요.
         </p>
       </div>

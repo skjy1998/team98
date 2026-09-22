@@ -54,19 +54,21 @@ export default function TeamProfileForm({
   };
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div>
-        <h2 className="text-lg font-semibold text-stone-900">팀 기본 정보</h2>
-        <p className="mt-1 text-sm text-stone-400">
+        <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
+          팀 기본 정보
+        </h2>
+        <p className="mt-1 text-xs text-stone-400 sm:text-sm">
           팀 이름과 운영 종목을 설정할 수 있어요.
         </p>
       </div>
 
-      <div className="mt-5 space-y-5">
+      <div className="mt-4 space-y-4 sm:mt-5 sm:space-y-5">
         <div>
           <label
             htmlFor="team-settings-name"
-            className="mb-2 block text-sm font-medium text-stone-600"
+            className="mb-1.5 block text-xs font-medium text-stone-600 sm:text-sm"
           >
             팀명
           </label>
@@ -76,15 +78,15 @@ export default function TeamProfileForm({
             value={name}
             disabled={!canManage || isSaving}
             onChange={(event) => setName(event.target.value)}
-            className="h-12 w-full rounded-xl border border-stone-200 px-4 text-sm text-stone-800 outline-none transition focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            className="h-11 w-full rounded-xl border border-stone-200 px-3 text-sm text-stone-800 outline-none transition focus:border-emerald-400 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-stone-100 sm:h-12 sm:px-4"
           />
         </div>
         <fieldset disabled={!canManage || isSaving}>
-          <legend className="mb-2 text-sm font-medium text-stone-600">
+          <legend className="mb-1.5 block text-xs font-medium text-stone-600 sm:mb-2 sm:text-sm">
             종목
           </legend>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {sportOptions.map((option) => {
               const isSelected = sport === option.value;
 
@@ -94,7 +96,7 @@ export default function TeamProfileForm({
                   type="button"
                   onClick={() => setSport(option.value)}
                   className={[
-                    "rounded-xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60",
+                    "rounded-xl border px-3 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:py-4",
                     isSelected
                       ? "border-emerald-300 bg-emerald-50"
                       : "border-stone-200 bg-white hover:bg-stone-50",
@@ -124,12 +126,12 @@ export default function TeamProfileForm({
         )}
 
         {canManage && (
-          <div className="flex justify-end">
+          <div className="flex sm:justify-end">
             <button
               type="button"
               disabled={isSaving || !name.trim() || !hasChanges}
               onClick={handleSave}
-              className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-11 w-full rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {isSaving ? "저장 중..." : "팀 정보 저장"}
             </button>

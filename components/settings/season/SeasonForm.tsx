@@ -50,8 +50,8 @@ export default function SeasonForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <fieldset disabled={isSaving} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+      <fieldset disabled={isSaving} className="space-y-4 sm:space-y-5">
         <div>
           <label
             htmlFor={nameId}
@@ -67,12 +67,9 @@ export default function SeasonForm({
             placeholder="예: 2026 시즌"
             className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100"
           />
-          <p className="mt-1 text-right text-xs text-stone-400">
-            {value.name.length}/50
-          </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
           <div>
             <label
               htmlFor={startDateId}
@@ -117,7 +114,7 @@ export default function SeasonForm({
         )}
       </fieldset>
 
-      <div className="flex justify-end gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
         {onCancel && (
           <button
             type="button"

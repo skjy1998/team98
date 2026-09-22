@@ -34,7 +34,7 @@ export default function SettingsTabs({
               type="button"
               onClick={() => onChangeTab(tab.id)}
               className={[
-                "flex items-center justify-center gap-2 border-b-2 px-4 py-4 text-sm font-semibold transition",
+                "flex flex-col items-center justify-center gap-1 border-b-2 px-1 py-2.5 text-xs font-semibold transition sm:flex-row sm:gap-2 sm:px-4 sm:py-4 sm:text-sm",
                 isActive
                   ? "border-emerald-500 text-emerald-700"
                   : "border-transparent text-stone-400 hover:text-stone-700",
