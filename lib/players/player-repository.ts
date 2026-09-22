@@ -23,6 +23,7 @@ interface PlayerRow {
   role: PlayerRole | null;
   preferred_foot: PlayerPreferredFoot | null;
   note: string | null;
+  fee_type_id: string | null;
 }
 
 interface TeamMemberRow {
@@ -41,7 +42,8 @@ const PLAYER_COLUMNS = `
   birth,
   role,
   preferred_foot,
-  note
+  note,
+  fee_type_id
 `;
 
 function mapPlayerRow(
@@ -60,6 +62,7 @@ function mapPlayerRow(
     role: player.role ?? "member",
     preferredFoot: player.preferred_foot ?? "right",
     note: player.note ?? undefined,
+    feeTypeId: player.fee_type_id ?? undefined,
     appearance: 0,
     goal: 0,
     assist: 0,
@@ -112,6 +115,7 @@ export async function createTeamPlayer(teamId: string, player: PlayerType) {
       role: player.role ?? "member",
       preferred_foot: player.preferredFoot ?? "right",
       note: player.note ?? null,
+      fee_type_id: player.feeTypeId ?? null,
     })
     .select(PLAYER_COLUMNS)
     .single();
@@ -173,6 +177,7 @@ export async function updateTeamPlayerWithRoles(
     p_birth: player.birth ?? null,
     p_note: player.note ?? null,
     p_team_role: teamRole,
+    p_fee_type_id: player.feeTypeId ?? null,
   });
 
   if (error) {

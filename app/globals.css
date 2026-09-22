@@ -134,3 +134,8 @@ body {
   background: var(--background);
   font-family: var(--font-pretendard);
 }
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}

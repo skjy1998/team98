@@ -13,9 +13,11 @@ import PlayerEditPermissionSection from "./PlayerEditPermissionSection";
 import PlayerEditAccountSection from "./PlayerEditAccountSection";
 import { usePlayerEditForm } from "@/hooks/players/usePlayerEditForm";
 import { useEscapeKey } from "@/hooks/common/useEscapeKey";
+import type { FeeType } from "@/types/finance";
 
 interface PlayerEditModalProps {
   player: PlayerType;
+  feeTypes: FeeType[];
   connectableMembers: ConnectableTeamMember[];
   onClose: () => void;
   onSave: (
@@ -26,6 +28,7 @@ interface PlayerEditModalProps {
 
 export default function PlayerEditModal({
   player,
+  feeTypes,
   connectableMembers,
   onClose,
   onSave,
@@ -83,6 +86,7 @@ export default function PlayerEditModal({
             detailPositions={form.detailPositions}
             onToggleDetailPosition={handleToggleDetailPosition}
           />
+
           <PlayerEditRoleSection
             role={form.role}
             onChangeRole={(value) => updateField("role", value)}
@@ -109,6 +113,9 @@ export default function PlayerEditModal({
             }
             note={form.note}
             onChangeNote={(value) => updateField("note", value)}
+            feeTypes={feeTypes}
+            feeTypeId={form.feeTypeId}
+            onChangeFeeTypeId={(value) => updateField("feeTypeId", value)}
           />
 
           <div className="flex justify-end gap-2 border-t border-stone-100 bg-white pt-3 sm:pt-4">

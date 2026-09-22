@@ -17,7 +17,7 @@ export default function FinanceTransactionList({
   listState,
 }: Readonly<FinanceTransactionListProps>) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {listState.entries.map((entry) => {
         const isEditing = editState.editingEntryId === entry.id;
         if (isEditing) {

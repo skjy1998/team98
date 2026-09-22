@@ -48,6 +48,7 @@ export default function PlayersPageContent({
 
       {data.canManage && state.isCreateOpen && (
         <PlayerCreateModal
+          feeTypes={data.feeTypes}
           onClose={state.handleCloseCreate}
           onSave={actions.handleCreatePlayer}
         />
@@ -72,6 +73,7 @@ export default function PlayersPageContent({
         <PlayerEditModal
           key={state.editingPlayer.id}
           player={state.editingPlayer}
+          feeTypes={data.feeTypes}
           connectableMembers={data.availableMembers}
           onClose={state.handleCloseEdit}
           onSave={actions.handleEditPlayer}

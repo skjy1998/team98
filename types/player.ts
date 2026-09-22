@@ -30,6 +30,7 @@ export interface PlayerBase {
   role?: PlayerRole;
   preferredFoot?: PlayerPreferredFoot;
   note?: string;
+  feeTypeId?: string;
 }
 
 export interface PlayerStats {

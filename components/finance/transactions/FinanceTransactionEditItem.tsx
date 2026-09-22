@@ -9,7 +9,7 @@ export default function FinanceTransactionEditItem({
   editState,
 }: Readonly<FinanceTransactionEditItemProps>) {
   return (
-    <div className="rounded-xl border border-orange-200 bg-orange-50/40 px-4 py-3 shadow-sm">
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3.5 shadow-sm sm:px-4 sm:py-3">
       <FinanceEntryForm
         entryType={editState.editEntryType}
         onChangeEntryType={editState.onChangeEditEntryType}

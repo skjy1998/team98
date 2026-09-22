@@ -14,8 +14,10 @@ export default function FinanceFineRuleCreateCard({
     <>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-lg font-semibold text-stone-900">벌금 규칙</p>
-          <p className="mt-1 text-sm text-stone-400">
+          <p className="text-base font-semibold text-stone-900 sm:text-lg">
+            벌금 규칙
+          </p>
+          <p className="mt-0.5 text-xs text-stone-400 sm:mt-1 sm:text-sm">
             완료된 경기의 출석 기록을 기준으로 벌금 대상을 계산합니다.
           </p>
         </div>
@@ -24,7 +26,7 @@ export default function FinanceFineRuleCreateCard({
             type="button"
             disabled={createState.isSubmitting}
             onClick={createState.onOpenAddFineRule}
-            className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:opacity-60 sm:h-11 sm:gap-2 sm:px-4 sm:text-base"
           >
             + 추가
           </button>

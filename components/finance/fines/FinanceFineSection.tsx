@@ -60,7 +60,7 @@ export default function FinanceFineSection({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {!canManage && (
         <FinanceReadonlyNotice message="벌금 내역은 조회할 수 있고, 자동 부과와 수정은 운영진만 할 수 있어요." />
       )}
@@ -87,6 +87,7 @@ export default function FinanceFineSection({
       )}
       <FinanceFineChargeList
         fineCharges={fineCharges}
+        matches={matches}
         canManage={canManage}
         deleteFineCharge={deleteFineCharge}
         onChangeFineChargeStatus={onChangeFineChargeStatus}

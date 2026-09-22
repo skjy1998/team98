@@ -69,8 +69,16 @@ export function usePlayersPageActions({
       showToast("선수 정보를 수정했어요.", "success");
       handleCloseEdit();
     } catch (error) {
-      console.error("player update error", error);
-      showToast("선수 정보 저장에 실패했어요.", "error");
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof error.message === "string"
+          ? error.message
+          : "선수 정보 저장에 실패했어요.";
+
+      console.error("player update error:", message, error);
+      showToast(message, "error");
     }
   };
 

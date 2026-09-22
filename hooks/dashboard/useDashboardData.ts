@@ -28,7 +28,8 @@ export function useDashboardData() {
   const { records, recordsLoaded } = useMatchRecordsMap();
   const { entries, entriesLoaded } = useFinanceEntries();
   const { attendance, attendanceLoaded } = useMatchAttendance();
-  const { settingsLoaded: financeSettingsLoaded } = useFinanceSettings();
+  const { feeTypes, settingsLoaded: financeSettingsLoaded } =
+    useFinanceSettings();
   const {
     settings: notificationSettings,
     settingsLoaded: notificationSettingsLoaded,
@@ -73,9 +74,10 @@ export function useDashboardData() {
       getDashboardFinanceData({
         entries,
         players,
+        feeTypes,
         currentMonth: defaultMonth,
       }),
-    [entries, players, defaultMonth],
+    [entries, players, feeTypes, defaultMonth],
   );
 
   const changeMyVote = async (matchId: string, status: VoteStatus) => {

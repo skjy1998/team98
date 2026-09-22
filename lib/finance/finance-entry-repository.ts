@@ -15,6 +15,8 @@ interface FinanceEntryRow {
   category: FinanceEntryCategory | null;
   player_id: string | null;
   match_id: string | null;
+  fee_type_id: string | null;
+  fee_type_name: string | null;
 }
 
 const FINANCE_ENTRY_COLUMNS = `
@@ -26,7 +28,9 @@ const FINANCE_ENTRY_COLUMNS = `
   time,
   category,
   player_id,
-  match_id
+  match_id,
+  fee_type_id,
+  fee_type_name
 `;
 
 function mapFinanceEntryRow(row: FinanceEntryRow): FinanceEntry {
@@ -40,6 +44,8 @@ function mapFinanceEntryRow(row: FinanceEntryRow): FinanceEntry {
     category: row.category ?? "etc",
     playerId: row.player_id ?? undefined,
     matchId: row.match_id ?? undefined,
+    feeTypeId: row.fee_type_id ?? undefined,
+    feeTypeName: row.fee_type_name ?? undefined,
   };
 }
 
@@ -53,6 +59,8 @@ function getFinanceEntryPayload(entry: Omit<FinanceEntry, "id">) {
     category: entry.category ?? "etc",
     player_id: entry.playerId ?? null,
     match_id: entry.matchId ?? null,
+    fee_type_id: entry.feeTypeId ?? null,
+    fee_type_name: entry.feeTypeName ?? null,
   };
 }
 

@@ -1,6 +1,7 @@
 import type { FeeType } from "@/types/finance";
 import FinanceFeeTypeForm from "./FinanceFeeTypeForm";
 import type { FinanceEditFeeTypeState } from "@/types/finance-ui";
+import { Trash2 } from "lucide-react";
 
 interface FinanceFeeTypeListProps {
   canManage: boolean;
@@ -15,7 +16,7 @@ export default function FinanceFeeTypeList({
 }: Readonly<FinanceFeeTypeListProps>) {
   if (feeTypes.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-5 py-10 text-center text-sm text-stone-400">
+      <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-4 py-8 text-xs text-stone-400 sm:px-5 sm:py-10 sm:text-sm">
         등록된 회비 유형이 없습니다
       </div>
     );
@@ -29,7 +30,7 @@ export default function FinanceFeeTypeList({
         return (
           <div key={feeType.id}>
             {isEditing && canManage ? (
-              <div className="px-5 py-5">
+              <div className="px-3.5 py-3.5 sm:px-5 sm:py-5">
                 <FinanceFeeTypeForm
                   feeTypeName={editState.editingFeeName}
                   onChangeFeeTypeName={editState.onChangeEditingFeeName}
@@ -47,7 +48,7 @@ export default function FinanceFeeTypeList({
                 />
               </div>
             ) : (
-              <div className="flex items-center justify-between px-5 py-5">
+              <div className="flex items-center justify-between gap-3 px-3.5 py-3 sm:px-5 sm:py-4">
                 {canManage ? (
                   <button
                     type="button"
@@ -55,10 +56,10 @@ export default function FinanceFeeTypeList({
                     disabled={editState.isSubmitting}
                     className="text-left disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    <p className="text-base font-semibold text-stone-900">
+                    <p className="truncate text-sm font-semibold text-stone-900 sm:text-base">
                       {feeType.name}{" "}
                       {feeType.description && (
-                        <span className="text-stone-400">
+                        <span className="text-xs font-medium text-stone-400 sm:text-sm">
                           ({feeType.description})
                         </span>
                       )}
@@ -66,18 +67,18 @@ export default function FinanceFeeTypeList({
                   </button>
                 ) : (
                   <div className="text-left">
-                    <p className="text-base font-semibold text-stone-900">
+                    <p className="truncate text-sm font-semibold text-stone-900 sm:text-base">
                       {feeType.name}{" "}
                       {feeType.description && (
-                        <span className="text-stone-400">
+                        <span className="text-xs font-medium text-stone-400 sm:text-sm">
                           ({feeType.description})
                         </span>
                       )}
                     </p>
                   </div>
                 )}
-                <div className="flex items-center gap-4">
-                  <p className="text-3xl font-semibold text-stone-900">
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+                  <p className="text-lg font-semibold text-stone-900 sm:text-2xl">
                     {feeType.amount.toLocaleString()}원
                   </p>
                   {canManage && (
@@ -85,9 +86,10 @@ export default function FinanceFeeTypeList({
                       type="button"
                       onClick={() => editState.onDeleteFeeType(feeType.id)}
                       disabled={editState.isSubmitting}
-                      className="text-xl text-stone-400 transition hover:text-stone-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-label={`${feeType.name} 회비 유형 삭제`}
                     >
-                      ×
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   )}
                 </div>

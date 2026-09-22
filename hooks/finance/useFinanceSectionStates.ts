@@ -99,6 +99,15 @@ export function useFinanceSectionStates({
     rows: payments.paidPaymentRows,
   };
 
+  const unconfiguredPaymentGroupState = {
+    title: "회비 미설정",
+    count: payments.unconfiguredPaymentRows.length,
+    tone: "unconfigured" as const,
+    isOpen: payments.isUnconfiguredOpen,
+    onToggle: payments.handleToggleUnconfigured,
+    rows: payments.unconfiguredPaymentRows,
+  };
+
   const fineSectionState = {
     fineCharges: pageData.fineCharges,
     canManage,
@@ -133,6 +142,7 @@ export function useFinanceSectionStates({
     paymentsHeaderState,
     unpaidPaymentGroupState,
     paidPaymentGroupState,
+    unconfiguredPaymentGroupState,
     fineSectionState,
     settingsSectionState,
   };

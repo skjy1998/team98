@@ -110,7 +110,7 @@ export default function FinanceSettingsSection({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {!canManage && (
         <FinanceReadonlyNotice message="회비 설정과 벌금 규칙은 조회할 수 있고, 수정은 운영진만 할 수 있어요." />
       )}

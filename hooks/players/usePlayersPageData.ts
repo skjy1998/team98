@@ -15,6 +15,7 @@ import { useMatchMvpVotes } from "../matches/useMatchMvpVotes";
 import { getPlayerRecentMatches } from "@/lib/players/player-stats";
 import { getHasMatchEnded } from "@/lib/matches/match-time";
 import { getPlayerMvpWinCounts } from "@/lib/matches/match-mvp";
+import { useFinanceSettings } from "../finance/useFinanceSettings";
 
 interface UsePlayersPageDataParams {
   search: string;
@@ -59,6 +60,9 @@ export function usePlayersPageData({
 
   const { mvpVotes, mvpVotesLoaded, mvpVotesError, reloadMvpVotes } =
     useMatchMvpVotes();
+
+  const { feeTypes, settingsLoaded, settingsError, reloadSettings } =
+    useFinanceSettings();
 
   const displayPlayers = useMemo(
     () => getDisplayPlayers(players, matches, attendance, records),
@@ -111,7 +115,8 @@ export function usePlayersPageData({
     recordsLoaded &&
     memberLoaded &&
     mvpVotesLoaded &&
-    membersLoaded;
+    membersLoaded &&
+    settingsLoaded;
 
   const pageError =
     teamError ||
@@ -121,6 +126,7 @@ export function usePlayersPageData({
     attendanceError ||
     recordsError ||
     mvpVotesError ||
+    settingsError ||
     membersError;
 
   const reloadPageData = async () => {
@@ -133,12 +139,14 @@ export function usePlayersPageData({
       reloadRecords(),
       reloadMembers(),
       reloadMvpVotes(),
+      reloadSettings(),
     ]);
   };
 
   return {
     teamId: team?.id,
     players,
+    feeTypes,
     displayPlayers,
     filteredPlayers,
     availableMembers,

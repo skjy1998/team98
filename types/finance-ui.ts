@@ -64,7 +64,7 @@ export interface FinancePaymentsHeaderState {
 export interface FinancePaymentStatusGroupState {
   title: string;
   count: number;
-  tone: "paid" | "unpaid";
+  tone: "paid" | "unpaid" | "unconfigured";
   isOpen: boolean;
   onToggle: () => void;
   rows: PaymentStatusRow[];
@@ -76,6 +76,7 @@ export interface FinancePaymentsSectionProps {
   paymentSummary: PaymentSummary;
   unpaidGroupState: FinancePaymentStatusGroupState;
   paidGroupState: FinancePaymentStatusGroupState;
+  unconfiguredGroupState: FinancePaymentStatusGroupState;
   onChangePaymentStatus: (
     playerId: string,
     playerName: string,

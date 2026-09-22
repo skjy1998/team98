@@ -27,7 +27,10 @@ export function useFinancePaymentSelection({
   const isSubmittingRef = useRef(false);
 
   const selectablePlayerIds = useMemo(
-    () => unpaidRows.map((row) => row.playerId),
+    () =>
+      unpaidRows
+        .filter((row) => row.isFeeConfigured)
+        .map((row) => row.playerId),
     [unpaidRows],
   );
 

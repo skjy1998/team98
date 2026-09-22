@@ -11,6 +11,7 @@ export function usePlayerCreateForm({ onSave }: UsePlayerCreateFormParams) {
 
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
+  const [feeTypeId, setFeeTypeId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -27,6 +28,7 @@ export function usePlayerCreateForm({ onSave }: UsePlayerCreateFormParams) {
       id: crypto.randomUUID(),
       name: trimmedName,
       birth: birth || undefined,
+      feeTypeId: feeTypeId || undefined,
       appearance: 0,
       goal: 0,
       assist: 0,
@@ -46,6 +48,8 @@ export function usePlayerCreateForm({ onSave }: UsePlayerCreateFormParams) {
     setName,
     birth,
     setBirth,
+    feeTypeId,
+    setFeeTypeId,
     isSubmitting,
     handleSubmit,
   };

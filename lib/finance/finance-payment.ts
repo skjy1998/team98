@@ -1,4 +1,5 @@
 import type {
+  FeeType,
   FinanceEntry,
   PaymentStatusRow,
   PaymentSummary,
@@ -43,36 +44,47 @@ export function getMonthlyPaymentEntries(
 export function getPaymentStatusRows(
   players: PlayerType[],
   monthlyPaymentEntries: FinanceEntry[],
+  feeTypes: FeeType[],
 ): PaymentStatusRow[] {
   return players.map((player) => {
     const paymentEntry = monthlyPaymentEntries.find(
       (entry) => entry.playerId === player.id,
+    );
+    const assignedFeeType = feeTypes.find(
+      (feeType) => feeType.id === player.feeTypeId,
     );
 
     return {
       playerId: player.id,
       playerName: player.name,
       status: paymentEntry ? "paid" : "unpaid",
-      paidAt: paymentEntry ? `${paymentEntry.date} · ${paymentEntry.time}` : "",
+      paidAt: paymentEntry
+        ? `${Number(paymentEntry.date.slice(5, 7))}월 ${Number(
+            paymentEntry.date.slice(8, 10),
+          )}일`
+        : "",
+      feeTypeName: paymentEntry?.feeTypeName ?? assignedFeeType?.name,
+      feeAmount: paymentEntry?.amount ?? assignedFeeType?.amount,
+      isFeeConfigured: Boolean(assignedFeeType),
     };
   });
 }
 
 export function getPaymentSummary(
-  PaymentStatusRows: PaymentStatusRow[],
+  paymentStatusRows: PaymentStatusRow[],
 ): PaymentSummary {
-  const paidCount = PaymentStatusRows.filter(
-    (row) => row.status === "paid",
-  ).length;
-
-  const unpaidCount = PaymentStatusRows.length - paidCount;
+  const payableRows = paymentStatusRows.filter(
+    (row) => row.isFeeConfigured || row.status === "paid",
+  );
+  const paidCount = payableRows.filter((row) => row.status === "paid").length;
+  const unpaidCount = payableRows.length - paidCount;
 
   return {
     paidCount,
     unpaidCount,
     paidRate:
-      PaymentStatusRows.length > 0
-        ? Math.round((paidCount / PaymentStatusRows.length) * 100)
+      payableRows.length > 0
+        ? Math.round((paidCount / payableRows.length) * 100)
         : 0,
   };
 }
@@ -88,16 +100,18 @@ export function createMonthlyFeeEntry(
   currentMonth: string,
   playerId: string,
   playerName: string,
-  amount: number,
+  feeType: FeeType,
   now = new Date(),
 ): Omit<FinanceEntry, "id"> {
   return {
     type: "income",
-    amount,
-    description: `${currentMonth} 회비 (${playerName})`,
+    amount: feeType.amount,
+    description: `${playerName} ${Number(currentMonth.slice(5))}월 ${feeType.name}`,
     date: `${currentMonth}-01`,
     time: now.toTimeString().slice(0, 5),
     category: "fee",
     playerId,
+    feeTypeId: feeType.id,
+    feeTypeName: feeType.name,
   };
 }

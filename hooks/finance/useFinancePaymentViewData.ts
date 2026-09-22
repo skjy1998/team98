@@ -5,7 +5,7 @@ import {
   getPaymentStatusRows,
   getPaymentSummary,
 } from "@/lib/finance/finance-payment";
-import type { FinanceEntry } from "@/types/finance";
+import type { FeeType, FinanceEntry } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
 import { useMemo } from "react";
 
@@ -13,12 +13,14 @@ interface UseFinancePaymentViewDataParams {
   entries: FinanceEntry[];
   players: PlayerType[];
   currentMonth: string;
+  feeTypes: FeeType[];
 }
 
 export function useFinancePaymentViewData({
   entries,
   players,
   currentMonth,
+  feeTypes,
 }: UseFinancePaymentViewDataParams) {
   const currentMonthLabel = useMemo(
     () => getCurrentMonthLabel(currentMonth),
@@ -31,8 +33,8 @@ export function useFinancePaymentViewData({
   );
 
   const paymentStatusRows = useMemo(
-    () => getPaymentStatusRows(players, monthlyPaymentEntries),
-    [players, monthlyPaymentEntries],
+    () => getPaymentStatusRows(players, monthlyPaymentEntries, feeTypes),
+    [players, monthlyPaymentEntries, feeTypes],
   );
 
   const paymentSummary = useMemo(
@@ -41,7 +43,18 @@ export function useFinancePaymentViewData({
   );
 
   const unpaidPaymentRows = useMemo(
-    () => getPaymentRowsByStatus(paymentStatusRows, "unpaid"),
+    () =>
+      paymentStatusRows.filter(
+        (row) => row.status === "unpaid" && row.isFeeConfigured,
+      ),
+    [paymentStatusRows],
+  );
+
+  const unconfiguredPaymentRows = useMemo(
+    () =>
+      paymentStatusRows.filter(
+        (row) => row.status === "unpaid" && !row.isFeeConfigured,
+      ),
     [paymentStatusRows],
   );
 
@@ -55,6 +68,7 @@ export function useFinancePaymentViewData({
     monthlyPaymentEntries,
     paymentSummary,
     unpaidPaymentRows,
+    unconfiguredPaymentRows,
     paidPaymentRows,
   };
 }

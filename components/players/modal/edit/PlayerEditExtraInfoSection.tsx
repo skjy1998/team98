@@ -1,4 +1,6 @@
+import { FeeType } from "@/types/finance";
 import type { PlayerPreferredFoot } from "@/types/player";
+import FeeTypePicker from "../../FeeTypePicker";
 
 interface PlayerEditExtraInfoSectionProps {
   birth: string;
@@ -7,6 +9,9 @@ interface PlayerEditExtraInfoSectionProps {
   onChangePreferredFoot: (value: PlayerPreferredFoot) => void;
   note: string;
   onChangeNote: (value: string) => void;
+  feeTypes: FeeType[];
+  feeTypeId: string;
+  onChangeFeeTypeId: (value: string) => void;
 }
 
 const preferredFootOptions: {
@@ -38,6 +43,9 @@ export default function PlayerEditExtraInfoSection({
   onChangePreferredFoot,
   note,
   onChangeNote,
+  feeTypes,
+  feeTypeId,
+  onChangeFeeTypeId,
 }: Readonly<PlayerEditExtraInfoSectionProps>) {
   return (
     <section className="rounded-xl border border-stone-200 p-3.5 sm:p-5">
@@ -95,6 +103,21 @@ export default function PlayerEditExtraInfoSection({
           </div>
         </div>
 
+        <div className="space-y-2">
+          <label
+            htmlFor="player-fee-type"
+            className="text-xs font-semibold text-stone-700 sm:text-sm"
+          >
+            회비 유형
+          </label>
+
+          <FeeTypePicker
+            id="player-fee-type"
+            feeTypes={feeTypes}
+            value={feeTypeId}
+            onChange={onChangeFeeTypeId}
+          />
+        </div>
         <div className="space-y-2">
           <label
             htmlFor="player-note"

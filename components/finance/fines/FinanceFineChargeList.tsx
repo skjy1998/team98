@@ -1,8 +1,10 @@
 import type { FineCharge } from "@/types/finance";
 import FinanceFineChargeItem from "./FinanceFineChargeItem";
+import type { MatchItem } from "@/types/match";
 
 interface FinanceFineChargeListProps {
   fineCharges: FineCharge[];
+  matches: MatchItem[];
   canManage: boolean;
   deleteFineCharge: (fineChargeId: string) => Promise<boolean>;
   onChangeFineChargeStatus: (
@@ -13,6 +15,7 @@ interface FinanceFineChargeListProps {
 
 export default function FinanceFineChargeList({
   fineCharges,
+  matches,
   canManage,
   deleteFineCharge,
   onChangeFineChargeStatus,
@@ -29,6 +32,7 @@ export default function FinanceFineChargeList({
             <FinanceFineChargeItem
               key={charge.id}
               charge={charge}
+              matches={matches}
               canManage={canManage}
               onDelete={deleteFineCharge}
               onChangeStatus={onChangeFineChargeStatus}

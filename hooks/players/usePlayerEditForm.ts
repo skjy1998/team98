@@ -24,6 +24,7 @@ interface PlayerEditFormState {
   note: string;
   teamRole: TeamMemberRole;
   linkedUserId: string;
+  feeTypeId: string;
 }
 
 function getInitialEditState(player: PlayerType): PlayerEditFormState {
@@ -36,6 +37,7 @@ function getInitialEditState(player: PlayerType): PlayerEditFormState {
     note: player.note ?? "",
     teamRole: player.teamMemberRole ?? "member",
     linkedUserId: player.userId ?? "",
+    feeTypeId: player.feeTypeId ?? "",
   };
 }
 
@@ -81,6 +83,7 @@ export function usePlayerEditForm({
       role: form.role,
       preferredFoot: form.preferredFoot,
       note: form.note.trim() || undefined,
+      feeTypeId: form.feeTypeId || undefined,
     };
 
     setIsSubmitting(true);

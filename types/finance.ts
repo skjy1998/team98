@@ -15,6 +15,8 @@ export interface FinanceEntry {
   category?: FinanceEntryCategory;
   playerId?: string;
   matchId?: string;
+  feeTypeId?: string;
+  feeTypeName?: string;
 }
 
 export interface PaymentStatusRow {
@@ -22,6 +24,9 @@ export interface PaymentStatusRow {
   playerName: string;
   status: "paid" | "unpaid";
   paidAt: string;
+  feeTypeName?: string;
+  feeAmount?: number;
+  isFeeConfigured: boolean;
 }
 
 export interface PaymentSummary {

@@ -65,7 +65,7 @@ export function useFinancePageData() {
     entries,
     players,
     defaultMonth,
-    primaryFeeAmount,
+    feeTypes: settings.feeTypes,
     addEntry,
     deleteEntry,
   });

@@ -2,7 +2,7 @@ import {
   createMonthlyFeeEntry,
   getAdjacentFinanceMonth,
 } from "@/lib/finance/finance-payment";
-import type { FinanceEntry, PaymentStatusRow } from "@/types/finance";
+import type { FeeType, FinanceEntry, PaymentStatusRow } from "@/types/finance";
 import type { PlayerType } from "@/types/player";
 import { useState } from "react";
 import { useFinancePaymentViewData } from "./useFinancePaymentViewData";
@@ -11,7 +11,7 @@ interface UseFinancePaymentsParams {
   entries: FinanceEntry[];
   players: PlayerType[];
   defaultMonth: string;
-  primaryFeeAmount: number;
+  feeTypes: FeeType[];
   addEntry: (entry: Omit<FinanceEntry, "id">) => Promise<boolean>;
   deleteEntry: (entryId: string) => Promise<boolean>;
 }
@@ -20,24 +20,27 @@ export function useFinancePayments({
   entries,
   players,
   defaultMonth,
-  primaryFeeAmount,
+  feeTypes,
   addEntry,
   deleteEntry,
 }: UseFinancePaymentsParams) {
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
   const [isUnpaidOpen, setIsUnpaidOpen] = useState(false);
   const [isPaidOpen, setIsPaidOpen] = useState(false);
+  const [isUnconfiguredOpen, setIsUnconfiguredOpen] = useState(false);
 
   const {
     currentMonthLabel,
     monthlyPaymentEntries,
     paymentSummary,
     unpaidPaymentRows,
+    unconfiguredPaymentRows,
     paidPaymentRows,
   } = useFinancePaymentViewData({
     entries,
     players,
     currentMonth,
+    feeTypes,
   });
 
   const handleMoveMonth = (direction: "prev" | "next") => {
@@ -52,6 +55,10 @@ export function useFinancePayments({
     setIsPaidOpen((prev) => !prev);
   };
 
+  const handleToggleUnconfigured = () => {
+    setIsUnconfiguredOpen((prev) => !prev);
+  };
+
   const handleChangePaymentStatus = async (
     playerId: string,
     playerName: string,
@@ -62,13 +69,15 @@ export function useFinancePayments({
     );
 
     if (nextStatus === "paid" && !existingPaymentEntry) {
+      const player = players.find((item) => item.id === playerId);
+      const feeType = feeTypes.find((item) => item.id === player?.feeTypeId);
+
+      if (!feeType) {
+        return false;
+      }
+
       const success = await addEntry(
-        createMonthlyFeeEntry(
-          currentMonth,
-          playerId,
-          playerName,
-          primaryFeeAmount,
-        ),
+        createMonthlyFeeEntry(currentMonth, playerId, playerName, feeType),
       );
 
       if (!success) {
@@ -115,11 +124,14 @@ export function useFinancePayments({
     paymentSummary,
     unpaidPaymentRows,
     paidPaymentRows,
+    unconfiguredPaymentRows,
     isUnpaidOpen,
     isPaidOpen,
+    isUnconfiguredOpen,
     handleMoveMonth,
     handleToggleUnpaid,
     handleTogglePaid,
+    handleToggleUnconfigured,
     handleChangePaymentStatus,
     handleBulkMarkPaid,
   };

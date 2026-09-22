@@ -33,7 +33,7 @@ export default function FinanceFeeTypeCreateCard({
           type="button"
           onClick={createState.onOpenAddFeeType}
           disabled={createState.isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-base font-semibold text-stone-700 shadow-sm transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border-dashed border-emerald-200 bg-emerald-100 px-4 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-300 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:text-base"
         >
           + 회비 유형 추가
         </button>

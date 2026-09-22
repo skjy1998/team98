@@ -1,4 +1,5 @@
 import type { FineRule } from "@/types/finance";
+import { Trash2 } from "lucide-react";
 
 interface FinanceFineRuleListProps {
   canManage: boolean;
@@ -24,24 +25,24 @@ export default function FinanceFineRuleList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {fineRules.map((rule) => (
         <div
           key={rule.id}
-          className="rounded-xl border border-stone-200 bg-white px-5 py-5 shadow-sm"
+          className="rounded-xl border border-stone-200 bg-white px-3.5 py-3 shadow-sm sm:px-5 sm:py-4"
         >
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-base font-semibold text-stone-900">
+              <p className="truncate text-sm font-semibold text-stone-900 sm:text-base">
                 {rule.name}{" "}
-                <span className="text-stone-400">
+                <span className="text-xs font-medium text-stone-400 sm:text-sm">
                   ({fineTriggerLabel[rule.trigger]})
                 </span>
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <p className="text-3xl font-semibold text-rose-500">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+              <p className="text-lg font-semibold text-rose-500 sm:text-2xl">
                 {rule.amount.toLocaleString()}원
               </p>
               {canManage && (
@@ -49,9 +50,10 @@ export default function FinanceFineRuleList({
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => onDeleteFineRule(rule.id)}
-                  className="text-xl text-rose-400 transition hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label={`${rule.name} 벌금 규칙 삭제`}
                 >
-                  ×
+                  <Trash2 className="h-4 w-4" />
                 </button>
               )}
             </div>

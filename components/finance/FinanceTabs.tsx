@@ -35,9 +35,9 @@ export default function FinanceTabs({
               type="button"
               onClick={() => onChangeTab(tab.id)}
               className={[
-                "flex flex-col items-center justify-center gap-2 px-3 py-4 text-sm transition",
+                "flex flex-col items-center justify-center gap-1 px-1 py-2.5 text-xs transition sm:gap-2 sm:px-3 sm:py-4 sm:text-sm",
                 isActive
-                  ? "border-b-2 border-orange-500 text-stone-900"
+                  ? "border-b-2 border-emerald-500 text-emerald-700"
                   : "border-b-2 border-transparent text-stone-400 hover:text-stone-700",
               ].join(" ")}
             >

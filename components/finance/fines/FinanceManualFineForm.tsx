@@ -32,7 +32,7 @@ export default function FinanceManualFineForm({
 }: Readonly<FinanceManualFineFormProps>) {
   if (rules.length === 0) {
     return (
-      <section className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-6 text-center">
+      <section className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-3.5 text-center sm:p-6">
         <p className="text-sm text-stone-500">
           설정 탭에서 트리거가 기타인 벌금 규칙을 먼저 등록해주세요.
         </p>
@@ -41,17 +41,17 @@ export default function FinanceManualFineForm({
   }
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-6">
+    <section className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-6">
       <div>
-        <h2 className="text-xl font-semibold text-stone-900">
-          기타 벌금 수동 부과
+        <h2 className="text-base font-semibold text-stone-900 sm:text-xl">
+          수동 벌금 부과
         </h2>
-        <p className="mt-2 text-sm text-stone-500">
-          자동으로 확인할 수 없는 벌금을 선수에게 직접 부과할 수 있어요.
+        <p className="mt-1 text-xs text-stone-500 sm:mt-2 sm:text-sm">
+          자동으로 확인하기 어려운 벌금을 직접 부과할 수 있어요.
         </p>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-2">
         <div>
           <label
             htmlFor="manual-fine-rule"
@@ -64,7 +64,7 @@ export default function FinanceManualFineForm({
             value={formState.ruleId}
             onChange={(event) => formState.onChangeRuleId(event.target.value)}
             disabled={isSubmitting}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            className="h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-800 outline-none focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100 sm:h-12 sm:px-4"
           >
             <option value="">규칙을 선택하세요</option>
             {rules.map((rule) => (
@@ -87,7 +87,7 @@ export default function FinanceManualFineForm({
             value={formState.playerId}
             onChange={(event) => formState.onChangePlayerId(event.target.value)}
             disabled={isSubmitting}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            className="h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-800 outline-none focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100 sm:h-12 sm:px-4"
           >
             <option value="">선수를 선택하세요</option>
             {players.map((player) => (
@@ -110,7 +110,7 @@ export default function FinanceManualFineForm({
             value={formState.matchId}
             onChange={(event) => formState.onChangeMatchId(event.target.value)}
             disabled={isSubmitting}
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            className="h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-800 outline-none focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100 sm:h-12 sm:px-4"
           >
             <option value="">관련 경기 없음</option>
             {matches.map((match) => (
@@ -134,12 +134,12 @@ export default function FinanceManualFineForm({
             onChange={(event) => formState.onChangeReason(event.target.value)}
             disabled={isSubmitting}
             placeholder="예: 공용 장비 미반납"
-            className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-orange-300 disabled:cursor-not-allowed disabled:bg-stone-100"
+            className="h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:cursor-not-allowed disabled:bg-stone-100 sm:h-12 sm:px-4"
           />
         </div>
       </div>
 
-      <div className="mt-5 flex justify-end">
+      <div className="mt-4 flex sm:mt-5 sm:justify-end">
         <button
           type="button"
           onClick={onSubmit}
@@ -149,7 +149,7 @@ export default function FinanceManualFineForm({
             !formState.playerId ||
             !formState.reason.trim()
           }
-          className="h-12 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
+          className="h-10 w-full rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300 sm:h-12 sm:w-auto"
         >
           {isSubmitting ? "부과 중..." : "기타 벌금 부과하기"}
         </button>

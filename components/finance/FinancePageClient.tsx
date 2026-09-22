@@ -26,7 +26,6 @@ export default function FinancePageClient() {
   const {
     canManage,
     financeSummary,
-    primaryFeeAmount,
     payments,
     transactions,
     isLoaded,
@@ -41,6 +40,7 @@ export default function FinancePageClient() {
     transactionListState,
     paymentsHeaderState,
     unpaidPaymentGroupState,
+    unconfiguredPaymentGroupState,
     paidPaymentGroupState,
     fineSectionState,
     settingsSectionState,
@@ -60,7 +60,7 @@ export default function FinancePageClient() {
 
   if (!isLoaded) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="회비 관리"
           description="월별 회비 납부 현황과 기록을 관리하세요."
@@ -76,7 +76,7 @@ export default function FinancePageClient() {
 
   if (pageError) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="회비 관리"
           description="월별 회비 납부 현황과 기록을 관리하세요."
@@ -100,7 +100,7 @@ export default function FinancePageClient() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="회비 관리"
         description="월별 회비 납부 현황과 기록을 관리하세요."
@@ -109,10 +109,10 @@ export default function FinancePageClient() {
         totalBalance={financeSummary.totalBalance}
         totalIncome={financeSummary.totalIncome}
         totalExpense={financeSummary.totalExpense}
-        monthlyFee={primaryFeeAmount}
+        feeTypeCount={pageData.settings.feeTypes.length}
       />
       <FinanceTabs activeTab={activeTab} onChangeTab={handleChangeTab} />
-      <div className="space-y-6 pt-3">
+      <div className="space-y-4 pt-1 sm:space-y-6 sm:pt-3">
         {activeTab === "transactions" && (
           <FinanceTransactionSection
             toolbarState={transactionToolbarState}
@@ -128,6 +128,7 @@ export default function FinancePageClient() {
             paymentSummary={payments.paymentSummary}
             unpaidGroupState={unpaidPaymentGroupState}
             paidGroupState={paidPaymentGroupState}
+            unconfiguredGroupState={unconfiguredPaymentGroupState}
             onChangePaymentStatus={payments.handleChangePaymentStatus}
             onBulkMarkPaid={payments.handleBulkMarkPaid}
           />

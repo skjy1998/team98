@@ -9,6 +9,12 @@ interface FinanceTransactionItemProps {
   canManage: boolean;
 }
 
+function formatFinanceEntryDate(date: string) {
+  const [, month, day] = date.split("-");
+
+  return `${Number(month)}월 ${Number(day)}일`;
+}
+
 export default function FinanceTransactionItem({
   entry,
   onStartEdit,
@@ -27,27 +33,30 @@ export default function FinanceTransactionItem({
 
   return (
     <div className="rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-stone-900">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-stone-900">
             {formatFinanceEntryDescription(entry.description)}
           </p>
-          <p className="mt-1 text-xs text-stone-400">
-            {entry.date} · {entry.time}
+          <p className="mt-0.5 text-xs text-stone-400">
+            {formatFinanceEntryDate(entry.date)}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-semibold ${badgeClassName}`}
+            className={`rounded-full px-2 py-1 text-xs font-semibold sm:px-3 sm:text-sm ${badgeClassName}`}
           >
             {typeLabel}
           </span>
 
-          <p className={`text-base font-semibold ${amountClassName}`}>
+          <p
+            className={`whitespace-nowrap text-base font-semibold sm:text-lg ${amountClassName}`}
+          >
             {amountPrefix}
             {entry.amount.toLocaleString()}원
           </p>
+
           {canEditEntry && (
             <button
               type="button"
@@ -58,6 +67,7 @@ export default function FinanceTransactionItem({
               <Pencil className="h-4 w-4" />
             </button>
           )}
+
           {canEditEntry && (
             <button
               type="button"

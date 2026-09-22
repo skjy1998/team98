@@ -2,18 +2,30 @@ import { X, ArrowRight } from "lucide-react";
 import type { PlayerType } from "@/types/player";
 import { useEscapeKey } from "@/hooks/common/useEscapeKey";
 import { usePlayerCreateForm } from "@/hooks/players/usePlayerCreateForm";
+import type { FeeType } from "@/types/finance";
+import FeeTypePicker from "../FeeTypePicker";
 
 interface PlayerCreateModalProps {
+  feeTypes: FeeType[];
   onClose: () => void;
   onSave: (player: PlayerType) => void | Promise<void>;
 }
 
 export default function PlayerCreateModal({
+  feeTypes,
   onClose,
   onSave,
 }: Readonly<PlayerCreateModalProps>) {
-  const { name, setName, birth, setBirth, isSubmitting, handleSubmit } =
-    usePlayerCreateForm({ onSave });
+  const {
+    name,
+    setName,
+    birth,
+    setBirth,
+    feeTypeId,
+    setFeeTypeId,
+    isSubmitting,
+    handleSubmit,
+  } = usePlayerCreateForm({ onSave });
 
   useEscapeKey(onClose);
 
@@ -76,6 +88,28 @@ export default function PlayerCreateModal({
                 onChange={(event) => setName(event.target.value)}
                 placeholder="실명 또는 닉네임"
                 className="h-12 w-full rounded-xl border border-stone-200 px-4 text-base text-stone-800 outline-none transition placeholder:text-stone-300 focus:border-emerald-300 sm:h-16 sm:rounded-[20px] sm:px-5 sm:text-lg"
+              />
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="player-create-fee-type"
+                  className="text-base font-semibold text-stone-800"
+                >
+                  회비 유형
+                </label>
+
+                <span className="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-500">
+                  선택
+                </span>
+              </div>
+
+              <FeeTypePicker
+                id="player-create-fee-type"
+                feeTypes={feeTypes}
+                value={feeTypeId}
+                onChange={setFeeTypeId}
               />
             </div>
 
