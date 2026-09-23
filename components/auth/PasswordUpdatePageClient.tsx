@@ -33,7 +33,7 @@ export default function PasswordUpdatePageClient() {
           action={
             <Link
               href="/forgot-password"
-              className="inline-flex rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-600"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-3.5 text-xs font-bold text-white transition hover:bg-emerald-700 sm:px-4 sm:text-sm"
             >
               재설정 링크 다시받기
             </Link>

@@ -32,7 +32,7 @@ export default function AuthFormField({
     <div>
       <label
         htmlFor={id}
-        className="mb-2 block text-sm font-bold text-stone-700"
+        className="mb-1.5 block text-xs font-bold text-stone-700 sm:mb-2 sm:text-sm"
       >
         {label}
       </label>
@@ -46,7 +46,7 @@ export default function AuthFormField({
           {...registration}
           aria-invalid={Boolean(errorMessage)}
           aria-describedby={errorMessage ? `${id}-error` : undefined}
-          className={`h-12 w-full rounded-xl border bg-stone-50 px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:bg-white focus:ring-4 ${
+          className={`h-11 w-full rounded-xl border bg-stone-50 px-3.5 text-xs text-stone-900 outline-none transition placeholder:text-stone-400 focus:bg-white focus:ring-4 sm:h-12 sm:px-4 sm:text-sm ${
             isPasswordField ? "pr-12" : ""
           } ${
             errorMessage

@@ -31,7 +31,7 @@ export default function LoginForm({
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       aria-busy={isSubmitting}
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
     >
       <AuthFormField
         id="login-email"
@@ -54,10 +54,10 @@ export default function LoginForm({
           errorMessage={errors.password?.message}
         />
 
-        <div className="mt-2 text-right">
+        <div className="mt-1.5 text-right sm:mt-2">
           <Link
             href="/forgot-password"
-            className="text-sm font-semibold text-stone-500 transition hover:text-emerald-700"
+            className="text-xs font-semibold text-stone-500 transition hover:text-emerald-700 sm:text-sm"
           >
             비밀번호를 잊으셨나요?
           </Link>
@@ -67,7 +67,7 @@ export default function LoginForm({
       {errorMessage && (
         <div
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+          className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-600 sm:px-4 sm:py-3 sm:text-sm"
         >
           {errorMessage}
         </div>
@@ -79,7 +79,7 @@ export default function LoginForm({
         submittingLabel="로그인 중..."
       />
 
-      <p className="text-center text-sm text-stone-500">
+      <p className="text-center text-xs text-stone-500 sm:text-sm">
         아직 계정이 없나요?{" "}
         <Link
           href="/signup"

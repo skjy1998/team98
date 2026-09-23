@@ -38,7 +38,7 @@ export default function TeamSportOption({
       disabled={disabled}
       aria-pressed={selected}
       className={[
-        "relative rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60",
+        "relative rounded-xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 sm:rounded-2xl sm:p-4",
         selected
           ? "border-emerald-500 bg-emerald-50"
           : "border-stone-200 bg-stone-50 hover:border-stone-300 hover:bg-white",
@@ -46,24 +46,24 @@ export default function TeamSportOption({
     >
       <span
         className={[
-          "flex h-10 w-10 items-center justify-center rounded-xl",
+          "flex h-8 w-8 items-center justify-center rounded-lg sm:h-10 sm:w-10 sm:rounded-xl",
           selected ? "bg-emerald-600 text-white" : "bg-white text-stone-500",
         ].join(" ")}
       >
         <Icon className="h-5 w-5" strokeWidth={1.8} />
       </span>
 
-      <span className="mt-4 block text-sm font-black text-stone-900">
+      <span className="mt-3 block text-xs font-black text-stone-900 sm:mt-4 sm:text-sm">
         {content.label}
       </span>
 
-      <span className="mt-1 block text-xs leading-5 text-stone-500">
+      <span className="mt-1 block text-[11px] leading-4 text-stone-500 sm:text-xs sm:leading-5">
         {content.description}
       </span>
 
       <span
         className={[
-          "absolute right-4 top-4 h-2.5 w-2.5 rounded-full",
+          "absolute right-3 top-3 h-2 w-2 rounded-full sm:right-4 sm:top-4 sm:h-2.5 sm:w-2.5",
           selected ? "bg-emerald-500" : "bg-stone-200",
         ].join(" ")}
       />

@@ -30,8 +30,8 @@ export default function AuthPageShell({
   children,
 }: Readonly<AuthPageShellProps>) {
   return (
-    <div className="grid min-h-[760px] overflow-hidden rounded-[32px] border border-stone-200 bg-white shadow-[0_32px_90px_-45px_rgba(28,25,23,0.3)] lg:grid-cols-[0.85fr_1fr]">
-      <aside className="relative overflow-hidden bg-stone-900 p-8 text-white md:p-12">
+    <div className="grid min-h-0 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_32px_90px_-45px_rgba(28,25,23,0.3)] lg:min-h-[760px] lg:rounded-[32px] lg:grid-cols-[0.85fr_1fr]">
+      <aside className="relative hidden overflow-hidden bg-stone-900 p-8 text-white lg:block lg:p-12">
         <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl" />
         <div className="absolute -right-20 top-16 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl" />
 
@@ -74,15 +74,19 @@ export default function AuthPageShell({
         </div>
       </aside>
 
-      <section className="flex items-center px-6 py-12 md:px-12 lg:px-16">
+      <section className="flex items-center px-4 py-8 sm:px-6 sm:py-12 md:px-12 lg:px-16">
         <div className="mx-auto w-full max-w-md">
-          <p className="text-sm font-bold text-emerald-600">{eyebrow}</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-stone-900">
+          <p className="text-xs font-bold text-emerald-600 sm:text-sm">
+            {eyebrow}
+          </p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight text-stone-900 sm:mt-3 sm:text-4xl">
             {title}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-stone-500">{description}</p>
+          <p className="mt-2 text-xs leading-5 text-stone-500 sm:mt-3 sm:text-sm sm:leading-6">
+            {description}
+          </p>
 
-          <div className="mt-8">{children}</div>
+          <div className="mt-6 sm:mt-8">{children}</div>
         </div>
       </section>
     </div>

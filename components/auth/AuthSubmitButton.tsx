@@ -15,7 +15,7 @@ export default function AuthSubmitButton({
     <button
       type="submit"
       disabled={isSubmitting}
-      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-stone-900 text-sm font-bold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
     >
       {isSubmitting && (
         <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />

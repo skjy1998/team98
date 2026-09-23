@@ -19,7 +19,9 @@ export default function AuthLayout({
           </span>
         </Link>
 
-        <div className="mt-6 pb-6">{children}</div>
+        <div className="mt-6 pt-16 pb-6 lg:mt-6 lg:block lg:min-h-0 lg:pt-0">
+          {children}
+        </div>
       </div>
     </main>
   );

@@ -42,23 +42,25 @@ export default function LandingFeatureSection() {
   return (
     <section
       id="features"
-      className="mx-auto max-w-7xl scroll-mt-16 px-6 py-24"
+      className="mx-auto max-w-7xl scroll-mt-16 px-4 py-16 sm:px-6 sm:py-24"
     >
-      <div className="grid gap-8 lg:grid-cols-[0.7fr_1fr] lg:items-end">
+      <div className="grid gap-4 sm:gap-8 lg:grid-cols-[0.7fr_1fr] lg:items-end">
         <div>
-          <p className="text-sm font-bold text-emerald-600">주요 기능</p>
-          <h2 className="mt-3 text-4xl font-black tracking-tight text-stone-900">
+          <p className="text-xs font-bold text-emerald-600 sm:text-sm">
+            주요 기능
+          </p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-stone-900 sm:mt-3 sm:text-4xl">
             팀 운영의 모든 순간을 연결합니다
           </h2>
         </div>
 
-        <p className="max-w-xl text-base leading-7 text-stone-500 lg:justify-self-end">
+        <p className="max-w-xl text-xs leading-5 text-stone-500 sm:text-base sm:leading-7 lg:justify-self-end">
           경기 전 준비부터 경기 후 기록과 회비 정산까지, 여러 도구에 흩어진 팀
           운영 업무를 SquadFlow 안에서 이어갈 수 있습니다.
         </p>
       </div>
 
-      <div className="mt-12 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-3 sm:mt-12 sm:gap-4 md:grid-cols-3">
         {features.map((feature, index) => {
           const Icon = feature.icon;
           const isEmphasized = index === 0;
@@ -66,28 +68,28 @@ export default function LandingFeatureSection() {
           return (
             <article
               key={feature.title}
-              className={`group relative min-h-64 overflow-hidden rounded-3xl border p-7 transition duration-300 hover:-translate-y-1 ${
+              className={`relative min-h-[208px] overflow-hidden rounded-2xl border p-4 transition duration-300 hover:-translate-y-1 sm:min-h-64 sm:rounded-3xl sm:p-7 ${
                 isEmphasized
                   ? "border-emerald-700 bg-emerald-700 text-white"
                   : "border-stone-200 bg-white text-stone-900"
               } ${feature.className}`}
             >
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+                className={`flex h-10 w-10 items-center justify-center rounded-xl sm:h-12 sm:w-12 sm:rounded-2xl ${
                   isEmphasized
                     ? "bg-white/15 text-white"
                     : "bg-emerald-50 text-emerald-700"
                 }`}
               >
-                <Icon className="h-6 w-6" strokeWidth={1.8} />
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.8} />
               </div>
 
-              <h3 className="mt-8 text-2xl font-black tracking-tight">
+              <h3 className="mt-5 text-xl font-black tracking-tight sm:mt-8 sm:text-2xl">
                 {feature.title}
               </h3>
 
               <p
-                className={`mt-3 max-w-lg text-sm leading-6 ${
+                className={`mt-2 max-w-lg text-xs leading-5 sm:mt-3 sm:text-sm sm:leading-6 ${
                   isEmphasized ? "text-emerald-50" : "text-stone-500"
                 }`}
               >
@@ -95,7 +97,7 @@ export default function LandingFeatureSection() {
               </p>
 
               <p
-                className={`absolute bottom-7 left-7 text-xs font-bold ${
+                className={`absolute bottom-4 left-4 text-[11px] font-bold sm:bottom-7 sm:left-7 sm:text-xs ${
                   isEmphasized ? "text-emerald-200" : "text-emerald-700"
                 }`}
               >

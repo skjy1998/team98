@@ -29,7 +29,7 @@ export default function TeamEntryModeSelector({
     <div
       role="group"
       aria-label="팀 시작 방법"
-      className="grid gap-4 md:grid-cols-2"
+      className="grid grid-cols-2 gap-2.5 sm:gap-4"
     >
       {modeItems.map((item) => {
         const Icon = item.icon;
@@ -42,7 +42,7 @@ export default function TeamEntryModeSelector({
             onClick={() => onChangeMode(item.value)}
             aria-pressed={isSelected}
             className={[
-              "relative rounded-2xl border p-6 text-left transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100",
+              "relative rounded-xl border p-3.5 text-left transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 sm:rounded-2xl sm:p-6",
               isSelected
                 ? "border-emerald-500 bg-emerald-50 shadow-sm"
                 : "border-stone-200 bg-white hover:border-stone-300",
@@ -50,7 +50,7 @@ export default function TeamEntryModeSelector({
           >
             <span
               className={[
-                "flex h-11 w-11 items-center justify-center rounded-xl",
+                "flex h-9 w-9 items-center justify-center rounded-lg sm:h-11 sm:w-11 sm:rounded-xl",
                 isSelected
                   ? "bg-emerald-600 text-white"
                   : "bg-stone-100 text-stone-500",
@@ -59,17 +59,17 @@ export default function TeamEntryModeSelector({
               <Icon className="h-5 w-5" strokeWidth={2} />
             </span>
 
-            <span className="mt-5 block text-lg font-black text-stone-900">
+            <span className="mt-3 block text-base font-black text-stone-900 sm:mt-5 sm:text-lg">
               {item.title}
             </span>
 
-            <span className="mt-2 block text-sm leading-6 text-stone-500">
+            <span className="mt-1.5 block text-xs leading-5 text-stone-500 sm:mt-2 sm:text-sm sm:leading-6">
               {item.description}
             </span>
 
             <span
               className={[
-                "absolute right-5 top-5 h-2.5 w-2.5 rounded-full",
+                "absolute right-3.5 top-3.5 h-2 w-2 rounded-full sm:right-5 sm:top-5 sm:h-2.5 sm:w-2.5",
                 isSelected ? "bg-emerald-500" : "bg-stone-200",
               ].join(" ")}
             />

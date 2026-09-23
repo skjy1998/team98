@@ -35,7 +35,7 @@ export default function PasswordResetRequestForm({
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       aria-busy={isSubmitting}
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
     >
       <AuthFormField
         id="reset-email"
@@ -50,14 +50,14 @@ export default function PasswordResetRequestForm({
       {errorMessage && (
         <div
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+          className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-600 sm:px-4 sm:py-3 sm:text-sm"
         >
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <output className="block rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+        <output className="block rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700 sm:px-4 sm:py-3 sm:text-sm">
           {successMessage}
         </output>
       )}
@@ -68,7 +68,7 @@ export default function PasswordResetRequestForm({
         submittingLabel="전송 중..."
       />
 
-      <p className="text-center text-sm text-stone-500">
+      <p className="text-center text-xs text-stone-500 sm:text-sm">
         비밀번호가 기억났나요?{" "}
         <Link
           href="/login"

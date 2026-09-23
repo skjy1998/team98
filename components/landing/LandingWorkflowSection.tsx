@@ -28,44 +28,48 @@ const workflowSteps = [
 export default function LandingWorkflowSection() {
   return (
     <section className="border-t border-stone-200 bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-24">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="max-w-2xl">
-          <p className="text-sm font-bold text-emerald-600">운영 흐름</p>
-          <h2 className="mt-3 text-4xl font-black tracking-tight text-stone-900">
+          <p className="text-xs font-bold text-emerald-600 sm:text-sm">
+            운영 흐름
+          </p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-stone-900 sm:mt-3 sm:text-4xl">
             경기의 시작과 끝이 하나로 이어집니다
           </h2>
-          <p className="mt-4 leading-7 text-stone-500">
+          <p className="mt-3 text-xs leading-6 text-stone-500 sm:mt-4 sm:text-base sm:leading-7">
             매번 반복되는 팀 운영 과정을 경기의 시간 순서에 맞춰 관리할 수
             있습니다.
           </p>
         </div>
 
-        <ol className="mt-14 border-t border-stone-200">
+        <ol className="mt-8 border-t border-stone-200 sm:mt-14">
           {workflowSteps.map((step) => (
             <li
               key={step.number}
-              className="grid gap-5 border-b border-stone-200 py-9 md:grid-cols-[80px_140px_1fr] md:items-start"
+              className="grid grid-cols-[40px_1fr] gap-x-3 gap-y-2 border-b border-stone-200 py-5 md:grid-cols-[80px_140px_1fr] md:gap-5 md:py-9"
             >
-              <span className="text-sm font-black text-emerald-600">
+              <span className="text-xs font-black text-emerald-600 sm:text-sm">
                 {step.number}
               </span>
 
-              <p className="text-sm font-bold text-stone-400">{step.phase}</p>
+              <p className="text-xs font-bold text-stone-400 sm:text-sm">
+                {step.phase}
+              </p>
 
-              <div>
-                <h3 className="text-xl font-black tracking-tight text-stone-900 md:text-2xl">
+              <div className="col-span-2 md:col-auto">
+                <h3 className="text-lg font-black tracking-tight text-stone-900 sm:text-xl md:text-2xl">
                   {step.title}
                 </h3>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-500">
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-stone-500 sm:mt-3 sm:text-sm sm:leading-6">
                   {step.description}
                 </p>
 
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-5 sm:gap-2">
                   {step.keywords.map((keyword) => (
                     <span
                       key={keyword}
-                      className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-bold text-stone-600"
+                      className="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-bold text-stone-600 sm:px-3 sm:py-1.5 sm:text-xs"
                     >
                       {keyword}
                     </span>

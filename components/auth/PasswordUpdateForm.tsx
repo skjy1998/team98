@@ -36,7 +36,7 @@ export default function PasswordUpdateForm({
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       aria-busy={isSubmitting}
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
     >
       <AuthFormField
         id="new-password"
@@ -61,14 +61,14 @@ export default function PasswordUpdateForm({
       {errorMessage && (
         <div
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+          className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-600 sm:px-4 sm:py-3 sm:text-sm"
         >
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <output className="block rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+        <output className="block rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700 sm:px-4 sm:py-3 sm:text-sm">
           {successMessage}
         </output>
       )}
@@ -79,7 +79,7 @@ export default function PasswordUpdateForm({
         submittingLabel="저장 중..."
       />
 
-      <p className="text-center text-sm text-stone-500">
+      <p className="text-center text-xs text-stone-500 sm:text-sm">
         재설정 링크가 만료됐나요?{" "}
         <Link
           href="/forgot-password"

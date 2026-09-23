@@ -1,7 +1,6 @@
 "use client";
 
 import { useTeamAdd } from "@/hooks/team/useTeamAdd";
-
 import TeamCreateForm from "./entry/TeamCreateForm";
 import TeamJoinForm from "./entry/TeamJoinForm";
 import { useAppAccess } from "@/hooks/auth/useAppAccess";
@@ -40,23 +39,23 @@ export default function TeamAddPageClient() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <header className="flex items-start justify-between gap-6">
+    <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div>
-          <p className="text-sm font-bold text-emerald-600">
+          <p className="text-xs font-bold text-emerald-600 sm:text-sm">
             SquadFlow 팀 관리
           </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-stone-900">
+          <h1 className="mt-1.5 text-2xl font-black tracking-tight text-stone-900 sm:mt-3 sm:text-4xl">
             새 팀을 연결해 주세요.
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-stone-500">
+          <p className="mt-2 max-w-xl text-xs leading-5 text-stone-500 sm:mt-3 sm:text-sm sm:leading-6">
             새로운 팀을 만들거나 초대 코드로 다른 팀에 참가할 수 있습니다.
           </p>
         </div>
         {teamLoaded && team && (
           <Link
             href="/dashboard"
-            className="text-sm font-semibold text-stone-500"
+            className="text-xs font-semibold text-stone-500 sm:text-sm"
           >
             돌아가기
           </Link>
@@ -68,7 +67,7 @@ export default function TeamAddPageClient() {
       {errorMessage && (
         <p
           role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+          className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-xs font-medium text-rose-600 sm:px-4 sm:text-sm"
         >
           {errorMessage}
         </p>
