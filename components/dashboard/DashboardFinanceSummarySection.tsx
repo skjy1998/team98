@@ -14,11 +14,13 @@ export default function DashboardFinanceSummarySection({
   unpaidCount,
 }: Readonly<DashboardFinanceSummarySectionProps>) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">회비 현황</span>
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
+          회비 현황
+        </span>
         <Link
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
+          className="text-xs font-medium text-stone-500 transition hover:text-stone-800 sm:text-sm"
           href="/finance"
         >
           회비 보기

@@ -30,10 +30,10 @@ export default function BoardCommentItem({
   onDelete,
 }: Readonly<BoardCommentItemProps>) {
   return (
-    <div className="rounded-xl border border-stone-100 bg-stone-50/70 px-4 py-3">
+    <div className="rounded-xl border border-stone-100 bg-stone-50/70 px-3 py-2.5 sm:px-4 sm:py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-[11px] sm:gap-2 sm:text-xs">
             <span className="font-semibold text-stone-700">
               {comment.authorName}
             </span>
@@ -49,10 +49,10 @@ export default function BoardCommentItem({
               maxLength={1000}
               rows={3}
               disabled={isSubmitting}
-              className="mt-3 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-emerald-400 disabled:cursor-not-allowed disabled:bg-stone-100"
+              className="mt-2 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-emerald-400 disabled:cursor-not-allowed disabled:bg-stone-100 sm:mt-3"
             />
           ) : (
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-stone-600">
+            <p className="mt-1.5 whitespace-pre-wrap text-xs leading-5 text-stone-600 sm:mt-2 sm:text-sm sm:leading-6">
               {comment.content}
             </p>
           )}
@@ -66,7 +66,7 @@ export default function BoardCommentItem({
                 onClick={onSaveEdit}
                 disabled={isSubmitting || !editingContent.trim()}
                 aria-label="댓글 수정 저장"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
               >
                 <Check className="h-4 w-4" />
               </button>
@@ -75,7 +75,7 @@ export default function BoardCommentItem({
                 onClick={onCancelEdit}
                 disabled={isSubmitting}
                 aria-label="댓글 수정 취소"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-200"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-200 sm:h-8 sm:w-8"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -87,7 +87,7 @@ export default function BoardCommentItem({
                   type="button"
                   onClick={onStartEdit}
                   aria-label="댓글 수정"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-white hover:text-stone-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 transition hover:bg-white hover:text-stone-700 sm:h-8 sm:w-8"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
@@ -98,7 +98,7 @@ export default function BoardCommentItem({
                   onClick={onDelete}
                   disabled={isSubmitting}
                   aria-label="댓글 삭제"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

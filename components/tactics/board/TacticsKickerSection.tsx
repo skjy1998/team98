@@ -1,6 +1,7 @@
 import type { PlayerType } from "@/types/player";
 import type { SetPieceKey } from "@/types/tactics";
 import { ChevronDown } from "lucide-react";
+import TacticsMobileSelect from "./TacticsMobileSelect";
 
 interface TacticsKickerSectionProps {
   players: PlayerType[];
@@ -68,33 +69,55 @@ export default function TacticsKickerSection({
             >
               {field.label}
             </label>
-            <div className="relative mt-2">
-              <select
-                id={field.id}
+            <div className="mt-2">
+              <TacticsMobileSelect
+                label={`${field.label} 키커 선택`}
+                description="세트피스 담당 선수를 선택하세요."
                 value={field.value}
-                onChange={(event) =>
-                  onChangeSetPiecePlayer(field.setPieceKey, event.target.value)
-                }
+                options={[
+                  { value: "", label: "선택 안 함" },
+                  ...players.map((player) => ({
+                    value: player.id,
+                    label: player.name,
+                  })),
+                ]}
                 disabled={!canManage}
-                className={`h-11 w-full appearance-none rounded-xl border px-3 pr-10 text-sm outline-none sm:h-12 sm:px-4 ${
-                  canManage
-                    ? "border-stone-200 bg-white text-stone-800 focus:border-emerald-300"
-                    : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
-                }`}
-              >
-                <option value="">선택 안 함</option>
-                {players.map((player) => (
-                  <option key={player.id} value={player.id}>
-                    {player.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                aria-hidden="true"
-                className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ${
-                  canManage ? "text-stone-400" : "text-stone-300"
-                }`}
+                onChange={(value) =>
+                  onChangeSetPiecePlayer(field.setPieceKey, value)
+                }
               />
+
+              <div className="relative hidden md:block">
+                <select
+                  id={field.id}
+                  value={field.value}
+                  onChange={(event) =>
+                    onChangeSetPiecePlayer(
+                      field.setPieceKey,
+                      event.target.value,
+                    )
+                  }
+                  disabled={!canManage}
+                  className={`h-12 w-full appearance-none rounded-xl border px-4 pr-10 text-sm outline-none sm:h-12 sm:px-4 ${
+                    canManage
+                      ? "border-stone-200 bg-white text-stone-800 focus:border-emerald-300"
+                      : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+                  }`}
+                >
+                  <option value="">선택 안 함</option>
+                  {players.map((player) => (
+                    <option key={player.id} value={player.id}>
+                      {player.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 ${
+                    canManage ? "text-stone-400" : "text-stone-300"
+                  }`}
+                />
+              </div>
             </div>
 
             <output

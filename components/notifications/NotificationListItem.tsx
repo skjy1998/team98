@@ -51,11 +51,11 @@ export default function NotificationListItem({
       <button
         type="button"
         onClick={() => onOpen(notification)}
-        className="flex w-full gap-3 px-5 py-4 pr-14 text-left transition hover:bg-stone-50"
+        className="flex w-full gap-2.5 px-3.5 py-3 pr-12 text-left transition hover:bg-stone-50 sm:gap-3 sm:px-5 sm:py-4 sm:pr-14"
       >
         <span
           className={[
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10",
             notificationIconClassName[notification.type],
           ].join(" ")}
         >
@@ -64,7 +64,7 @@ export default function NotificationListItem({
 
         <span className="min-w-0 flex-1">
           <span className="flex items-start gap-2">
-            <span className="flex-1 text-sm font-semibold text-stone-900">
+            <span className="flex-1 text-sm font-semibold text-stone-900 sm:text-base">
               {notification.title}
             </span>
 
@@ -76,11 +76,11 @@ export default function NotificationListItem({
             )}
           </span>
 
-          <span className="mt-1 block text-sm leading-5 text-stone-500">
+          <span className="mt-0.5 line-clamp-2 block text-xs leading-5 text-stone-500 sm:mt-1 sm:text-sm">
             {notification.message}
           </span>
 
-          <span className="mt-2 block text-xs text-stone-400">
+          <span className="mt-1 block text-[11px] text-stone-400 sm:mt-2 sm:text-xs">
             {formatNotificationDate(notification.createdAt)}
           </span>
         </span>
@@ -90,7 +90,7 @@ export default function NotificationListItem({
         type="button"
         onClick={() => onDelete(notification.id)}
         aria-label={`${notification.title} 알림 삭제`}
-        className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-stone-300 opacity-0 transition hover:bg-rose-50 hover:text-rose-500 focus:opacity-100 group-hover:opacity-100"
+        className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-lg text-stone-300 opacity-100 transition hover:bg-rose-50 hover:text-rose-500 focus:opacity-100 sm:bottom-3 sm:right-3 sm:h-8 sm:w-8 sm:opacity-0 sm:group-hover:opacity-100"
       >
         <Trash2 className="h-4 w-4" />
       </button>

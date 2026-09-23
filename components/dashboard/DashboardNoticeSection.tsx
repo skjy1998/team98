@@ -11,24 +11,26 @@ export default function DashboardNoticeSection({
   notices,
 }: Readonly<DashboardNoticeSectionProps>) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">팀 공지</span>
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
+          팀 공지
+        </span>
 
         <Link
           href="/board"
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
+          className="text-xs font-medium text-stone-500 transition hover:text-stone-800 sm:text-sm"
         >
           전체 보기
         </Link>
       </div>
 
       {notices.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 px-5 py-8 text-center">
-          <p className="text-sm font-medium text-stone-500">
+        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 px-4 py-6 text-center sm:px-5 sm:py-8">
+          <p className="text-xs font-medium text-stone-500 sm:text-sm">
             등록된 공지가 없어요.
           </p>
-          <p className="mt-1 text-xs text-stone-400">
+          <p className="mt-1 text-[11px] text-stone-400 sm:text-xs">
             새로운 공지가 등록되면 여기에 표시돼요.
           </p>
         </div>
@@ -38,13 +40,13 @@ export default function DashboardNoticeSection({
             <Link
               key={notice.id}
               href="/board"
-              className="group flex items-center gap-3 px-4.5 py-3.5 transition hover:bg-stone-50 sm:gap-4 sm:px-5 sm:py-4"
+              className="group flex items-center gap-3 px-3.5 py-3 transition hover:bg-stone-50 sm:gap-4 sm:px-5 sm:py-4"
             >
               <div
                 className={[
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10",
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 sm:rounded-xl",
                   notice.isPinned
-                    ? "bg-amber-50 text-amber-600"
+                    ? "bg-emerald-100 text-emerald-700"
                     : "bg-emerald-50 text-emerald-600",
                 ].join(" ")}
               >
@@ -60,11 +62,11 @@ export default function DashboardNoticeSection({
                   {notice.isPinned ? "상단 고정 공지" : "공지사항"}
                 </span>
 
-                <p className="mt-1 truncate text-sm font-semibold text-stone-800 transition group-hover:text-emerald-700">
+                <p className="mt-1 truncate text-xs font-semibold text-stone-800 transition group-hover:text-emerald-700 sm:text-sm">
                   {notice.title}
                 </p>
 
-                <div className="mt-1 flex items-center gap-2 text-xs text-stone-400">
+                <div className="mt-1 flex items-center gap-2 text-[11px] text-stone-400 sm:text-xs">
                   <span className="truncate">{notice.authorName}</span>
                   <span aria-hidden>·</span>
                   <time dateTime={notice.createdAt}>

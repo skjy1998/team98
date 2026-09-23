@@ -47,9 +47,9 @@ export default function NotificationBell({
         }
         aria-expanded={isOpen}
         aria-controls={isOpen ? "notification-bell-panel" : undefined}
-        className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 sm:h-11 sm:w-11"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
 
         {unreadCount > 0 && (
           <span className="absolute -right-1.5 -top-1.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">

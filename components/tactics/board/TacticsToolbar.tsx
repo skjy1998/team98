@@ -55,7 +55,13 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-3.5 sm:p-5">
       <div className="flex flex-col gap-3 sm:gap-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div
+          className={
+            props.saveMode === "manual"
+              ? "grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 lg:flex lg:items-end lg:justify-between lg:gap-3"
+              : "flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between"
+          }
+        >
           <div
             className={[
               "gap-3",
@@ -82,13 +88,20 @@ export default function TacticsToolbar(props: Readonly<TacticsToolbarProps>) {
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 border-t border-stone-100 pt-3 lg:shrink-0 lg:border-t-0 lg:pt-0">
+          <div
+            className={[
+              "flex shrink-0 items-center justify-end gap-2",
+              props.saveMode === "auto"
+                ? "border-t border-stone-100 pt-3 lg:border-t-0 lg:pt-0"
+                : "",
+            ].join(" ")}
+          >
             <button
               type="button"
               onClick={onReset}
               disabled={!canEdit}
               aria-label="포메이션 초기화"
-              className={`inline-flex h-12 w-12 items-center justify-center rounded-lg border text-xs font-medium transition sm:w-auto sm:gap-2 sm:rounded-xl sm:px-5 sm:text-sm ${
+              className={`inline-flex h-12 w-12 items-center justify-center rounded-lg border text-xs font-medium transition sm:h-14 sm:w-auto sm:gap-2 sm:rounded-xl sm:px-5 sm:text-sm ${
                 canEdit
                   ? "border-stone-200 text-stone-600 hover:bg-stone-50"
                   : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"

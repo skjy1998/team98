@@ -43,9 +43,11 @@ const quickLinks: DashboardQuickLink[] = [
 
 export default function DashboardQuickLinkSection() {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">빠른 이동</span>
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
+          빠른 이동
+        </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {quickLinks.map((link) => (

@@ -58,13 +58,17 @@ export default function DashboardMyVoteButtons({
   };
 
   return (
-    <div className="mt-5 border-t border-dashed border-stone-200 pt-5">
+    <div className="mt-4 border-t border-dashed border-stone-200 pt-4 sm:mt-5 sm:pt-5">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-stone-700">내 참석 여부</p>
-        <p className="text-xs text-stone-400">마감: {deadlineText}</p>
+        <p className="text-xs font-semibold text-stone-700 sm:text-sm">
+          내 참석 여부
+        </p>
+        <p className="text-[11px] text-stone-400 sm:text-xs">
+          마감: {deadlineText}
+        </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:mt-3 sm:gap-2">
         {voteOptions.map((option) => {
           const Icon = option.icon;
           const isActive = status === option.status;
@@ -75,13 +79,13 @@ export default function DashboardMyVoteButtons({
               type="button"
               disabled={isSubmitting}
               onClick={() => handleChangeStatus(option.status)}
-              className={`flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              className={`flex h-10 items-center justify-center gap-1 rounded-lg border text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:gap-2 sm:rounded-xl sm:text=sm ${
                 isActive
                   ? option.activeClassName
                   : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:bg-stone-50"
               }`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {option.label}
             </button>
           );

@@ -17,10 +17,12 @@ export default function DashboardSeasonSummarySection({
   recentResults,
 }: Readonly<DashboardSeasonSummarySectionProps>) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">시즌 전적</span>
-        <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-500">
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
+          시즌 전적
+        </span>
+        <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-500 sm:px-3 sm:text-xs">
           총 {total}경기
         </span>
       </div>

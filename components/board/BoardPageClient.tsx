@@ -27,7 +27,7 @@ export default function BoardPageClient() {
 
   if (!boardLoaded) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="게시판"
           description="팀 공지와 게시물을 확인하고 이야기를 나누세요."
@@ -43,7 +43,7 @@ export default function BoardPageClient() {
 
   if (boardError) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="게시판"
           description="팀 공지와 게시물을 확인하고 이야기를 나누세요."
@@ -68,19 +68,19 @@ export default function BoardPageClient() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <PageHeader
           title="게시판"
           description="팀 공지와 게시물을 확인하고 이야기를 나누세요."
         />
-        <p className="text-sm font-medium text-stone-500">
+        <p className="text-xs font-medium text-stone-500 sm:text-sm">
           총 {posts.length}개
         </p>
       </div>
 
       {secondaryError && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 sm:px-5 sm:py-4">
           <p className="text-sm font-medium text-rose-600">{secondaryError}</p>
 
           <button

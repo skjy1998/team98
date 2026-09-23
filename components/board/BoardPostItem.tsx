@@ -40,7 +40,7 @@ export default function BoardPostItem({
         isExpanded
           ? "border-emerald-200 shadow-md"
           : "border-stone-200 hover:border-stone-300",
-        post.isPinned ? "bg-amber-50/40" : "bg-white",
+        post.isPinned ? "bg-emerald-50/50" : "bg-white",
       ].join(" ")}
     >
       <div className="flex items-start">
@@ -49,11 +49,11 @@ export default function BoardPostItem({
           aria-expanded={isExpanded}
           aria-controls={contentId}
           onClick={onToggle}
-          className="group flex min-w-0 flex-1 items-start gap-4 px-5 py-5 text-left transition hover:bg-stone-50/70"
+          className="group flex min-w-0 flex-1 items-start gap-3 px-3.5 py-3.5 text-left transition hover:bg-stone-50/70 sm:gap-4 sm:px-5 sm:py-5"
         >
           <div
             className={[
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold sm:h-10 sm:w-10 sm:rounded-xl sm:text-xs",
               post.type === "notice"
                 ? "bg-emerald-50 text-emerald-700"
                 : "bg-sky-50 text-sky-600",
@@ -65,21 +65,21 @@ export default function BoardPostItem({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               {post.isPinned && (
-                <Pin className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
+                <Pin className="h-3.5 w-3.5 shrink-0 fill-emerald-400 text-emerald-400" />
               )}
 
-              <p className="truncate font-semibold text-stone-900 transition group-hover:text-emerald-700">
+              <p className="truncate text-sm font-semibold text-stone-900 transition group-hover:text-emerald-700 sm:text-base">
                 {post.title}
               </p>
             </div>
 
             {!isExpanded && (
-              <p className="mt-2 line-clamp-1 text-sm text-stone-400">
+              <p className="mt-1.5 line-clamp-1 text-xs text-stone-400 sm:mt-2 sm:text-sm">
                 {post.content}
               </p>
             )}
 
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-stone-400">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-stone-400 sm:mt-3 sm:gap-3 sm:text-xs">
               <span>{post.authorName}</span>
               <span aria-hidden="true">·</span>
               <time dateTime={post.createdAt}>
@@ -120,7 +120,7 @@ export default function BoardPostItem({
       {isExpanded && (
         <div
           id={contentId}
-          className="border-t border-stone-100 px-5 pb-6 pt-5 md:pl-[76px] md:pr-10"
+          className="border-t border-stone-100 px-3.5 pb-5 pt-4 sm:px-5 sm:pb-6 sm:pt-5 md:pl-[76px] md:pr-10"
         >
           <div
             className={[

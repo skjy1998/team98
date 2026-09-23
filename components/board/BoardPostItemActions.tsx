@@ -26,7 +26,7 @@ export default function BoardPostItemActions({
   onDelete,
 }: Readonly<BoardPostItemActionsProps>) {
   return (
-    <div className="flex shrink-0 items-center gap-1 py-5 pr-5">
+    <div className="flex shrink-0 items-center gap-1 py-3.5 pr-3.5 sm:py-5 sm:pr-5">
       {isExpanded && canPin && (
         <button
           type="button"
@@ -36,14 +36,17 @@ export default function BoardPostItemActions({
           }
           title={isPinned ? "고정 해제" : "상단 고정"}
           className={[
-            "flex h-9 w-9 items-center justify-center rounded-lg transition",
+            "flex h-8 w-8 items-center justify-center rounded-lg transition sm:h-9 sm:w-9",
             isPinned
-              ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
-              : "text-stone-400 hover:bg-amber-50 hover:text-amber-600",
+              ? "bg-emerald-100 text-emerald-600 hover:bg-emerald-200"
+              : "text-stone-400 hover:bg-emerald-50 hover:text-emerald-600",
           ].join(" ")}
         >
           <Pin
-            className={["h-4 w-4", isPinned ? "fill-current" : ""].join(" ")}
+            className={[
+              "h-3.5 w-3.5 sm:h-4 sm:w-4",
+              isPinned ? "fill-current" : "",
+            ].join(" ")}
           />
         </button>
       )}
@@ -55,9 +58,9 @@ export default function BoardPostItemActions({
             onClick={onEdit}
             aria-label={`${title} 게시물 수정`}
             title="수정"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 sm:h-9 sm:w-9"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </button>
 
           <button
@@ -65,9 +68,9 @@ export default function BoardPostItemActions({
             onClick={() => void onDelete()}
             aria-label={`${title} 게시물 삭제`}
             title="삭제"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-rose-50 hover:text-rose-500 sm:h-9 sm:w-9"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </button>
         </>
       )}
@@ -78,11 +81,11 @@ export default function BoardPostItemActions({
         aria-controls={contentId}
         onClick={onToggle}
         aria-label={isExpanded ? "게시물 접기" : "게시물 펼치기"}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-300 transition hover:bg-stone-100 hover:text-stone-600"
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-600 sm:h-9 sm:w-9"
       >
         <ChevronDown
           className={[
-            "h-5 w-5 transition duration-200",
+            "h-4 w-4 transition duration-200 sm:h-5 sm:w-5",
             isExpanded ? "rotate-180 text-stone-600" : "",
           ].join(" ")}
         />

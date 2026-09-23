@@ -16,7 +16,7 @@ export default function TacticsBoardContent({
   return (
     <>
       {!canManage && (
-        <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-3.5 py-3 text-xs text-stone-500 sm:px-4 sm:text-sm">
           저장된 전술은 누구나 불러와서 볼 수 있고, 저장과 수정은 운영진만 할 수
           있어요.
         </div>
@@ -39,7 +39,7 @@ export default function TacticsBoardContent({
         isDeleting={presets.isDeleting}
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <TacticsField
           formation={tactics.formation}
           slots={tactics.slots}

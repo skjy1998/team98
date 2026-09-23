@@ -1,5 +1,6 @@
 import type { FormationName } from "@/types/tactics";
 import { ChevronDown } from "lucide-react";
+import TacticsMobileSelect from "./TacticsMobileSelect";
 
 interface TacticsFormationSelectProps {
   formation: FormationName;
@@ -18,12 +19,24 @@ export default function TacticsFormationSelect({
     <div className="min-w-0 flex-1 sm:min-w-[280px]">
       <label
         htmlFor="formation-select"
-        className="mb-2 block text-sm font-medium text-stone-500"
+        className="mb-1.5 block text-xs font-medium text-stone-500 sm:mb-2 sm:text-sm"
       >
         포메이션
       </label>
 
-      <div className="relative">
+      <TacticsMobileSelect
+        label="포메이션 선택"
+        description="전술판에 적용할 포메이션을 선택하세요"
+        value={formation}
+        options={options.map((option) => ({
+          value: option,
+          label: option,
+        }))}
+        disabled={!canManage}
+        onChange={(value) => onChange(value as FormationName)}
+      />
+
+      <div className="relative hidden md:block">
         <select
           id="formation-select"
           value={formation}
@@ -44,7 +57,7 @@ export default function TacticsFormationSelect({
 
         <ChevronDown
           aria-hidden="true"
-          className={`pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 ${
+          className={`pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 sm:right-4 sm:h-5 sm:w-5 ${
             canManage ? "text-stone-400" : "text-stone-300"
           }`}
         />

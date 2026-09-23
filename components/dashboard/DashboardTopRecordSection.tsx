@@ -20,8 +20,8 @@ export default function DashboardTopRecordSection({
       value: topAppearance?.appearance ?? 0,
       unit: "경기",
       cardClassName:
-        "rounded-xl border border-orange-200 bg-[radial-gradient(circle_at_top_right,_rgba(251,146,60,0.10),_transparent_35%),linear-gradient(180deg,#fffdfb_0%,#ffffff_100%)] p-3 sm:p-4 shadow-sm",
-      titleClassName: "text-sm font-semibold text-orange-400",
+        "rounded-xl border border-stone-200 bg-[radial-gradient(circle_at_top_right,_rgba(168,162,158,0.12),_transparent_35%),linear-gradient(180deg,#fafaf9_0%,#ffffff_100%)] p-3 sm:p-4 shadow-sm",
+      titleClassName: "text-sm font-semibold text-stone-400",
     },
     {
       title: "최다 득점",
@@ -44,14 +44,14 @@ export default function DashboardTopRecordSection({
   ];
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
           팀 주요 기록
         </span>
         <Link
           href="/stats"
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
+          className="text-xs font-medium text-stone-500 transition hover:text-stone-800 sm:text-sm"
         >
           전체 보기
         </Link>

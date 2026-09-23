@@ -39,22 +39,22 @@ export default function DashboardVoteSummary({
   ];
 
   return (
-    <div className="mt-6">
+    <div className="mt-4 sm:mt-6">
       <div className="flex items-end justify-between gap-3">
-        <span className="text-sm font-extrabold text-emerald-500">
+        <span className="text-xs font-extrabold text-emerald-500 sm:text-sm">
           참석 {attendRate}%
         </span>
 
-        <span className="text-sm font-semibold text-stone-500">
+        <span className="text-xs font-semibold text-stone-500 sm:text-sm">
           {respondedCount}/{total}명 응답
         </span>
       </div>
 
-      <div className="mt-4 flex h-6 overflow-hidden rounded bg-stone-100">
+      <div className="mt-3.5 flex h-5 overflow-hidden rounded bg-stone-100 sm:mt-4 sm:h-6">
         {statusItems.map((item) => (
           <div
             key={item.label}
-            className={`flex items-center justify-center text-sm font-bold text-white ${item.barClassName}`}
+            className={`flex items-center justify-center text-xs font-bold text-white sm:text-sm ${item.barClassName}`}
             style={{ width: `${getWidth(item.count)}%` }}
           >
             {item.count > 0 ? item.count : ""}
@@ -62,7 +62,7 @@ export default function DashboardVoteSummary({
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-4 text-sm font-medium text-stone-500">
+      <div className="mt-2.5 flex flex-wrap gap-2 text-[11px] font-medium text-stone-500 sm:mt-3 sm:gap-4 sm:text-sm">
         {statusItems.map((item) => (
           <span key={item.label} className="flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full ${item.barClassName}`} />

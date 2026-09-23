@@ -67,7 +67,7 @@ export default function BoardPostList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5 sm:space-y-3">
       {posts.map((post) => {
         const comments = commentsByPostId[post.id] ?? [];
         const likeSummary = likesByPostId[post.id] ?? {

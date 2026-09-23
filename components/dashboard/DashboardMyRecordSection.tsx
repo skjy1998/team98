@@ -31,15 +31,15 @@ export default function DashboardMyRecordSection({
   player,
 }: Readonly<DashboardMyRecordSectionProps>) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
           내 시즌 기록
         </span>
 
         <Link
           href="/stats?tab=me"
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
+          className="text-xs font-medium text-stone-500 transition hover:text-stone-800 sm:text-sm"
         >
           전체 보기
         </Link>

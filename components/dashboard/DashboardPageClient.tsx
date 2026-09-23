@@ -18,7 +18,7 @@ export default function DashboardPageClient() {
 
   if (!isLoaded) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <PageHeader
           title="대시보드"
           description="오늘 팀 상태와 주요 지표를 한눈에 확인하세요."
@@ -34,14 +34,14 @@ export default function DashboardPageClient() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="대시보드"
         description="오늘 팀 상태와 주요 지표를 한눈에 확인하세요."
       />
       <DashboardNoticeSection notices={boardData.recentNotice} />
-      <section className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.95fr)]">
-        <div className="min-w-0 space-y-6">
+      <section className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.95fr)]">
+        <div className="min-w-0 space-y-4 sm:space-y-6">
           <div className="space-y-3">
             <DashboardUpcomingMatchSection
               upcomingMatches={matchData.upcomingMatches}
@@ -67,7 +67,7 @@ export default function DashboardPageClient() {
             topAssister={statsData.topAssister}
           />
         </div>
-        <div className="min-w-0 space-y-6">
+        <div className="min-w-0 space-y-4 sm:space-y-6">
           <DashboardTodoSection items={todoData.items} />
 
           <DashboardMyRecordSection player={matchData.myPlayer} />

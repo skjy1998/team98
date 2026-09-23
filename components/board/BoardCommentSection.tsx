@@ -58,8 +58,8 @@ export default function BoardCommentSection({
   });
 
   return (
-    <section className="mt-6 border-t border-stone-100 pt-5">
-      <div className="mb-4 flex items-center gap-2">
+    <section className="mt-5 border-t border-stone-100 pt-4 sm:mt-6 sm:pt-5">
+      <div className="mb-3 flex items-center gap-2 sm:mb-4">
         <button
           type="button"
           onClick={handleToggleLike}
@@ -115,7 +115,7 @@ export default function BoardCommentSection({
               아직 댓글이 없어요. 첫 댓글을 남겨보세요.
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               {comments.map((comment) => {
                 const isAuthor = comment.authorId === currentUserId;
 
@@ -139,7 +139,10 @@ export default function BoardCommentSection({
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-4 flex items-end gap-2">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-3 flex items-end gap-2 sm:mt-4"
+          >
             <textarea
               value={content}
               onChange={(event) => onChangeContent(event.target.value)}
@@ -147,12 +150,12 @@ export default function BoardCommentSection({
               maxLength={1000}
               rows={2}
               disabled={isSubmitting}
-              className="min-h-16 flex-1 resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-400 disabled:cursor-not-allowed disabled:bg-stone-100"
+              className="min-h-14 flex-1 resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-400 disabled:cursor-not-allowed disabled:bg-stone-100 sm:min-h-16 sm:px-4 sm:py-3"
             />
             <button
               type="submit"
               disabled={isSubmitting || !content.trim()}
-              className="h-16 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300"
+              className="h-14 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-300 sm:h-16 sm:px-5"
             >
               {isSubmitting ? "등록 중" : "등록"}
             </button>

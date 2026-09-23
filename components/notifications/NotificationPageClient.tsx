@@ -33,13 +33,13 @@ export default function NotificationsPageClient() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="알림"
         description="팀 활동과 관련된 새로운 소식을 확인하세요."
       />
 
-      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm sm:rounded-2xl">
         <NotificationToolbar
           filter={filter}
           unreadCount={unreadCount}

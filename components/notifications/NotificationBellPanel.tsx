@@ -32,8 +32,8 @@ export default function NotificationBellPanel({
       id="notification-bell-panel"
       aria-label="알림 목록"
       className={[
-        "absolute top-14 z-50 w-[380px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl",
-        align === "left" ? "left-0" : "right-0",
+        "fixed inset-x-3 top-16 z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl sm:absolute sm:inset-x-auto sm:top-14 sm:w-[380px] sm:max-h-none",
+        align === "left" ? "sm:left-0" : "sm:right-0",
       ].join(" ")}
     >
       <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
@@ -56,7 +56,7 @@ export default function NotificationBellPanel({
         )}
       </div>
 
-      <div className="max-h-[440px] overflow-y-auto">
+      <div className="max-h-[calc(100dvh-13rem)] overflow-y-auto sm:max-h-[440px]">
         {!notificationsLoaded ? (
           <p className="px-5 py-10 text-center text-sm text-stone-400">
             알림을 불러오는 중...

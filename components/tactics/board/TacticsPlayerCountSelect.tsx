@@ -1,5 +1,6 @@
 import type { MatchPlayersPerSide } from "@/types/match";
 import { ChevronDown } from "lucide-react";
+import TacticsMobileSelect from "./TacticsMobileSelect";
 
 interface TacticsPlayerCountSelectProps {
   options: readonly MatchPlayersPerSide[];
@@ -20,12 +21,26 @@ export default function TacticsPlayerCountSelect({
     <div className="min-w-0 sm:min-w-[180px]">
       <label
         htmlFor="player-count-select"
-        className="mb-2 block text-sm font-medium text-stone-500"
+        className="mb-1.5 block text-xs font-medium text-stone-500 sm:mb-2 sm:text-sm"
       >
         경기 인원
       </label>
 
-      <div className="relative">
+      <TacticsMobileSelect
+        label="경기 인원 선택"
+        description="양 팀의 경기 인원을 선택하세요."
+        value={String(value)}
+        options={options.map((count) => ({
+          value: String(count),
+          label: `${count}대${count}`,
+        }))}
+        disabled={!canManage || isSaving}
+        onChange={(nextValue) =>
+          onChange(Number(nextValue) as MatchPlayersPerSide)
+        }
+      />
+
+      <div className="relative hidden md:block">
         <select
           id="player-count-select"
           value={value}

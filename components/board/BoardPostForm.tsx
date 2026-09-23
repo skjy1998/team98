@@ -28,10 +28,10 @@ export default function BoardPostForm({
 
   return (
     <>
-      <div className="mt-7 space-y-5">
+      <div className="mt-5 space-y-4 sm:mt-7 sm:space-y-5">
         {canManage && (
           <div>
-            <p className="mb-2 text-sm font-semibold text-stone-600">
+            <p className="mb-1.5 block text-xs font-semibold text-stone-600 sm:mb-2 sm:text-sm">
               게시물 유형
             </p>
 
@@ -41,7 +41,7 @@ export default function BoardPostForm({
                 disabled={isSaving}
                 onClick={() => onChangeType("general")}
                 className={[
-                  "h-11 rounded-xl border text-sm font-semibold transition",
+                  "h-10 rounded-xl border text-xs font-semibold transition sm:h-11 sm:text-sm",
                   type === "general"
                     ? "border-sky-500 bg-sky-500 text-white"
                     : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
@@ -55,7 +55,7 @@ export default function BoardPostForm({
                 disabled={isSaving}
                 onClick={() => onChangeType("notice")}
                 className={[
-                  "h-11 rounded-xl border text-sm font-semibold transition",
+                  "h-10 rounded-xl border text-xs font-semibold transition sm:h-11 sm:text-sm",
                   type === "notice"
                     ? "border-emerald-600 bg-emerald-600 text-white"
                     : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
@@ -70,7 +70,7 @@ export default function BoardPostForm({
         <div>
           <label
             htmlFor="board-post-title"
-            className="mb-2 block text-sm font-semibold text-stone-600"
+            className="mb-1.5 block text-xs font-semibold text-stone-600 sm:mb-2 sm:text-sm"
           >
             제목
           </label>
@@ -82,7 +82,7 @@ export default function BoardPostForm({
             disabled={isSaving}
             onChange={(event) => onChangeTitle(event.target.value)}
             placeholder="게시물 제목을 입력하세요."
-            className="h-12 w-full rounded-xl border border-stone-200 px-4 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100"
+            className="h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100 sm:h-12 sm:px-4 "
           />
           <p className="mt-1 text-right text-xs text-stone-400">
             {title.length}/100
@@ -92,7 +92,7 @@ export default function BoardPostForm({
         <div>
           <label
             htmlFor="board-post-content"
-            className="mb-2 block text-sm font-semibold text-stone-600"
+            className="mb-1.5 block text-xs font-semibold text-stone-600 sm:mb-2 sm:text-sm"
           >
             내용
           </label>
@@ -103,7 +103,7 @@ export default function BoardPostForm({
             disabled={isSaving}
             onChange={(event) => onChangeContent(event.target.value)}
             placeholder="팀원들과 공유할 내용을 입력하세요."
-            className="min-h-60 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm leading-7 text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100"
+            className="min-h-48 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm leading-6 text-stone-800 outline-none placeholder:text-stone-400 focus:border-emerald-300 disabled:bg-stone-100 sm:min-h-60 sm:p-4 sm:leading-7"
           />
           <p className="mt-1 text-right text-xs text-stone-400">
             {content.length}/5000
@@ -111,12 +111,12 @@ export default function BoardPostForm({
         </div>
 
         {canManage && (
-          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-4">
+          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-3 sm:px-4 sm:py-4">
             <div>
-              <p className="text-sm font-semibold text-amber-800">
+              <p className="text-sm font-semibold text-emerald-800">
                 상단에 고정
               </p>
-              <p className="mt-1 text-xs text-amber-600">
+              <p className="mt-1 text-xs text-emerald-600">
                 중요한 공지를 게시판 최상단에 표시해요.
               </p>
             </div>
@@ -126,13 +126,13 @@ export default function BoardPostForm({
               checked={isPinned}
               disabled={isSaving}
               onChange={(event) => onChangeIsPinned(event.target.checked)}
-              className="h-5 w-5 accent-amber-500"
+              className="h-5 w-5 accent-emerald-500"
             />
           </label>
         )}
       </div>
 
-      <div className="mt-8 flex justify-end gap-2">
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:justify-end">
         <button
           type="button"
           disabled={isSaving}

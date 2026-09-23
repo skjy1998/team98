@@ -22,21 +22,21 @@ export default function DashboardUpcomingMatchSection({
   const nextMatch = upcomingMatches[0];
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-stone-900">
+        <span className="text-xs font-semibold text-stone-900 sm:text-sm">
           다가오는 경기
         </span>
         <Link
           href="/matches"
-          className="text-sm font-medium text-stone-500 transition hover:text-stone-800"
+          className="text-xs font-medium text-stone-500 transition hover:text-stone-800 sm:text-sm"
         >
           전체 보기
         </Link>
       </div>
 
       {upcomingMatches.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 p-10 text-center text-sm text-stone-500">
+        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/60 px-4 py-6 text-center text-xs text-stone-500 sm:rounded-2xl sm:p-10 sm:text-sm">
           등록된 예정 경기가 없어요.
         </div>
       ) : (

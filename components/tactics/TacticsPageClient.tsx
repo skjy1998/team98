@@ -40,7 +40,7 @@ export default function TacticsPageClient() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="전술 보드"
         description={

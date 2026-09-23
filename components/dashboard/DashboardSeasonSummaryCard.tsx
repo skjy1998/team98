@@ -26,7 +26,7 @@ export default function DashboardSeasonSummaryCard({
   recentResults,
 }: Readonly<DashboardSeasonSummaryCardProps>) {
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+    <div className="rounded-xl border border-stone-200 bg-white p-3.5 shadow-sm sm:p-5">
       <div className="grid grid-cols-3 divide-x divide-stone-100">
         <div className="text-center">
           <p className="text-3xl font-bold leading-none text-emerald-400 sm:text-4xl">

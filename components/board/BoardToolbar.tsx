@@ -44,9 +44,9 @@ export default function BoardToolbar({
             type="button"
             onClick={() => onChangeFilter(item.value)}
             className={[
-              "h-11 rounded-xl px-4 text-sm font-semibold transition",
+              "h-10 flex-1 rounded-xl px-2 text-xs font-semibold transition sm:h-11 sm:flex-none sm:px-4 sm:text-sm",
               filter === item.value
-                ? "bg-stone-900 text-white"
+                ? "bg-emerald-600 text-white shadow-sm"
                 : "border border-stone-200 bg-white text-stone-500 hover:bg-stone-50",
             ].join(" ")}
           >
@@ -57,7 +57,7 @@ export default function BoardToolbar({
         <button
           type="button"
           onClick={onOpenCreate}
-          className="inline-flex h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          className="inline-flex h-10 shrink-0 whitespace-nowrap items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white transition hover:bg-emerald-700 sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
         >
           <PenLine className="h-4 w-4" />
           글쓰기
