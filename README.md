@@ -2,6 +2,8 @@
 
 축구 및 풋살 아마추어 팀을 위한 올인원 운영 관리 서비스입니다. 경기 일정부터 참석 투표, 출석, 전술, 경기 기록, 선수 통계, 회비까지 흩어지기 쉬운 팀 운영 업무를 하나의 흐름으로 연결합니다.
 
+**Live Demo:** [team98-urfk.vercel.app](https://team98-urfk.vercel.app/)
+
 ## Problem
 
 아마추어 팀 운영은 보통 메신저, 스프레드시트, 별도 기록 앱을 오가며 진행됩니다. 이 과정에서 참석 인원, 전술, 경기 기록, 회비 내역이 분리되고 운영자의 반복 업무가 늘어납니다.
@@ -110,7 +112,6 @@ npm run build
 
 Before sharing the project, add the following to this README.
 
-- Live deployment URL
 - Test account or a short demo video
 - Screenshots of landing, dashboard, match detail, tactics board, and finance screens
 - Database schema or migration guide for reproducing the Supabase setup
