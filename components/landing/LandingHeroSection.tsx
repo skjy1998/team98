@@ -30,12 +30,12 @@ export default function LandingHeroSection() {
               무료로 시작하기
             </Link>
 
-            <a
-              href="#features"
-              className="flex items-center justify-center rounded-xl border border-stone-300 bg-white px-3 py-3 text-xs font-bold text-stone-700 transition hover:border-emerald-300 sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
+            <Link
+              href="/demo/dashboard"
+              className="flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs font-bold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
             >
-              주요 기능 보기
-            </a>
+              데모 둘러보기
+            </Link>
           </div>
         </div>
         <LandingProductPreview />

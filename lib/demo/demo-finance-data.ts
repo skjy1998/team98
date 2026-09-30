@@ -1,0 +1,127 @@
+import { demoFeeTypes } from "@/lib/demo/demo-players-data";
+import type { FineCharge, FineRule, FinanceEntry } from "@/types/finance";
+
+export { demoFeeTypes };
+
+export const demoFinanceEntries: FinanceEntry[] = [
+  {
+    id: "demo-entry-fee-1",
+    type: "income",
+    amount: 30000,
+    description: "김민수 9월 일반 회비",
+    date: "2026-09-01",
+    time: "10:00",
+    category: "fee",
+    playerId: "demo-player-1",
+    feeTypeId: "demo-fee-regular",
+    feeTypeName: "일반 회비",
+  },
+  {
+    id: "demo-entry-fee-2",
+    type: "income",
+    amount: 30000,
+    description: "장동혁 9월 일반 회비",
+    date: "2026-09-03",
+    time: "14:20",
+    category: "fee",
+    playerId: "demo-player-2",
+    feeTypeId: "demo-fee-regular",
+    feeTypeName: "일반 회비",
+  },
+  {
+    id: "demo-entry-fee-3",
+    type: "income",
+    amount: 20000,
+    description: "이재원 9월 학생 회비",
+    date: "2026-09-05",
+    time: "18:10",
+    category: "fee",
+    playerId: "demo-player-3",
+    feeTypeId: "demo-fee-student",
+    feeTypeName: "학생 회비",
+  },
+  {
+    id: "demo-entry-fee-4",
+    type: "income",
+    amount: 30000,
+    description: "한승우 9월 일반 회비",
+    date: "2026-09-08",
+    time: "20:00",
+    category: "fee",
+    playerId: "demo-player-4",
+    feeTypeId: "demo-fee-regular",
+    feeTypeName: "일반 회비",
+  },
+  {
+    id: "demo-entry-sponsor",
+    type: "income",
+    amount: 50000,
+    description: "친선 경기 지원금",
+    date: "2026-09-12",
+    time: "12:00",
+    category: "etc",
+  },
+  {
+    id: "demo-entry-expense",
+    type: "expense",
+    amount: 70000,
+    description: "9월 구장 대관비",
+    date: "2026-09-21",
+    time: "13:00",
+    category: "etc",
+  },
+  {
+    id: "demo-entry-fine-paid",
+    type: "income",
+    amount: 5000,
+    description: "윤석현 불참 벌금",
+    date: "2026-09-22",
+    time: "10:30",
+    category: "fine",
+    playerId: "demo-player-6",
+  },
+];
+
+export const demoFineRules: FineRule[] = [
+  {
+    id: "demo-fine-late",
+    name: "지각비",
+    trigger: "late",
+    amount: 3000,
+  },
+  {
+    id: "demo-fine-noshow",
+    name: "무단 불참",
+    trigger: "noshow",
+    amount: 5000,
+  },
+];
+
+export const demoFineCharges: FineCharge[] = [
+  {
+    id: "demo-fine-charge-unpaid",
+    matchId: "demo-match-recent",
+    playerId: "demo-player-5",
+    ruleId: "demo-fine-late",
+    ruleName: "지각비",
+    trigger: "late",
+    amount: 3000,
+    description: "지각비",
+    status: "unpaid",
+    chargedAt: "2026-09-21T16:20:00",
+  },
+  {
+    id: "demo-fine-charge-paid",
+    matchId: "demo-match-recent",
+    playerId: "demo-player-6",
+    ruleId: "demo-fine-noshow",
+    ruleName: "무단 불참",
+    trigger: "noshow",
+    amount: 5000,
+    description: "불참 벌금",
+    status: "paid",
+    paidEntryId: "demo-entry-fine-paid",
+    chargedAt: "2026-09-21T16:20:00",
+    paidAt: "2026-09-22T10:30:00",
+  },
+];

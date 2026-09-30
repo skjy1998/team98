@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 import DashboardTopRecordCard from "./DashboardTopRecordCard";
 import type { DashboardTopRecordPlayer } from "@/types/dashboard";
 

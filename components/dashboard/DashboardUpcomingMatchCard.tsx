@@ -13,7 +13,7 @@ import type { MatchItem } from "@/types/match";
 import type { MatchVote, VoteStatus } from "@/types/match-vote";
 import type { PlayerType } from "@/types/player";
 import { Clock3, MapPin } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 import DashboardMyVoteButtons from "./DashboardMyVoteButtons";
 import DashboardVoteSummary from "./DashboardVoteSummary";
 import { getOpponentName } from "@/lib/matches/match-display";

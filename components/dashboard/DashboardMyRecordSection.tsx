@@ -1,5 +1,5 @@
 import type { DashboardTopRecordPlayer } from "@/types/dashboard";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface DashboardMyRecordPlayer extends DashboardTopRecordPlayer {
   number?: number;

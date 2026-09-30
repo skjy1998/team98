@@ -2,7 +2,7 @@ import type { MatchItem } from "@/types/match";
 import type { MatchVotesByMatchId, VoteStatus } from "@/types/match-vote";
 import type { PlayerType } from "@/types/player";
 import DashboardUpcomingMatchCard from "./DashboardUpcomingMatchCard";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface DashboardUpcomingMatchSectionProps {
   upcomingMatches: MatchItem[];

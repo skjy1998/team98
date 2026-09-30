@@ -52,7 +52,7 @@ export default function SidebarFooter({
   const userInitial = user?.name.slice(0, 1) || "?";
 
   return (
-    <div className="border-t border-stone-200 bg-stone-50/60 p-3">
+    <div className="rounded-b-2xl border-t border-stone-200 bg-stone-50/60 p-3">
       <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">

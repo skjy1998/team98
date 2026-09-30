@@ -1,6 +1,6 @@
 import { formatMatchMonthDay, formatMatchTime } from "@/lib/matches/match-time";
 import type { MatchCalendarDay, MatchItem } from "@/types/match";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface MatchMobileCalendarDetailProps {
   calendarDay?: MatchCalendarDay;

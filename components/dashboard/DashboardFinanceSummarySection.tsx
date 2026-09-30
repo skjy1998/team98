@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface DashboardFinanceSummarySectionProps {
   totalBalance: number;

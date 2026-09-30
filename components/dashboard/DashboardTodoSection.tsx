@@ -1,5 +1,5 @@
 import type { DashboardTodoItem } from "@/types/dashboard";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 import DashboardTodoList from "./DashboardTodoList";
 
 interface DashboardTodoSectionProps {

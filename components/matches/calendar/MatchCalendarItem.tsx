@@ -1,6 +1,6 @@
 import { getMatchResult } from "@/lib/matches/match-display";
 import type { MatchItem } from "@/types/match";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface MatchCalendarItemProps {
   match: MatchItem;

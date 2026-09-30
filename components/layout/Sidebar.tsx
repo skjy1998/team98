@@ -47,7 +47,7 @@ export default function Sidebar() {
 
       <aside className="hidden self-start lg:block">
         <div className="sticky top-4 z-40 flex flex-col rounded-2xl border border-stone-200 bg-white shadow-sm">
-          <div className="border-b border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-amber-50 px-5 py-5">
+          <div className="rounded-t-2xl border-b border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-amber-50 px-5 py-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-600">
                 SquadFlow

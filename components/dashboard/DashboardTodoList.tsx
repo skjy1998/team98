@@ -6,7 +6,7 @@ import {
   ClipboardCheck,
   WalletCards,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 import type { ComponentType } from "react";
 
 interface DashboardTodoListProps {

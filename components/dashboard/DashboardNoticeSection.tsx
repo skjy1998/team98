@@ -1,7 +1,7 @@
 import { formatPostDate } from "@/lib/board/board-ui";
 import type { TeamPost } from "@/types/board";
 import { ChevronRight, Megaphone, Pin } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface DashboardNoticeSectionProps {
   notices: TeamPost[];

@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/demo/DemoLink";
 
 interface DashboardQuickLinkButtonProps {
   href: string;
